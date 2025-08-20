@@ -1,8 +1,8 @@
 import os
 from setuptools import setup, find_packages
 
-__package_name__ = "BNToolbox"
-__description__ = "This package provides methods to analyze and randomly generate Boolean functions and networks, with a focus on research applications in systems biology."
+__package_name__ = "boolforge"
+__description__ = "This package provides methods to generate and analyze random Boolean functions and networks, with a focus on the concept of canalization."
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'version.txt'), 'r') as fp:
     __version__ = fp.readline()
 
@@ -16,7 +16,7 @@ setup(
       author_email = "ckadelka@iastate.edu",
       url = "https://github.com/ckadelka/BooleanNetworkToolbox",
       
-      license = "...",
+      license = "MIT",
       
       packages = find_packages(),
       

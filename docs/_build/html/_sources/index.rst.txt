@@ -1,8 +1,3 @@
-.. BooleanNetworkToolbox documentation master file, created by
-   sphinx-quickstart on Mon Aug 18 16:23:31 2025.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Home
 ===================================
 
@@ -13,7 +8,7 @@ documentation for details.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Documentation:
    
    bf
    bn
