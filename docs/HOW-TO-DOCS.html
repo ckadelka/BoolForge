@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BoolForge How To Docs</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h3 id="setting-up-sphinx">Setting up Sphinx</h3>
+<p>The docs for <strong>BoolForge</strong> are made using the Python package <a href="https://www.sphinx-doc.org/en/master/index.html">Sphinx</a>. Make sure you have Sphinx installed, which can be done via <code>pip install -U sphinx</code>, or some other manner as described in the <a href="https://www.sphinx-doc.org/en/master/usage/installation.html">Sphinx installation guide</a>.</p>
+<p>Additionally, <strong>BoolForge</strong> uses the third-party theme known as Read the Docs (rtd). Third-party themes require an additional installation which can be done via <code>pip install sphinx-rtd-theme</code>.</p>
+<h3 id="building-the-html">Building the HTML</h3>
+<p>Once Sphinx is set up, the docs can be built by running the build script <strong>make.bat</strong> and passing the <strong>html</strong> argument. This can be done by navigating to the <em>main folder</em> and running <code>.\docs\make.bat html</code>. On MacOS, you may not need to include the file extension. <em><strong>It may display a few errors.</strong></em> If the file returns <em>build succeeded</em>, then everything is great.</p>
+<h3 id="hosting-the-documentation">Hosting the Documentation</h3>
+<p>The documentation is hosted on the /pages/ branch of the repository, but we are currently working in the /main/ branch. As such, each build will need to be manually ported over to the other branch, specifically the contents of the <strong>/docs/_build/html/</strong> folder.</p>
+</div>
+</body>
+
+</html>
