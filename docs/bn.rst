@@ -1,7 +1,10 @@
 Boolean Network
----------------------------------
+---------------
 
-.. automodule:: BNToolbox.boolean_network
+.. toctree::
+   :maxdepth: 2
+
+.. automodule:: boolforge.boolean_network
    :members:
    :show-inheritance:
    :undoc-members:
