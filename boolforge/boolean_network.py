@@ -14,8 +14,8 @@ import random
 import math
 from collections import defaultdict
 
-import BNToolbox.utils as utils
-from BNToolbox.boolean_function import BooleanFunction as BF
+import boolforge.utils as utils
+from boolforge.boolean_function import BooleanFunction as BF
 
 try:
     import cana.boolean_network
@@ -80,7 +80,7 @@ class BooleanNetwork:
         - F (list or numpy array): A list of N Boolean functions, or of N lists of length 2^n representing the outputs of a Boolean function with n inputs.
         - I (list or numpy array): A list of N lists representing the regulators (or inputs) for each Boolean function.
         - variables (list or numpy array, optional): A list of N strings representing the names of each variable.
-    
+
     Members:
         - F (list or numpy array): As passed by the constructor.
         - I (list or numpy array): As passed by the constructor.
@@ -125,7 +125,7 @@ class BooleanNetwork:
     def to_pyboolnet_bnet(self):
         """
         Compatability method: Transforms an instance of the class BooleanNetwork, used in this toolbox, into a bnet object from the pyboolnet module.
-    
+
         Returns:
             - A string describing a bnet from the pyboolnet module.
         """
@@ -345,7 +345,7 @@ class BooleanNetwork:
         This function is similar to steady_states_asynchronous_given_one_IC but allows the update order
         to be influenced by provided stochastic weights (one per node). A weight vector (of length N) may be provided,
         and if given, it is normalized and used to bias the random permutation of node update order.
-        
+
         Parameters:
             - nsim (int, optional): Number of simulation runs (default is 500).
             - stochastic_weights (list, optional): List of stochastic weights (one per node) used to bias update order. If empty, uniform random order is used.
@@ -709,7 +709,7 @@ class BooleanNetwork:
 
         Returns:
             - float: The average Hamming distance (Derrida value) over nsim simulations.
-        
+
         References:
             Derrida, B., & Pomeau, Y. (1986). Random networks of automata: a simple annealed approximation. Europhysics letters, 1(2), 45.
         """
@@ -879,7 +879,7 @@ class BooleanNetwork:
                 - BasinFragilityApproximation (list): The approximate fragility of each basin.
                 - AttractorCoherence (list): The exact coherence of each attractor (only computed and returned if RETURN_ATTRACTOR_COHERENCE == True).
                 - AttractorFragility (list): The exact fragility of each attractor (only computed and returned if RETURN_ATTRACTOR_COHERENCE == True).
-        
+
         References:
             [1] Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum, J. C. (2023).
                 Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.
@@ -1277,7 +1277,7 @@ class BooleanNetwork:
         Identify feed-forward loops (FFLs) in a Boolean network and optionally determine their types.
 
         A feed-forward loop (FFL) is a three-node motif where node i regulates node k both directly and indirectly via node j.
-        
+
         Returns:
             - tuple: A tuple (ffls, types), where ffls is a list of FFLs and types is a list of corresponding monotonicity types.
         """

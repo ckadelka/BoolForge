@@ -10,7 +10,7 @@ Last Edited on Thu Aug 14 2025
 import numpy as np
 import itertools
 
-import BNToolbox.utils as utils
+import boolforge.utils as utils
 
 try:
     import cana.boolean_node
@@ -55,10 +55,10 @@ def get_layer_structure_from_can_outputs(can_outputs):
 class BooleanFunction:
     """
     A class representing a Boolean function.
-    
+
     Parameters:
         - f (list or numpy array): A list of length 2^n representing the outputs of a Boolean function with n inputs.
-    
+
     Members:
         - f (list or numpy array): As passed by the constructor.
         - n (int): The number of inputs for the Boolean function.
@@ -89,7 +89,7 @@ class BooleanFunction:
     def is_constant(self):
         """
         Check whether a Boolean function is constant.
-        
+
         Returns:
             - bool: True if f is constant (all outputs are 0 or all are 1), False otherwise.
         """
@@ -100,7 +100,7 @@ class BooleanFunction:
         Determine if a Boolean function contains non-essential variables.
 
         A variable is non-essential if the function's output does not depend on it.
-        
+
         Returns:
             - bool: True if f contains at least one non-essential variable, False if all variables are essential.
         """
@@ -124,7 +124,7 @@ class BooleanFunction:
         Determine the indices of essential variables in a Boolean function.
 
         A variable is essential if changing its value (while holding the others constant) can change the output of f.
-        
+
         Returns:
             - list: List of indices corresponding to the essential variables.
         """
@@ -149,7 +149,7 @@ class BooleanFunction:
     def get_number_of_essential_variables(self):
         """
         Count the number of essential variables in a Boolean function.
-        
+
         Returns:
             - int: The number of essential variables.
         """
@@ -228,7 +228,7 @@ class BooleanFunction:
 
         The absolute bias is defined as \|(sum(f) / 2^(n-1)) - 1|\, which quantifies how far the function's output distribution
         deviates from being balanced.
-        
+
         Returns:
             - float: The absolute bias of the Boolean function.
         """
@@ -283,7 +283,7 @@ class BooleanFunction:
 
         A Boolean function f(x_1, ..., x_n) is canalizing if there exists at least one variable x_i and a value a ∈ {0, 1} 
         such that f(x_1, ..., x_i = a, ..., x_n) is constant.
-        
+
         Returns:
             - bool: True if f is canalizing, False otherwise.
         """
@@ -311,7 +311,7 @@ class BooleanFunction:
 
         Returns:
             - bool: True if f is k-canalizing, False otherwise.
-        
+
         References:
             He, Q., & Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth.
                 Physica D: Nonlinear Phenomena, 314, 1-8.
@@ -406,7 +406,7 @@ class BooleanFunction:
                 - CanalizingOutputs (np.array): Array of canalized output values.
                 - CorePolynomial (np.array): The core polynomial (truth table) after removing canalizing variables.
                 - OrderOfCanalizingVariables (np.array): Array of indices representing the order of canalizing variables.
-        
+
         References:
             He, Q., & Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth.
                 Physica D: Nonlinear Phenomena, 314, 1-8.
@@ -432,7 +432,7 @@ class BooleanFunction:
 
         Returns:
             - float: The proportion of k-set canalizing input sets.
-        
+
         References:
             Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions.
             Advances in Applied Mathematics, 145, 102475.
@@ -470,7 +470,7 @@ class BooleanFunction:
         Parameters:
             - k (int): The size of the variable set (with 0 ≤ k ≤ n).
             - left_side_of_truth_table (optional, array-like): Precomputed left-hand side of the truth table (2^n x n). If not provided or if its shape does not match, it will be computed.
-                
+
         Returns:
             - bool: True if f is k-set canalizing, False otherwise.
 
@@ -493,12 +493,12 @@ class BooleanFunction:
 
         Parameters:
             - left_side_of_truth_table (optional, array-like): Precomputed left-hand side of the truth table (2^n x n). If not provided or if its shape does not match, it will be computed.
-                
+
         Returns:
             - tuple:
                 - float: The canalizing strength of f.
                 - list: A list of the k-set canalizing proportions for k = 1, 2, ..., n-1.
-        
+
         References:
             Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions.
             Advances in Applied Mathematics, 145, 102475.
@@ -515,14 +515,17 @@ class BooleanFunction:
     
     def get_input_redundancy(self):
         """
+        .. attention::
+            This method requires an installation of CANA. See :any:`Extended Functionality <installation>` for more information.
+
         Compute the input redundancy of a Boolean function.
 
         The input redundancy quantifies how many inputs are not required to determine the function’s output.
         Constant functions have an input redundancy of 1 (none of the inputs are needed), whereas parity functions have an input redundancy of 0 (all inputs are necessary).
-        
+
         Returns:
             - float: Normalized input redundancy in the interval [0, 1].
-        
+
         References:
             [1] Marques-Pita, M., & Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.
             [2] Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.
@@ -534,6 +537,9 @@ class BooleanFunction:
     
     def get_edge_effectiveness(self):
         """
+        .. attention::
+            This method requires an installation of CANA. See :any:`Extended Functionality <installation>` for more information.
+
         Compute the edge effectiveness for each regulator of a Boolean function.
 
         Edge effectiveness measures how much flipping a given input (regulator) influences the output.
@@ -553,6 +559,9 @@ class BooleanFunction:
 
     def get_effective_degree(self):
         """
+        .. attention::
+            This method requires an installation of CANA. See :any:`Extended Functionality <installation>` for more information.
+
         Compute the effective degree, i.e., the sum of the edge effectivenesses of each regulator, of a Boolean function.
 
         Edge effectiveness measures how much flipping a given input (regulator) influences the output.

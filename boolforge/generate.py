@@ -14,9 +14,9 @@ import itertools
 import networkx as nx
 import random
 
-import BNToolbox.utils as utils
-from BNToolbox.boolean_function import BooleanFunction as BF
-from BNToolbox.boolean_network import BooleanNetwork as BN
+import boolforge.utils as utils
+from boolforge.boolean_function import BooleanFunction as BF
+from boolforge.boolean_network import BooleanNetwork as BN
 
 def random_function(n, probability_one=0.5):
     """
