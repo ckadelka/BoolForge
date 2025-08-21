@@ -1,7 +1,10 @@
 Boolean Function
-----------------------------------
+----------------
 
-.. automodule:: BNToolbox.boolean_function
+.. toctree::
+   :maxdepth: 2
+
+.. automodule:: boolforge.boolean_function
    :members:
    :show-inheritance:
    :undoc-members:

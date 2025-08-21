@@ -41,19 +41,22 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="bf.html">Boolean Function</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bn.html">Boolean Network</a></li>
-<li class="toctree-l1"><a class="reference internal" href="generate.html">Generate</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#BNToolbox.utils.bin2dec"><code class="docutils literal notranslate"><span class="pre">bin2dec()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#BNToolbox.utils.bool_to_poly"><code class="docutils literal notranslate"><span class="pre">bool_to_poly()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#BNToolbox.utils.check_if_empty"><code class="docutils literal notranslate"><span class="pre">check_if_empty()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#BNToolbox.utils.dec2bin"><code class="docutils literal notranslate"><span class="pre">dec2bin()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#BNToolbox.utils.f_from_expression"><code class="docutils literal notranslate"><span class="pre">f_from_expression()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#BNToolbox.utils.flatten"><code class="docutils literal notranslate"><span class="pre">flatten()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#BNToolbox.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight"><code class="docutils literal notranslate"><span class="pre">get_layer_structure_of_an_NCF_given_its_Hamming_weight()</span></code></a></li>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html">Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bf.html">Boolean Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bn.html">Boolean Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html">Generate</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.bin2dec"><code class="docutils literal notranslate"><span class="pre">bin2dec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.bool_to_poly"><code class="docutils literal notranslate"><span class="pre">bool_to_poly()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.check_if_empty"><code class="docutils literal notranslate"><span class="pre">check_if_empty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.dec2bin"><code class="docutils literal notranslate"><span class="pre">dec2bin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.f_from_expression"><code class="docutils literal notranslate"><span class="pre">f_from_expression()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.flatten"><code class="docutils literal notranslate"><span class="pre">flatten()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight"><code class="docutils literal notranslate"><span class="pre">get_layer_structure_of_an_NCF_given_its_Hamming_weight()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -72,6 +75,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="documentation.html">Documentation</a></li>
       <li class="breadcrumb-item active">Utils</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/utils.rst.txt" rel="nofollow"> View page source</a>
@@ -82,13 +86,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-BNToolbox.utils">
-<span id="utils"></span><h1>Utils<a class="headerlink" href="#module-BNToolbox.utils" title="Link to this heading"></a></h1>
-<p>Created on Tue Jul 29 09:25:40 2025</p>
+  <section id="utils">
+<h1>Utils<a class="headerlink" href="#utils" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p id="module-boolforge.utils">Created on Tue Jul 29 09:25:40 2025</p>
 <p>&#64;author: Claus Kadelka</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="BNToolbox.utils.bin2dec">
-<span class="sig-prename descclassname"><span class="pre">BNToolbox.utils.</span></span><span class="sig-name descname"><span class="pre">bin2dec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_vector</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/BNToolbox/utils.html#bin2dec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#BNToolbox.utils.bin2dec" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="boolforge.utils.bin2dec">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">bin2dec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_vector</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#bin2dec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.bin2dec" title="Link to this definition"></a></dt>
 <dd><p>Convert a binary vector to an integer.</p>
 <dl class="simple">
 <dt>Parameters:</dt><dd><ul class="simple">
@@ -103,8 +109,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="BNToolbox.utils.bool_to_poly">
-<span class="sig-prename descclassname"><span class="pre">BNToolbox.utils.</span></span><span class="sig-name descname"><span class="pre">bool_to_poly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_side_of_truth_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/BNToolbox/utils.html#bool_to_poly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#BNToolbox.utils.bool_to_poly" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="boolforge.utils.bool_to_poly">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">bool_to_poly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_side_of_truth_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#bool_to_poly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.bool_to_poly" title="Link to this definition"></a></dt>
 <dd><p>Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.</p>
 <dl class="simple">
 <dt>Parameters:</dt><dd><ul class="simple">
@@ -122,8 +128,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="BNToolbox.utils.check_if_empty">
-<span class="sig-prename descclassname"><span class="pre">BNToolbox.utils.</span></span><span class="sig-name descname"><span class="pre">check_if_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/BNToolbox/utils.html#check_if_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#BNToolbox.utils.check_if_empty" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="boolforge.utils.check_if_empty">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">check_if_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#check_if_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.check_if_empty" title="Link to this definition"></a></dt>
 <dd><p>Check if the provided list or NumPy array is empty.</p>
 <dl class="simple">
 <dt>Parameters:</dt><dd><ul class="simple">
@@ -138,8 +144,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="BNToolbox.utils.dec2bin">
-<span class="sig-prename descclassname"><span class="pre">BNToolbox.utils.</span></span><span class="sig-name descname"><span class="pre">dec2bin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/BNToolbox/utils.html#dec2bin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#BNToolbox.utils.dec2bin" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="boolforge.utils.dec2bin">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">dec2bin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#dec2bin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.dec2bin" title="Link to this definition"></a></dt>
 <dd><p>Convert an integer to a binary vector.</p>
 <dl class="simple">
 <dt>Parameters:</dt><dd><ul class="simple">
@@ -155,8 +161,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="BNToolbox.utils.f_from_expression">
-<span class="sig-prename descclassname"><span class="pre">BNToolbox.utils.</span></span><span class="sig-name descname"><span class="pre">f_from_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/BNToolbox/utils.html#f_from_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#BNToolbox.utils.f_from_expression" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="boolforge.utils.f_from_expression">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">f_from_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#f_from_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.f_from_expression" title="Link to this definition"></a></dt>
 <dd><p>Extract a Boolean function from a string expression.</p>
 <p>The function converts an input expression into its truth table representation.
 The expression can include Boolean operators and comparisons, and the order of variables
@@ -204,13 +210,13 @@ where n is the number of inputs.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="BNToolbox.utils.flatten">
-<span class="sig-prename descclassname"><span class="pre">BNToolbox.utils.</span></span><span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/BNToolbox/utils.html#flatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#BNToolbox.utils.flatten" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="boolforge.utils.flatten">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#flatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.flatten" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="BNToolbox.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight">
-<span class="sig-prename descclassname"><span class="pre">BNToolbox.utils.</span></span><span class="sig-name descname"><span class="pre">get_layer_structure_of_an_NCF_given_its_Hamming_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/BNToolbox/utils.html#get_layer_structure_of_an_NCF_given_its_Hamming_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#BNToolbox.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">get_layer_structure_of_an_NCF_given_its_Hamming_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#get_layer_structure_of_an_NCF_given_its_Hamming_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight" title="Link to this definition"></a></dt>
 <dd><p>Compute the canalizing layer structure of a nested canalizing function (NCF) given its Hamming weight.</p>
 <p>There exists a bijection between the Hamming weight (with w equivalent to 2^n - w) and the canalizing layer structure of an NCF.
 The layer structure is represented as [k_1, …, k_r], where each k_i ≥ 1 and, if n &gt; 1, for the last layer k_r ≥ 2.</p>
