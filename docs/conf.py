@@ -14,8 +14,8 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'BoolForge'
 copyright = '2025, Claus Kadelka, Benjamin Coberly'
 author = 'Claus Kadelka, Benjamin Coberly'
-with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'version.txt'), 'r') as fp:
-    release = fp.readline()
+
+release = open("../boolforge/_version.py", "rt").read().split('\'')[1]
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
