@@ -23,6 +23,8 @@ except ModuleNotFoundError:
     from boolean_function import BooleanFunction as BF
     from boolean_network import BooleanNetwork as BN
 
+
+
 def random_function(n, probability_one=0.5):
     """
     Generate a random Boolean function in n variables.
@@ -390,7 +392,7 @@ def random_edge_list(N, indegrees, NO_SELF_REGULATION, AT_LEAST_ONE_REGULATOR_PE
 
 def random_network(N, n, k=0, STRONGLY_CONNECTED=False, indegree_distribution='constant',
               left_sides_of_truth_tables=None, layer_structure=None, EXACT_DEPTH=False, NO_SELF_REGULATION=True, LINEAR=False,
-              edges_wiring_diagram=None, bias=0.5, n_attempts_to_generate_strongly_connected_network = 1000):
+              edges_wiring_diagram=None, bias=0.5, BIAS_TYPE = 'absolute',n_attempts_to_generate_strongly_connected_network = 1000):
     """
     Generate a random Boolean network (BN).
 
@@ -492,8 +494,12 @@ def random_network(N, n, k=0, STRONGLY_CONNECTED=False, indegree_distribution='c
             else:
                 F.append(random_k_canalizing_function_with_specific_layer_structure(indegrees[i], layer_structure[i], EXACT_DEPTH=EXACT_DEPTH, left_side_of_truth_table=left_sides_of_truth_tables[indegrees[i]-1]))
         else:
+            if BIAS_TYPE=='absolute':
+                bias_of_function = np.choice([bias,1-bias])
+            else:
+                bias_of_function = bias
             if EXACT_DEPTH is True:
-                F.append(random_non_canalizing_non_degenerated_function(indegrees[i], bias))
+                F.append(random_non_canalizing_non_degenerated_function(indegrees[i], bias_of_function))
             else:
                 F.append(random_non_degenerated_function(indegrees[i], bias))
 

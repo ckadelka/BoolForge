@@ -4,7 +4,7 @@
 Created on Wed Aug 13 11:08:44 2025
 Last Edited on Thu Aug 14 2025
 
-@author: Benjamin Coberly
+@author: Benjamin Coberly, Claus Kadelka
 """
 
 import numpy as np
@@ -20,66 +20,13 @@ try:
 except ModuleNotFoundError:
     import utils as utils
     from boolean_function import BooleanFunction as BF
+    
 try:
     import cana.boolean_network
     __LOADED_CANA__=True
 except ModuleNotFoundError:
     print('The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.')
     __LOADED_CANA__=False
-
-def cana_BooleanNetwork_to_BooleanNetwork(cana_BooleanNetwork):
-    """
-    Compatability method: Transforms an instance of the class cana.BooleanNetwork from the cana module to an instance of the class BooleanNetwork, used in this toolbox.
-
-    Returns:
-        - An instance of BooleanNetwork
-    """
-    F = []
-    I = []
-    variables = []
-    for entry in cana_BooleanNetwork.logic.values():
-        try:
-            variables.append(entry['name'])
-        except KeyError:
-            pass
-        try:
-            F.append(entry['out'])
-            I.append(entry['in'])
-        except KeyError:
-            pass            
-    return BooleanNetwork(F = F, I = I, variables=variables)
-
-
-def pyboolnet_bnet_to_BooleanNetwork(bnet):
-    """
-    Compatability method: Transforms a bnet object from the pyboolnet module to an instance of the class BooleanNetwork, used in this toolbox.
-
-    Returns:
-        - An instance of BooleanNetwork
-    """
-    variables = []
-    functions = []
-    for line in bnet.split('\n'):
-        try:
-            functions.append(line.split(',')[1].strip())
-            variables.append(line.split(',')[0])
-        except IndexError:
-            continue
-    dict_variables = dict(zip(variables,range(len(variables))))
-    F = []
-    I = []
-    for function in functions:
-        f,var = utils.f_from_expression(function)
-        F.append(f)
-        I.append([dict_variables[v] for v in var])        
-    return BooleanNetwork(F=F,I=I,variables=variables)
-
-
-# BooleanNetwork.from_cana()
-
-# BooleanNetwork.from_bnet()
-
-# BooleanNetwork.from_txtfile()
 
 
 class BooleanNetwork(object):
@@ -89,7 +36,7 @@ class BooleanNetwork(object):
     Parameters:
         - F (list or numpy array): A list of N Boolean functions, or of N lists of length 2^n representing the outputs of a Boolean function with n inputs.
         - I (list or numpy array): A list of N lists representing the regulators (or inputs) for each Boolean function.
-        - variables (list or numpy array, optional): A list of N strings representing the names of each variable.
+        - variables (list or numpy array, optional): A list of N strings representing the names of each variable, default = None.
 
     Members:
         - F (list or numpy array): As passed by the constructor.
@@ -123,24 +70,55 @@ class BooleanNetwork(object):
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, numpy array, or BooleanFunction")
                 
-        
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.degrees = list(map(len, self.I))
 
-    
-    def __len__(self):
-        return self.N
-    
-    def __str__(self):
-        return f"Boolean network of {self.N} nodes with degrees {self.degrees}"
-    
-    def __getitem__(self, index):
-        #return (self.F[index],self.I[index],self.variables[index])
-        return self.F[index]
-    
+    @classmethod
+    def from_cana(cls, cana_BooleanNetwork):
+        F = []
+        I = []
+        variables = []
+        for entry in cana_BooleanNetwork.logic.values():
+            try:
+                variables.append(entry['name'])
+            except KeyError:
+                pass
+            try:
+                F.append(entry['out'])
+                I.append(entry['in'])
+            except KeyError:
+                pass            
+        return cls(F = F, I = I, variables=variables)
+
+    # @classmethod
+    # def from_pyboolnet(cls, bnet):
+    #     variables = []
+    #     functions = []
+    #     for line in bnet.split('\n'):
+    #         try:
+    #             functions.append(line.split(',')[1].strip())
+    #             variables.append(line.split(',')[0].strip())
+    #         except IndexError:
+    #             try:
+    #                 functions.append(line.split('=')[1].strip())
+    #                 variables.append(line.split('=')[0].strip())
+    #             except IndexError:
+    #                 continue
+    #     dict_variables = dict(zip(variables,range(len(variables))))
+    #     N = len(variables)
+    #     F = []
+    #     I = []
+    #     dict_constants = {}
+    #     for function in functions:
+    #         f,var = utils.f_from_expression(function)
+    #         F.append(f)
+    #         I.append([dict_variables[v] if v in dict_variables else  for v in var])  
+    #     return cls(F = F, I = I, variables=variables)
+
+
     def to_cana(self):
         """
-        Compatability method: Transforms an instance of the class BooleanNetwork, used in this toolbox, into an instance of the class cana.BooleanNetwork from the cana module.
+        Compatability method: Returns an instance of the class cana.BooleanNetwork from the cana module.
 
         Returns:
             - An instance of cana.boolean_network.BooleanNetwork
@@ -149,10 +127,11 @@ class BooleanNetwork(object):
         for bf,regulators,var in zip(self.F,self.I,self.variables):
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
         return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts)))
-    
+
+
     def to_pyboolnet(self):
         """
-        Compatability method: Transforms an instance of the class BooleanNetwork, used in this toolbox, into a bnet object from the pyboolnet module.
+        Compatability method: Returns a bnet object from the pyboolnet module.
 
         Returns:
             - A string describing a bnet from the pyboolnet module.
@@ -163,6 +142,20 @@ class BooleanNetwork(object):
             lines.append(f'{variable},    {polynomial}')
         return '\n'.join(lines)
         
+    
+    def __len__(self):
+        return self.N
+    
+    
+    def __str__(self):
+        return f"Boolean network of {self.N} nodes with degrees {self.degrees}"
+    
+    
+    def __getitem__(self, index):
+        #return (self.F[index],self.I[index],self.variables[index])
+        return self.F[index]
+    
+    
     def get_left_side_of_truth_table(self):
         if self.N in BooleanNetwork.left_side_of_truth_tables:
             left_side_of_truth_table = BooleanNetwork.left_side_of_truth_tables[self.N]

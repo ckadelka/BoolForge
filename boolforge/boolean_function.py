@@ -4,7 +4,7 @@
 Created on Tue Aug 12 11:03:49 2025
 Last Edited on Thu Aug 14 2025
 
-@author: Benjamin Coberly
+@author: Benjamin Coberly, Claus Kadelka
 """
 
 import numpy as np
@@ -22,22 +22,6 @@ except ModuleNotFoundError:
     print('The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.')
     __LOADED_CANA__=False
     
-try:
-    import pyboolnet# import bnet2primes, primes2bnet
-    __LOADED_PYBOOLNET__=True
-except ModuleNotFoundError:
-    print('The module pyboolnet cannot be found. Ensure it is installed to use all functionality of this toolbox.')
-    __LOADED_PYBOOLNET__=False
-
-def cana_BooleanNode_to_BooleanFunction(BooleanNode):
-    """
-    Compatability method: Transforms an instance of cana.boolean_node.BooleanNode to an instance of the class BooleanFunction, used in this toolbox.
-
-    Returns:
-        - An instance of BooleanFunction
-    """
-    return BooleanFunction(np.array(BooleanNode.outputs,dtype=int))
-
 
 def get_layer_structure_from_can_outputs(can_outputs):
     canalizing_depth = len(can_outputs)
@@ -87,7 +71,12 @@ class BooleanFunction(object):
             self.variables = np.array(['x%i' % i for i in range(self.n)])
             
         self.f = np.array(f, dtype=int)
-        
+
+    @classmethod
+    def from_cana(cls, cana_BooleanNode):         
+        return cls(np.array(cana_BooleanNode.outputs,dtype=int))
+
+
     def __str__(self):
         return f"{self.f}"
         #return f"{self.f.tolist()}"
@@ -106,10 +95,13 @@ class BooleanFunction(object):
 
     def __getitem__(self, index):
         return int(self.f[index])
+
+    def __setitem__(self, index, value):
+        self.f[index] = value
     
-    def to_cana_BooleanNode(self):
+    def to_cana(self):
         """
-        Compatability method: Transforms an instance of this class to an instance of cana.boolean_node.BooleanNode
+        Compatability method: Returns an instance of cana.boolean_node.BooleanNode from the cana module
 
         Returns:
             - An instance of cana.boolean_node.BooleanNode
@@ -240,7 +232,6 @@ class BooleanFunction(object):
         Returns:
             - list: A list of lists where each inner list contains indices of variables that form a symmetry group.
         """
-        left_side_of_truth_table = self.get_left_side_of_truth_table()
         
         symmetry_groups = []
         left_to_check = np.ones(self.n)
@@ -252,7 +243,7 @@ class BooleanFunction(object):
                 left_to_check[i] = 0
             for j in range(i + 1, self.n):
                 diff = sum(2**np.arange(self.n - i - 2, self.n - j - 2, -1))
-                for ii, x in enumerate(left_side_of_truth_table):
+                for ii, x in enumerate(self.get_left_side_of_truth_table()):
                     if x[i] != x[j] and x[i] == 0 and self.f[ii] != self.f[ii + diff]:
                         break
                 else:
@@ -291,8 +282,7 @@ class BooleanFunction(object):
         num_values = 2**self.n
         s = 0
         if EXACT:
-            left_side_of_truth_table = self.get_left_side_of_truth_table()
-            for ii, X in enumerate(left_side_of_truth_table):
+            for ii, X in enumerate(self.get_left_side_of_truth_table()):
                 for i in range(self.n):
                     Y = X.copy()
                     Y[i] = 1 - X[i]
@@ -512,8 +502,7 @@ class BooleanFunction(object):
             Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions.
             Advances in Applied Mathematics, 145, 102475.
         """
-        left_side_of_truth_table = self.get_left_side_of_truth_table()
-        return self.get_proportion_of_collectively_canalizing_input_sets(k,left_side_of_truth_table)>0
+        return self.get_proportion_of_collectively_canalizing_input_sets(k)>0
 
 
     def get_canalizing_strength(self):
@@ -537,9 +526,8 @@ class BooleanFunction(object):
         assert abs(self.n - nfloat) < 1e-10, "f needs to be of length 2^n for some n > 1"
         assert self.n > 1, "Canalizing strength is only defined for Boolean functions with n > 1 inputs"
         res = []
-        left_side_of_truth_table = self.get_left_side_of_truth_table()
         for k in range(1, self.n):
-            res.append(self.get_proportion_of_collectively_canalizing_input_sets(k, left_side_of_truth_table=left_side_of_truth_table))
+            res.append(self.get_proportion_of_collectively_canalizing_input_sets(k))
         return np.mean(np.multiply(res, 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1))), res
     
     def get_input_redundancy(self):
@@ -560,7 +548,7 @@ class BooleanFunction(object):
             [2] Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.
         """
         if __LOADED_CANA__:
-            return self.to_cana_BooleanNode().input_redundancy()
+            return self.to_cana().input_redundancy()
         print('The method \'get_input_redundancy\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
     
@@ -582,7 +570,7 @@ class BooleanFunction(object):
             [2] Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.
         """
         if __LOADED_CANA__:
-            return self.to_cana_BooleanNode().edge_effectiveness()
+            return self.to_cana().edge_effectiveness()
         print('The method \'get_edge_effectiveness\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
 
