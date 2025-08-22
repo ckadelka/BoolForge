@@ -72,7 +72,7 @@ def pyboolnet_bnet_to_BooleanNetwork(bnet):
     return BooleanNetwork(F=F,I=I,variables=variables)
 
 
-class BooleanNetwork:
+class BooleanNetwork(object):
     """
     A class representing a Boolean network with N variables.
     
@@ -88,15 +88,15 @@ class BooleanNetwork:
         - N (int): The number of variables in the Boolean network.
     """
     def __init__(self, F, I, variables=None):
-        assert type(F) in [ list, np.array, np.ndarray ], "F must be an array"
-        assert type(I) in [ list, np.array, np.ndarray ], "I must be an array"
+        assert type(F) in [ list, np.ndarray ], "F must be an array"
+        assert type(I) in [ list, np.ndarray ], "I must be an array"
         #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
         assert variables is None or len(F)==len(variables), "len(F)==len(variables) required if variable names are provided"
         assert len(F)==len(I), "len(F)==len(I) required"
         
         self.F = []
         for f in F:
-            if type(f) in [ list, np.array ]:
+            if type(f) in [ list, np.array, str ]:
                 self.F.append(BF(f))
             elif isinstance(f, BF):
                 self.F.append(f)
@@ -109,8 +109,20 @@ class BooleanNetwork:
         else:
             self.variables = np.array(variables)
         self.I = [np.array(regulators,dtype=int) for regulators in I]
+        self.degrees = list(map(len, self.I))
+
     
-    def to_cana_BooleanNetwork(self):
+    def __len__(self):
+        return self.N
+    
+    def __str__(self):
+        return f"Boolean network of {self.N} nodes with degrees {self.degrees}"
+    
+    def __getitem__(self, index):
+        #return (self.F[index],self.I[index],self.variables[index])
+        return self.F[index]
+    
+    def to_cana(self):
         """
         Compatability method: Transforms an instance of the class BooleanNetwork, used in this toolbox, into an instance of the class cana.BooleanNetwork from the cana module.
 
@@ -122,7 +134,7 @@ class BooleanNetwork:
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
         return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts)))
     
-    def to_pyboolnet_bnet(self):
+    def to_pyboolnet(self):
         """
         Compatability method: Transforms an instance of the class BooleanNetwork, used in this toolbox, into a bnet object from the pyboolnet module.
 
@@ -562,11 +574,10 @@ class BooleanNetwork:
             left_side_of_truth_table = np.array(list(map(np.array, list(itertools.product([0, 1], repeat=self.N)))))
         
         powers_of_two = np.array([2**i for i in range(self.N)])[::-1]
-        degrees = list(map(len, self.I))
         
         state_space = np.zeros((2**self.N, self.N), dtype=int)
         for i in range(self.N):
-            for j, x in enumerate(itertools.product([0, 1], repeat=degrees[i])):
+            for j, x in enumerate(itertools.product([0, 1], repeat=self.degrees[i])):
                 if self.F[i].f[j]:
                     # For rows in left_side_of_truth_table where the columns I[i] equal x, set state_space accordingly.
                     state_space[np.all(left_side_of_truth_table[:, self.I[i]] == np.array(x), axis=1), i] = 1
@@ -692,8 +703,7 @@ class BooleanNetwork:
         Returns:
             - np.array: Array of node indices that are external inputs.
         """
-        degrees = [len(el) for el in self.I]
-        return np.array([i for i in range(self.N) if degrees[i] == 1 and self.I[i][0] == i])
+        return np.array([i for i in range(self.N) if self.degrees[i] == 1 and self.I[i][0] == i])
 
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
@@ -899,9 +909,8 @@ class BooleanNetwork:
         counter_phase_shifts = []
         
         height = []
-        degrees = list(map(len, self.I))
         
-        powers_of_2s = [np.array([2**i for i in range(NN)])[::-1] for NN in range(max(degrees)+1)]
+        powers_of_2s = [np.array([2**i for i in range(NN)])[::-1] for NN in range(max(self.degrees)+1)]
         if self.N<64:
             powers_of_2 = np.array([2**i for i in range(self.N)])[::-1]
         
@@ -943,8 +952,8 @@ class BooleanNetwork:
                         except KeyError: #if not, then compute the F(xdec)
                             fx = []
                             for jj in range(self.N):
-                                if degrees[jj]>0:
-                                    fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[degrees[jj]])])
+                                if self.degrees[jj]>0:
+                                    fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.degrees[jj]])])
                                 else:#constant functions whose regulators were all fixed to a specific value
                                     fx.append(self.F[jj].f[0])
                             if self.N<64:
@@ -1076,8 +1085,8 @@ class BooleanNetwork:
                                 except KeyError: #if not, then compute the F(xdec)
                                     fx = []
                                     for jj in range(self.N):
-                                        if degrees[jj]>0:
-                                            fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[degrees[jj]])])
+                                        if self.degrees[jj]>0:
+                                            fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.degrees[jj]])])
                                         else:#constant functions whose regulators were all fixed to a specific value
                                             fx.append(self.F[jj].f[0])
                                     if self.N<64:

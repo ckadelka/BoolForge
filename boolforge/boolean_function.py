@@ -52,27 +52,55 @@ def get_layer_structure_from_can_outputs(can_outputs):
     return layer_structure
 
 
-class BooleanFunction:
+class BooleanFunction(object):
     """
     A class representing a Boolean function.
 
     Parameters:
-        - f (list or numpy array): A list of length 2^n representing the outputs of a Boolean function with n inputs.
+        - f (list or numpy array or str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.
 
     Members:
-        - f (list or numpy array): As passed by the constructor.
+        - f (numpy array): A numpy array of length 2^n representing the outputs of a Boolean function with n inputs.
         - n (int): The number of inputs for the Boolean function.
-    """
-    def __init__(self, f):
-        assert type(f) in [ list, np.array, np.ndarray], "f must be either a list or numpy array"
-        assert len(f) > 0, "f cannot be empty"
-        _n = int(np.log2(len(f)))
-        assert np.ceil(np.log2(len(f))) - _n <= 0.000001, "f must be of size 2^n, n >= 0"
-        if type(f) == list:
-            f = np.array(f)
+        - variables (numpy array): A numpy array of n strings with variable names, default x0, ..., x_{n-1}.
         
-        self.f = f
-        self.n = _n
+    """
+    __slots__ = ['f','n','variables']
+    
+    def __init__(self, f):
+        #self.original_f = f
+        if isinstance(f, str):
+            f, self.variables = utils.f_from_expression(f)
+            self.n = len(self.variables)
+        else:
+            assert isinstance(f, (list, np.ndarray)), "f must be a list, numpy array or interpretable string"
+            assert len(f) > 0, "f cannot be empty"
+            
+            _n = int(np.log2(len(f)))
+            assert abs(np.log2(len(f)) - _n) < 1e-6, "f must be of size 2^n, n >= 0"
+            self.n = _n
+            self.variables = np.array(['x%i' % i for i in range(self.n)])
+            
+        self.f = np.array(f, dtype=int)
+        
+    def __str__(self):
+        return f"{self.f.tolist()}"
+        
+    def str_expr(self):
+        return utils.bool_to_poly(self.f,variables=self.variables)
+
+    def __len__(self):
+        return 2**self.n
+
+    def __repr__(self):
+        return f"{type(self).__name__}(f={self.f.tolist()})"
+        # if isinstance(self.original_f, str):
+        #     return f"{type(self).__name__}(f='{self.original_f}')"            
+        # else:
+        #     return f"{type(self).__name__}(f={self.original_f})"
+    
+    def __getitem__(self, index):
+        return int(self.f[index])
     
     def to_cana_BooleanNode(self):
         """
@@ -226,7 +254,7 @@ class BooleanFunction:
         """
         Compute the absolute bias of a Boolean function.
 
-        The absolute bias is defined as \|(sum(f) / 2^(n-1)) - 1|\, which quantifies how far the function's output distribution
+        The absolute bias is defined as |(sum(f) / 2^(n-1)) - 1|, which quantifies how far the function's output distribution
         deviates from being balanced.
 
         Returns:

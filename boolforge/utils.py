@@ -117,22 +117,28 @@ def f_from_expression(expr):
             - var (list): A list of variable names (of length n) in the order they were encountered.
     
     Examples:
-        >>> f_from_expression('A AND NOT B')
+        >>> f_from_expression('A AND NOT B') #nested canalizing function
         ([0, 0, 1, 0], ['A', 'B'])
         
-        >>> f_from_expression('x1 + x2 + x3 > 1')
+        >>> f_from_expression('x1 + x2 + x3 > 1') #threshold function
         ([0, 0, 0, 1, 0, 1, 1, 1], ['x1', 'x2', 'x3'])
         
-        >>> f_from_expression('(x1 + x2 + x3) % 2 == 0')
+        >>> f_from_expression('(x1 + x2 + x3) % 2 == 0') % linear (XOR) function
         ([1, 0, 0, 1, 0, 1, 1, 0], ['x1', 'x2', 'x3'])
     """
+    def is_float(element: any) -> bool:
+        try:
+            float(element)
+            return True
+        except ValueError:
+            return False
     expr = expr.replace('(', ' ( ').replace(')', ' ) ').replace('!','not ').replace('~','not ')
     expr_split = expr.split(' ')
     var = []
     dict_var = dict()
     n_var = 0
     for i, el in enumerate(expr_split):
-        if el not in ['',' ','(',')','and','or','not','AND','OR','NOT','&','|','+','-','*','%','>','>=','==','<=','<',] and not el.isdigit():
+        if el not in ['',' ','(',')','and','or','not','AND','OR','NOT','&','|','+','-','*','%','>','>=','==','<=','<'] and not is_float(el):#el.isdigit():
             try:
                 new_var = dict_var[el]
             except KeyError:
@@ -152,7 +158,7 @@ def f_from_expression(expr):
     for x in itertools.product([0, 1], repeat=n_var):
         x = list(map(bool, x))
         f.append(int(eval(expr)))  # x_val is used implicitly in the eval context
-    return f, var
+    return f, np.array(var)
 
 
 def flatten(l):
