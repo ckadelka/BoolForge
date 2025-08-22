@@ -14,9 +14,12 @@ import random
 import math
 from collections import defaultdict
 
-import boolforge.utils as utils
-from boolforge.boolean_function import BooleanFunction as BF
-
+try:
+    import boolforge.utils as utils
+    from boolforge.boolean_function import BooleanFunction as BF
+except ModuleNotFoundError:
+    import utils as utils
+    from boolean_function import BooleanFunction as BF
 try:
     import cana.boolean_network
     __LOADED_CANA__=True
@@ -72,6 +75,13 @@ def pyboolnet_bnet_to_BooleanNetwork(bnet):
     return BooleanNetwork(F=F,I=I,variables=variables)
 
 
+# BooleanNetwork.from_cana()
+
+# BooleanNetwork.from_bnet()
+
+# BooleanNetwork.from_txtfile()
+
+
 class BooleanNetwork(object):
     """
     A class representing a Boolean network with N variables.
@@ -87,6 +97,9 @@ class BooleanNetwork(object):
         - variables(list or numpy array): As passed by the constructor.
         - N (int): The number of variables in the Boolean network.
     """
+    
+    left_side_of_truth_tables = {}
+
     def __init__(self, F, I, variables=None):
         assert type(F) in [ list, np.ndarray ], "F must be an array"
         assert type(I) in [ list, np.ndarray ], "I must be an array"
@@ -94,20 +107,23 @@ class BooleanNetwork(object):
         assert variables is None or len(F)==len(variables), "len(F)==len(variables) required if variable names are provided"
         assert len(F)==len(I), "len(F)==len(I) required"
         
-        self.F = []
-        for f in F:
-            if type(f) in [ list, np.array, str ]:
-                self.F.append(BF(f))
-            elif isinstance(f, BF):
-                self.F.append(f)
-            else:
-                raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, numpy array, or BooleanFunction")
-                
         self.N = len(F)
         if variables is None:
             self.variables = np.array(['x'+str(i) for i in range(len(F))])
         else:
             self.variables = np.array(variables)
+        
+        self.F = []
+        for ii,f in enumerate(F):
+            if type(f) in [ list, np.array, str ]:
+                self.F.append(BF(f,name = self.variables[ii]))
+            elif isinstance(f, BF):
+                f.name = self.variables[ii]
+                self.F.append(f)
+            else:
+                raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, numpy array, or BooleanFunction")
+                
+        
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.degrees = list(map(len, self.I))
 
@@ -147,6 +163,15 @@ class BooleanNetwork(object):
             lines.append(f'{variable},    {polynomial}')
         return '\n'.join(lines)
         
+    def get_left_side_of_truth_table(self):
+        if self.N in BooleanNetwork.left_side_of_truth_tables:
+            left_side_of_truth_table = BooleanNetwork.left_side_of_truth_tables[self.N]
+        else:
+            left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.N)))
+            BooleanNetwork.left_side_of_truth_tables[self.N] = left_side_of_truth_table
+        return left_side_of_truth_table
+    
+    
     def update_single_node(self, index, states_regulators):
         """
         Update the state of a single node.
@@ -232,7 +257,7 @@ class BooleanNetwork(object):
         return Fx
 
 
-    def get_steady_states_asynchronous(self, nsim=500, EXACT=False, left_side_of_truth_table=None,
+    def get_steady_states_asynchronous(self, nsim=500, EXACT=False,
                                        initial_sample_points=[], search_depth=50, SEED=-1, DEBUG=False):
         """
         Compute the steady states of a Boolean network under asynchronous updates.
@@ -246,7 +271,6 @@ class BooleanNetwork(object):
         Parameters:
             - nsim (int, optional): Number of initial conditions to simulate (default is 500).
             - EXACT (bool, optional): If True, iterate over the entire state space and guarantee finding all steady states (2^N initial conditions); otherwise, use nsim random initial conditions. (Default is False.)
-            - left_side_of_truth_table (optional): Precomputed truth table (array of tuples) for the target node with len(I[control_target]) inputs. If not provided, it is computed.
             - initial_sample_points (list, optional): List of initial states (as binary vectors) to use. If provided and EXACT is False, these override random sampling.
             - search_depth (int, optional): Maximum number of asynchronous update iterations to attempt per simulation.
             - SEED (int, optional): Random seed. If SEED is -1, a random seed is generated.
@@ -262,8 +286,8 @@ class BooleanNetwork(object):
                 - Seed (int): The random seed used for the simulation.
                 - InitialSamplePoints (list): The list of initial sample points used (if provided) or those generated during simulation.
         """
-        if EXACT and left_side_of_truth_table is None:
-            left_side_of_truth_table = list(map(np.array, list(itertools.product([0, 1], repeat=self.N))))
+        if EXACT:
+            left_side_of_truth_table = self.get_left_side_of_truth_table()
 
         sampled_points = []
         
@@ -349,6 +373,13 @@ class BooleanNetwork(object):
                         (steady_states, len(steady_states), basin_sizes, steady_state_dict, dictF, SEED,
                 initial_sample_points if initial_sample_points != [] else sampled_points)))
 
+
+
+    # def get_random_null_model_with_same_wiring_diagram(self, ):
+    #     #TODO
+    #     return generate.random_network(N, n, k=k, STRONGLY_CONNECTED=False, indegree_distribution='constant',
+    #                   left_sides_of_truth_tables=None, layer_structure=None, EXACT_DEPTH=False, NO_SELF_REGULATION=True, LINEAR=False,
+    #                   edges_wiring_diagram=None, bias=0.5, n_attempts_to_generate_strongly_connected_network = 1000):
 
     def get_steady_states_asynchronous_given_one_initial_condition(self, nsim=500, stochastic_weights=[], initial_condition=0, search_depth=50, SEED=-1, DEBUG=False):
         """
@@ -549,7 +580,7 @@ class BooleanNetwork(object):
                 state_space, n_timeout)))
 
 
-    def get_attractors_synchronous_exact(self, left_side_of_truth_table = None, RETURN_DICTF=False):
+    def get_attractors_synchronous_exact(self, RETURN_DICTF=False):
         """
         Compute the exact number of attractors in a Boolean network using a fast, vectorized approach.
 
@@ -558,7 +589,6 @@ class BooleanNetwork(object):
         Attractors and their basin sizes are then determined by iterating over the entire state space.
 
         Parameters:
-            - left_side_of_truth_table (optional): Precomputed truth table (array of tuples) for the target node with len(I[control_target]) inputs. If not provided, it is computed.
             - RETURN_DICTF (bool, optional): If True, the state space is returned as a dictionary, in which each state is associated by its decimal representation.
 
         Returns:
@@ -570,9 +600,8 @@ class BooleanNetwork(object):
                 - StateSpace (np.array): The constructed state space matrix (of shape (2^N, N)).
                 - FunctionTransitionDict (dict, only returned if RETURN_DICTF==True): State space as dictionary.
         """        
-        if left_side_of_truth_table is None:
-            left_side_of_truth_table = np.array(list(map(np.array, list(itertools.product([0, 1], repeat=self.N)))))
-        
+        left_side_of_truth_table = self.get_left_side_of_truth_table()
+
         powers_of_two = np.array([2**i for i in range(self.N)])[::-1]
         
         state_space = np.zeros((2**self.N, self.N), dtype=int)
@@ -658,7 +687,7 @@ class BooleanNetwork(object):
         return BooleanNetwork(F_essential, I_essential, self.variables)
 
 
-    def get_edge_controlled_network(self, control_target, control_source, type_of_edge_control=0, left_side_of_truth_table=[]):
+    def get_edge_controlled_network(self, control_target, control_source, type_of_edge_control=0):
         """
         Generate a perturbed Boolean network by removing the influence of a specified regulator on a specified target.
 
@@ -670,7 +699,6 @@ class BooleanNetwork(object):
             - control_target (int): Index of the target node to be perturbed.
             - control_source (int): Index of the regulator whose influence is to be removed.
             - type_of_edge_control (int, optional): Source value in regulation after control. Default is 0.
-            - left_side_of_truth_table (optional): Precomputed truth table (array of tuples) for the target node with len(I[control_target]) inputs. If not provided, it is computed.
 
         Returns:
             - BooleanNetwork object where:
@@ -683,8 +711,7 @@ class BooleanNetwork(object):
         F_new = [bf.f for bf in self.F]
         I_new = [i for i in self.I]
 
-        if left_side_of_truth_table == []:
-            left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=len(self.I[control_target]))))
+        left_side_of_truth_table = self.get_left_side_of_truth_table()
 
         index = list(self.I[control_target]).index(control_source)
         F_new[control_target] = F_new[control_target][left_side_of_truth_table[:, index] == type_of_edge_control]
@@ -738,14 +765,11 @@ class BooleanNetwork(object):
             return np.mean(hamming_distances)
 
 
-    def get_attractors_and_robustness_measures_synchronous_exact(self, left_side_of_truth_table=None):
+    def get_attractors_and_robustness_measures_synchronous_exact(self):
         """
         Compute the attractors and several robustness measures of a Boolean network.
 
         This function computes the exact attractors and robustness (coherence and fragility) of each basin of attraction and of each attractor.
-
-        Parameters:
-            - left_side_of_truth_table (optional): Precomputed truth table (array of tuples) for the target node with len(I[control_target]) inputs. If not provided, it is computed.
 
         Returns:
             - dict: A dictionary containing:
@@ -767,9 +791,8 @@ class BooleanNetwork(object):
             [2] Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). 
                 xxxx arXiv preprint arXiv:xxx.xxx.
         """
-        if left_side_of_truth_table is None:
-            left_side_of_truth_table = np.array(list(map(np.array, list(itertools.product([0, 1], repeat=self.N)))))
-        
+        left_side_of_truth_table = self.get_left_side_of_truth_table()
+
         attractors, n_attractors, basin_sizes, attractor_dict, state_space = self.get_attractors_synchronous_exact()
         
         len_attractors = list(map(len,attractors))

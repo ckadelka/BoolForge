@@ -14,9 +14,14 @@ import itertools
 import networkx as nx
 import random
 
-import boolforge.utils as utils
-from boolforge.boolean_function import BooleanFunction as BF
-from boolforge.boolean_network import BooleanNetwork as BN
+try:
+    import boolforge.utils as utils
+    from boolforge.boolean_function import BooleanFunction as BF
+    from boolforge.boolean_network import BooleanNetwork as BN
+except ModuleNotFoundError:
+    import utils
+    from boolean_function import BooleanFunction as BF
+    from boolean_network import BooleanNetwork as BN
 
 def random_function(n, probability_one=0.5):
     """

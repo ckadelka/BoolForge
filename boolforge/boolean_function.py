@@ -10,8 +10,11 @@ Last Edited on Thu Aug 14 2025
 import numpy as np
 import itertools
 
-import boolforge.utils as utils
-
+try:
+    import boolforge.utils as utils
+except ModuleNotFoundError:
+    import utils
+    
 try:
     import cana.boolean_node
     __LOADED_CANA__=True
@@ -65,10 +68,12 @@ class BooleanFunction(object):
         - variables (numpy array): A numpy array of n strings with variable names, default x0, ..., x_{n-1}.
         
     """
-    __slots__ = ['f','n','variables']
+    __slots__ = ['f','n','variables','name']
     
-    def __init__(self, f):
-        #self.original_f = f
+    left_side_of_truth_tables = {}
+    
+    def __init__(self, f, name=''):
+        self.name = name
         if isinstance(f, str):
             f, self.variables = utils.f_from_expression(f)
             self.n = len(self.variables)
@@ -84,7 +89,8 @@ class BooleanFunction(object):
         self.f = np.array(f, dtype=int)
         
     def __str__(self):
-        return f"{self.f.tolist()}"
+        return f"{self.f}"
+        #return f"{self.f.tolist()}"
         
     def str_expr(self):
         return utils.bool_to_poly(self.f,variables=self.variables)
@@ -93,12 +99,11 @@ class BooleanFunction(object):
         return 2**self.n
 
     def __repr__(self):
-        return f"{type(self).__name__}(f={self.f.tolist()})"
-        # if isinstance(self.original_f, str):
-        #     return f"{type(self).__name__}(f='{self.original_f}')"            
-        # else:
-        #     return f"{type(self).__name__}(f={self.original_f})"
-    
+        if self.n < 8:
+            return f"{type(self).__name__}(f={self.f.tolist()})"
+        else:
+            return f"{type(self).__name__}(f={self.f})"
+
     def __getitem__(self, index):
         return int(self.f[index])
     
@@ -113,6 +118,14 @@ class BooleanFunction(object):
             return cana.boolean_node.BooleanNode(k=self.n, outputs=self.f)
         print('The method \'to_cana_BooleanNode\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
+    
+    def get_left_side_of_truth_table(self):
+        if self.n in BooleanFunction.left_side_of_truth_tables:
+            left_side_of_truth_table = BooleanFunction.left_side_of_truth_tables[self.n]
+        else:
+            left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.n)))
+            BooleanFunction.left_side_of_truth_tables[self.n] = left_side_of_truth_table
+        return left_side_of_truth_table
     
     def is_constant(self):
         """
@@ -217,21 +230,18 @@ class BooleanFunction(object):
         else:
             return 'not essential' not in monotonic
     
-    def get_symmetry_groups(self, left_side_of_truth_table=None):
+    def get_symmetry_groups(self):
         """
         Determine all symmetry groups of input variables for a Boolean function.
 
         Two variables are in the same symmetry group if swapping their values does not change the output
         of the function for any input of the other variables.
 
-        Parameters:
-            - left_side_of_truth_table (optional, array-like): Precomputed left-hand side of the truth table (2^n x n). If not provided or if its shape does not match, it will be computed.
-
         Returns:
             - list: A list of lists where each inner list contains indices of variables that form a symmetry group.
         """
-        if left_side_of_truth_table is None or type(left_side_of_truth_table) != np.ndarray or left_side_of_truth_table.shape[0] != len(self.f):
-            left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.n)))
+        left_side_of_truth_table = self.get_left_side_of_truth_table()
+        
         symmetry_groups = []
         left_to_check = np.ones(self.n)
         for i in range(self.n):
@@ -281,7 +291,7 @@ class BooleanFunction(object):
         num_values = 2**self.n
         s = 0
         if EXACT:
-            left_side_of_truth_table = list(map(np.array, list(itertools.product([0, 1], repeat=self.n))))
+            left_side_of_truth_table = self.get_left_side_of_truth_table()
             for ii, X in enumerate(left_side_of_truth_table):
                 for i in range(self.n):
                     Y = X.copy()
@@ -446,7 +456,7 @@ class BooleanFunction(object):
                                  can_order=np.array([], dtype=int), variables=[], depth=0, number_layers=0)))
 
     
-    def get_proportion_of_collectively_canalizing_input_sets(self, k, left_side_of_truth_table=None, verbose=False):
+    def get_proportion_of_collectively_canalizing_input_sets(self, k, verbose=False):
         """
         Compute the proportion of k-set canalizing input sets for a Boolean function.
 
@@ -455,7 +465,6 @@ class BooleanFunction(object):
 
         Parameters:
             - k (int): The size of the variable set (0 ≤ k ≤ n).
-            - left_side_of_truth_table (optional, array-like): Precomputed left-hand side of the truth table (2^n x n). If not provided or if its shape does not match, it will be computed.
             - verbose (bool, optional): If True, prints detailed information about canalizing k-sets.
 
         Returns:
@@ -468,9 +477,7 @@ class BooleanFunction(object):
         if k == 0:
             return float(self.is_constant())
         desired_value = 2**(self.n - k)
-        if left_side_of_truth_table is None or type(left_side_of_truth_table) != np.ndarray or left_side_of_truth_table.shape[0] != len(self.f):
-            left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.n)))
-        T = left_side_of_truth_table.T
+        T = self.get_left_side_of_truth_table().T
         Tk = list(itertools.product([0, 1], repeat=k))
         A = np.r_[T, 1 - T]
         Ak = []
@@ -488,7 +495,7 @@ class BooleanFunction(object):
         is_there_canalization = np.in1d(np.dot(Ak, self.f), [0, desired_value])
         return sum(is_there_canalization) / len(is_there_canalization)
 
-    def is_kset_canalizing(self, k, left_side_of_truth_table = None):
+    def is_kset_canalizing(self, k):
         """
         Determine if a Boolean function is k-set canalizing.
 
@@ -497,7 +504,6 @@ class BooleanFunction(object):
 
         Parameters:
             - k (int): The size of the variable set (with 0 ≤ k ≤ n).
-            - left_side_of_truth_table (optional, array-like): Precomputed left-hand side of the truth table (2^n x n). If not provided or if its shape does not match, it will be computed.
 
         Returns:
             - bool: True if f is k-set canalizing, False otherwise.
@@ -506,21 +512,17 @@ class BooleanFunction(object):
             Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions.
             Advances in Applied Mathematics, 145, 102475.
         """
-        if left_side_of_truth_table is None or type(left_side_of_truth_table) != np.ndarray or left_side_of_truth_table.shape[0] != len(self.f):
-            left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.n)))
+        left_side_of_truth_table = self.get_left_side_of_truth_table()
         return self.get_proportion_of_collectively_canalizing_input_sets(k,left_side_of_truth_table)>0
 
 
-    def get_canalizing_strength(self, left_side_of_truth_table=None):
+    def get_canalizing_strength(self):
         """
         Compute the canalizing strength of a Boolean function via exhaustive enumeration.
 
         The canalizing strength is defined as a weighted average of the proportions of k-set canalizing inputs for k = 1 to n-1.
         It is 0 for minimally canalizing functions (e.g., Boolean parity functions) and 1 for maximally canalizing functions
         (e.g., nested canalizing functions with one layer).
-
-        Parameters:
-            - left_side_of_truth_table (optional, array-like): Precomputed left-hand side of the truth table (2^n x n). If not provided or if its shape does not match, it will be computed.
 
         Returns:
             - tuple:
@@ -535,8 +537,7 @@ class BooleanFunction(object):
         assert abs(self.n - nfloat) < 1e-10, "f needs to be of length 2^n for some n > 1"
         assert self.n > 1, "Canalizing strength is only defined for Boolean functions with n > 1 inputs"
         res = []
-        if left_side_of_truth_table is None or type(left_side_of_truth_table) != np.ndarray or left_side_of_truth_table.shape[0] != len(self.f):
-            left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.n)))
+        left_side_of_truth_table = self.get_left_side_of_truth_table()
         for k in range(1, self.n):
             res.append(self.get_proportion_of_collectively_canalizing_input_sets(k, left_side_of_truth_table=left_side_of_truth_table))
         return np.mean(np.multiply(res, 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1))), res
@@ -606,3 +607,4 @@ class BooleanFunction(object):
             return sum(self.get_edge_effectiveness())
         print('The method \'get_effective_degree\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
+    
