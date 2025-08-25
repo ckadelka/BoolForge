@@ -1,0 +1,6 @@
+/boolforge/
+/boolforge/__pycache__/
+/docs/
+/docs/_build
+.DS_Store
+.DS_Store?
