@@ -318,7 +318,11 @@ def random_nested_canalizing_function(n,layer_structure=None):
         assert layer_structure[-1] > 1 or n == 1,'Error:\nThe last layer of an NCF has to have size >= 2 whenever n > 1.\nEnsure that layer_structure[-1]>=2.'
         return random_k_canalizing_function_with_specific_layer_structure(n,layer_structure,EXACT_DEPTH=False)
 
-random_NCF = random_nested_canalizing_function
+def random_NCF(n,layer_structure=None):
+    '''
+    See random_nested_canalizing_function.
+    '''
+    return random_nested_canalizing_function(n=n,layer_structure=layer_structure)
 
 def random_adjacency_matrix(N, indegrees, NO_SELF_REGULATION=True, STRONGLY_CONNECTED=False):
     """
@@ -407,20 +411,20 @@ def random_edge_list(N, indegrees, NO_SELF_REGULATION, AT_LEAST_ONE_REGULATOR_PE
 def random_rules(indegrees, k=0, EXACT_DEPTH=False, layer_structure=None, 
                  LINEAR=False, ALLOW_DEGENERATED_FUNCTIONS=True,
                  bias=0.5, absolute_bias = 0, USE_ABSOLUTE_BIAS=True):
-    N = len(indegrees)
     F = []
-    for i in range(N):
+    for i,indegree in enumerate(indegrees):
+        indegree = int(indegree) #to avoid weird conversion issues when type(indegree)==numpy.int64
         if LINEAR:
-            F.append(random_linear_function(indegrees[i]))
+            F.append(random_linear_function(indegree))
         elif type(k) in [int, np.int_] and k > 0 and layer_structure is None:
-                F.append(random_k_canalizing_function(indegrees[i], min(k, indegrees[i]), EXACT_DEPTH=EXACT_DEPTH))
+                F.append(random_k_canalizing_function(indegree, min(k, indegree), EXACT_DEPTH=EXACT_DEPTH))
         elif type(k) in [list, np.ndarray] and layer_structure is None:
-                F.append(random_k_canalizing_function(indegrees[i], min(k[i], indegrees[i]), EXACT_DEPTH=EXACT_DEPTH))
+                F.append(random_k_canalizing_function(indegree, min(int(k[i]), indegree), EXACT_DEPTH=EXACT_DEPTH))
         elif layer_structure is not None:
             if np.all([type(el) in [int, np.int_] for el in layer_structure]):
-                F.append(random_k_canalizing_function_with_specific_layer_structure(indegrees[i], layer_structure, EXACT_DEPTH=EXACT_DEPTH))
+                F.append(random_k_canalizing_function_with_specific_layer_structure(indegree, layer_structure, EXACT_DEPTH=EXACT_DEPTH))
             else:
-                F.append(random_k_canalizing_function_with_specific_layer_structure(indegrees[i], layer_structure[i], EXACT_DEPTH=EXACT_DEPTH))
+                F.append(random_k_canalizing_function_with_specific_layer_structure(indegree, layer_structure[i], EXACT_DEPTH=EXACT_DEPTH))
         else:
             if USE_ABSOLUTE_BIAS:             
                 bias_of_function = random.choice([0.5*(1-absolute_bias),0.5*(1+absolute_bias)])
@@ -428,14 +432,14 @@ def random_rules(indegrees, k=0, EXACT_DEPTH=False, layer_structure=None,
                 bias_of_function = bias
             if ALLOW_DEGENERATED_FUNCTIONS:
                 if EXACT_DEPTH is True:
-                    F.append(random_non_canalizing_non_degenerated_function(indegrees[i], bias_of_function))
+                    F.append(random_non_canalizing_non_degenerated_function(indegree, bias_of_function))
                 else:
-                    F.append(random_non_degenerated_function(indegrees[i], bias_of_function))
+                    F.append(random_non_degenerated_function(indegree, bias_of_function))
             else:
                 if EXACT_DEPTH is True:
-                    F.append(random_non_canalizing_function(indegrees[i], bias_of_function))
+                    F.append(random_non_canalizing_function(indegree, bias_of_function))
                 else:
-                    F.append(random_function(indegrees[i], bias_of_function))
+                    F.append(random_function(indegree, bias_of_function))
     return F
 
 
@@ -577,6 +581,3 @@ def random_network(N=None, n=None, k=0, EXACT_DEPTH=False, layer_structure=None,
                      bias=bias, absolute_bias=absolute_bias, USE_ABSOLUTE_BIAS=USE_ABSOLUTE_BIAS)
                 
     return BN(F, I)
-
-random_BN = random_network
-

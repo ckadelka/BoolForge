@@ -171,6 +171,12 @@ class BooleanNetwork(object):
         #return (self.F[index],self.I[index],self.variables[index])
         return self.F[index]
     
+    def __copy__(self):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        result.__dict__.update(self.__dict__)
+        return result
+    
     
     def get_left_side_of_truth_table(self):
         if self.N in BooleanNetwork.left_side_of_truth_tables:
