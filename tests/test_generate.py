@@ -125,11 +125,3 @@ assert np.all([bf.is_degenerated()==False for bf in bn]), "failed to create a BN
 bn = generate.random_network(N,n)
 bn2 = generate.random_network(I = bn.I) 
 assert np.all([np.all(I1 == I2) for I1,I2 in zip(bn.I, bn2.I)]), "failed to create a BN with defined wiring diagram"
-
-
-
-
-
-
-
-
