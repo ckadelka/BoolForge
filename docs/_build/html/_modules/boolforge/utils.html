@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BNToolbox.utils &mdash; BoolForge 1.0.0 documentation</title>
+  <title>boolforge.utils &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
@@ -39,12 +39,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../bf.html">Boolean Function</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../bn.html">Boolean Network</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generate.html">Generate</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utils</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
 </ul>
 
         </div>
@@ -62,7 +59,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">BNToolbox.utils</li>
+      <li class="breadcrumb-item active">boolforge.utils</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -71,7 +68,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for BNToolbox.utils</h1><div class="highlight"><pre>
+  <h1>Source code for boolforge.utils</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 
@@ -86,8 +83,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 
+
 <div class="viewcode-block" id="bin2dec">
-<a class="viewcode-back" href="../../utils.html#BNToolbox.utils.bin2dec">[docs]</a>
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.bin2dec">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">bin2dec</span><span class="p">(</span><span class="n">binary_vector</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a binary vector to an integer.</span>
@@ -106,7 +104,7 @@
 
 
 <div class="viewcode-block" id="dec2bin">
-<a class="viewcode-back" href="../../utils.html#BNToolbox.utils.dec2bin">[docs]</a>
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.dec2bin">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dec2bin</span><span class="p">(</span><span class="n">integer_value</span><span class="p">,</span> <span class="n">num_bits</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert an integer to a binary vector.</span>
@@ -124,7 +122,7 @@
 
 
 <div class="viewcode-block" id="bool_to_poly">
-<a class="viewcode-back" href="../../utils.html#BNToolbox.utils.bool_to_poly">[docs]</a>
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.bool_to_poly">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">bool_to_poly</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">left_side_of_truth_table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.</span>
@@ -160,7 +158,7 @@
 
 
 <div class="viewcode-block" id="check_if_empty">
-<a class="viewcode-back" href="../../utils.html#BNToolbox.utils.check_if_empty">[docs]</a>
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.check_if_empty">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_if_empty</span><span class="p">(</span><span class="n">my_list</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if the provided list or NumPy array is empty.</span>
@@ -182,7 +180,7 @@
 
 
 <div class="viewcode-block" id="f_from_expression">
-<a class="viewcode-back" href="../../utils.html#BNToolbox.utils.f_from_expression">[docs]</a>
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.f_from_expression">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">f_from_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract a Boolean function from a string expression.</span>
@@ -205,22 +203,28 @@
 <span class="sd">            - var (list): A list of variable names (of length n) in the order they were encountered.</span>
 <span class="sd">    </span>
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; f_from_expression(&#39;A AND NOT B&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; f_from_expression(&#39;A AND NOT B&#39;) #nested canalizing function</span>
 <span class="sd">        ([0, 0, 1, 0], [&#39;A&#39;, &#39;B&#39;])</span>
 <span class="sd">        </span>
-<span class="sd">        &gt;&gt;&gt; f_from_expression(&#39;x1 + x2 + x3 &gt; 1&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; f_from_expression(&#39;x1 + x2 + x3 &gt; 1&#39;) #threshold function</span>
 <span class="sd">        ([0, 0, 0, 1, 0, 1, 1, 1], [&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;])</span>
 <span class="sd">        </span>
-<span class="sd">        &gt;&gt;&gt; f_from_expression(&#39;(x1 + x2 + x3) % 2 == 0&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; f_from_expression(&#39;(x1 + x2 + x3) % 2 == 0&#39;) % linear (XOR) function</span>
 <span class="sd">        ([1, 0, 0, 1, 0, 1, 1, 0], [&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_float</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
     <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39; ( &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39; ) &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;!&#39;</span><span class="p">,</span><span class="s1">&#39;not &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">,</span><span class="s1">&#39;not &#39;</span><span class="p">)</span>
     <span class="n">expr_split</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
     <span class="n">var</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">dict_var</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">n_var</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">expr_split</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;(&#39;</span><span class="p">,</span><span class="s1">&#39;)&#39;</span><span class="p">,</span><span class="s1">&#39;and&#39;</span><span class="p">,</span><span class="s1">&#39;or&#39;</span><span class="p">,</span><span class="s1">&#39;not&#39;</span><span class="p">,</span><span class="s1">&#39;AND&#39;</span><span class="p">,</span><span class="s1">&#39;OR&#39;</span><span class="p">,</span><span class="s1">&#39;NOT&#39;</span><span class="p">,</span><span class="s1">&#39;&amp;&#39;</span><span class="p">,</span><span class="s1">&#39;|&#39;</span><span class="p">,</span><span class="s1">&#39;+&#39;</span><span class="p">,</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s1">&#39;*&#39;</span><span class="p">,</span><span class="s1">&#39;%&#39;</span><span class="p">,</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;&gt;=&#39;</span><span class="p">,</span><span class="s1">&#39;==&#39;</span><span class="p">,</span><span class="s1">&#39;&lt;=&#39;</span><span class="p">,</span><span class="s1">&#39;&lt;&#39;</span><span class="p">,]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">el</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;(&#39;</span><span class="p">,</span><span class="s1">&#39;)&#39;</span><span class="p">,</span><span class="s1">&#39;and&#39;</span><span class="p">,</span><span class="s1">&#39;or&#39;</span><span class="p">,</span><span class="s1">&#39;not&#39;</span><span class="p">,</span><span class="s1">&#39;AND&#39;</span><span class="p">,</span><span class="s1">&#39;OR&#39;</span><span class="p">,</span><span class="s1">&#39;NOT&#39;</span><span class="p">,</span><span class="s1">&#39;&amp;&#39;</span><span class="p">,</span><span class="s1">&#39;|&#39;</span><span class="p">,</span><span class="s1">&#39;+&#39;</span><span class="p">,</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s1">&#39;*&#39;</span><span class="p">,</span><span class="s1">&#39;%&#39;</span><span class="p">,</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;&gt;=&#39;</span><span class="p">,</span><span class="s1">&#39;==&#39;</span><span class="p">,</span><span class="s1">&#39;&lt;=&#39;</span><span class="p">,</span><span class="s1">&#39;&lt;&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_float</span><span class="p">(</span><span class="n">el</span><span class="p">):</span><span class="c1">#el.isdigit():</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">new_var</span> <span class="o">=</span> <span class="n">dict_var</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -240,19 +244,19 @@
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="n">n_var</span><span class="p">):</span>
         <span class="n">x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
         <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">expr</span><span class="p">)))</span>  <span class="c1"># x_val is used implicitly in the eval context</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">var</span></div>
+    <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">var</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="flatten">
-<a class="viewcode-back" href="../../utils.html#BNToolbox.utils.flatten">[docs]</a>
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.flatten">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span></div>
 
 
 
 <div class="viewcode-block" id="get_layer_structure_of_an_NCF_given_its_Hamming_weight">
-<a class="viewcode-back" href="../../utils.html#BNToolbox.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight">[docs]</a>
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_structure_of_an_NCF_given_its_Hamming_weight</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the canalizing layer structure of a nested canalizing function (NCF) given its Hamming weight.</span>

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BNToolbox.boolean_network &mdash; BoolForge 1.0.0 documentation</title>
+  <title>boolforge.boolean_network &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
@@ -39,12 +39,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../bf.html">Boolean Function</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../bn.html">Boolean Network</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generate.html">Generate</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utils</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Documentation</a></li>
 </ul>
 
         </div>
@@ -62,7 +59,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">BNToolbox.boolean_network</li>
+      <li class="breadcrumb-item active">boolforge.boolean_network</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -71,16 +68,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for BNToolbox.boolean_network</h1><div class="highlight"><pre>
+  <h1>Source code for boolforge.boolean_network</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Created on Wed Aug 13 11:08:44 2025</span>
 <span class="sd">Last Edited on Thu Aug 14 2025</span>
 
-<span class="sd">@author: Benjamin Coberly</span>
+<span class="sd">@author: Benjamin Coberly, Claus Kadelka</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
@@ -88,9 +86,15 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">BNToolbox.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">BNToolbox.boolean_function</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanFunction</span> <span class="k">as</span> <span class="n">BF</span>
+<span class="c1">#sys.path.append(&#39;../&#39;)</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">boolforge.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">boolforge.boolean_function</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanFunction</span> <span class="k">as</span> <span class="n">BF</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">boolean_function</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanFunction</span> <span class="k">as</span> <span class="n">BF</span>
+    
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">cana.boolean_network</span>
     <span class="n">__LOADED_CANA__</span><span class="o">=</span><span class="kc">True</span>
@@ -98,105 +102,120 @@
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.&#39;</span><span class="p">)</span>
     <span class="n">__LOADED_CANA__</span><span class="o">=</span><span class="kc">False</span>
 
-<div class="viewcode-block" id="cana_BooleanNetwork_to_BooleanNetwork">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.cana_BooleanNetwork_to_BooleanNetwork">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">cana_BooleanNetwork_to_BooleanNetwork</span><span class="p">(</span><span class="n">cana_BooleanNetwork</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compatability method: Transforms an instance of the class cana.BooleanNetwork from the cana module to an instance of the class BooleanNetwork, used in this toolbox.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        - An instance of BooleanNetwork</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">I</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">cana_BooleanNetwork</span><span class="o">.</span><span class="n">logic</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">])</span>
-            <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;in&#39;</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">pass</span>            
-    <span class="k">return</span> <span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="p">,</span> <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="pyboolnet_bnet_to_BooleanNetwork">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.pyboolnet_bnet_to_BooleanNetwork">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">pyboolnet_bnet_to_BooleanNetwork</span><span class="p">(</span><span class="n">bnet</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compatability method: Transforms a bnet object from the pyboolnet module to an instance of the class BooleanNetwork, used in this toolbox.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        - An instance of BooleanNetwork</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">functions</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">bnet</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-            <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-            <span class="k">continue</span>
-    <span class="n">dict_variables</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">))))</span>
-    <span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">I</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
-        <span class="n">f</span><span class="p">,</span><span class="n">var</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">f_from_expression</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-        <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">dict_variables</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var</span><span class="p">])</span>        
-    <span class="k">return</span> <span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span><span class="o">=</span><span class="n">F</span><span class="p">,</span><span class="n">I</span><span class="o">=</span><span class="n">I</span><span class="p">,</span><span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span></div>
-
-
 
 <div class="viewcode-block" id="BooleanNetwork">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">BooleanNetwork</span><span class="p">:</span>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BooleanNetwork</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class representing a Boolean network with N variables.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters:</span>
 <span class="sd">        - F (list or numpy array): A list of N Boolean functions, or of N lists of length 2^n representing the outputs of a Boolean function with n inputs.</span>
 <span class="sd">        - I (list or numpy array): A list of N lists representing the regulators (or inputs) for each Boolean function.</span>
-<span class="sd">        - variables (list or numpy array, optional): A list of N strings representing the names of each variable.</span>
-<span class="sd">    </span>
+<span class="sd">        - variables (list or numpy array, optional): A list of N strings representing the names of each variable, default = None.</span>
+
 <span class="sd">    Members:</span>
 <span class="sd">        - F (list or numpy array): As passed by the constructor.</span>
 <span class="sd">        - I (list or numpy array): As passed by the constructor.</span>
 <span class="sd">        - variables(list or numpy array): As passed by the constructor.</span>
 <span class="sd">        - N (int): The number of variables in the Boolean network.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">left_side_of_truth_tables</span> <span class="o">=</span> <span class="p">{}</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">F</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="p">],</span> <span class="s2">&quot;F must be an array&quot;</span>
-        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">I</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="p">],</span> <span class="s2">&quot;I must be an array&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span> <span class="s2">&quot;F must be an array&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span> <span class="s2">&quot;I must be an array&quot;</span>
         <span class="c1">#assert (len(I[i]) == ns[i] for i in range(len(ns))), &quot;Malformed wiring diagram I&quot;</span>
         <span class="k">assert</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">),</span> <span class="s2">&quot;len(F)==len(variables) required if variable names are provided&quot;</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">I</span><span class="p">),</span> <span class="s2">&quot;len(F)==len(I) required&quot;</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BF</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">BF</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;F holds invalid data type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="si">}</span><span class="s2"> : Expected either list, numpy array, or BooleanFunction&quot;</span><span class="p">)</span>
-                
         <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;x&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">))])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span><span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">F</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="nb">str</span> <span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BF</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">ii</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">BF</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;F holds invalid data type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="si">}</span><span class="s2"> : Expected either list, numpy array, or BooleanFunction&quot;</span><span class="p">)</span>
+                
         <span class="bp">self</span><span class="o">.</span><span class="n">I</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">regulators</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">regulators</span> <span class="ow">in</span> <span class="n">I</span><span class="p">]</span>
-    
-<div class="viewcode-block" id="BooleanNetwork.to_cana_BooleanNetwork">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.to_cana_BooleanNetwork">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_cana_BooleanNetwork</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">degrees</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">))</span>
+
+<div class="viewcode-block" id="BooleanNetwork.from_cana">
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.from_cana">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_cana</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cana_BooleanNetwork</span><span class="p">):</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">cana_BooleanNetwork</span><span class="o">.</span><span class="n">logic</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">])</span>
+                <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;in&#39;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>            
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="p">,</span> <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BooleanNetwork.from_bnet">
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.from_bnet">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_bnet</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bnet</span><span class="p">):</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">functions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">bnet</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">==</span><span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                    <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+        <span class="n">dict_variables</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">))))</span>
+        <span class="n">n_variables</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dict_constants</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">n_constants</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">,</span><span class="n">var</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">f_from_expression</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_variables</span><span class="p">:</span>
+                    <span class="n">I</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dict_variables</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_constants</span><span class="p">:</span>
+                    <span class="n">I</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n_variables</span><span class="o">+</span><span class="n">dict_constants</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">I</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n_variables</span><span class="o">+</span><span class="n">n_constants</span><span class="p">)</span>
+                    <span class="n">dict_constants</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_constants</span>
+                    <span class="n">n_constants</span><span class="o">+=</span><span class="mi">1</span>
+        
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="p">,</span> <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="BooleanNetwork.to_cana">
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.to_cana">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_cana</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compatability method: Transforms an instance of the class BooleanNetwork, used in this toolbox, into an instance of the class cana.BooleanNetwork from the cana module.</span>
+<span class="sd">        Compatability method: Returns an instance of the class cana.BooleanNetwork from the cana module.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            - An instance of cana.boolean_network.BooleanNetwork</span>
@@ -206,25 +225,52 @@
             <span class="n">logic_dicts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="n">var</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">regulators</span><span class="p">),</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">bf</span><span class="o">.</span><span class="n">f</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">cana</span><span class="o">.</span><span class="n">boolean_network</span><span class="o">.</span><span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">Nnodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">logic</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">),</span><span class="n">logic_dicts</span><span class="p">)))</span></div>
 
-    
-<div class="viewcode-block" id="BooleanNetwork.to_pyboolnet_bnet">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.to_pyboolnet_bnet">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_pyboolnet_bnet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+
+<div class="viewcode-block" id="BooleanNetwork.to_bnet">
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.to_bnet">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_bnet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compatability method: Transforms an instance of the class BooleanNetwork, used in this toolbox, into a bnet object from the pyboolnet module.</span>
-<span class="sd">    </span>
+<span class="sd">        Compatability method: Returns a bnet object from the pyboolnet module.</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            - A string describing a bnet from the pyboolnet module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">bf</span><span class="p">,</span><span class="n">regulators</span><span class="p">,</span><span class="n">variable</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">):</span>
             <span class="n">polynomial</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">bool_to_poly</span><span class="p">(</span><span class="n">bf</span><span class="o">.</span><span class="n">f</span><span class="p">,</span><span class="n">variables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">regulators</span><span class="p">])</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s1">,    </span><span class="si">{</span><span class="n">polynomial</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s1">,</span><span class="se">\t</span><span class="si">{</span><span class="n">polynomial</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
         
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span>
+    
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Boolean network of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2"> nodes with degrees </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="si">}</span><span class="s2">&quot;</span>
+    
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="c1">#return (self.F[index],self.I[index],self.variables[index])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    
+    
+<div class="viewcode-block" id="BooleanNetwork.get_left_side_of_truth_table">
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_left_side_of_truth_table">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_left_side_of_truth_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="ow">in</span> <span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">left_side_of_truth_tables</span><span class="p">:</span>
+            <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">left_side_of_truth_tables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)))</span>
+            <span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">left_side_of_truth_tables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="n">left_side_of_truth_table</span>
+        <span class="k">return</span> <span class="n">left_side_of_truth_table</span></div>
+
+    
+    
 <div class="viewcode-block" id="BooleanNetwork.update_single_node">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.update_single_node">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.update_single_node">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_single_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">states_regulators</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the state of a single node.</span>
@@ -244,7 +290,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.update_network_synchronously">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.update_network_synchronously">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.update_network_synchronously">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_network_synchronously</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform a synchronous update of a Boolean network.</span>
@@ -267,7 +313,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.update_network_synchronously_many_times">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.update_network_synchronously_many_times">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.update_network_synchronously_many_times">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_network_synchronously_many_times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the state of a Boolean network sychronously multiple time steps.</span>
@@ -288,7 +334,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.update_network_SDDS">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.update_network_SDDS">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.update_network_SDDS">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_network_SDDS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform a stochastic update (SDDS) on a Boolean network.</span>
@@ -321,8 +367,8 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_steady_states_asynchronous">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_steady_states_asynchronous">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_steady_states_asynchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">EXACT</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">left_side_of_truth_table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_steady_states_asynchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">EXACT</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                        <span class="n">initial_sample_points</span><span class="o">=</span><span class="p">[],</span> <span class="n">search_depth</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">SEED</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">DEBUG</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the steady states of a Boolean network under asynchronous updates.</span>
@@ -336,7 +382,6 @@
 <span class="sd">        Parameters:</span>
 <span class="sd">            - nsim (int, optional): Number of initial conditions to simulate (default is 500).</span>
 <span class="sd">            - EXACT (bool, optional): If True, iterate over the entire state space and guarantee finding all steady states (2^N initial conditions); otherwise, use nsim random initial conditions. (Default is False.)</span>
-<span class="sd">            - left_side_of_truth_table (optional): Precomputed truth table (array of tuples) for the target node with len(I[control_target]) inputs. If not provided, it is computed.</span>
 <span class="sd">            - initial_sample_points (list, optional): List of initial states (as binary vectors) to use. If provided and EXACT is False, these override random sampling.</span>
 <span class="sd">            - search_depth (int, optional): Maximum number of asynchronous update iterations to attempt per simulation.</span>
 <span class="sd">            - SEED (int, optional): Random seed. If SEED is -1, a random seed is generated.</span>
@@ -352,8 +397,8 @@
 <span class="sd">                - Seed (int): The random seed used for the simulation.</span>
 <span class="sd">                - InitialSamplePoints (list): The list of initial sample points used (if provided) or those generated during simulation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">EXACT</span> <span class="ow">and</span> <span class="n">left_side_of_truth_table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">))))</span>
+        <span class="k">if</span> <span class="n">EXACT</span><span class="p">:</span>
+            <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">()</span>
 
         <span class="n">sampled_points</span> <span class="o">=</span> <span class="p">[]</span>
         
@@ -441,8 +486,65 @@
 
 
 
+
+    <span class="c1"># def get_random_null_model_with_same_wiring_diagram(self, ):</span>
+    <span class="c1">#     #TODO</span>
+    <span class="c1">#     return generate.random_network(N, n, k=k, STRONGLY_CONNECTED=False, indegree_distribution=&#39;constant&#39;,</span>
+    <span class="c1">#                   left_sides_of_truth_tables=None, layer_structure=None, EXACT_DEPTH=False, NO_SELF_REGULATION=True, LINEAR=False,</span>
+    <span class="c1">#                   edges_wiring_diagram=None, bias=0.5, n_attempts_to_generate_strongly_connected_network = 1000):</span>
+
+        
+    <span class="c1"># def get_null_model(self, wiring_diagram = &#39;fixed&#39;, PRESERVE_BIAS = True, PRESERVE_CANALIZING_DEPTH = True):</span>
+    <span class="c1">#     if wiring_diagram == &#39;fixed&#39;:</span>
+    <span class="c1">#         I = self.I</span>
+            
+        <span class="c1"># F = []  # new rules list</span>
+        <span class="c1"># for i in range(self.N):</span>
+        <span class="c1">#     if i&gt;=n_variables: #constants don&#39;t change</span>
+        <span class="c1">#         randRules.append(np.array([0,1]))</span>
+        <span class="c1">#         continue</span>
+        <span class="c1">#     if PRESERVE_BIAS and PRESERVE_CANALIZING_DEPTH:</span>
+        <span class="c1">#         depth,n_layers,can_inputs,can_outputs,core_polynomial,can_order = can.find_layers(F[i])</span>
+        <span class="c1">#         can_inputs = np.random.choice(2,depth,replace=True)</span>
+        <span class="c1">#         can_order = np.random.choice(deg[i],depth,replace=False)</span>
+        <span class="c1">#         assert len(core_polynomial)!=2,&quot;core polynomial cannot depend on a single variable&quot;</span>
+        <span class="c1">#         if len(core_polynomial)==1:</span>
+        <span class="c1">#             core_function = np.array([1 - can_outputs[-1]],dtype=int)</span>
+        <span class="c1">#         elif len(core_polynomial)==4:</span>
+        <span class="c1">#             core_function = [np.array([0,1,1,0],dtype=int),np.array([1,0,0,1],dtype=int)][np.random.random()&gt;0.5]</span>
+        <span class="c1">#         else:</span>
+        <span class="c1">#             while True:</span>
+        <span class="c1">#                 oneIndices = np.random.choice(len(core_polynomial),sum(core_polynomial),replace=False)</span>
+        <span class="c1">#                 core_function = np.zeros(len(core_polynomial),dtype=int)</span>
+        <span class="c1">#                 core_function[oneIndices] = 1</span>
+        <span class="c1">#                 if not can.is_canalizing(core_function):</span>
+        <span class="c1">#                     if not can.is_degenerated(core_function):</span>
+        <span class="c1">#                         break</span>
+        <span class="c1">#         newRule = -np.ones(degrees[i],dtype=int)</span>
+        <span class="c1">#         for j in range(depth):</span>
+        <span class="c1">#             newRule[np.where(np.bitwise_and(newRule==-1,left_side_of_truth_table[deg[i]-1][:,can_order[j]]==can_inputs[j]))[0]] = can_outputs[j]</span>
+        <span class="c1">#         newRule[np.where(newRule==-1)[0]] = core_function</span>
+        <span class="c1">#     elif PRESERVE_BIAS:  #and PRESERVE_CANALIZING_DEPTH==False</span>
+        <span class="c1">#         #f = generate.random_function</span>
+        <span class="c1">#         numones = sum(F[i])</span>
+        <span class="c1">#         oneIndices = np.random.choice(degrees[i],numones,replace=False)</span>
+        <span class="c1">#         newRule = np.zeros(degrees[i],dtype=int)</span>
+        <span class="c1">#         newRule[oneIndices] = 1</span>
+        <span class="c1">#     else:</span>
+        <span class="c1">#         if preserveCanalizingDepth:</span>
+        <span class="c1">#             depth = can.find_layers(F[i])[0]</span>
+        <span class="c1">#             newRule = can.random_k_canalizing(n=deg[i],k=depth,EXACT_DEPTH_K=True,left_side_of_truth_table=left_side_of_truth_table[deg[i]-1])</span>
+        <span class="c1">#         else:</span>
+        <span class="c1">#             is_all_zeros = True</span>
+        <span class="c1">#             is_all_ones = True</span>
+        <span class="c1">#             while (is_all_zeros == True) or (is_all_ones == True):  # don&#39;t allow all ones or all zeros in new rules</span>
+        <span class="c1">#                 newRule = np.random.choice(2,degrees[i],replace=True)</span>
+        <span class="c1">#                 is_all_zeros = sum(newRule)==0</span>
+        <span class="c1">#                 is_all_ones = sum(newRule)==degrees[i]</span>
+        <span class="c1">#     randRules.append(newRule)</span>
+
 <div class="viewcode-block" id="BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_steady_states_asynchronous_given_one_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">stochastic_weights</span><span class="o">=</span><span class="p">[],</span> <span class="n">initial_condition</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">search_depth</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">SEED</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">DEBUG</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the steady states reachable from one initial condition using weighted asynchronous updates.</span>
@@ -450,7 +552,7 @@
 <span class="sd">        This function is similar to steady_states_asynchronous_given_one_IC but allows the update order</span>
 <span class="sd">        to be influenced by provided stochastic weights (one per node). A weight vector (of length N) may be provided,</span>
 <span class="sd">        and if given, it is normalized and used to bias the random permutation of node update order.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters:</span>
 <span class="sd">            - nsim (int, optional): Number of simulation runs (default is 500).</span>
 <span class="sd">            - stochastic_weights (list, optional): List of stochastic weights (one per node) used to bias update order. If empty, uniform random order is used.</span>
@@ -556,7 +658,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_attractors_synchronous">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_attractors_synchronous">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_synchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">initial_sample_points</span><span class="o">=</span><span class="p">[],</span> <span class="n">n_steps_timeout</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
                                    <span class="n">INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -647,8 +749,8 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_attractors_synchronous_exact">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_attractors_synchronous_exact">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_synchronous_exact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RETURN_DICTF</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_synchronous_exact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RETURN_DICTF</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the exact number of attractors in a Boolean network using a fast, vectorized approach.</span>
 
@@ -657,7 +759,6 @@
 <span class="sd">        Attractors and their basin sizes are then determined by iterating over the entire state space.</span>
 
 <span class="sd">        Parameters:</span>
-<span class="sd">            - left_side_of_truth_table (optional): Precomputed truth table (array of tuples) for the target node with len(I[control_target]) inputs. If not provided, it is computed.</span>
 <span class="sd">            - RETURN_DICTF (bool, optional): If True, the state space is returned as a dictionary, in which each state is associated by its decimal representation.</span>
 
 <span class="sd">        Returns:</span>
@@ -669,15 +770,13 @@
 <span class="sd">                - StateSpace (np.array): The constructed state space matrix (of shape (2^N, N)).</span>
 <span class="sd">                - FunctionTransitionDict (dict, only returned if RETURN_DICTF==True): State space as dictionary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>        
-        <span class="k">if</span> <span class="n">left_side_of_truth_table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)))))</span>
-        
+        <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">()</span>
+
         <span class="n">powers_of_two</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">degrees</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">))</span>
         
         <span class="n">state_space</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="n">degrees</span><span class="p">[</span><span class="n">i</span><span class="p">])):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">[</span><span class="n">i</span><span class="p">])):</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
                     <span class="c1"># For rows in left_side_of_truth_table where the columns I[i] equal x, set state_space accordingly.</span>
                     <span class="n">state_space</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">left_side_of_truth_table</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
@@ -717,7 +816,7 @@
 
     <span class="c1">## Transform Boolean networks</span>
 <div class="viewcode-block" id="BooleanNetwork.get_essential_network">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_essential_network">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_essential_network">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_essential_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the essential components of a Boolean network.</span>
@@ -763,8 +862,8 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_edge_controlled_network">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_edge_controlled_network">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_controlled_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_target</span><span class="p">,</span> <span class="n">control_source</span><span class="p">,</span> <span class="n">type_of_edge_control</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">left_side_of_truth_table</span><span class="o">=</span><span class="p">[]):</span>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_edge_controlled_network">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_controlled_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_target</span><span class="p">,</span> <span class="n">control_source</span><span class="p">,</span> <span class="n">type_of_edge_control</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a perturbed Boolean network by removing the influence of a specified regulator on a specified target.</span>
 
@@ -776,7 +875,6 @@
 <span class="sd">            - control_target (int): Index of the target node to be perturbed.</span>
 <span class="sd">            - control_source (int): Index of the regulator whose influence is to be removed.</span>
 <span class="sd">            - type_of_edge_control (int, optional): Source value in regulation after control. Default is 0.</span>
-<span class="sd">            - left_side_of_truth_table (optional): Precomputed truth table (array of tuples) for the target node with len(I[control_target]) inputs. If not provided, it is computed.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            - BooleanNetwork object where:</span>
@@ -789,8 +887,7 @@
         <span class="n">F_new</span> <span class="o">=</span> <span class="p">[</span><span class="n">bf</span><span class="o">.</span><span class="n">f</span> <span class="k">for</span> <span class="n">bf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">]</span>
         <span class="n">I_new</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">left_side_of_truth_table</span> <span class="o">==</span> <span class="p">[]:</span>
-            <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">control_target</span><span class="p">]))))</span>
+        <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">()</span>
 
         <span class="n">index</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">control_target</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">control_source</span><span class="p">)</span>
         <span class="n">F_new</span><span class="p">[</span><span class="n">control_target</span><span class="p">]</span> <span class="o">=</span> <span class="n">F_new</span><span class="p">[</span><span class="n">control_target</span><span class="p">][</span><span class="n">left_side_of_truth_table</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">type_of_edge_control</span><span class="p">]</span>
@@ -802,7 +899,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_external_inputs">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_external_inputs">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_external_inputs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_external_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identify external inputs in a Boolean network.</span>
@@ -812,14 +909,13 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            - np.array: Array of node indices that are external inputs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">degrees</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="n">degrees</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">])</span></div>
 
 
 
     <span class="c1">## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility</span>
 <div class="viewcode-block" id="BooleanNetwork.get_derrida_value">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_derrida_value">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_derrida_value">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_derrida_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">EXACT</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate the Derrida value for a Boolean network.</span>
@@ -832,7 +928,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            - float: The average Hamming distance (Derrida value) over nsim simulations.</span>
-<span class="sd">        </span>
+
 <span class="sd">        References:</span>
 <span class="sd">            Derrida, B., &amp; Pomeau, Y. (1986). Random networks of automata: a simple annealed approximation. Europhysics letters, 1(2), 45.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -853,15 +949,12 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_and_robustness_measures_synchronous_exact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left_side_of_truth_table</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_and_robustness_measures_synchronous_exact</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the attractors and several robustness measures of a Boolean network.</span>
 
 <span class="sd">        This function computes the exact attractors and robustness (coherence and fragility) of each basin of attraction and of each attractor.</span>
-
-<span class="sd">        Parameters:</span>
-<span class="sd">            - left_side_of_truth_table (optional): Precomputed truth table (array of tuples) for the target node with len(I[control_target]) inputs. If not provided, it is computed.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            - dict: A dictionary containing:</span>
@@ -883,13 +976,10 @@
 <span class="sd">            [2] Bavisetty, V. S. N., Wheeler, M., &amp; Kadelka, C. (2025). </span>
 <span class="sd">                xxxx arXiv preprint arXiv:xxx.xxx.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">left_side_of_truth_table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)))))</span>
-        
+        <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">()</span>
+
         <span class="n">attractors</span><span class="p">,</span> <span class="n">n_attractors</span><span class="p">,</span> <span class="n">basin_sizes</span><span class="p">,</span> <span class="n">attractor_dict</span><span class="p">,</span> <span class="n">state_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attractors_synchronous_exact</span><span class="p">()</span>
-        
         <span class="n">len_attractors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span><span class="n">attractors</span><span class="p">))</span>
-        
         
         <span class="k">if</span> <span class="n">n_attractors</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">attractors</span><span class="p">,</span> <span class="n">n_attractors</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">basin_sizes</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">attractor_dict</span><span class="p">,</span> <span class="n">state_space</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -971,15 +1061,15 @@
                          <span class="s2">&quot;BasinCoherence&quot;</span><span class="p">,</span> <span class="s2">&quot;BasinFragility&quot;</span><span class="p">,</span>
                          <span class="s2">&quot;AttractorCoherence&quot;</span><span class="p">,</span> <span class="s2">&quot;AttractorFragility&quot;</span><span class="p">],</span>
                     <span class="p">(</span><span class="n">attractors</span><span class="p">,</span> <span class="n">n_attractors</span><span class="p">,</span> <span class="n">basin_sizes</span><span class="p">,</span> 
-                <span class="n">attractor_dict</span><span class="p">,</span> <span class="n">state_space</span><span class="p">,</span>
-                <span class="n">coherence</span><span class="p">,</span><span class="n">fragility</span><span class="p">,</span>
-                <span class="n">basin_coherences</span><span class="p">,</span> <span class="n">basin_fragilities</span><span class="p">,</span>
-                <span class="n">attractor_coherences</span><span class="p">,</span> <span class="n">attractor_fragilities</span><span class="p">)))</span></div>
+                     <span class="n">attractor_dict</span><span class="p">,</span> <span class="n">state_space</span><span class="p">,</span>
+                     <span class="n">coherence</span><span class="p">,</span><span class="n">fragility</span><span class="p">,</span>
+                     <span class="n">basin_coherences</span><span class="p">,</span> <span class="n">basin_fragilities</span><span class="p">,</span>
+                     <span class="n">attractor_coherences</span><span class="p">,</span> <span class="n">attractor_fragilities</span><span class="p">)))</span></div>
 
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_attractors_and_robustness_measures_synchronous">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_and_robustness_measures_synchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number_different_IC</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">RETURN_ATTRACTOR_COHERENCE</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Approximate global robustness measures and attractors.</span>
@@ -1008,7 +1098,7 @@
 <span class="sd">                - BasinFragilityApproximation (list): The approximate fragility of each basin.</span>
 <span class="sd">                - AttractorCoherence (list): The exact coherence of each attractor (only computed and returned if RETURN_ATTRACTOR_COHERENCE == True).</span>
 <span class="sd">                - AttractorFragility (list): The exact fragility of each attractor (only computed and returned if RETURN_ATTRACTOR_COHERENCE == True).</span>
-<span class="sd">        </span>
+
 <span class="sd">        References:</span>
 <span class="sd">            [1] Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., &amp; Rozum, J. C. (2023).</span>
 <span class="sd">                Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.</span>
@@ -1028,9 +1118,8 @@
         <span class="n">counter_phase_shifts</span> <span class="o">=</span> <span class="p">[]</span>
         
         <span class="n">height</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">degrees</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">))</span>
         
-        <span class="n">powers_of_2s</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NN</span><span class="p">)])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">NN</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">powers_of_2s</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NN</span><span class="p">)])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">NN</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">&lt;</span><span class="mi">64</span><span class="p">:</span>
             <span class="n">powers_of_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         
@@ -1072,8 +1161,8 @@
                         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span> <span class="c1">#if not, then compute the F(xdec)</span>
                             <span class="n">fx</span> <span class="o">=</span> <span class="p">[]</span>
                             <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-                                <span class="k">if</span> <span class="n">degrees</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
-                                    <span class="n">fx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">jj</span><span class="p">]],</span> <span class="n">powers_of_2s</span><span class="p">[</span><span class="n">degrees</span><span class="p">[</span><span class="n">jj</span><span class="p">]])])</span>
+                                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                                    <span class="n">fx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">jj</span><span class="p">]],</span> <span class="n">powers_of_2s</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">[</span><span class="n">jj</span><span class="p">]])])</span>
                                 <span class="k">else</span><span class="p">:</span><span class="c1">#constant functions whose regulators were all fixed to a specific value</span>
                                     <span class="n">fx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">&lt;</span><span class="mi">64</span><span class="p">:</span>
@@ -1205,8 +1294,8 @@
                                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span> <span class="c1">#if not, then compute the F(xdec)</span>
                                     <span class="n">fx</span> <span class="o">=</span> <span class="p">[]</span>
                                     <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
-                                        <span class="k">if</span> <span class="n">degrees</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
-                                            <span class="n">fx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">jj</span><span class="p">]],</span> <span class="n">powers_of_2s</span><span class="p">[</span><span class="n">degrees</span><span class="p">[</span><span class="n">jj</span><span class="p">]])])</span>
+                                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                                            <span class="n">fx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">jj</span><span class="p">]],</span> <span class="n">powers_of_2s</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">[</span><span class="n">jj</span><span class="p">]])])</span>
                                         <span class="k">else</span><span class="p">:</span><span class="c1">#constant functions whose regulators were all fixed to a specific value</span>
                                             <span class="n">fx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">jj</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">&lt;</span><span class="mi">64</span><span class="p">:</span>
@@ -1273,7 +1362,7 @@
 
         
 <div class="viewcode-block" id="BooleanNetwork.get_strongly_connected_components">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_strongly_connected_components">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_strongly_connected_components">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_strongly_connected_components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the strongly connected components of a wiring diagram.</span>
@@ -1293,7 +1382,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_modular_structure">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_modular_structure">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_modular_structure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_modular_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sccs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_strongly_connected_components</span><span class="p">()</span>
         <span class="n">scc_dict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1310,7 +1399,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.adjacency_matrix">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.adjacency_matrix">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.adjacency_matrix">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">adjacency_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">[],</span> <span class="n">IGNORE_SELFLOOPS</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">IGNORE_CONSTANTS</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct the (binary) adjacency matrix from the wiring diagram.</span>
@@ -1342,7 +1431,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_signed_adjacency_matrix">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_signed_adjacency_matrix">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_signed_adjacency_matrix">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_signed_adjacency_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_of_each_regulation</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">[],</span> <span class="n">IGNORE_SELFLOOPS</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">IGNORE_CONSTANTS</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct the signed adjacency matrix of a Boolean network.</span>
@@ -1379,7 +1468,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_signed_effective_graph">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_signed_effective_graph">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_signed_effective_graph">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_signed_effective_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_of_each_regulation</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">[],</span> <span class="n">IGNORE_SELFLOOPS</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">IGNORE_CONSTANTS</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct the signed effective graph of a Boolean network.</span>
@@ -1418,13 +1507,13 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_ffls">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_ffls">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_ffls">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_ffls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identify feed-forward loops (FFLs) in a Boolean network and optionally determine their types.</span>
 
 <span class="sd">        A feed-forward loop (FFL) is a three-node motif where node i regulates node k both directly and indirectly via node j.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            - tuple: A tuple (ffls, types), where ffls is a list of FFLs and types is a list of corresponding monotonicity types.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1452,7 +1541,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_ffls_from_I">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_ffls_from_I">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_ffls_from_I">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_ffls_from_I</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types_I</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identify feed-forward loops (FFLs) in a Boolean network based solely on the wiring diagram.</span>
@@ -1499,7 +1588,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.generate_networkx_graph">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.generate_networkx_graph">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.generate_networkx_graph">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_networkx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constants</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a NetworkX directed graph from a wiring diagram.</span>
@@ -1523,7 +1612,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.generate_networkx_graph_from_edges">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.generate_networkx_graph_from_edges">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.generate_networkx_graph_from_edges">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_networkx_graph_from_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_variables</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a NetworkX directed graph from an edge list derived from the wiring diagram.</span>
@@ -1546,7 +1635,7 @@
 
 
 <div class="viewcode-block" id="BooleanNetwork.get_type_of_loop">
-<a class="viewcode-back" href="../../bn.html#BNToolbox.boolean_network.BooleanNetwork.get_type_of_loop">[docs]</a>
+<a class="viewcode-back" href="../../bn.html#boolforge.boolean_network.BooleanNetwork.get_type_of_loop">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_type_of_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the regulation types along a feedback loop.</span>
