@@ -55,7 +55,7 @@ class BooleanFunction(object):
         - variables (numpy array): A numpy array of n strings with variable names, default x0, ..., x_{n-1}.
         
     """
-    __slots__ = ['f','n','variables','name']
+    #__slots__ = ['f','n','variables','name']
     
     left_side_of_truth_tables = {}
     
@@ -74,6 +74,8 @@ class BooleanFunction(object):
             self.variables = np.array(['x%i' % i for i in range(self.n)])
             
         self.f = np.array(f, dtype=int)
+        
+        self.canalizing_info = None
 
     @classmethod
     def from_cana(cls, cana_BooleanNode):         
@@ -431,14 +433,14 @@ class BooleanFunction(object):
         This function decomposes a Boolean function into its canalizing layers (standard monomial form)
         by recursively identifying and removing conditionally canalizing variables.
         The output includes the canalizing depth, the number of layers, the canalizing inputs and outputs,
-        the core polynomial, and the order of the canalizing variables.
+        the non-canalizing core polynomial, and the order of the canalizing variables.
 
         Returns:
-            - dict: A dictionary containing:
+            - dict: A dictionary (self.canalizing_info) containing:
                 - CanalizingDepth (int): Canalizing depth (number of conditionally canalizing variables).
                 - NumberOfLayers (int): Number of distinct canalizing layers.
                 - CanalizingInputs (np.array): Array of canalizing input values.
-                - CanalizingOutputs (np.array): Array of canalized output values.
+                - CanalizedOutputs (np.array): Array of canalized output values.
                 - CorePolynomial (np.array): The core polynomial (truth table) after removing canalizing variables.
                 - OrderOfCanalizingVariables (np.array): Array of indices representing the order of canalizing variables.
 
@@ -448,9 +450,11 @@ class BooleanFunction(object):
             Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D. (2022). Revealing the canalizing structure of Boolean functions:
                 Algorithms and applications. Automatica, 146, 110630.
         """
-        return dict(zip(["CanalizingDepth", "NumberOfLayers", "CanalizingInputs", "CanalizingOutputs", "CorePolynomial", "OrderOfCanalizingVariables"],
-                        self._get_layer_structure(can_inputs=np.array([], dtype=int), can_outputs=np.array([], dtype=int),
-                                 can_order=np.array([], dtype=int), variables=[], depth=0, number_layers=0)))
+        if self.canalizing_info is None:
+            self.canalizing_info = dict(zip(["CanalizingDepth", "NumberOfLayers", "CanalizingInputs", "CanalizedOutputs", "CorePolynomial", "OrderOfCanalizingVariables"],
+                                            self._get_layer_structure(can_inputs=np.array([], dtype=int), can_outputs=np.array([], dtype=int),
+                                                                      can_order=np.array([], dtype=int), variables=[], depth=0, number_layers=0)))
+        return self.canalizing_info
 
     
     def get_proportion_of_collectively_canalizing_input_sets(self, k, verbose=False):

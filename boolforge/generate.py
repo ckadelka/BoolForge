@@ -54,6 +54,25 @@ def random_function(n, bias=0.5):
     return BooleanFunction(np.array(np.random.random(2**n) < bias, dtype=int))
 
 
+def random_function_with_exact_hamming_weight(n, hamming_weight):
+    """
+    Generate a random Boolean function in n variables with exact Hamming weight (number of ones).
+
+    The Boolean function is represented as a truth table (an array of length 2^n) in which each entry is 0 or 1.
+    Exactly 'hamming_weight' entries are set to 1.
+
+    Parameters:
+        - n (int): Number of variables.
+        - hamming_weight (int): Probability that a given entry is 1 (default is 0.5).
+
+    Returns:
+        - BooleanFunction: Boolean function object.
+    """
+    assert type(hamming_weight)==int and 0<=hamming_weight<=2**n,"Hamming weight must be an integer between 0 and 2^n."
+    oneIndices = np.random.choice(2**n,hamming_weight,replace=False)
+    f = np.zeros(2**n,dtype=int)
+    f[oneIndices] = 1    
+    return BooleanFunction(f)
 
 
 def random_linear_function(n):
@@ -586,3 +605,55 @@ def random_network(N=None, n=None,
                      bias=bias, absolute_bias=absolute_bias, USE_ABSOLUTE_BIAS=USE_ABSOLUTE_BIAS)
                 
     return BooleanNetwork(F, I)
+
+
+# def get_null_model(bn, wiring_diagram = 'fixed', PRESERVE_BIAS = True, PRESERVE_CANALIZING_DEPTH = True):
+#     if wiring_diagram == 'fixed':
+#         I = bn.I
+        
+#     F = []  # new rules list
+#     for i,f in enumerate(bn.F):
+#         # if i>=n_variables: #constants don't change
+#         #     newF.append(np.array([0,1]))
+#         #     continue
+#         if PRESERVE_BIAS and PRESERVE_CANALIZING_DEPTH:
+#             if f.canalizing_info is None:
+#                 f.get_layer_structure()
+#             depth = f.canalizing_info['CanalizingDepth']
+#             core_polynomial = f.canalizing_info['CorePolynomial']
+#             can_outputs = f.canalizing_info['CanalizedOutputs']
+            
+#             can_inputs = np.random.choice(2,depth,replace=True)
+#             can_order = np.random.choice(f.n,depth,replace=False)
+#             if len(core_polynomial)==1:
+#                 core_function = np.array([1 - can_outputs[-1]],dtype=int)
+#             elif len(core_polynomial)==4:
+#                 core_function = random.choice([np.array([0,1,1,0],dtype=int),np.array([1,0,0,1],dtype=int)])
+#             else:
+#                 while True:
+#                     core_function = random_function_with_exact_hamming_weight(len(core_polynomial), sum(core_polynomial))
+#                     if not can.is_canalizing(core_function):
+#                         if not can.is_degenerated(core_function):
+#                             break
+#             newf = -np.ones(degrees[i],dtype=int)
+#             for j in range(depth):
+#                 newf[np.where(np.bitwise_and(newf==-1,left_side_of_truth_table[deg[i]-1][:,can_order[j]]==can_inputs[j]))[0]] = can_outputs[j]
+#             newf[np.where(newf==-1)[0]] = core_function
+#         elif PRESERVE_BIAS:  #and PRESERVE_CANALIZING_DEPTH==False
+#             #f = generate.random_function
+#             numones = sum(F[i])
+#             oneIndices = np.random.choice(degrees[i],numones,replace=False)
+#             newf = np.zeros(degrees[i],dtype=int)
+#             newf[oneIndices] = 1
+#         elif PRESERVE_CANALIZING_DEPTH:
+#             depth = can.find_layers(F[i])[0]
+#             newf = can.random_k_canalizing(n=deg[i],k=depth,EXACT_DEPTH_K=True,left_side_of_truth_table=left_side_of_truth_table[deg[i]-1])
+#         else:
+#             is_all_zeros = True
+#             is_all_ones = True
+#             while (is_all_zeros == True) or (is_all_ones == True):  # don't allow all ones or all zeros in new rules
+#                 newf = np.random.choice(2,degrees[i],replace=True)
+#                 is_all_zeros = sum(newf)==0
+#                 is_all_ones = sum(newf)==degrees[i]
+#         F.append(newf)
+#     return BooleanNetwork(F, I)
