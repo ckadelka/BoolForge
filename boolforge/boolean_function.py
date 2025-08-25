@@ -83,15 +83,19 @@ class BooleanFunction(object):
         
     def str_expr(self):
         return utils.bool_to_poly(self.f,variables=self.variables)
-
-    def __len__(self):
-        return 2**self.n
-
+    
     def __repr__(self):
-        if self.n < 8:
+        if self.n < 6:
             return f"{type(self).__name__}(f={self.f.tolist()})"
         else:
             return f"{type(self).__name__}(f={self.f})"
+    
+    def __len__(self):
+        return 2**self.n
+    
+    def __sum__(self):
+        return sum(self.f)
+
 
     def __getitem__(self, index):
         return int(self.f[index])

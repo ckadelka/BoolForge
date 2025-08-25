@@ -48,8 +48,8 @@ class BooleanNetwork(object):
     left_side_of_truth_tables = {}
 
     def __init__(self, F, I, variables=None):
-        assert type(F) in [ list, np.ndarray ], "F must be an array"
-        assert type(I) in [ list, np.ndarray ], "I must be an array"
+        assert isinstance(F, (list, np.ndarray)), "F must be an array"
+        assert isinstance(I, (list, np.ndarray)), "I must be an array"
         #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
         assert variables is None or len(F)==len(variables), "len(F)==len(variables) required if variable names are provided"
         assert len(F)==len(I), "len(F)==len(I) required"
@@ -90,30 +90,42 @@ class BooleanNetwork(object):
                 pass            
         return cls(F = F, I = I, variables=variables)
 
-    # @classmethod
-    # def from_pyboolnet(cls, bnet):
-    #     variables = []
-    #     functions = []
-    #     for line in bnet.split('\n'):
-    #         try:
-    #             functions.append(line.split(',')[1].strip())
-    #             variables.append(line.split(',')[0].strip())
-    #         except IndexError:
-    #             try:
-    #                 functions.append(line.split('=')[1].strip())
-    #                 variables.append(line.split('=')[0].strip())
-    #             except IndexError:
-    #                 continue
-    #     dict_variables = dict(zip(variables,range(len(variables))))
-    #     N = len(variables)
-    #     F = []
-    #     I = []
-    #     dict_constants = {}
-    #     for function in functions:
-    #         f,var = utils.f_from_expression(function)
-    #         F.append(f)
-    #         I.append([dict_variables[v] if v in dict_variables else  for v in var])  
-    #     return cls(F = F, I = I, variables=variables)
+    @classmethod
+    def from_bnet(cls, bnet):
+        variables = []
+        functions = []
+        for line in bnet.split('\n'):
+            if line=='' or line[0] == '#':
+                continue
+            try:
+                functions.append(line.split(',')[1].strip())
+                variables.append(line.split(',')[0].strip())
+            except IndexError:
+                try:
+                    functions.append(line.split('=')[1].strip())
+                    variables.append(line.split('=')[0].strip())
+                except IndexError:
+                    continue
+        dict_variables = dict(zip(variables,range(len(variables))))
+        n_variables = len(variables)
+        F = []
+        I = []
+        dict_constants = {}
+        n_constants = 0
+        for function in functions:
+            f,var = utils.f_from_expression(function)
+            F.append(f)
+            for v in var:
+                if v in dict_variables:
+                    I.append(dict_variables[v])
+                elif v in dict_constants:
+                    I.append(n_variables+dict_constants[v])
+                else:
+                    I.append(n_variables+n_constants)
+                    dict_constants[v] = n_constants
+                    n_constants+=1
+        
+        return cls(F = F, I = I, variables=variables)
 
 
     def to_cana(self):
@@ -129,7 +141,7 @@ class BooleanNetwork(object):
         return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts)))
 
 
-    def to_pyboolnet(self):
+    def to_bnet(self):
         """
         Compatability method: Returns a bnet object from the pyboolnet module.
 
@@ -139,7 +151,7 @@ class BooleanNetwork(object):
         lines = []
         for bf,regulators,variable in zip(self.F,self.I,self.variables):
             polynomial = utils.bool_to_poly(bf.f,variables=self.variables[regulators])
-            lines.append(f'{variable},    {polynomial}')
+            lines.append(f'{variable},\t{polynomial}')
         return '\n'.join(lines)
         
     
@@ -787,9 +799,7 @@ class BooleanNetwork(object):
         left_side_of_truth_table = self.get_left_side_of_truth_table()
 
         attractors, n_attractors, basin_sizes, attractor_dict, state_space = self.get_attractors_synchronous_exact()
-        
         len_attractors = list(map(len,attractors))
-        
         
         if n_attractors == 1:
             return (attractors, n_attractors, np.array(basin_sizes)/2**self.N, attractor_dict, state_space, np.ones(1), np.zeros(1), np.ones(1), np.zeros(1), 1, 0)
@@ -871,10 +881,10 @@ class BooleanNetwork(object):
                          "BasinCoherence", "BasinFragility",
                          "AttractorCoherence", "AttractorFragility"],
                     (attractors, n_attractors, basin_sizes, 
-                attractor_dict, state_space,
-                coherence,fragility,
-                basin_coherences, basin_fragilities,
-                attractor_coherences, attractor_fragilities)))
+                     attractor_dict, state_space,
+                     coherence,fragility,
+                     basin_coherences, basin_fragilities,
+                     attractor_coherences, attractor_fragilities)))
 
 
     def get_attractors_and_robustness_measures_synchronous(self, number_different_IC=500, RETURN_ATTRACTOR_COHERENCE = True):
