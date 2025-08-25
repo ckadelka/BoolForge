@@ -1,5 +1,7 @@
 __pycache__/
+/boolforge/__pycache__/
 dist/
 *.egg-info/
 .DS_Store
+.DS_Store?
 /docs/_build
