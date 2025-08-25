@@ -115,13 +115,14 @@ class BooleanNetwork(object):
         for function in functions:
             f,var = utils.f_from_expression(function)
             F.append(f)
+            I.append([])
             for v in var:
                 if v in dict_variables:
-                    I.append(dict_variables[v])
+                    I[-1].append(dict_variables[v])
                 elif v in dict_constants:
-                    I.append(n_variables+dict_constants[v])
+                    I[-1].append(n_variables+dict_constants[v])
                 else:
-                    I.append(n_variables+n_constants)
+                    I[-1].append(n_variables+n_constants)
                     dict_constants[v] = n_constants
                     n_constants+=1
         
@@ -385,6 +386,56 @@ class BooleanNetwork(object):
     #     return generate.random_network(N, n, k=k, STRONGLY_CONNECTED=False, indegree_distribution='constant',
     #                   left_sides_of_truth_tables=None, layer_structure=None, EXACT_DEPTH=False, NO_SELF_REGULATION=True, LINEAR=False,
     #                   edges_wiring_diagram=None, bias=0.5, n_attempts_to_generate_strongly_connected_network = 1000):
+
+        
+    def get_null_model(self, wiring_diagram = 'fixed', PRESERVE_BIAS = True, PRESERVE_CANALIZING_DEPTH = True):
+        if wiring_diagram == 'fixed':
+            I = self.I
+            
+        F = []  # new rules list
+        for i in range(self.N):
+            if i>=n_variables: #constants don't change
+                randRules.append(np.array([0,1]))
+                continue
+            if PRESERVE_BIAS and PRESERVE_CANALIZING_DEPTH:
+                depth,n_layers,can_inputs,can_outputs,core_polynomial,can_order = can.find_layers(F[i])
+                can_inputs = np.random.choice(2,depth,replace=True)
+                can_order = np.random.choice(deg[i],depth,replace=False)
+                assert len(core_polynomial)!=2,"core polynomial cannot depend on a single variable"
+                if len(core_polynomial)==1:
+                    core_function = np.array([1 - can_outputs[-1]],dtype=int)
+                elif len(core_polynomial)==4:
+                    core_function = [np.array([0,1,1,0],dtype=int),np.array([1,0,0,1],dtype=int)][np.random.random()>0.5]
+                else:
+                    while True:
+                        oneIndices = np.random.choice(len(core_polynomial),sum(core_polynomial),replace=False)
+                        core_function = np.zeros(len(core_polynomial),dtype=int)
+                        core_function[oneIndices] = 1
+                        if not can.is_canalizing(core_function):
+                            if not can.is_degenerated(core_function):
+                                break
+                newRule = -np.ones(degrees[i],dtype=int)
+                for j in range(depth):
+                    newRule[np.where(np.bitwise_and(newRule==-1,left_side_of_truth_table[deg[i]-1][:,can_order[j]]==can_inputs[j]))[0]] = can_outputs[j]
+                newRule[np.where(newRule==-1)[0]] = core_function
+            elif PRESERVE_BIAS:  #and PRESERVE_CANALIZING_DEPTH==False
+                f = generate.random_function
+                    numones = sum(F[i])
+                    oneIndices = np.random.choice(degrees[i],numones,replace=False)
+                    newRule = np.zeros(degrees[i],dtype=int)
+                    newRule[oneIndices] = 1
+            else:
+                if preserveCanalizingDepth:
+                    depth = can.find_layers(F[i])[0]
+                    newRule = can.random_k_canalizing(n=deg[i],k=depth,EXACT_DEPTH_K=True,left_side_of_truth_table=left_side_of_truth_table[deg[i]-1])
+                else:
+                    is_all_zeros = True
+                    is_all_ones = True
+                    while (is_all_zeros == True) or (is_all_ones == True):  # don't allow all ones or all zeros in new rules
+                        newRule = np.random.choice(2,degrees[i],replace=True)
+                        is_all_zeros = sum(newRule)==0
+                        is_all_ones = sum(newRule)==degrees[i]
+            randRules.append(newRule)
 
     def get_steady_states_asynchronous_given_one_initial_condition(self, nsim=500, stochastic_weights=[], initial_condition=0, search_depth=50, SEED=-1, DEBUG=False):
         """

@@ -50,6 +50,8 @@ def random_function(n, bias=0.5):
     return BF(np.array(np.random.random(2**n) < bias, dtype=int))
 
 
+
+
 def random_linear_function(n):
     """
     Generate a random linear Boolean function in n variables.
@@ -451,6 +453,30 @@ def random_degrees(N,n,indegree_distribution='constant',NO_SELF_REGULATION=True)
         raise AssertionError('None of the predefined in-degree distributions were chosen.\nTo use a user-defined in-degree vector, submit an N-dimensional vector as argument for n; each element of n must an integer between 1 and N.')
     return indegrees
 
+def random_wiring_diagram(N,n,NO_SELF_REGULATION=True, STRONGLY_CONNECTED=False,
+                          indegree_distribution='constant', 
+                          n_attempts_to_generate_strongly_connected_network = 1000):
+    indegrees = random_degrees(N,n,indegree_distribution=indegree_distribution,NO_SELF_REGULATION=NO_SELF_REGULATION)
+
+    counter = 0
+    while True:  # Keep generating until we have a strongly connected graph
+        edges_wiring_diagram = random_edge_list(N, indegrees, NO_SELF_REGULATION)
+        if STRONGLY_CONNECTED:#may take a long time if n is small and N is large
+            G = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
+            if not nx.is_strongly_connected(G):
+                counter+=1
+                if counter>n_attempts_to_generate_strongly_connected_network:
+                    raise RuntimeError('Made '+str(n_attempts_to_generate_strongly_connected_network)+' unsuccessful attempts to generate a strongly connected wiring diagram of '+str(N)+' nodes and degrees '+str(indegrees)+'.\nYou may increase the number of attempts by modulating the parameter n_attempts_to_generate_strongly_connected_network.')
+                continue
+        break
+    I = [[] for _ in range(N)]
+    for edge in edges_wiring_diagram:
+        I[edge[1]].append(edge[0])
+    for i in range(N):
+        I[i] = np.sort(I[i])
+    return I, indegrees
+
+
 def random_network(N=None, n=None, k=0, EXACT_DEPTH=False, layer_structure=None, 
                    LINEAR=False, NO_SELF_REGULATION=True, ALLOW_DEGENERATED_FUNCTIONS=True,
                    STRONGLY_CONNECTED=False, indegree_distribution='constant', 
@@ -492,7 +518,7 @@ def random_network(N=None, n=None, k=0, EXACT_DEPTH=False, layer_structure=None,
 
         >>> random_network(N,n,k=n) #all functions are n-input NCFs of arbitrary layer structure.
 
-        >>> random_network(N,n,k,EXACT_DEPTH=True) #all functions have degree n and exact canalizing depth k.
+        >>> random_network(N,n,k=k,EXACT_DEPTH=True) #all functions have degree n and exact canalizing depth k.
 
         >>> random_network(N,n,layer_structure=[n]) #all functions have degree n and are NCFs with exactly one layer.
 
@@ -511,26 +537,10 @@ def random_network(N=None, n=None, k=0, EXACT_DEPTH=False, layer_structure=None,
     """
 
     if I is None and N is not None and n is not None:
-        # Generate the in-degree based on the specified in-degree distribution and the in-degree parameter n. If n is a vector of length N, this is used as in-degree.
-        indegrees = random_degrees(N,n,indegree_distribution=indegree_distribution,NO_SELF_REGULATION=NO_SELF_REGULATION)
-
-        # Generate the wiring diagram.
-        counter = 0
-        while True:  # Keep generating until we have a strongly connected graph
-            edges_wiring_diagram = random_edge_list(N, indegrees, NO_SELF_REGULATION)
-            if STRONGLY_CONNECTED:#may take a long time if n is small and N is large
-                G = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
-                if not nx.is_strongly_connected(G):
-                    counter+=1
-                    if counter>n_attempts_to_generate_strongly_connected_network:
-                        raise RuntimeError('Made '+str(n_attempts_to_generate_strongly_connected_network)+' unsuccessful attempts to generate a strongly connected wiring diagram of '+str(N)+' nodes and degrees '+str(indegrees)+'.\nYou may increase the number of attempts by modulating the parameter n_attempts_to_generate_strongly_connected_network.')
-                    continue
-            break
-        I = [[] for _ in range(N)]
-        for edge in edges_wiring_diagram:
-            I[edge[1]].append(edge[0])
-        for i in range(N):
-            I[i] = np.sort(I[i])
+        I,indegrees = random_wiring_diagram(N,n,NO_SELF_REGULATION=NO_SELF_REGULATION, 
+                                            STRONGLY_CONNECTED=STRONGLY_CONNECTED,
+                                            indegree_distribution=indegree_distribution, 
+                                            n_attempts_to_generate_strongly_connected_network = n_attempts_to_generate_strongly_connected_network)
     elif I is not None:
         #TODO: add assertions for I
         assert isinstance(I, (list, np.ndarray)), "I must be an array"
