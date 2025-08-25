@@ -13,6 +13,9 @@ import numpy as np
 import itertools
 import networkx as nx
 import random
+import sys
+
+#sys.path.append('../')
 
 try:
     from boolforge.boolean_function import BooleanFunction as BF
@@ -489,7 +492,7 @@ def random_network(N=None, n=None, k=0, EXACT_DEPTH=False, layer_structure=None,
     This function creates a Boolean network of N nodes by first generating a wiring diagram
     (a set of regulatory interactions) according to a specified in-degree distribution and then assigning
     Boolean functions to each node. The functions can be canalizing with prescribed depth and/or specific layer structure,
-    lineear, or random functions with a specified bias.
+    linear, or random functions with a specified bias.
 
     Parameters:
         - N (int): Number of nodes in the network.

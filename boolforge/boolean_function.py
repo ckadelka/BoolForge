@@ -9,6 +9,9 @@ Last Edited on Thu Aug 14 2025
 
 import numpy as np
 import itertools
+import sys
+
+#sys.path.append('../')
 
 try:
     import boolforge.utils as utils

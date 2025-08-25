@@ -12,6 +12,7 @@ Created on Tue Jul 29 09:25:40 2025
 import numpy as np
 import itertools
 
+
 def bin2dec(binary_vector):
     """
     Convert a binary vector to an integer.
