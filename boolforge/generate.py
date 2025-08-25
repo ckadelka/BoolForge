@@ -8,25 +8,23 @@ Last Edited on Thu Aug 14 2025
 """
 
 ##Imports
+import itertools
+import random
 
 import numpy as np
-import itertools
 import networkx as nx
-import random
-import sys
-
-#sys.path.append('../')
 
 try:
-    from boolforge.boolean_function import BooleanFunction as BF
-    from boolforge.boolean_network import BooleanNetwork as BN
+    from boolforge.boolean_function import BooleanFunction
+    from boolforge.boolean_network import BooleanNetwork
 except ModuleNotFoundError:
-    from boolean_function import BooleanFunction as BF
-    from boolean_network import BooleanNetwork as BN
+    from boolean_function import BooleanFunction
+    from boolean_network import BooleanNetwork
 
+
+## Helper variables and functions 
 
 left_side_of_truth_tables = {}
-
 
 def get_left_side_of_truth_table(n):
     if n in left_side_of_truth_tables:
@@ -35,6 +33,9 @@ def get_left_side_of_truth_table(n):
         left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
         left_side_of_truth_tables[n] = left_side_of_truth_table
     return left_side_of_truth_table
+
+
+## Random function generation
 
 def random_function(n, bias=0.5):
     """
@@ -50,7 +51,7 @@ def random_function(n, bias=0.5):
     Returns:
         - BooleanFunction: Boolean function object.
     """
-    return BF(np.array(np.random.random(2**n) < bias, dtype=int))
+    return BooleanFunction(np.array(np.random.random(2**n) < bias, dtype=int))
 
 
 
@@ -73,7 +74,7 @@ def random_linear_function(n):
     for i in range(1 << n):
         if i.bit_count() % 2 == val:
             f[i] = 1
-    return BF(f)
+    return BooleanFunction(f)
 
 
 def random_non_degenerated_function(n, bias=0.5):
@@ -125,7 +126,7 @@ def random_degenerated_function(n, bias=0.5):
     indices = (np.arange(2**n)//(2**index_non_essential_variable))%2==1
     f[indices] = f_original.f
     f[~indices] = f_original.f
-    return BF(f)
+    return BooleanFunction(f)
 
 
 def random_non_canalizing_function(n, bias=0.5):
@@ -148,7 +149,7 @@ def random_non_canalizing_function(n, bias=0.5):
     """
     assert type(n)==int and n > 1, "n must be an integer > 1"
     while True:  # works because most functions are non-canalizing
-        f = BF(np.array(np.random.random(2**n) < bias, dtype=int))
+        f = BooleanFunction(np.array(np.random.random(2**n) < bias, dtype=int))
         if not f.is_canalizing():
             return f
 
@@ -172,12 +173,12 @@ def random_non_canalizing_non_degenerated_function(n, bias=0.5):
     """
     assert type(n)==int and n > 1, "n must be an integer > 1"
     while True:  # works because most functions are non-canalizing and non-degenerated
-        f = BF(np.array(np.random.random(2**n) < bias, dtype=int))
+        f = BooleanFunction(np.array(np.random.random(2**n) < bias, dtype=int))
         if not f.is_canalizing() and not f.is_degenerated():
             return f
 
 
-def random_k_canalizing_function(n, k, EXACT_DEPTH=False):
+def random_k_canalizing_function(n, k, EXACT_DEPTH=False, ALLOW_DEGENERATED_FUNCTIONS=True):
     """
     Generate a random k-canalizing Boolean function in n variables.
 
@@ -188,6 +189,7 @@ def random_k_canalizing_function(n, k, EXACT_DEPTH=False):
         - n (int): Total number of variables.
         - k (int): Number of canalizing variables. Set k==n to generate a random nested canalizing function.
         - EXACT_DEPTH (bool, optional): If True, enforce that the canalizing depth is exactly k (default is False).
+        - ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default) and k==0 and layer_structure is None, degenerated functions may be created as in NK-Kauffman networks.
 
     Returns:
         - BooleanFunction: Boolean function object.
@@ -206,14 +208,19 @@ def random_k_canalizing_function(n, k, EXACT_DEPTH=False):
     aas = np.random.randint(2, size=k)  # canalizing inputs
     bbs = np.random.randint(2, size=k)  # canalized outputs
 
-    # The activator_or_inhibitor parameter is currently not used.
     can_vars = np.random.choice(n, k, replace=False)
     f = np.zeros(num_values, dtype=int)
     if k < n:
-        if EXACT_DEPTH:
-            core_polynomial = random_non_canalizing_non_degenerated_function(n - k).f
+        if ALLOW_DEGENERATED_FUNCTIONS:
+            if EXACT_DEPTH:
+                core_polynomial = random_non_canalizing_function(n - k).f
+            else:
+                core_polynomial = random_function(n - k).f
         else:
-            core_polynomial = random_non_degenerated_function(n - k).f
+            if EXACT_DEPTH:
+                core_polynomial = random_non_canalizing_non_degenerated_function(n - k).f
+            else:
+                core_polynomial = random_non_degenerated_function(n - k).f
     else:
         core_polynomial = [1 - bbs[-1]]
     counter_non_canalized_positions = 0
@@ -225,10 +232,10 @@ def random_k_canalizing_function(n, k, EXACT_DEPTH=False):
         else:
             f[i] = core_polynomial[counter_non_canalized_positions]
             counter_non_canalized_positions += 1
-    return BF(f)
+    return BooleanFunction(f)
 
 
-def random_k_canalizing_function_with_specific_layer_structure(n, layer_structure, EXACT_DEPTH=False):
+def random_k_canalizing_function_with_specific_layer_structure(n, layer_structure, EXACT_DEPTH=False, ALLOW_DEGENERATED_FUNCTIONS=True):
     """
     Generate a random Boolean function in n variables with a specified canalizing layer structure.
 
@@ -239,6 +246,7 @@ def random_k_canalizing_function_with_specific_layer_structure(n, layer_structur
         - n (int): Total number of variables.
         - layer_structure (list): List [k_1, ..., k_r] describing the canalizing layer structure. Each k_i ≥ 1, and if sum(layer_structure) == n and n > 1, then layer_structure[-1] ≥ 2. Set sum(layer_structure)==n to generate a random nested canalizing function.
         - EXACT_DEPTH (bool, optional): If True, the canalizing depth is exactly sum(layer_structure) (default is False).
+        - ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default) and k==0 and layer_structure is None, degenerated functions may be created as in NK-Kauffman networks.
 
     Returns:
         - BooleanFunction: Boolean function object.
@@ -272,10 +280,16 @@ def random_k_canalizing_function_with_specific_layer_structure(n, layer_structur
     can_vars = np.random.choice(n, k, replace=False)
     f = np.zeros(num_values, dtype=int)
     if k < n:
-        if EXACT_DEPTH:
-            core_polynomial = random_non_canalizing_non_degenerated_function(n - k).f
+        if ALLOW_DEGENERATED_FUNCTIONS:
+            if EXACT_DEPTH:
+                core_polynomial = random_non_canalizing_function(n - k).f
+            else:
+                core_polynomial = random_function(n - k).f
         else:
-            core_polynomial = random_non_degenerated_function(n - k).f
+            if EXACT_DEPTH:
+                core_polynomial = random_non_canalizing_non_degenerated_function(n - k).f
+            else:
+                core_polynomial = random_non_degenerated_function(n - k).f
     else:
         core_polynomial = [1 - bbs[-1]]
     counter_non_canalized_positions = 0
@@ -287,7 +301,7 @@ def random_k_canalizing_function_with_specific_layer_structure(n, layer_structur
         else:
             f[i] = core_polynomial[counter_non_canalized_positions]
             counter_non_canalized_positions += 1
-    return BF(f)
+    return BooleanFunction(f)
 
 
 def random_nested_canalizing_function(n,layer_structure=None):
@@ -324,42 +338,8 @@ def random_NCF(n,layer_structure=None):
     '''
     return random_nested_canalizing_function(n=n,layer_structure=layer_structure)
 
-def random_adjacency_matrix(N, indegrees, NO_SELF_REGULATION=True, STRONGLY_CONNECTED=False):
-    """
-    Generate a random adjacency matrix for a network of N nodes.
 
-    Each node i is assigned indegrees[i] outgoing edges (regulators) chosen at random.
-    Optionally, self-regulation (an edge from a node to itself) can be disallowed,
-    and the generated network can be forced to be strongly connected.
-
-    Parameters:
-        - N (int): Number of nodes.
-        - indegrees (list or array-like): List of length N specifying the number of outgoing edges for each node.
-        - NO_SELF_REGULATION (bool, optional): If True, self-regulation is disallowed (default is True).
-        - STRONGLY_CONNECTED (bool, optional): If True, the generated network is forced to be strongly connected (default is False).
-
-    Returns:
-        - tuple: (matrix, indices) where:
-            - matrix (np.array): An N x N adjacency matrix with entries 0 or 1.
-            - indices (list): A list of length N, where each element is an array of selected target indices for the corresponding node.
-    """
-    matrix = np.zeros((N, N), dtype=int)
-    indices = []
-    for i in range(N):
-        if NO_SELF_REGULATION:
-            indexes = np.random.choice(np.append(np.arange(i), np.arange(i+1, N)), indegrees[i], replace=False)
-        else:
-            indexes = np.random.choice(np.arange(N), indegrees[i], replace=False)
-        indexes = np.sort(indexes)
-        indices.append(indexes)
-        for index in indexes:
-            matrix[i][index] = 1
-    if STRONGLY_CONNECTED:
-        G = nx.from_numpy_array(matrix, parallel_edges=False, create_using=nx.MultiDiGraph())
-        if not nx.is_strongly_connected(G):
-            return random_adjacency_matrix(N, indegrees, NO_SELF_REGULATION, STRONGLY_CONNECTED)
-    return (matrix, indices)
-
+## Random network generation
     
 def random_edge_list(N, indegrees, NO_SELF_REGULATION, AT_LEAST_ONE_REGULATOR_PER_NODE=False):
     """
@@ -417,20 +397,20 @@ def random_rules(indegrees, k=0, EXACT_DEPTH=False, layer_structure=None,
         if LINEAR:
             F.append(random_linear_function(indegree))
         elif type(k) in [int, np.int_] and k > 0 and layer_structure is None:
-                F.append(random_k_canalizing_function(indegree, min(k, indegree), EXACT_DEPTH=EXACT_DEPTH))
+                F.append(random_k_canalizing_function(indegree, min(k, indegree), EXACT_DEPTH=EXACT_DEPTH, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS))
         elif type(k) in [list, np.ndarray] and layer_structure is None:
-                F.append(random_k_canalizing_function(indegree, min(int(k[i]), indegree), EXACT_DEPTH=EXACT_DEPTH))
+                F.append(random_k_canalizing_function(indegree, min(int(k[i]), indegree), EXACT_DEPTH=EXACT_DEPTH, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS))
         elif layer_structure is not None:
             if np.all([type(el) in [int, np.int_] for el in layer_structure]):
-                F.append(random_k_canalizing_function_with_specific_layer_structure(indegree, layer_structure, EXACT_DEPTH=EXACT_DEPTH))
+                F.append(random_k_canalizing_function_with_specific_layer_structure(indegree, layer_structure, EXACT_DEPTH=EXACT_DEPTH, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS))
             else:
-                F.append(random_k_canalizing_function_with_specific_layer_structure(indegree, layer_structure[i], EXACT_DEPTH=EXACT_DEPTH))
+                F.append(random_k_canalizing_function_with_specific_layer_structure(indegree, layer_structure[i], EXACT_DEPTH=EXACT_DEPTH, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS))
         else:
             if USE_ABSOLUTE_BIAS:             
                 bias_of_function = random.choice([0.5*(1-absolute_bias),0.5*(1+absolute_bias)])
             else:
                 bias_of_function = bias
-            if ALLOW_DEGENERATED_FUNCTIONS:
+            if ALLOW_DEGENERATED_FUNCTIONS==False:
                 if EXACT_DEPTH is True:
                     F.append(random_non_canalizing_non_degenerated_function(indegree, bias_of_function))
                 else:
@@ -463,12 +443,30 @@ def random_degrees(N,n,indegree_distribution='constant',NO_SELF_REGULATION=True)
 def random_wiring_diagram(N,n,NO_SELF_REGULATION=True, STRONGLY_CONNECTED=False,
                           indegree_distribution='constant', 
                           n_attempts_to_generate_strongly_connected_network = 1000):
+    """
+    Generate a random wiring diagram for a network of N nodes.
+
+    Each node i is assigned indegrees[i] outgoing edges (regulators) chosen at random.
+    Optionally, self-regulation (an edge from a node to itself) can be disallowed,
+    and the generated network can be forced to be strongly connected.
+
+    Parameters:
+        - N (int): Number of nodes.
+        - indegrees (list or array-like): List of length N specifying the number of outgoing edges for each node.
+        - NO_SELF_REGULATION (bool, optional): If True, self-regulation is disallowed (default is True).
+        - STRONGLY_CONNECTED (bool, optional): If True, the generated network is forced to be strongly connected (default is False).
+
+    Returns:
+        - tuple: (matrix, indices) where:
+            - matrix (np.array): An N x N adjacency matrix with entries 0 or 1.
+            - indices (list): A list of length N, where each element is an array of selected target indices for the corresponding node.
+    """
     indegrees = random_degrees(N,n,indegree_distribution=indegree_distribution,NO_SELF_REGULATION=NO_SELF_REGULATION)
 
     counter = 0
     while True:  # Keep generating until we have a strongly connected graph
         edges_wiring_diagram = random_edge_list(N, indegrees, NO_SELF_REGULATION)
-        if STRONGLY_CONNECTED:#may take a long time if n is small and N is large
+        if STRONGLY_CONNECTED:#may take a long time ("forever") if n is small and N is large
             G = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
             if not nx.is_strongly_connected(G):
                 counter+=1
@@ -484,19 +482,25 @@ def random_wiring_diagram(N,n,NO_SELF_REGULATION=True, STRONGLY_CONNECTED=False,
     return I, indegrees
 
 
-def random_network(N=None, n=None, k=0, EXACT_DEPTH=False, layer_structure=None, 
-                   LINEAR=False, NO_SELF_REGULATION=True, ALLOW_DEGENERATED_FUNCTIONS=True,
-                   STRONGLY_CONNECTED=False, indegree_distribution='constant', 
-                   I=None, 
+def random_network(N=None, n=None, 
+                   k=0, EXACT_DEPTH=False, layer_structure=None, 
+                   ALLOW_DEGENERATED_FUNCTIONS=True, LINEAR=False, 
                    bias=0.5, absolute_bias = 0, USE_ABSOLUTE_BIAS=True, 
-                   n_attempts_to_generate_strongly_connected_network = 1000):
+                   NO_SELF_REGULATION=True, 
+                   STRONGLY_CONNECTED=False, 
+                   indegree_distribution='constant', 
+                   n_attempts_to_generate_strongly_connected_network = 1000, 
+                   I=None):
     """
     Generate a random Boolean network (BN).
 
-    This function creates a Boolean network of N nodes by first generating a wiring diagram
-    (a set of regulatory interactions) according to a specified in-degree distribution and then assigning
-    Boolean functions to each node. The functions can be canalizing with prescribed depth and/or specific layer structure,
-    linear, or random functions with a specified bias.
+    This function creates a random Boolean network of N nodes in two steps:
+        1. A random wiring diagram is generated using random_wiring_diagram 
+           Note: this step is passed if the wiring diagram is provided via I.
+        2. Random update rules are generated using random_rules. The degree of the
+           rules is determined by the wiring diagram. The functions themselves 
+           can be canalizing with prescribed depth and/or specific layer structure,
+           linear, or random functions with a specified bias.
 
     Parameters:
         - N (int): Number of nodes in the network.
@@ -504,16 +508,16 @@ def random_network(N=None, n=None, k=0, EXACT_DEPTH=False, layer_structure=None,
         - k (int, list, or np.array, optional): Specifies the minimal canalizing depth for each node (exact canalizing depth if EXACT_DEPTH==True). If an integer, the same depth is used for all nodes; if a vector, each node gets its own depth. Default is 0.
         - EXACT_DEPTH (bool, optional): If True, Boolean functions are generated with exactly the specified canalizing depth; if False, the functions have at least that depth. Default is False.
         - layer_structure (optional): Specifies the canalizing layer structure for the Boolean functions. If provided, the parameter k is ignored.
-        - LINEAR (bool, optional): If True, Boolean functions are generated to be linear. Default is False.
-        - NO_SELF_REGULATION (bool, optional): If True, self-regulation (self-loops) is disallowed. Default is True.
         - ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default) and k==0 and layer_structure is None, degenerated functions may be created as in NK-Kauffman networks.
-        - STRONGLY_CONNECTED (bool, optional): If True, ensures that the generated network is strongly connected. Default is False.
-        - indegree_distribution (str, optional): In-degree distribution to use. Options include 'constant' (or 'dirac'/'delta'), 'uniform', or 'poisson'. Default is 'constant'.
-        - I (list or numpy array, optional): A list of N lists representing the regulators (or inputs) for each node.
+        - LINEAR (bool, optional): If True, Boolean functions are generated to be linear. Default is False.
         - bias (float, optional): Bias of generated Boolean functions (probability of output 1). Default is 0.5. Ignored unless k==0 and LINEAR==False and layer_structure is None.
         - absolute_bias (float, optional): Absolute bias of generated Boolean functions. Default is 0. Ignored unless k==0 and LINEAR==False and layer_structure is None and USE_ABSOLUTE_BIAS==True.
         - USE_ABSOLUTE_BIAS (bool, optional): Determines if absolute bias or regular bias is used in the generation of functions. Default is True (i.e., absolute bias). Ignored unless k==0 and LINEAR==False and layer_structure is None.
+        - NO_SELF_REGULATION (bool, optional): If True, self-regulation (self-loops) is disallowed. Default is True.
+        - STRONGLY_CONNECTED (bool, optional): If True, ensures that the generated network is strongly connected. Default is False.
+        - indegree_distribution (str, optional): In-degree distribution to use. Options include 'constant' (or 'dirac'/'delta'), 'uniform', or 'poisson'. Default is 'constant'.
         - n_attempts_to_generate_strongly_connected_network (integer, optional): Number of attempts to generate a strongly connected wiring diagram before raising an error and quitting.
+        - I (list or numpy array, optional): A list of N lists representing the regulators (or inputs) for each node.
     
     Returns:
         - BooleanNetwork: Boolean network object.
@@ -539,7 +543,8 @@ def random_network(N=None, n=None, k=0, EXACT_DEPTH=False, layer_structure=None,
 
         >>> random_network(N,n,indegree_distribution='Poisson') #Creates a random network where the degree of each node is drawn from a truncated Poisson distribution with parameter n, min = 1, max = N - int(NO_SELF_REGULATION).
 
-        >>> random_network(I = I) #Creates a random network with defined wiring diagram (specified by I, see BooleanNetwork.I), only randomizes the update rules.
+        >>> bn = random_network(N,n)
+            random_network(I = bn.I) #Creates a random network with defined wiring diagram (specified by I, see BooleanNetwork.I), only randomizes the update rules.
 
     """
 
@@ -580,4 +585,4 @@ def random_network(N=None, n=None, k=0, EXACT_DEPTH=False, layer_structure=None,
                      LINEAR=LINEAR, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,
                      bias=bias, absolute_bias=absolute_bias, USE_ABSOLUTE_BIAS=USE_ABSOLUTE_BIAS)
                 
-    return BN(F, I)
+    return BooleanNetwork(F, I)
