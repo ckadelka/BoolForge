@@ -95,9 +95,6 @@ class BooleanFunction(object):
     
     def __len__(self):
         return 2**self.n
-    
-    def __sum__(self): #Hamming weight
-        return sum(self.f)
 
     def __getitem__(self, index):
         return int(self.f[index])
@@ -131,6 +128,10 @@ class BooleanFunction(object):
             BooleanFunction.left_side_of_truth_tables[self.n] = left_side_of_truth_table
         return left_side_of_truth_table
     
+    
+    def get_hamming_weight(self):
+        return int(self.f.sum())
+    
     def is_constant(self):
         """
         Check whether a Boolean function is constant.
@@ -138,7 +139,7 @@ class BooleanFunction(object):
         Returns:
             - bool: True if f is constant (all outputs are 0 or all are 1), False otherwise.
         """
-        return sum(self.f) in [0, 2**self.n]
+        return self.get_hamming_weight() in [0, 2**self.n]
     
     def is_degenerated(self):
         """
@@ -278,15 +279,14 @@ class BooleanFunction(object):
         """
         Compute the absolute bias of a Boolean function.
 
-        The absolute bias is defined as `|(sum(f) / 2^(n-1)) - 1|`, which quantifies how far the function's output distribution
-        deviates from being balanced.
+        The absolute bias is defined as `|(self.get_hamming_weight() / 2^(n-1)) - 1|`, which quantifies how far the function's output distribution deviates from being balanced.
 
         Returns:
             - float: The absolute bias of the Boolean function.
         """
-        return abs(sum(self.f) * 1.0 / 2**(self.n - 1) - 1)
+        return abs(self.get_hamming_weight() * 1.0 / 2**(self.n - 1) - 1)
     
-    def get_average_sensitivity(self, nsim=10000, EXACT=False, NORMALIZED=True):
+    def get_average_sensitivity(self, nsim=10000, EXACT=False, NORMALIZED=True, *, rng=None):
         """
         Compute the average sensitivity of a Boolean function.
 
@@ -301,7 +301,7 @@ class BooleanFunction(object):
 
         Returns:
             - float: The (normalized) average sensitivity of the Boolean function.
-        """
+        """        
         size_state_space = 2**self.n
         s = 0
         if EXACT:
@@ -316,10 +316,12 @@ class BooleanFunction(object):
             else:
                 return s / size_state_space
         else:
+            rng = utils._coerce_rng(rng)
+
             for i in range(nsim):
-                xdec = np.random.randint(size_state_space)
+                xdec = rng.integers(size_state_space)
                 Y = utils.dec2bin(xdec, self.n)
-                index = np.random.randint(self.n)
+                index = rng.integers(self.n)
                 Y[index] = 1 - Y[index]
                 Ybin = utils.bin2dec(Y)
                 s += int(self.f[xdec] != self.f[Ybin])
@@ -375,7 +377,7 @@ class BooleanFunction(object):
         if k == 0:
             return True
 
-        w = sum(self.f)  # Hamming weight of f
+        w = self.get_hamming_weight()  # Hamming weight of f
         if w == 0 or w == 2**self.n:  # constant function
             return False
         desired_value = 2**(self.n - 1)
@@ -398,7 +400,7 @@ class BooleanFunction(object):
         Only for internal use by recursively defined get_layer_structure.
         """
         n = self.n
-        w = sum(self.f)
+        w = self.get_hamming_weight()
         if w == 0 or w == 2**n:  #eventually the recursion will end here (if self.f is a constant function)
             return (depth, number_layers, can_inputs, can_outputs, self, can_order)
         if type(variables) == np.ndarray:
