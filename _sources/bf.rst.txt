@@ -7,4 +7,3 @@ Boolean Function
 .. automodule:: boolforge.boolean_function
    :members:
    :show-inheritance:
-   :undoc-members:
