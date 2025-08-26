@@ -74,6 +74,17 @@ def is_list_or_array_of_ints(x, required_length=None):
     
     return False
 
+def is_list_or_array_of_floats(x, required_length=None):
+    # Case 1: Python list
+    if isinstance(x, list):
+        return (required_length is None or len(x) == required_length) and all(isinstance(el, (float, np.floating)) for el in x)
+    
+    # Case 2: NumPy array
+    if isinstance(x, np.ndarray):
+        return (required_length is None or x.shape == (required_length,)) and np.issubdtype(x.dtype, np.floating)
+    
+    return False
+
 
 def bool_to_poly(f, left_side_of_truth_table=None, variables=None, prefix=''):
     """

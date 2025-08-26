@@ -74,6 +74,8 @@ class BooleanNetwork(object):
                 
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.indegrees = list(map(len, self.I))
+        self.outdegrees = self.get_outdegrees()
+        
 
     @classmethod
     def from_cana(cls, cana_BooleanNetwork):
@@ -185,6 +187,20 @@ class BooleanNetwork(object):
             BooleanNetwork.left_side_of_truth_tables[self.N] = left_side_of_truth_table
         return left_side_of_truth_table
     
+    
+    def get_outdegrees(self):
+        """
+        Returns the outdegree of each node.
+        
+        Returns:
+            - np.array: Outdegree of each node.
+        """
+        outdegrees = np.zeros(self.N,dtype=int)
+        for regulators in self.I:
+            for regulator in regulators:
+                outdegrees[regulator] += 1
+        return outdegrees
+        
     
     def update_single_node(self, index, states_regulators):
         """
