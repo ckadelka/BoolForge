@@ -32,7 +32,6 @@ bf = generate.random_non_canalizing_non_degenerated_function(n,bias=bias)
 assert bf.get_layer_structure()['CanalizingDepth']==0 and min(bf.get_edge_effectiveness())>0,"generate.random_non_canalizing_non_degenerated_function failed"
 
 n=np.random.randint(1,9)
-n=1
 k=np.random.randint(0,n) #canalizing depth (exact or minimal depending on EXACT_DEPTH)
 if k==n-1:#require k!=n-1 Boolean functions with exact canalizing depth k==n-1 do not exist
     k+=1
@@ -71,7 +70,7 @@ assert bf.is_k_canalizing(n),"generate.random_NCF failed"
 for w in range(1,2**(n-1),2):
     layer_structure = utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight(n,w)[-1]
     bf = generate.random_NCF(n,layer_structure=layer_structure)
-    test = np.all(np.array(boolean_function.get_layer_structure_from_can_outputs(bf.get_layer_structure()['CanalizingOutputs'])) == np.array(layer_structure))
+    test = np.all(np.array(boolean_function.get_layer_structure_from_canalized_outputs(bf.get_layer_structure()['CanalizedOutputs'])) == np.array(layer_structure))
     assert test,"generate.random_NCF failed for n = {n} and layer_structure = {layer_structure}"
 
 
@@ -79,35 +78,35 @@ for w in range(1,2**(n-1),2):
 
 #create a random NK-Kauffman network. The constant degree is specified by n.
 bn = generate.random_network(N,n) 
-assert min(bn.degrees)==max(bn.degrees)==n, "failed to create a BN with constant in-degree "+str(n)
+assert min(bn.indegrees)==max(bn.indegrees)==n, "failed to create a BN with constant in-degree "+str(n)
 
 
 #create a BN where all functions have degree n and at least canalizing depth k.
-bn = generate.random_network(N,n,k)
+bn = generate.random_network(N,n,depths=k)
 depths = [bf.get_layer_structure()['CanalizingDepth'] for bf in bn]
 assert min(depths)>=k, "failed to create a BN with minimal canalizing depth "+str(k)
 
 
 #create a BN where all functions have degree n and exact canalizing depth k.
-bn = generate.random_network(N,n,k, EXACT_DEPTH=True)
+bn = generate.random_network(N,n,depths=k, EXACT_DEPTH=True)
 depths = [bf.get_layer_structure()['CanalizingDepth'] for bf in bn]
 assert min(depths)==k, "failed to create a BN with exact canalizing depth "+str(k)
 
 
 #create a BN where all functions are n-input NCFs of arbitrary layer structure.
-bn = generate.random_network(N,n,k=n)
+bn = generate.random_network(N,n,depths=n)
 depths = [bf.get_layer_structure()['CanalizingDepth'] for bf in bn]
 assert min(depths)==n, "failed to create a nested canalizing BN"
 
 
 #create a BN where all functions are n-input NCFs with exactly one layer.
-bn = generate.random_network(N,n,layer_structure=[n])
+bn = generate.random_network(N,n,layer_structures=[n])
 checks_per_function = [bf.get_layer_structure()['CanalizingDepth']==n and bf.get_layer_structure()['NumberOfLayers']==1 for bf in bn]
 assert np.all(checks_per_function), "failed to create BN with only single-layer NCFs"
 
 
 #creates a BN with linear update rules
-bn = generate.random_network(N,n, LINEAR=True)
+bn = generate.random_network(N,n,LINEAR=True)
 assert min([bf.get_effective_degree() for bf in bn]) == n, "failed to create a linear BN, in which the degree of update rules coincides with their effective degree"
 
 

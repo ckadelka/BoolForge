@@ -73,7 +73,7 @@ class BooleanNetwork(object):
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, numpy array, or BooleanFunction")
                 
         self.I = [np.array(regulators,dtype=int) for regulators in I]
-        self.degrees = list(map(len, self.I))
+        self.indegrees = list(map(len, self.I))
 
     @classmethod
     def from_cana(cls, cana_BooleanNetwork):
@@ -163,7 +163,7 @@ class BooleanNetwork(object):
     
     
     def __str__(self):
-        return f"Boolean network of {self.N} nodes with degrees {self.degrees}"
+        return f"Boolean network of {self.N} nodes with indegrees {self.indegrees}"
     
     
     def __getitem__(self, index):
@@ -510,7 +510,7 @@ class BooleanNetwork(object):
         the set of initial sample points used, the explored state space, and the number of simulations that timed out.
 
         Parameters:
-            - nsim (int, optional): Number of initial conditions to simulate (default is 500).
+            - nsim (int, optional): Number of initial conditions to simulate (default is 500). Ignored if 'initial_sample_points' are provided.
             - initial_sample_points (list, optional): List of initial states (in decimal) to use.
             - n_steps_timeout (int, optional): Maximum number of update steps allowed per simulation (default 100000).
             - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If True, initial_sample_points are provided as binary vectors; if False, they are given as decimal numbers. Default is True.
@@ -518,18 +518,18 @@ class BooleanNetwork(object):
         Returns:
             - dict: A dictionary containing:
                 - Attractors (list): List of attractors (each as a list of states in the attractor cycle).
-                - NumberOfAttractors (int): Total number of unique attractors found.
-                - BasinSizes (list): List of counts for each attractor.
+                - NumberOfAttractors (int): Total number of unique attractors found. This is a lower bound.
+                - BasinSizes (list): List of counts for each attractor. This is an unbiased estimator.
                 - AttractorDict (dict): Dictionary mapping states (in decimal) to the index of their attractor.
-                - InitialSamplePoints (list): The initial sample points used (if provided, they are returned; otherwise, the generated points).
-                - StateSpace (list): List of states (in decimal) encountered after one update from initial_sample_points.
+                - InitialSamplePoints (list): The initial sample points used (if provided, they are returned; otherwise, the 'nsim' generated points are returned).
+                - StateSpace (list): Sample of the state transition graph (for 'InitialSamplePoints'), with each state represented as a decimal.
                 - NumberOfTimeouts (int): Number of simulations that timed out before reaching an attractor.
         """
         dictF = dict()
         attractors = []
         basin_sizes = []
         attr_dict = dict()
-        state_space = []
+        STG = []
         
         sampled_points = []
         n_timeout = 0
@@ -561,7 +561,7 @@ class BooleanNetwork(object):
                     dictF.update({xdec: fxdec})
                     x = fx
                 if count == 0:
-                    state_space.append(fxdec)
+                    STG.append(fxdec)
                 try:
                     index_attr = attr_dict[fxdec]
                     basin_sizes[index_attr] += 1
@@ -581,13 +581,13 @@ class BooleanNetwork(object):
                 count += 1
                 if count == n_steps_timeout:
                     n_timeout += 1
-        return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "InitialSamplePoints", "StateSpace", "NumberOfTimeouts"],
+        return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "InitialSamplePoints", "STG", "NumberOfTimeouts"],
                         (attractors, len(attractors), basin_sizes, attr_dict,
                 sampled_points if INITIAL_SAMPLE_POINTS_EMPTY else initial_sample_points,
-                state_space, n_timeout)))
+                STG, n_timeout)))
 
 
-    def get_attractors_synchronous_exact(self, RETURN_DICTF=False):
+    def get_attractors_synchronous_exact(self, RETURN_STG_DICT=False):
         """
         Compute the exact number of attractors in a Boolean network using a fast, vectorized approach.
 
@@ -596,7 +596,7 @@ class BooleanNetwork(object):
         Attractors and their basin sizes are then determined by iterating over the entire state space.
 
         Parameters:
-            - RETURN_DICTF (bool, optional): If True, the state space is returned as a dictionary, in which each state is associated by its decimal representation.
+            - RETURN_STG_DICT (bool, optional): If True, the state space is returned as a dictionary, in which each state is associated by its decimal representation.
 
         Returns:
             - dict: A dictionary containing:
@@ -604,20 +604,20 @@ class BooleanNetwork(object):
                 - NumberOfAttractors (int): Total number of unique attractors.
                 - BasinSizes (list): List of counts for each attractor.
                 - AttractorDict (dict): Dictionary mapping each state (in decimal) to its attractor index.
-                - StateSpace (np.array): The constructed state space matrix (of shape (2^N, N)).
-                - FunctionTransitionDict (dict, only returned if RETURN_DICTF==True): State space as dictionary.
+                - STG (np.array): The state transition graph (of shape (2^N, N)).
+                - STGDict (dict, only returned if RETURN_DICTF==True): The state transition graph as dictionary, with each state represented by its decimal representation.
         """        
         left_side_of_truth_table = self.get_left_side_of_truth_table()
 
         powers_of_two = np.array([2**i for i in range(self.N)])[::-1]
         
-        state_space = np.zeros((2**self.N, self.N), dtype=int)
+        STG = np.zeros((2**self.N, self.N), dtype=int)
         for i in range(self.N):
-            for j, x in enumerate(itertools.product([0, 1], repeat=self.degrees[i])):
+            for j, x in enumerate(itertools.product([0, 1], repeat=self.indegrees[i])):
                 if self.F[i].f[j]:
-                    # For rows in left_side_of_truth_table where the columns I[i] equal x, set state_space accordingly.
-                    state_space[np.all(left_side_of_truth_table[:, self.I[i]] == np.array(x), axis=1), i] = 1
-        dictF = dict(zip(list(range(2**self.N)), np.dot(state_space, powers_of_two)))
+                    # For rows in left_side_of_truth_table where the columns I[i] equal x, set STG accordingly.
+                    STG[np.all(left_side_of_truth_table[:, self.I[i]] == np.array(x), axis=1), i] = 1
+        STG_dict = dict(zip(list(range(2**self.N)), np.dot(STG, powers_of_two)))
         
         attractors = []
         basin_sizes = []
@@ -625,7 +625,7 @@ class BooleanNetwork(object):
         for xdec in range(2**self.N):
             queue = [xdec]
             while True:
-                fxdec = dictF[xdec]
+                fxdec = STG_dict[xdec]
                 try:
                     index_attr = attractor_dict[fxdec]
                     basin_sizes[index_attr] += 1
@@ -642,12 +642,12 @@ class BooleanNetwork(object):
                         pass
                 queue.append(fxdec)
                 xdec = fxdec
-        if RETURN_DICTF:
-            return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "StateSpace", "FunctionTransitionDict"],
-                            (attractors, len(attractors), basin_sizes, attractor_dict, state_space, dictF)))  
+        if RETURN_STG_DICT:
+            return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "STG", "STGDict"],
+                            (attractors, len(attractors), basin_sizes, attractor_dict, STG, STG_dict)))  
         else:
-            return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "StateSpace"],
-                            (attractors, len(attractors), basin_sizes, attractor_dict, state_space)))  
+            return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "STG"],
+                            (attractors, len(attractors), basin_sizes, attractor_dict, STG)))  
 
 
     ## Transform Boolean networks
@@ -669,7 +669,7 @@ class BooleanNetwork(object):
         F_essential = []
         I_essential = []
         for bf, regulators in zip(self.F, self.I):
-            if len(bf.f) == 0:  # happens for biological networks if the actual degree of f was too large for it to be loaded
+            if len(bf.f) == 0:  # happens for biological networks if the actual indegree of f was too large for it to be loaded
                 F_essential.append(bf)
                 I_essential.append(regulators) #keep all regulators (unable to determine if all are essential)
                 continue
@@ -737,7 +737,7 @@ class BooleanNetwork(object):
         Returns:
             - np.array: Array of node indices that are external inputs.
         """
-        return np.array([i for i in range(self.N) if self.degrees[i] == 1 and self.I[i][0] == i])
+        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i])
 
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
@@ -776,7 +776,8 @@ class BooleanNetwork(object):
         """
         Compute the attractors and several robustness measures of a Boolean network.
 
-        This function computes the exact attractors and robustness (coherence and fragility) of each basin of attraction and of each attractor.
+        This function computes the exact attractors and robustness (coherence and fragility) of the entire network,
+        as well as robustness measures for each basin of attraction and each attractor.
 
         Returns:
             - dict: A dictionary containing:
@@ -784,7 +785,6 @@ class BooleanNetwork(object):
                 - ExactNumberOfAttractors (int): The exact number of network attractors.
                 - BasinSizes (list): List of exact basin sizes for each attractor.
                 - AttractorDict (dict): Dictionary mapping each state (in decimal) to its attractor index.
-                - StateSpace (np.array): The constructed state space matrix (of shape (2^N, N)).
                 - Coherence (float): overall exact network coherence
                 - Fragility (float): overall exact network fragility
                 - BasinCoherence (list): exact coherence of each basin.
@@ -801,11 +801,11 @@ class BooleanNetwork(object):
         left_side_of_truth_table = self.get_left_side_of_truth_table()
 
         result = self.get_attractors_synchronous_exact()
-        attractors, n_attractors, basin_sizes, attractor_dict, state_space = result["Attractors"], result["NumberOfAttractors"], result["BasinSizes"], result["AttractorDict"], result["StateSpace"]
+        attractors, n_attractors, basin_sizes, attractor_dict = result["Attractors"], result["NumberOfAttractors"], result["BasinSizes"], result["AttractorDict"]
         len_attractors = list(map(len,attractors))
         
         if n_attractors == 1:
-            return (attractors, n_attractors, np.array(basin_sizes)/2**self.N, attractor_dict, state_space, np.ones(1), np.zeros(1), np.ones(1), np.zeros(1), 1, 0)
+            return (attractors, n_attractors, np.array(basin_sizes)/2**self.N, attractor_dict, np.ones(1), np.zeros(1), np.ones(1), np.zeros(1), 1, 0)
         
         mean_states_attractors = []
         is_attr_dict = dict()
@@ -878,13 +878,13 @@ class BooleanNetwork(object):
         coherence = np.dot(basin_sizes,basin_coherences)
         fragility = np.dot(basin_sizes,basin_fragilities)
         
-        return dict(zip(["Attractors", "ExactNumberOfAttractors", "BasinSizes",
-                         "AttractorDict", "StateSpace",
+        return dict(zip(["Attractors", "ExactNumberOfAttractors", 
+                         "BasinSizes","AttractorDict",
                          "Coherence", "Fragility",
                          "BasinCoherence", "BasinFragility",
                          "AttractorCoherence", "AttractorFragility"],
-                    (attractors, n_attractors, basin_sizes, 
-                     attractor_dict, state_space,
+                    (attractors, n_attractors, 
+                     basin_sizes, attractor_dict,
                      coherence,fragility,
                      basin_coherences, basin_fragilities,
                      attractor_coherences, attractor_fragilities)))
@@ -939,7 +939,7 @@ class BooleanNetwork(object):
         
         height = []
         
-        powers_of_2s = [np.array([2**i for i in range(NN)])[::-1] for NN in range(max(self.degrees)+1)]
+        powers_of_2s = [np.array([2**i for i in range(NN)])[::-1] for NN in range(max(self.indegrees)+1)]
         if self.N<64:
             powers_of_2 = np.array([2**i for i in range(self.N)])[::-1]
         
@@ -981,8 +981,8 @@ class BooleanNetwork(object):
                         except KeyError: #if not, then compute the F(xdec)
                             fx = []
                             for jj in range(self.N):
-                                if self.degrees[jj]>0:
-                                    fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.degrees[jj]])])
+                                if self.indegrees[jj]>0:
+                                    fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.indegrees[jj]])])
                                 else:#constant functions whose regulators were all fixed to a specific value
                                     fx.append(self.F[jj].f[0])
                             if self.N<64:
@@ -1114,8 +1114,8 @@ class BooleanNetwork(object):
                                 except KeyError: #if not, then compute the F(xdec)
                                     fx = []
                                     for jj in range(self.N):
-                                        if self.degrees[jj]>0:
-                                            fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.degrees[jj]])])
+                                        if self.indegrees[jj]>0:
+                                            fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.indegrees[jj]])])
                                         else:#constant functions whose regulators were all fixed to a specific value
                                             fx.append(self.F[jj].f[0])
                                     if self.N<64:

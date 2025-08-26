@@ -44,6 +44,37 @@ def dec2bin(integer_value, num_bits):
     return [int(bit) for bit in binary_string]
 
 
+def check_if_empty(my_list):
+    """
+    Check if the provided list or NumPy array is empty.
+
+    Parameters:
+        - my_list (list or np.ndarray): The list or array to check.
+
+    Returns:
+        - bool: True if my_list is empty (or has size 0 for a NumPy array), False otherwise.
+    """
+    if isinstance(my_list, np.ndarray):
+        if my_list.size == 0:
+            return True
+    elif my_list == []:
+        return True
+    else:
+        return False
+    
+    
+def is_list_or_array_of_ints(x, required_length=None):
+    # Case 1: Python list
+    if isinstance(x, list):
+        return (required_length is None or len(x) == required_length) and all(isinstance(el, (int, np.integer)) for el in x)
+    
+    # Case 2: NumPy array
+    if isinstance(x, np.ndarray):
+        return (required_length is None or x.shape == (required_length,)) and np.issubdtype(x.dtype, np.integer)
+    
+    return False
+
+
 def bool_to_poly(f, left_side_of_truth_table=None, variables=None, prefix=''):
     """
     Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.
@@ -75,25 +106,6 @@ def bool_to_poly(f, left_side_of_truth_table=None, variables=None, prefix=''):
         return ' + '.join(text)
     else:
         return '0'
-
-
-def check_if_empty(my_list):
-    """
-    Check if the provided list or NumPy array is empty.
-
-    Parameters:
-        - my_list (list or np.ndarray): The list or array to check.
-
-    Returns:
-        - bool: True if my_list is empty (or has size 0 for a NumPy array), False otherwise.
-    """
-    if isinstance(my_list, np.ndarray):
-        if my_list.size == 0:
-            return True
-    elif my_list == []:
-        return True
-    else:
-        return False
 
 
 def f_from_expression(expr):
