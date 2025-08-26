@@ -8,7 +8,6 @@ Last Edited on Thu Aug 14 2025
 """
 
 import itertools
-import random
 import math
 from collections import defaultdict
 
@@ -257,7 +256,7 @@ class BooleanNetwork(object):
         return X
 
 
-    def update_network_SDDS(self, X, P):
+    def update_network_SDDS(self, X, P, *, rng=None):
         """
         Perform a stochastic update (SDDS) on a Boolean network.
 
@@ -275,20 +274,21 @@ class BooleanNetwork(object):
         References:
             
         """
+        rng = utils._coerce_rng(rng)
         if type(X)==list:
             X = np.array(X)
         Fx = X.copy()
         for i in range(self.N):
             nextstep = self.update_single_node(index = i, states_regulators = X[self.I[i]])
-            if nextstep > X[i] and random.random() < P[i, 0]:  # activation
+            if nextstep > X[i] and rng.random() < P[i, 0]:  # activation
                 Fx[i] = nextstep
-            elif nextstep < X[i] and random.random() < P[i, 1]:  # degradation
+            elif nextstep < X[i] and rng.random() < P[i, 1]:  # degradation
                 Fx[i] = nextstep
         return Fx
 
 
     def get_steady_states_asynchronous(self, nsim=500, EXACT=False,
-                                       initial_sample_points=[], search_depth=50, SEED=-1, DEBUG=False):
+                                       initial_sample_points=[], search_depth=50, DEBUG=False, *, rng=None):
         """
         Compute the steady states of a Boolean network under asynchronous updates.
 
@@ -303,7 +303,6 @@ class BooleanNetwork(object):
             - EXACT (bool, optional): If True, iterate over the entire state space and guarantee finding all steady states (2^N initial conditions); otherwise, use nsim random initial conditions. (Default is False.)
             - initial_sample_points (list, optional): List of initial states (as binary vectors) to use. If provided and EXACT is False, these override random sampling.
             - search_depth (int, optional): Maximum number of asynchronous update iterations to attempt per simulation.
-            - SEED (int, optional): Random seed. If SEED is -1, a random seed is generated.
             - DEBUG (bool, optional): If True, print debugging information during simulation.
 
         Returns:
@@ -313,9 +312,9 @@ class BooleanNetwork(object):
                 - BasinSizes (list): List of counts showing how many initial conditions converged to each steady state.
                 - SteadyStateDict (dict): Dictionary mapping a steady state (in decimal) to its index in the steady_states list.
                 - FunctionTransitionDict (dict): Dictionary caching state transitions. Keys are tuples (xdec, i) and values are the updated state.
-                - Seed (int): The random seed used for the simulation.
                 - InitialSamplePoints (list): The list of initial sample points used (if provided) or those generated during simulation.
         """
+        rng = utils._coerce_rng(rng)
         if EXACT:
             left_side_of_truth_table = self.get_left_side_of_truth_table()
 
@@ -325,12 +324,7 @@ class BooleanNetwork(object):
             "Warning: sample points were provided but, with option EXACT==True, the entire state space is computed "
             "(and initial sample points ignored)"
         )
-        
-        if SEED == -1:
-            SEED = int(random.random() * 2**31)
-        
-        np.random.seed(SEED)
-        
+                
         dictF = dict()
         steady_states = []
         basin_sizes = []
@@ -342,7 +336,7 @@ class BooleanNetwork(object):
                 xdec = iteration
             else:
                 if initial_sample_points == []:  # generate random initial states on the fly
-                    x = np.random.randint(2, size=self.N)
+                    x = rng.integers(2, size=self.N)
                     xdec = utils.bin2dec(x)
                     sampled_points.append(xdec)
                 else:                
@@ -358,7 +352,7 @@ class BooleanNetwork(object):
                     index_ss = steady_state_dict[xdec]
                 except KeyError:
                     # Asynchronously update the state until a new state is found.
-                    update_order_to_try = np.random.permutation(self.N)
+                    update_order_to_try = rng.permutation(self.N)
                     for i in update_order_to_try:
                         try:
                             fxdec = dictF[(xdec, i)]
@@ -399,12 +393,12 @@ class BooleanNetwork(object):
             print('Warning: only %i of the %i tested initial conditions eventually reached a steady state. Try increasing the search depth. '
                   'It may however also be the case that your asynchronous state space contains a limit cycle.' %
                   (sum(basin_sizes), nsim if not EXACT else 2**self.N))
-        return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "SteadyStateDict", "FunctionTransitionDict", "Seed", "InitialSamplePoints"],
-                        (steady_states, len(steady_states), basin_sizes, steady_state_dict, dictF, SEED,
+        return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "SteadyStateDict", "FunctionTransitionDict", "InitialSamplePoints"],
+                        (steady_states, len(steady_states), basin_sizes, steady_state_dict, dictF,
                 initial_sample_points if initial_sample_points != [] else sampled_points)))
 
 
-    def get_steady_states_asynchronous_given_one_initial_condition(self, nsim=500, stochastic_weights=[], initial_condition=0, search_depth=50, SEED=-1, DEBUG=False):
+    def get_steady_states_asynchronous_given_one_initial_condition(self, nsim=500, stochastic_weights=[], initial_condition=0, search_depth=50, DEBUG=False, *, rng = None):
         """
         Determine the steady states reachable from one initial condition using weighted asynchronous updates.
 
@@ -417,7 +411,6 @@ class BooleanNetwork(object):
             - stochastic_weights (list, optional): List of stochastic weights (one per node) used to bias update order. If empty, uniform random order is used.
             - initial_condition (int or list/np.array, optional): The initial state for all simulations. If an integer, it is converted to a binary vector. Default is 0.
             - search_depth (int, optional): Maximum number of asynchronous update iterations per simulation (default is 50).
-            - SEED (int, optional): Random seed. If -1, a random seed is generated (default is -1).
             - DEBUG (bool, optional): If True, print debugging information (default is False).
 
         Returns:
@@ -428,12 +421,9 @@ class BooleanNetwork(object):
                 - TransientTimes (list): List of lists with transient times (number of updates) for each steady state.
                 - SteadyStateDict (dict): Dictionary mapping a steady state (in decimal) to its index.
                 - FunctionTransitionDict (dict): Dictionary caching computed state transitions.
-                - Seed (int): The random seed used.
                 - UpdateQueues (list): List of state update queues (the sequence of states encountered) for each simulation.
         """
-        if SEED == -1:
-            SEED = int(random.random() * 2**31)
-        np.random.seed(SEED)
+        rng = utils._coerce_rng(rng)
         
         if type(initial_condition) == int:
             initial_condition = np.array(utils.dec2bin(initial_condition, self.N))
@@ -462,9 +452,9 @@ class BooleanNetwork(object):
                     index_ss = steady_state_dict[xdec]
                 except KeyError:
                     if stochastic_weights != []:
-                        update_order_to_try = np.random.choice(self.N, size=self.N, replace=False, p=stochastic_weights)
+                        update_order_to_try = rng.choice(self.N, size=self.N, replace=False, p=stochastic_weights)
                     else:
-                        update_order_to_try = np.random.permutation(self.N)
+                        update_order_to_try = rng.permutation(self.N)
                     for i in update_order_to_try:
                         try:
                             fxdec = dictF[(xdec, i)]
@@ -511,12 +501,12 @@ class BooleanNetwork(object):
         if sum(basin_sizes) < nsim:
             print('Warning: only %i of the %i tested initial conditions eventually reached a steady state. '
                   'Try increasing the search depth. It may also be that your asynchronous state space contains a limit cycle.' % (sum(basin_sizes), nsim))
-        return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "TransientTimes", "SteadyStateDict", "FunctionTransitionDict", "Seed", "UpdateQueues"],
-                        (steady_states, len(steady_states), basin_sizes, transient_times, steady_state_dict, dictF, SEED, queues)))
+        return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "TransientTimes", "SteadyStateDict", "FunctionTransitionDict", "UpdateQueues"],
+                        (steady_states, len(steady_states), basin_sizes, transient_times, steady_state_dict, dictF, queues)))
 
 
     def get_attractors_synchronous(self, nsim=500, initial_sample_points=[], n_steps_timeout=100000,
-                                   INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS=True):
+                                   INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS=True, *, rng=None):
         """
         Compute the number of attractors in a Boolean network using an alternative (v2) approach.
 
@@ -541,6 +531,7 @@ class BooleanNetwork(object):
                 - StateSpace (list): Sample of the state transition graph (for 'InitialSamplePoints'), with each state represented as a decimal.
                 - NumberOfTimeouts (int): Number of simulations that timed out before reaching an attractor.
         """
+        rng = utils._coerce_rng(rng)
         dictF = dict()
         attractors = []
         basin_sizes = []
@@ -556,7 +547,7 @@ class BooleanNetwork(object):
         
         for i in range(nsim):
             if INITIAL_SAMPLE_POINTS_EMPTY:
-                x = np.random.randint(2, size=self.N)
+                x = rng.integers(2, size=self.N)
                 xdec = utils.bin2dec(x)
                 sampled_points.append(xdec)
             else:
@@ -689,11 +680,11 @@ class BooleanNetwork(object):
                 F_essential.append(bf)
                 I_essential.append(regulators) #keep all regulators (unable to determine if all are essential)
                 continue
-            elif sum(bf.f) == 0: #constant zero function
+            elif bf.f.get_hamming_weight() == 0: #constant zero function
                 F_essential.append(BF(np.array([0])))
                 I_essential.append(np.array([], dtype=int))
                 continue
-            elif sum(bf.f) == len(bf.f): #constant one function
+            elif bf.f.get_hamming_weight() == len(bf.f): #constant one function
                 F_essential.append(BF(np.array([1])))
                 I_essential.append(np.array([], dtype=int))
                 continue
@@ -757,7 +748,7 @@ class BooleanNetwork(object):
 
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
-    def get_derrida_value(self, nsim=1000, EXACT = False):
+    def get_derrida_value(self, nsim=1000, EXACT = False, *, rng = None):
         """
         Estimate the Derrida value for a Boolean network.
 
@@ -776,11 +767,12 @@ class BooleanNetwork(object):
         if EXACT:
             return np.mean([bf.get_average_sensitivity(EXACT=True,NORMALIZED=False) for bf in self.F])
         else:
+            rng = utils._coerce_rng(rng)
             hamming_distances = []
             for i in range(nsim):
-                X = np.random.randint(0, 2, self.N)
+                X = rng.integers(2, size = self.N)
                 Y = X.copy()
-                index = np.random.randint(self.N)
+                index = rng.integers(self.N)
                 Y[index] = 1 - Y[index]
                 FX = self.update_network_synchronously(X)
                 FY = self.update_network_synchronously(Y)
@@ -906,7 +898,8 @@ class BooleanNetwork(object):
                      attractor_coherences, attractor_fragilities)))
 
 
-    def get_attractors_and_robustness_measures_synchronous(self, number_different_IC=500, RETURN_ATTRACTOR_COHERENCE = True):
+    def get_attractors_and_robustness_measures_synchronous(self, number_different_IC=500,
+                                                           RETURN_ATTRACTOR_COHERENCE = True, *, rng=None):
         """
         Approximate global robustness measures and attractors.
 
@@ -941,6 +934,7 @@ class BooleanNetwork(object):
             [2] Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). 
                 xxxx arXiv preprint arXiv:xxx.xxx.
         """
+        rng = utils._coerce_rng(rng)
         def lcm(a, b):
             return abs(a*b) // math.gcd(a, b)
         
@@ -973,7 +967,7 @@ class BooleanNetwork(object):
             distance_from_attractor = []
             for j in range(2):
                 if j == 0:
-                    x = np.random.randint(2, size=self.N)
+                    x = rng.integers(2, size=self.N)
                     if self.N<64:
                         xdec = np.dot(x, powers_of_2)
                     else: #out of range of np.int64
@@ -981,7 +975,7 @@ class BooleanNetwork(object):
                     x_old = x.copy()
                 else:
                     x = x_old
-                    random_flipped_bit = np.random.choice(self.N)
+                    random_flipped_bit = rng.integers(self.N)
                     x[random_flipped_bit] = 1 - x[random_flipped_bit]
                     if self.N<64:
                         xdec = np.dot(x, powers_of_2)

@@ -9,9 +9,41 @@ Created on Tue Jul 29 09:25:40 2025
 
 
 ##Imports
+from __future__ import annotations
 import numpy as np
 import itertools
+import random as _py_random
+from numpy.random import Generator as _NPGen, RandomState as _NPRandomState, SeedSequence, default_rng
 
+def _coerce_rng(rng: int | _NPGen | _NPRandomState | _py_random.Random | None = None) -> _NPGen:
+    """
+    Return a NumPy Generator given a variety of rng-like inputs.
+
+    Accepts:
+      - None                -> default_rng()
+      - int (seed)          -> default_rng(seed)
+      - np.random.Generator -> returned as-is
+      - np.random.RandomState -> converted via SeedSequence
+      - random.Random       -> converted via SeedSequence
+
+    Raises:
+      TypeError for unsupported inputs.
+    """
+    if rng is None:
+        return default_rng()
+    if isinstance(rng, _NPGen):
+        return rng
+    if isinstance(rng, (int, np.integer)):
+        return default_rng(int(rng))
+    if isinstance(rng, _NPRandomState):
+        # derive robust entropy from the legacy RNG
+        entropy = rng.randint(0, 2**32, size=4, dtype=np.uint32)
+        return default_rng(SeedSequence(entropy))
+    if isinstance(rng, _py_random.Random):
+        entropy = [_py_random.Random(rng.random()).getrandbits(32) for _ in range(4)]
+        # simpler: entropy = [rng.getrandbits(32) for _ in range(4)]
+        return default_rng(SeedSequence(entropy))
+    raise TypeError(f"Unsupported rng type: {type(rng)!r}")
 
 def bin2dec(binary_vector):
     """
