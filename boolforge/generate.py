@@ -43,6 +43,136 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
                  LINEAR=False, ALLOW_DEGENERATED_FUNCTIONS=False,
                  bias=0.5, absolute_bias = 0, USE_ABSOLUTE_BIAS=False,
                  hamming_weight = None):
+    """
+    Generate a random Boolean function in n variables under flexible constraints.
+
+    Selection logic (first match applies):
+
+      1) If `LINEAR`:
+         → return a random **linear** Boolean function (`random_linear_function`).
+
+      2) Else if `depth > 0` and `layer_structure is None`:
+         → return a **k-canalizing** function with k = min(depth, n) using
+           `random_k_canalizing_function`, with exact canalizing depth
+           if `EXACT_DEPTH=True`.
+
+      3) Else if `layer_structure is not None`:
+         → return a function with the specified **canalizing layer structure**
+           using `random_k_canalizing_function_with_specific_layer_structure`,
+           with exact canalizing depth if `EXACT_DEPTH=True`.
+
+      4) Else if `hamming_weight is None`:
+         - Choose a bias:
+             • If `USE_ABSOLUTE_BIAS=True`, pick randomly from
+               {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}.
+             • Else, use `bias` directly.
+         - Then:
+             • If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
+                 return a **non-canalizing** function with that bias
+                 (`random_non_canalizing_function`).
+             • If `ALLOW_DEGENERATED_FUNCTIONS` and not `EXACT_DEPTH`:
+                 return a fully random function with that bias
+                 (`random_function_with_bias`).
+             • If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
+                 return a **non-canalizing, non-degenerated** function
+                 (`random_non_canalizing_non_degenerated_function`).
+             • Else (default if only 'n' is provided):
+                 return a **non-degenerated** function with that bias
+                 (`random_non_degenerated_function`).
+
+      5) Else (exact `hamming_weight` is provided):
+         → sample uniformly a truth table with the requested number of ones,
+           and keep resampling until the additional constraints implied by
+           `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH` are satisfied:
+             • If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
+                 accept only **non-canalizing**.
+             • If `ALLOW_DEGENERATED_FUNCTIONS` and not `EXACT_DEPTH`:
+                 accept immediately.
+             • If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
+                 accept only **non-canalizing & non-degenerated**.
+             • Else:
+                 accept only **non-degenerated**.
+
+    Parameters
+    ----------
+    n : int
+        Number of variables (n >= 1 for most nontrivial generators).
+    depth : int, optional
+        Requested canalizing depth (used when `layer_structure is None` and
+        `depth > 0`). If `EXACT_DEPTH=True`, the function has exactly this depth
+        (clipped at n); otherwise, at least this depth. Default 0.
+    EXACT_DEPTH : bool, optional
+        Enforce exact canalizing depth where applicable. For the case
+        `depth == 0` this implies **non-canalizing**. Default False.
+    layer_structure : list[int] | None, optional
+        Canalizing layer structure [k1, ..., kr]. If provided, it takes precedence
+        over `depth`. Exact depth behavior follows `EXACT_DEPTH`. Default None.
+    LINEAR : bool, optional
+        If True, ignore other generation options and return a random linear
+        function. Default False.
+    ALLOW_DEGENERATED_FUNCTIONS : bool, optional
+        If True, generators in the “random” branches may return functions with
+        non-essential inputs. If False, those branches insist on non-degenerated
+        functions. Default False.
+    bias : float, optional
+        Probability of 1s when sampling with bias (ignored if
+        `USE_ABSOLUTE_BIAS=True` or a different branch is taken). Must be in [0,1].
+        Default 0.5.
+    absolute_bias : float, optional
+        Absolute deviation parameter in [0,1] used when
+        `USE_ABSOLUTE_BIAS=True`. The actual bias is chosen at random from
+        {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}. Default 0.
+    USE_ABSOLUTE_BIAS : bool, optional
+        If True, use `absolute_bias` to set the distance from 0.5; otherwise use
+        `bias` directly. Default False.
+    hamming_weight : int | None, optional
+        If provided, enforce an exact number of ones in the truth table (0..2^n).
+        Additional constraints apply with `EXACT_DEPTH` and degeneracy settings
+        (see selection logic above). Default None.
+
+    Returns
+    -------
+    BooleanFunction
+        The generated Boolean function of arity n.
+
+    Raises
+    ------
+    AssertionError
+        If parameter ranges are violated, e.g.:
+        - `0 <= bias <= 1` (when used),
+        - `0 <= absolute_bias <= 1` (when used),
+        - `hamming_weight` in {0, ..., 2^n},
+        - If `EXACT_DEPTH=True` and `depth==0`, then
+          `hamming_weight` must be in {2,3,...,2^n−2} (since weights 0,1,2^n−1,2^n
+          are canalizing).
+    AssertionError (from called generators)
+        Some subroutines require `n > 1` for non-canalizing generation.
+
+    Notes
+    -----
+    - Extremely biased random functions (bias close to 0 or 1) are often
+      degenerated; some branches explicitly prevent this by construction.
+
+    Examples
+    --------
+    >>> # Unbiased, non-degenerated random function
+    >>> f = random_function(n=3)
+
+    >>> # Function with minimal canalizing depth 2
+    >>> f = random_function(n=5, depth=2)
+
+    >>> # Function with exact canalizing depth 2
+    >>> f = random_function(n=5, depth=2, EXACT_DEPTH=True)
+
+    >>> # With a specific layer structure (takes precedence over `depth`)
+    >>> f = random_function(n=6, layer_structure=[2, 1], EXACT_DEPTH=False)
+
+    >>> # Linear function
+    >>> f = random_function(n=4, LINEAR=True)
+
+    >>> # Fixed Hamming weight under non-canalizing + non-degenerated constraints
+    >>> f = random_function(n=5, hamming_weight=10, EXACT_DEPTH=True, ALLOW_DEGENERATED_FUNCTIONS=False)
+    """
     if LINEAR:
         return random_linear_function(n)
     elif depth>0 and layer_structure is None:
