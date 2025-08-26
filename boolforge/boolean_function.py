@@ -9,9 +9,6 @@ Last Edited on Thu Aug 14 2025
 
 import numpy as np
 import itertools
-import sys
-
-#sys.path.append('../')
 
 try:
     import boolforge.utils as utils
@@ -281,7 +278,7 @@ class BooleanFunction(object):
         """
         Compute the absolute bias of a Boolean function.
 
-        The absolute bias is defined as |(sum(f) / 2^(n-1)) - 1|, which quantifies how far the function's output distribution
+        The absolute bias is defined as `|(sum(f) / 2^(n-1)) - 1|`, which quantifies how far the function's output distribution
         deviates from being balanced.
 
         Returns:

@@ -7,4 +7,3 @@ Boolean Network
 .. automodule:: boolforge.boolean_network
    :members:
    :show-inheritance:
-   :undoc-members:

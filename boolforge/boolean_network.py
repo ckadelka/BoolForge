@@ -912,9 +912,9 @@ class BooleanNetwork(object):
 
         This function samples the attractor landscape by simulating the network from a number of different initial
         conditions. It computes:
-            1. The coherence: the proportion of neighboring states (in the Boolean hypercube) that, after synchronous update, transition to the same attractor.
-            2. The fragility: a measure of how much the attractor state changes (assumed under synchronous update) in response to perturbations.
-            3. The final time-step Hamming distance between perturbed trajectories.
+            - The coherence: the proportion of neighboring states (in the Boolean hypercube) that, after synchronous update, transition to the same attractor.
+            - The fragility: a measure of how much the attractor state changes (assumed under synchronous update) in response to perturbations.
+            - The final time-step Hamming distance between perturbed trajectories.
 
         In addition, it collects several details about each attractor (such as basin sizes, coherence of each basin, etc.).
 

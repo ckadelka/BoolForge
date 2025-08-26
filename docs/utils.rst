@@ -7,4 +7,3 @@ Utils
 .. automodule:: boolforge.utils
    :members:
    :show-inheritance:
-   :undoc-members:
