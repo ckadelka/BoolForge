@@ -47,25 +47,40 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
 
     Selection logic (first match applies):
 
-      1) If `LINEAR`:
+      1. If `LINEAR`:
          → return a random **linear** Boolean function (`random_linear_function`).
 
-      2) Else if `depth > 0` and `layer_structure is None`:
-         → return a **k-canalizing** function with k = min(depth, n) using
-           `random_k_canalizing_function`, with exact canalizing depth
-           if `EXACT_DEPTH=True`.
-
-      3) Else if `layer_structure is not None`:
+      2. Else if `layer_structure is not None`:
          → return a function with the specified **canalizing layer structure**
            using `random_k_canalizing_function_with_specific_layer_structure`,
            with exact canalizing depth if `EXACT_DEPTH=True`.
 
-      4) Else if `hamming_weight is None`:
-         - Choose a bias:
+      3. Else if `depth > 0` and `layer_structure is None`:
+         → return a **k-canalizing** function with k = min(depth, n) using
+           `random_k_canalizing_function`, with exact canalizing depth
+           if `EXACT_DEPTH=True`.
+
+      4. Else if `hamming_weight is not None`:
+         → sample uniformly a truth table with the requested number of ones,
+           and keep resampling until the additional constraints implied by
+           `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH` are satisfied:
+               
+             • If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
+                 accept only **non-canalizing**.
+             • If `ALLOW_DEGENERATED_FUNCTIONS` and not `EXACT_DEPTH`:
+                 accept immediately.
+             • If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
+                 accept only **non-canalizing & non-degenerated**.
+             • Else:
+                 accept only **non-degenerated**.
+          
+       5. Else
+         → Choose a bias:
              • If `USE_ABSOLUTE_BIAS=True`, pick randomly from
                {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}.
              • Else, use `bias` directly.
-         - Then:
+             
+         → Then:
              • If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
                  return a **non-canalizing** function with that bias
                  (`random_non_canalizing_function`).
@@ -79,19 +94,6 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
                  return a **non-degenerated** function with that bias
                  (`random_non_degenerated_function`).
 
-      5) Else (exact `hamming_weight` is provided):
-         → sample uniformly a truth table with the requested number of ones,
-           and keep resampling until the additional constraints implied by
-           `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH` are satisfied:
-             • If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
-                 accept only **non-canalizing**.
-             • If `ALLOW_DEGENERATED_FUNCTIONS` and not `EXACT_DEPTH`:
-                 accept immediately.
-             • If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
-                 accept only **non-canalizing & non-degenerated**.
-             • Else:
-                 accept only **non-degenerated**.
-
     Parameters
     ----------
     n : int
@@ -102,7 +104,7 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
         (clipped at n); otherwise, at least this depth. Default 0.
     EXACT_DEPTH : bool, optional
         Enforce exact canalizing depth where applicable. For the case
-        `depth == 0` this implies **non-canalizing**. Default False.
+        `depth = 0` this implies **non-canalizing**. Default False.
     layer_structure : list[int] | None, optional
         Canalizing layer structure [k1, ..., kr]. If provided, it takes precedence
         over `depth`. Exact depth behavior follows `EXACT_DEPTH`. Default None.
@@ -115,7 +117,7 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
         functions. Default False.
     bias : float, optional
         Probability of 1s when sampling with bias (ignored if
-        `USE_ABSOLUTE_BIAS=True` or a different branch is taken). Must be in [0,1].
+        `USE_ABSOLUTE_BIAS=True`). Must be in [0,1].
         Default 0.5.
     absolute_bias : float, optional
         Absolute deviation parameter in [0,1] used when
@@ -141,12 +143,14 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
     ------
     AssertionError
         If parameter ranges are violated, e.g.:
+            
         - `0 <= bias <= 1` (when used),
         - `0 <= absolute_bias <= 1` (when used),
         - `hamming_weight` in {0, ..., 2^n},
-        - If `EXACT_DEPTH=True` and `depth==0`, then
+        - If `EXACT_DEPTH=True` and `depth=0`, then
           `hamming_weight` must be in {2,3,...,2^n−2} (since weights 0,1,2^n−1,2^n
           are canalizing).
+          
     AssertionError (from called generators)
         Some subroutines require `n > 1` for non-canalizing generation.
 
@@ -167,7 +171,7 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
     >>> f = random_function(n=5, depth=2, EXACT_DEPTH=True)
 
     >>> # With a specific layer structure (takes precedence over `depth`)
-    >>> f = random_function(n=6, layer_structure=[2, 1], EXACT_DEPTH=False)
+    >>> f = random_function(n=6, layer_structure=[1, 2], EXACT_DEPTH=False)
 
     >>> # Linear function
     >>> f = random_function(n=4, LINEAR=True)
@@ -179,11 +183,28 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
     
     if LINEAR:
         return random_linear_function(n,rng=rng)
-    elif depth>0 and layer_structure is None:
-        return random_k_canalizing_function(n, min(depth, n), EXACT_DEPTH=EXACT_DEPTH, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,rng=rng)
     elif layer_structure is not None:
         return random_k_canalizing_function_with_specific_layer_structure(n, layer_structure, EXACT_DEPTH=EXACT_DEPTH, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,rng=rng)
-    elif hamming_weight is None:
+    elif depth>0:
+        return random_k_canalizing_function(n, min(depth, n), EXACT_DEPTH=EXACT_DEPTH, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,rng=rng)
+    elif hamming_weight is not None:
+        assert isinstance(hamming_weight, (int, np.integer)) and 0<=hamming_weight<=2**n, "Hamming weight must be an integer in {0,1,...,2^n}"
+        assert 1<hamming_weight<2**n-1 or not EXACT_DEPTH,"If EXACT_DEPTH=True and 'depth=0', Hamming_weight must be in 2,3,...,2^n-2. All functions with Hamming weight 0,1,2^n-1,2^n are canalizing"
+        f=random_function_with_exact_hamming_weight(n, hamming_weight,rng=rng)
+        while True:
+            if ALLOW_DEGENERATED_FUNCTIONS and EXACT_DEPTH:
+                if not f.is_canalizing():
+                    return f
+            elif ALLOW_DEGENERATED_FUNCTIONS:
+                return f
+            elif EXACT_DEPTH:
+                if not f.is_canalizing() and not f.is_degenerated():
+                    return f
+            else:
+                if not f.is_degenerated():
+                    return f
+            f=random_function_with_exact_hamming_weight(n, hamming_weight,rng=rng)
+    else:
         if USE_ABSOLUTE_BIAS:
             assert 0<=absolute_bias<=1,"absolute_bias must be in [0,1]. It is double the absolute difference of bias from 0.5."
             bias_of_function = rng.choice([0.5*(1-absolute_bias),0.5*(1+absolute_bias)])
@@ -200,24 +221,6 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
                 return random_non_canalizing_non_degenerated_function(n, bias_of_function,rng=rng)
             else: #generated by default
                 return random_non_degenerated_function(n, bias_of_function,rng=rng)
-    else:
-        assert isinstance(hamming_weight, (int, np.integer)) and 0<=hamming_weight<=2**n, "Hamming weight must be an integer in {0,1,...,2^n}"
-        assert 1<hamming_weight<2**n-1 or not EXACT_DEPTH,"If EXACT_DEPTH==True and depth==0, Hamming_weight must be in 2,3,...,2^n-2. All functions with Hamming weight 0,1,2^n-1,2^n are canalizing"
-        f=random_function_with_exact_hamming_weight(n, hamming_weight,rng=rng)
-        while True:
-            if ALLOW_DEGENERATED_FUNCTIONS and EXACT_DEPTH:
-                if not f.is_canalizing():
-                    return f
-            elif ALLOW_DEGENERATED_FUNCTIONS:
-                return f
-            elif EXACT_DEPTH:
-                if not f.is_canalizing() and not f.is_degenerated():
-                    return f
-            else:
-                if not f.is_degenerated():
-                    return f
-            f=random_function_with_exact_hamming_weight(n, hamming_weight,rng=rng)
-
 
 def random_function_with_bias(n, bias=0.5, *, rng=None):
     """
@@ -398,8 +401,8 @@ def random_k_canalizing_function(n, k, EXACT_DEPTH=False, ALLOW_DEGENERATED_FUNC
     If EXACT_DEPTH is True, the function will have exactly k canalizing variables; otherwise, its canalizing depth may exceed k.
 
     Parameters:
-        - n (int): Total number of variables.
-        - k (int): Number of canalizing variables. Set k==n to generate a random nested canalizing function.
+        - n (int): Number of variables.
+        - k (int): Number of canalizing variables. Set 'k=n' to generate a random nested canalizing function.
         - EXACT_DEPTH (bool, optional): If True, enforce that the canalizing depth is exactly k (default is False).
         - ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False) and k==0 and layer_structure is None, degenerated functions may be created as in classical NK-Kauffman networks.
 
@@ -600,16 +603,16 @@ def random_degrees(N,n,indegree_distribution='constant',NO_SELF_REGULATION=True,
     rng = utils._coerce_rng(rng)
 
     if isinstance(n, (list, np.ndarray)):
-        assert utils.is_list_or_array_of_ints(n,required_length=N) and min(n) >= 1 and max(n) <= N - int(NO_SELF_REGULATION), 'A vector n was submitted.\nEnsure that n is an N-dimensional vector where each element is an integer between 1 and N-int(NO_SELF_REGULATION) representing the upper bound of a uniform degree distribution (lower bound == 1).'
+        assert utils.is_list_or_array_of_ints(n,required_length=N) and min(n) >= 1 and max(n) <= N - int(NO_SELF_REGULATION), 'A vector n was submitted.\nEnsure that n is an N-dimensional vector where each element is an integer between 1 and '+ ('N-1' if NO_SELF_REGULATION else 'N')+' representing the indegree of each nodde.'
         indegrees = np.array(n,dtype=int)
     elif indegree_distribution.lower() in ['constant', 'dirac', 'delta']:
-        assert (isinstance(n, (int, np.integer)) and n >= 1 and n <= N), 'n must be a single integer (or N-dimensional vector of integers) between 1 and N when using a constant degree distribution.'
+        assert (isinstance(n, (int, np.integer)) and n >= 1 and n <= N - int(NO_SELF_REGULATION)), 'n must be an integer between 1 and '+ ('N-1' if NO_SELF_REGULATION else 'N')+' describing the constant degree of each node.'
         indegrees = np.ones(N, dtype=int) * n
     elif indegree_distribution.lower() == 'uniform':
-        assert (isinstance(n, (int, np.integer)) and n >= 1 and n <= N - int(NO_SELF_REGULATION)), 'n must be a single integer (or N-dimensional vector of integers) between 1 and ' + ('N-1' if NO_SELF_REGULATION else 'N')+' representing the upper bound of a uniform degree distribution (lower bound == 1).'
+        assert (isinstance(n, (int, np.integer)) and n >= 1 and n <= N - int(NO_SELF_REGULATION)), 'n must be an integer between 1 and ' + ('N-1' if NO_SELF_REGULATION else 'N')+' representing the upper bound of a uniform degree distribution (lower bound == 1).'
         indegrees = rng.integers(1,n+1, size=N)
     elif indegree_distribution.lower() == 'poisson':
-        assert (isinstance(n, (int, float, np.integer, np.floating)) and n>0), 'n must be a single number (or N-dimensional vector) > 0 representing the Poisson parameter.'
+        assert (isinstance(n, (int, float, np.integer, np.floating)) and n>0), 'n must be a float > 0 representing the Poisson parameter.'
         indegrees = np.maximum(np.minimum(rng.poisson(lam=n, size=N),N - int(NO_SELF_REGULATION)), 1)
     else:
         raise AssertionError('None of the predefined in-degree distributions were chosen.\nTo use a user-defined in-degree vector, submit an N-dimensional vector as argument for n; each element of n must an integer between 1 and N.')
@@ -980,10 +983,7 @@ def random_network(N=None, n=None,
         When `EXACT_DEPTH=True` and the target depth is 0, Hamming weights
         {0, 1, 2^k - 1, 2^k} correspond to canalizing functions and are therefore
         disallowed in the non-canalizing branch (the implementation enforces this).
-    - **Randomness**:
-        Both `numpy.random` and Python's `random` may be used by downstream
-        generators. For reproducibility, set seeds in both where appropriate.
-    
+
     Examples
     --------
     >>> # Boolean network with only essential inputs

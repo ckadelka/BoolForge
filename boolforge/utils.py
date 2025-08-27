@@ -161,13 +161,10 @@ def f_from_expression(expr):
 
     Parameters:
         - expr (str): A text string containing an evaluable Boolean expression.
-            Examples:
-                'A AND NOT B'
-                'x1 + x2 + x3 > 1'
-                '(x1 + x2 + x3) % 2 == 0'
 
     Returns:
         - tuple:
+            
             - f (list): The right-hand side of the Boolean function (truth table) as a list of length 2**n,
               where n is the number of inputs.
             - var (list): A list of variable names (of length n) in the order they were encountered.
