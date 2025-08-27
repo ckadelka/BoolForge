@@ -35,11 +35,13 @@ class BooleanNetwork(object):
     A class representing a Boolean network with N variables.
     
     Parameters:
+        
         - F (list or numpy array): A list of N Boolean functions, or of N lists of length 2^n representing the outputs of a Boolean function with n inputs.
         - I (list or numpy array): A list of N lists representing the regulators (or inputs) for each Boolean function.
         - variables (list or numpy array, optional): A list of N strings representing the names of each variable, default = None.
 
     Members:
+        
         - F (list or numpy array): As passed by the constructor.
         - I (list or numpy array): As passed by the constructor.
         - variables(list or numpy array): As passed by the constructor.
@@ -137,6 +139,7 @@ class BooleanNetwork(object):
         Compatability method: Returns an instance of the class cana.BooleanNetwork from the cana module.
 
         Returns:
+            
             - An instance of cana.boolean_network.BooleanNetwork
         """
         logic_dicts = []
@@ -150,6 +153,7 @@ class BooleanNetwork(object):
         Compatability method: Returns a bnet object from the pyboolnet module.
 
         Returns:
+            
             - A string describing a bnet from the pyboolnet module.
         """
         lines = []
@@ -192,6 +196,7 @@ class BooleanNetwork(object):
         Returns the outdegree of each node.
         
         Returns:
+            
             - np.array: Outdegree of each node.
         """
         outdegrees = np.zeros(self.N,dtype=int)
@@ -209,10 +214,12 @@ class BooleanNetwork(object):
         The regulator states are converted to a decimal index using utils.bin2dec.
 
         Parameters:
+            
             - bf (BooleanFunction): Boolean function object.
             - states_regulators (list or np.array): Binary vector representing the states of the node's regulators.
 
         Returns:
+            
             - int: Updated state of the node (0 or 1).
         """
         return self.F[index].f[utils.bin2dec(states_regulators)]
@@ -225,9 +232,11 @@ class BooleanNetwork(object):
         Each node's new state is determined by applying its Boolean function to the current states of its regulators.
 
         Parameters:
+            
             - X (list or np.array): Current state vector of the network.
 
         Returns:
+            
             - np.array: New state vector after the update.
         """
         if type(X)==list:
@@ -245,10 +254,12 @@ class BooleanNetwork(object):
         Starting from the initial state, the network is updated synchronously n_steps times using the update_network_synchronously function.
 
         Parameters:
+            
             - X (list or np.array): Initial state vector of the network.
             - n_steps (int): Number of update iterations to perform.
 
         Returns:
+            
             - np.array: Final state vector after n_steps updates.
         """
         for i in range(n_steps):
@@ -265,10 +276,12 @@ class BooleanNetwork(object):
         the node is degraded with probability P[i,1]. Otherwise, the state remains unchanged.
 
         Parameters:
+            
             - X (list or np.array): Current state vector.
             - P (np.array): A len(F)×2 array of probabilities; for each node i, P[i,0] is the activation probability, and P[i,1] is the degradation probability.
 
         Returns:
+            
             - np.array: Updated state vector after applying the stochastic update.
             
         References:
@@ -299,6 +312,7 @@ class BooleanNetwork(object):
         random initial conditions) or exactly (by iterating over the entire state space when EXACT=True).
 
         Parameters:
+            
             - nsim (int, optional): Number of initial conditions to simulate (default is 500).
             - EXACT (bool, optional): If True, iterate over the entire state space and guarantee finding all steady states (2^N initial conditions); otherwise, use nsim random initial conditions. (Default is False.)
             - initial_sample_points (list, optional): List of initial states (as binary vectors) to use. If provided and EXACT is False, these override random sampling.
@@ -306,7 +320,9 @@ class BooleanNetwork(object):
             - DEBUG (bool, optional): If True, print debugging information during simulation.
 
         Returns:
+            
             - dict: A dictionary containing:
+                
                 - SteadyStates (list): List of steady state values (in decimal form) found.
                 - NumberOfSteadyStates (int): Total number of unique steady states.
                 - BasinSizes (list): List of counts showing how many initial conditions converged to each steady state.
@@ -407,6 +423,7 @@ class BooleanNetwork(object):
         and if given, it is normalized and used to bias the random permutation of node update order.
 
         Parameters:
+            
             - nsim (int, optional): Number of simulation runs (default is 500).
             - stochastic_weights (list, optional): List of stochastic weights (one per node) used to bias update order. If empty, uniform random order is used.
             - initial_condition (int or list/np.array, optional): The initial state for all simulations. If an integer, it is converted to a binary vector. Default is 0.
@@ -414,7 +431,9 @@ class BooleanNetwork(object):
             - DEBUG (bool, optional): If True, print debugging information (default is False).
 
         Returns:
+            
             - dict: A dictionary containing:
+                
                 - SteadyStates (list): List of steady state values (in decimal form) reached.
                 - NumberOfSteadyStates (int): Total number of unique steady states.
                 - BasinSizes (list): List of counts of how many simulations reached each steady state.
@@ -516,13 +535,16 @@ class BooleanNetwork(object):
         the set of initial sample points used, the explored state space, and the number of simulations that timed out.
 
         Parameters:
+            
             - nsim (int, optional): Number of initial conditions to simulate (default is 500). Ignored if 'initial_sample_points' are provided.
             - initial_sample_points (list, optional): List of initial states (in decimal) to use.
             - n_steps_timeout (int, optional): Maximum number of update steps allowed per simulation (default 100000).
             - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If True, initial_sample_points are provided as binary vectors; if False, they are given as decimal numbers. Default is True.
 
         Returns:
+            
             - dict: A dictionary containing:
+                
                 - Attractors (list): List of attractors (each as a list of states in the attractor cycle).
                 - NumberOfAttractors (int): Total number of unique attractors found. This is a lower bound.
                 - BasinSizes (list): List of counts for each attractor. This is an unbiased estimator.
@@ -603,10 +625,13 @@ class BooleanNetwork(object):
         Attractors and their basin sizes are then determined by iterating over the entire state space.
 
         Parameters:
+            
             - RETURN_STG_DICT (bool, optional): If True, the state space is returned as a dictionary, in which each state is associated by its decimal representation.
 
         Returns:
+            
             - dict: A dictionary containing:
+                
                 - Attractors (list): List of attractors (each attractor is represented as a list of states forming the cycle).
                 - NumberOfAttractors (int): Total number of unique attractors.
                 - BasinSizes (list): List of counts for each attractor.
@@ -668,9 +693,10 @@ class BooleanNetwork(object):
         and a corresponding list of essential regulators.
 
         Returns:
+            
             - BooleanNetwork: A Boolean network object where:
-                - F is a list of N Boolean functions containing functions of length 2^(m_i), with m_i ≤ n_i,
-                  representing the functions restricted to the essential regulators.
+                
+                - F is a list of N Boolean functions containing functions of length 2^(m_i), with m_i ≤ n_i, representing the functions restricted to the essential regulators.
                 - I is a list of N lists containing the indices of the essential regulators for each node.
         """
         F_essential = []
@@ -710,12 +736,15 @@ class BooleanNetwork(object):
         the wiring diagram for that node.
 
         Parameters:
+            
             - control_target (int): Index of the target node to be perturbed.
             - control_source (int): Index of the regulator whose influence is to be removed.
             - type_of_edge_control (int, optional): Source value in regulation after control. Default is 0.
 
         Returns:
+            
             - BooleanNetwork object where:
+                
                 - F is the updated list of Boolean functions after perturbation.
                 - I is the updated wiring diagram after removing the control regulator from the target node.
         """
@@ -742,6 +771,7 @@ class BooleanNetwork(object):
         A node is considered an external input if it has exactly one regulator and that regulator is the node itself.
 
         Returns:
+            
             - np.array: Array of node indices that are external inputs.
         """
         return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i])
@@ -756,12 +786,15 @@ class BooleanNetwork(object):
         the average Hamming distance between the resulting updated states of the original and perturbed networks.
 
         Parameters:
+            
             - nsim (int, optional): Number of simulations to perform. Default is 1000.
 
         Returns:
+            
             - float: The average Hamming distance (Derrida value) over nsim simulations.
 
         References:
+            
             Derrida, B., & Pomeau, Y. (1986). Random networks of automata: a simple annealed approximation. Europhysics letters, 1(2), 45.
         """
         if EXACT:
@@ -788,7 +821,9 @@ class BooleanNetwork(object):
         as well as robustness measures for each basin of attraction and each attractor.
 
         Returns:
+            
             - dict: A dictionary containing:
+                
                 - Attractors (list): List of attractors (each attractor is represented as a list of state decimal numbers).
                 - ExactNumberOfAttractors (int): The exact number of network attractors.
                 - BasinSizes (list): List of exact basin sizes for each attractor.
@@ -801,10 +836,9 @@ class BooleanNetwork(object):
                 - AttractorFragility (list): exact fragility of each attractor.
         
         References:
-            [1] Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum, J. C. (2023).
-                Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.
-            [2] Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). 
-                xxxx arXiv preprint arXiv:xxx.xxx.
+            
+            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum, J. C. (2023). Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.
+            #. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). xxxx arXiv preprint arXiv:xxx.xxx.
         """
         left_side_of_truth_table = self.get_left_side_of_truth_table()
 
@@ -905,6 +939,7 @@ class BooleanNetwork(object):
 
         This function samples the attractor landscape by simulating the network from a number of different initial
         conditions. It computes:
+            
             - The coherence: the proportion of neighboring states (in the Boolean hypercube) that, after synchronous update, transition to the same attractor.
             - The fragility: a measure of how much the attractor state changes (assumed under synchronous update) in response to perturbations.
             - The final time-step Hamming distance between perturbed trajectories.
@@ -912,11 +947,14 @@ class BooleanNetwork(object):
         In addition, it collects several details about each attractor (such as basin sizes, coherence of each basin, etc.).
 
         Parameters:
+            
             - number_different_IC (int, optional): Number of different initial conditions to sample (default is 500).
             - RETURN_ATTRACTOR_COHERENCE (bool, optional): Determines whether the attractor coherence should also be computed (default True, i.e., Yes).
 
         Returns:
+            
             - dict: A dictionary containing:
+                
                 - Attractors (list): List of attractors (each attractor is represented as a list of state decimal numbers).
                 - LowerBoundOfNumberOfAttractors (int): The lower bound on the number of attractors found.
                 - BasinSizes (list): List of basin sizes for each attractor.
@@ -929,10 +967,9 @@ class BooleanNetwork(object):
                 - AttractorFragility (list): The exact fragility of each attractor (only computed and returned if RETURN_ATTRACTOR_COHERENCE == True).
 
         References:
-            [1] Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum, J. C. (2023).
-                Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.
-            [2] Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). 
-                xxxx arXiv preprint arXiv:xxx.xxx.
+            
+            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum, J. C. (2023). Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.
+            #. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). xxxx arXiv preprint arXiv:xxx.xxx.
         """
         rng = utils._coerce_rng(rng)
         def lcm(a, b):
@@ -1198,6 +1235,7 @@ class BooleanNetwork(object):
         The function constructs a directed graph from these edges and returns its strongly connected components.
 
         Returns:
+            
             - list: A list of sets, each representing a strongly connected component.
         """
         edges_wiring_diagram = []
@@ -1230,11 +1268,13 @@ class BooleanNetwork(object):
         Self-loops can be optionally ignored, and constant nodes can be excluded.
 
         Parameters:
+            
             - constants (list, optional): List of constant nodes.
             - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
             - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded from the matrix.
 
         Returns:
+            
             - np.array: The binary adjacency matrix.
         """
         n = len(self.I)
@@ -1258,12 +1298,14 @@ class BooleanNetwork(object):
         -1 for decreasing (inhibiting) regulations, and NaN for any other type.
 
         Parameters:
+            
             - type_of_each_regulation (list): List of lists corresponding to the type of regulation ('increasing' or 'decreasing') for each edge in I.
             - constants (list, optional): List of constant nodes.
             - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
             - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded.
 
         Returns:
+            
             - np.array: The signed adjacency matrix.
         """
         n = len(self.I)
@@ -1293,12 +1335,14 @@ class BooleanNetwork(object):
         Edges are signed according to the type of regulation ('increasing' or 'decreasing').
 
         Parameters:
+            
             - type_of_each_regulation (list): List of lists specifying the type of regulation for each edge.
             - constants (list, optional): List of constant nodes.
             - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
             - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded.
 
         Returns:
+            
             - np.array: The signed effective graph as a matrix of edge effectiveness values.
         """
         n = len(self.I)
@@ -1327,6 +1371,7 @@ class BooleanNetwork(object):
         A feed-forward loop (FFL) is a three-node motif where node i regulates node k both directly and indirectly via node j.
 
         Returns:
+            
             - tuple: A tuple (ffls, types), where ffls is a list of FFLs and types is a list of corresponding monotonicity types.
         """
         ffls = []
@@ -1359,12 +1404,17 @@ class BooleanNetwork(object):
         If types_I (the type of each regulation) is provided, it also returns the corresponding regulation types.
 
         Parameters:
+            
             - types_I (list, optional): List of lists specifying the type (e.g., 'increasing' or 'decreasing') for each regulation.
 
         Returns:
+            
             If types_I is provided:
+                
                 - tuple: (ffls, types) where ffls is a list of identified FFLs (each as a list [i, j, k]), and types is a list of corresponding regulation type triplets.
+                
             Otherwise:
+                
                 - list: A list of identified FFLs.
         """
         all_tfs = list(range(len(self.I)))
@@ -1403,10 +1453,12 @@ class BooleanNetwork(object):
         from each regulator to its target based on the wiring diagram I.
 
         Parameters:
+            
             - constants (list): List of constant names.
             - variables (list): List of variable names.
 
         Returns:
+            
             - networkx.DiGraph: The noderated directed graph.
         """
         names = list(variables) + list(constants)
@@ -1423,9 +1475,11 @@ class BooleanNetwork(object):
         Only edges among the first n_variables (excluding constant self-loops) are included.
 
         Parameters:
+            
             - n_variables (int): Number of variable nodes (constants are excluded).
 
         Returns:
+            
             - networkx.DiGraph: The generated directed graph.
         """
         edges = []
@@ -1445,9 +1499,11 @@ class BooleanNetwork(object):
         The loop is assumed to be ordered such that the first node is repeated at the end.
 
         Parameters:
+            
             - loop (list): List of node indices representing the loop.
 
         Returns:
+            
             - list: A list of regulation types corresponding to each edge in the loop.
         """
         n = len(loop)
