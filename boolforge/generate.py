@@ -50,6 +50,7 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
         - Else if `depth > 0` and `layer_structure is None`: return a **k-canalizing** function with k = min(depth, n) using `random_k_canalizing_function`, with exact canalizing depth if `EXACT_DEPTH=True`.
         - Else if `layer_structure is not None`: return a function with the specified **canalizing layer structure** using `random_k_canalizing_function_with_specific_layer_structure`, with exact canalizing depth if `EXACT_DEPTH=True`.
         - Else if `hamming_weight is None`: Choose a bias:
+ 
             - If `USE_ABSOLUTE_BIAS=True`, pick randomly from {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}.
             - Else, use `bias` directly.
             - Then:
@@ -58,10 +59,12 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
                 - If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: return a **non-canalizing, non-degenerated** function (`random_non_canalizing_non_degenerated_function`).
                 - Else (default if only 'n' is provided): return a **non-degenerated** function with that bias (`random_non_degenerated_function`).     
         - Else (exact `hamming_weight` is provided): sample uniformly a truth table with the requested number of ones, and keep resampling until the additional constraints implied by `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH` are satisfied:
+
             - If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: accept only **non-canalizing**.
             - If `ALLOW_DEGENERATED_FUNCTIONS` and not `EXACT_DEPTH`: accept immediately.
             - If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: accept only **non-canalizing & non-degenerated**.
             - Else: accept only **non-degenerated**.
+            xxxxxxxxxx xxxx
 
     Parameters:
         - n (int): Number of variables (n >= 1 for most nontrivial generators).
