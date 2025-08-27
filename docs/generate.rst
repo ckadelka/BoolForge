@@ -7,4 +7,3 @@ Generate
 .. automodule:: boolforge.generate
    :members:
    :show-inheritance:
-   :undoc-members:
