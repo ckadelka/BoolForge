@@ -102,7 +102,7 @@ assert min(depths)==n, "failed to create a nested canalizing BN"
 #create a BN where all functions are n-input NCFs with exactly one layer.
 bn = generate.random_network(N,n,layer_structures=[n])
 checks_per_function = [bf.get_layer_structure()['CanalizingDepth']==n and bf.get_layer_structure()['NumberOfLayers']==1 for bf in bn]
-assert np.all(checks_per_function), "failed to create BN with only single-layer NCFs"
+assert np.all(checks_per_function), "failed to create a BN with only single-layer NCFs"
 
 
 #creates a BN with linear update rules
