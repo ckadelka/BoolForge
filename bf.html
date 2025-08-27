@@ -115,43 +115,45 @@ Last Edited on Thu Aug 14 2025</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">boolforge.boolean_function.</span></span><span class="sig-name descname"><span class="pre">BooleanFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class representing a Boolean function.</p>
-<dl class="simple">
-<dt>Parameters:</dt><dd><ul class="simple">
+<p>Parameters:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>f (list or numpy array or str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.</p></li>
 <li><p>name (str, optional): The name of the node regulated by the Boolean function (default ‘’).</p></li>
 </ul>
-</dd>
-<dt>Members:</dt><dd><ul class="simple">
+</div></blockquote>
+<p>Members:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>f (numpy array): A numpy array of length 2^n representing the outputs of a Boolean function with n inputs.</p></li>
 <li><p>n (int): The number of inputs for the Boolean function.</p></li>
 <li><p>variables (numpy array): A numpy array of n strings with variable names, default x0, …, x_{n-1}.</p></li>
 <li><p>name (str, optional): The name of the node regulated by the Boolean function (default ‘’)</p></li>
 <li><p>properties: Dynamically created dictionary with additional information about the function (canalizing layer structure, type of inputs, etc.)</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.to_cana">
 <span class="sig-name descname"><span class="pre">to_cana</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_cana" title="Link to this definition"></a></dt>
 <dd><p>Compatability method: Returns an instance of cana.boolean_node.BooleanNode from the cana module.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>An instance of cana.boolean_node.BooleanNode</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.is_constant">
 <span class="sig-name descname"><span class="pre">is_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_constant" title="Link to this definition"></a></dt>
 <dd><p>Check whether a Boolean function is constant.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>bool: True if f is constant (all outputs are 0 or all are 1), False otherwise.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -159,12 +161,12 @@ Last Edited on Thu Aug 14 2025</p>
 <span class="sig-name descname"><span class="pre">is_degenerated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_degenerated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_degenerated" title="Link to this definition"></a></dt>
 <dd><p>Determine if a Boolean function contains non-essential variables.</p>
 <p>A variable is non-essential if the function’s output does not depend on it.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>bool: True if f contains at least one non-essential variable, False if all variables are essential.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -172,36 +174,36 @@ Last Edited on Thu Aug 14 2025</p>
 <span class="sig-name descname"><span class="pre">get_essential_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_essential_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_essential_variables" title="Link to this definition"></a></dt>
 <dd><p>Determine the indices of essential variables in a Boolean function.</p>
 <p>A variable is essential if changing its value (while holding the others constant) can change the output of f.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>list: List of indices corresponding to the essential variables.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables">
 <span class="sig-name descname"><span class="pre">get_number_of_essential_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_number_of_essential_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables" title="Link to this definition"></a></dt>
 <dd><p>Count the number of essential variables in a Boolean function.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>int: The number of essential variables.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_type_of_inputs">
 <span class="sig-name descname"><span class="pre">get_type_of_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_type_of_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_type_of_inputs" title="Link to this definition"></a></dt>
 <dd><p>Determine for each input of the Boolean function whether it is positive, negative, conditional or non-essential.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>np.ndarray of str: The type of each input of the Boolean function.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -210,12 +212,12 @@ Last Edited on Thu Aug 14 2025</p>
 <dd><p>Determine if a Boolean function is monotonic.</p>
 <p>A Boolean function is monotonic if it is monotonic in each variable. 
 That is, if for all i=1,…,n: f(x_1,…,x_i=0,…,x_n) &gt;= f(x_1,…,x_i=1,…,x_n) for all (x_1,…,x_n) or f(x_1,…,x_i=0,…,x_n) &lt;= f(x_1,…,x_i=1,…,x_n) for all (x_1,…,x_n)</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>bool: True if f contains no conditional variables, False if at least one variable is conditional.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -224,12 +226,12 @@ That is, if for all i=1,…,n: f(x_1,…,x_i=0,…,x_n) &gt;= f(x_1,…,x_i=1,�
 <dd><p>Determine all symmetry groups of input variables for a Boolean function.</p>
 <p>Two variables are in the same symmetry group if swapping their values does not change the output
 of the function for any input of the other variables.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>list: A list of lists where each inner list contains indices of variables that form a symmetry group.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -237,12 +239,12 @@ of the function for any input of the other variables.</p>
 <span class="sig-name descname"><span class="pre">get_absolute_bias</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_absolute_bias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_absolute_bias" title="Link to this definition"></a></dt>
 <dd><p>Compute the absolute bias of a Boolean function.</p>
 <p>The absolute bias is defined as <cite>|(self.get_hamming_weight() / 2^(n-1)) - 1|</cite>, which quantifies how far the function’s output distribution deviates from being balanced.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>float: The absolute bias of the Boolean function.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -252,18 +254,20 @@ of the function for any input of the other variables.</p>
 <p>The average sensitivity is equivalent to the Derrida value D(F,1) when the update rule is sampled
 from the same space. This function can compute the exact sensitivity by exhaustively iterating over all inputs (if EXACT is True)
 or estimate it via Monte Carlo sampling (if EXACT is False). The result can be normalized by the number of inputs.</p>
-<dl class="simple">
-<dt>Parameters:</dt><dd><ul class="simple">
+<p>Parameters:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>nsim (int, optional): Number of random samples (default is 10000, used when EXACT is False).</p></li>
 <li><p>EXACT (bool, optional): If True, compute the exact sensitivity by iterating over all inputs; otherwise, use sampling (default).</p></li>
 <li><p>NORMALIZED (bool, optional): If True, return the normalized sensitivity (divided by the number of function inputs); otherwise, return the total count.</p></li>
 </ul>
-</dd>
-<dt>Returns:</dt><dd><ul class="simple">
+</div></blockquote>
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>float: The (normalized) average sensitivity of the Boolean function.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -272,12 +276,12 @@ or estimate it via Monte Carlo sampling (if EXACT is False). The result can be n
 <dd><p>Determine if a Boolean function is canalizing.</p>
 <p>A Boolean function f(x_1, …, x_n) is canalizing if there exists at least one variable x_i and a value a ∈ {0, 1} 
 such that f(x_1, …, x_i = a, …, x_n) is constant.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>bool: True if f is canalizing, False otherwise.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -287,23 +291,25 @@ such that f(x_1, …, x_i = a, …, x_n) is constant.</p>
 <p>A Boolean function is k-canalizing if it has at least k conditionally canalizing variables.
 This is checked recursively: after fixing a canalizing variable (with a fixed canalizing input that forces the output),
 the subfunction (core function) must itself be canalizing for the next variable, and so on.</p>
-<dl class="simple">
-<dt>Parameters:</dt><dd><ul class="simple">
+<p>Parameters:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>k (int): The desired canalizing depth (0 ≤ k ≤ n). Note: every function is 0-canalizing.</p></li>
 </ul>
-</dd>
-<dt>Returns:</dt><dd><ul class="simple">
+</div></blockquote>
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>bool: True if f is k-canalizing, False otherwise.</p></li>
 </ul>
-</dd>
-<dt>References:</dt><dd><dl class="simple">
-<dt>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth.</dt><dd><p>Physica D: Nonlinear Phenomena, 314, 1-8.</p>
-</dd>
-<dt>Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D. (2022). Revealing the canalizing structure of Boolean functions:</dt><dd><p>Algorithms and applications. Automatica, 146, 110630.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+</div></blockquote>
+<p>References:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth. Physica D: Nonlinear Phenomena, 314, 1-8.</p></li>
+<li><p>Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D. (2022). Revealing the canalizing structure of Boolean functions: Algorithms and applications. Automatica, 146, 110630.</p></li>
+</ol>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -314,10 +320,12 @@ the subfunction (core function) must itself be canalizing for the next variable,
 by recursively identifying and removing conditionally canalizing variables.
 The output includes the canalizing depth, the number of layers, the canalizing inputs and outputs,
 the core function of the non-canalizing variables, and the order of the canalizing variables.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>dict: A dictionary (self.properties) containing:</dt><dd><ul>
+<p>Returns:</p>
+<blockquote>
+<div><ul>
+<li><p>dict: A dictionary (self.properties) containing:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>CanalizingDepth (int): Canalizing depth (number of conditionally canalizing variables).</p></li>
 <li><p>NumberOfLayers (int): Number of distinct canalizing layers.</p></li>
 <li><p>CanalizingInputs (np.array): Array of canalizing input values.</p></li>
@@ -326,31 +334,29 @@ the core function of the non-canalizing variables, and the order of the canalizi
 <li><p>OrderOfCanalizingVariables (np.array): Array of indices representing the order of canalizing variables.</p></li>
 <li><p>LayerStructure (np.array): Indicates the number of variables in each canalizing layer</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 </ul>
-</dd>
-<dt>References:</dt><dd><dl class="simple">
-<dt>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth.</dt><dd><p>Physica D: Nonlinear Phenomena, 314, 1-8.</p>
-</dd>
-<dt>Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D. (2022). Revealing the canalizing structure of Boolean functions:</dt><dd><p>Algorithms and applications. Automatica, 146, 110630.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+</div></blockquote>
+<p>References:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth. Physica D: Nonlinear Phenomena, 314, 1-8.</p></li>
+<li><p>Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D. (2022). Revealing the canalizing structure of Boolean functions: Algorithms and applications. Automatica, 146, 110630.</p></li>
+</ol>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_canalizing_depth">
 <span class="sig-name descname"><span class="pre">get_canalizing_depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_canalizing_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_canalizing_depth" title="Link to this definition"></a></dt>
 <dd><p>Returns the canalizing depth of the function.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>int: The canalizing depth (number of conditionally canalizing variables).</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -359,19 +365,22 @@ the core function of the non-canalizing variables, and the order of the canalizi
 <dd><p>Compute the proportion of k-set canalizing input sets for a Boolean function.</p>
 <p>For a given k, this function calculates the probability that a randomly chosen set of k inputs canalizes the function,
 i.e., forces the output regardless of the remaining variables.</p>
-<dl class="simple">
-<dt>Parameters:</dt><dd><ul class="simple">
+<p>Parameters:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>k (int): The size of the variable set (0 ≤ k ≤ n).</p></li>
 </ul>
-</dd>
-<dt>Returns:</dt><dd><ul class="simple">
+</div></blockquote>
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>float: The proportion of k-set canalizing input sets.</p></li>
 </ul>
-</dd>
-<dt>References:</dt><dd><p>Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023). Collectively canalizing Boolean functions.
-Advances in Applied Mathematics, 145, 102475.</p>
-</dd>
-</dl>
+</div></blockquote>
+<p>References:</p>
+<blockquote>
+<div><p>Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023). Collectively canalizing Boolean functions. Advances in Applied Mathematics, 145, 102475.</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -380,19 +389,22 @@ Advances in Applied Mathematics, 145, 102475.</p>
 <dd><p>Determine if a Boolean function is k-set canalizing.</p>
 <p>A Boolean function is k-set canalizing if there exists a set of k variables such that setting these variables to specific values
 forces the output of the function, irrespective of the other n - k inputs.</p>
-<dl class="simple">
-<dt>Parameters:</dt><dd><ul class="simple">
+<p>Parameters:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>k (int): The size of the variable set (with 0 ≤ k ≤ n).</p></li>
 </ul>
-</dd>
-<dt>Returns:</dt><dd><ul class="simple">
+</div></blockquote>
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>bool: True if f is k-set canalizing, False otherwise.</p></li>
 </ul>
-</dd>
-<dt>References:</dt><dd><p>Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023). Collectively canalizing Boolean functions.
-Advances in Applied Mathematics, 145, 102475.</p>
-</dd>
-</dl>
+</div></blockquote>
+<p>References:</p>
+<blockquote>
+<div><p>Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023). Collectively canalizing Boolean functions. Advances in Applied Mathematics, 145, 102475.</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -402,85 +414,98 @@ Advances in Applied Mathematics, 145, 102475.</p>
 <p>The canalizing strength is defined as a weighted average of the proportions of k-set canalizing inputs for k = 1 to n-1.
 It is 0 for minimally canalizing functions (e.g., Boolean parity functions) and 1 for maximally canalizing functions
 (e.g., nested canalizing functions with one layer).</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>tuple:</dt><dd><ul>
+<p>Returns:</p>
+<blockquote>
+<div><ul>
+<li><p>tuple:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>float: The canalizing strength of f.</p></li>
 <li><p>list: A list of the k-set canalizing proportions for k = 1, 2, …, n-1.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 </ul>
-</dd>
-<dt>References:</dt><dd><p>Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023). Collectively canalizing Boolean functions.
-Advances in Applied Mathematics, 145, 102475.</p>
-</dd>
-</dl>
+</div></blockquote>
+<p>References:</p>
+<blockquote>
+<div><p>Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023). Collectively canalizing Boolean functions. Advances in Applied Mathematics, 145, 102475.</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_input_redundancy">
 <span class="sig-name descname"><span class="pre">get_input_redundancy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_input_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_input_redundancy" title="Link to this definition"></a></dt>
-<dd><div class="admonition attention">
-<p class="admonition-title">Attention</p>
+<dd><div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>This method requires an installation of CANA. See <a class="reference external" href="https://ckadelka.github.io/BoolForge/installation.html#extended-functionality">Extended Functionality</a> for more information.</p>
 </div>
 <p>Compute the input redundancy of a Boolean function.</p>
 <p>The input redundancy quantifies how many inputs are not required to determine the function’s output.
 Constant functions have an input redundancy of 1 (none of the inputs are needed), whereas parity functions have an input redundancy of 0 (all inputs are necessary).</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>float: Normalized input redundancy in the interval [0, 1].</p></li>
 </ul>
-</dd>
-<dt>References:</dt><dd><p>[1] Marques-Pita, M., &amp; Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.
-[2] Correia, R. B., Gates, A. J., Wang, X., &amp; Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.</p>
-</dd>
-</dl>
+</div></blockquote>
+<p>References:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Marques-Pita, M., &amp; Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.</p></li>
+<li><p>Correia, R. B., Gates, A. J., Wang, X., &amp; Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.</p></li>
+</ol>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_edge_effectiveness">
 <span class="sig-name descname"><span class="pre">get_edge_effectiveness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_edge_effectiveness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_edge_effectiveness" title="Link to this definition"></a></dt>
-<dd><div class="admonition attention">
-<p class="admonition-title">Attention</p>
+<dd><div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>This method requires an installation of CANA. See <a class="reference external" href="https://ckadelka.github.io/BoolForge/installation.html#extended-functionality">Extended Functionality</a> for more information.</p>
 </div>
 <p>Compute the edge effectiveness for each regulator of a Boolean function.</p>
 <p>Edge effectiveness measures how much flipping a given input (regulator) influences the output.
 Non-essential inputs have an effectiveness of 0, whereas inputs that always flip the output when toggled have an effectiveness of 1.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>list: A list of n floats in [0, 1] representing the edge effectiveness for each input.</p></li>
 </ul>
-</dd>
-<dt>References:</dt><dd><p>[1] Marques-Pita, M., &amp; Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.
-[2] Correia, R. B., Gates, A. J., Wang, X., &amp; Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.</p>
-</dd>
-</dl>
+</div></blockquote>
+<p>References:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Marques-Pita, M., &amp; Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.</p></li>
+<li><p>Correia, R. B., Gates, A. J., Wang, X., &amp; Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.</p></li>
+</ol>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_effective_degree">
 <span class="sig-name descname"><span class="pre">get_effective_degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_effective_degree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_effective_degree" title="Link to this definition"></a></dt>
-<dd><div class="admonition attention">
-<p class="admonition-title">Attention</p>
+<dd><div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>This method requires an installation of CANA. See <a class="reference external" href="https://ckadelka.github.io/BoolForge/installation.html#extended-functionality">Extended Functionality</a> for more information.</p>
 </div>
 <p>Compute the effective degree, i.e., the sum of the edge effectivenesses of each regulator, of a Boolean function.</p>
 <p>Edge effectiveness measures how much flipping a given input (regulator) influences the output.
 Non-essential inputs have an effectiveness of 0, whereas inputs that always flip the output when toggled have an effectiveness of 1.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><ul class="simple">
+<p>Returns:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>list: A value in [0, 1] representing the effective degree for each input.</p></li>
 </ul>
-</dd>
-<dt>References:</dt><dd><p>[1] Marques-Pita, M., &amp; Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.
-[2] Correia, R. B., Gates, A. J., Wang, X., &amp; Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.</p>
-</dd>
-</dl>
+</div></blockquote>
+<p>References:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Marques-Pita, M., &amp; Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.</p></li>
+<li><p>Correia, R. B., Gates, A. J., Wang, X., &amp; Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.</p></li>
+</ol>
+</div></blockquote>
 </dd></dl>
 
 </dd></dl>

@@ -108,11 +108,13 @@
 <span class="sd">    A class representing a Boolean network with N variables.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters:</span>
+<span class="sd">        </span>
 <span class="sd">        - F (list or numpy array): A list of N Boolean functions, or of N lists of length 2^n representing the outputs of a Boolean function with n inputs.</span>
 <span class="sd">        - I (list or numpy array): A list of N lists representing the regulators (or inputs) for each Boolean function.</span>
 <span class="sd">        - variables (list or numpy array, optional): A list of N strings representing the names of each variable, default = None.</span>
 
 <span class="sd">    Members:</span>
+<span class="sd">        </span>
 <span class="sd">        - F (list or numpy array): As passed by the constructor.</span>
 <span class="sd">        - I (list or numpy array): As passed by the constructor.</span>
 <span class="sd">        - variables(list or numpy array): As passed by the constructor.</span>
@@ -212,6 +214,7 @@
 <span class="sd">        Compatability method: Returns an instance of the class cana.BooleanNetwork from the cana module.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - An instance of cana.boolean_network.BooleanNetwork</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logic_dicts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -228,6 +231,7 @@
 <span class="sd">        Compatability method: Returns a bnet object from the pyboolnet module.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - A string describing a bnet from the pyboolnet module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
@@ -273,6 +277,7 @@
 <span class="sd">        Returns the outdegree of each node.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - np.array: Outdegree of each node.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outdegrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -293,10 +298,12 @@
 <span class="sd">        The regulator states are converted to a decimal index using utils.bin2dec.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - bf (BooleanFunction): Boolean function object.</span>
 <span class="sd">            - states_regulators (list or np.array): Binary vector representing the states of the node&#39;s regulators.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - int: Updated state of the node (0 or 1).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">bin2dec</span><span class="p">(</span><span class="n">states_regulators</span><span class="p">)]</span></div>
@@ -312,9 +319,11 @@
 <span class="sd">        Each node&#39;s new state is determined by applying its Boolean function to the current states of its regulators.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - X (list or np.array): Current state vector of the network.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - np.array: New state vector after the update.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">==</span><span class="nb">list</span><span class="p">:</span>
@@ -335,10 +344,12 @@
 <span class="sd">        Starting from the initial state, the network is updated synchronously n_steps times using the update_network_synchronously function.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - X (list or np.array): Initial state vector of the network.</span>
 <span class="sd">            - n_steps (int): Number of update iterations to perform.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - np.array: Final state vector after n_steps updates.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span><span class="p">):</span>
@@ -358,10 +369,12 @@
 <span class="sd">        the node is degraded with probability P[i,1]. Otherwise, the state remains unchanged.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - X (list or np.array): Current state vector.</span>
 <span class="sd">            - P (np.array): A len(F)×2 array of probabilities; for each node i, P[i,0] is the activation probability, and P[i,1] is the degradation probability.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - np.array: Updated state vector after applying the stochastic update.</span>
 <span class="sd">            </span>
 <span class="sd">        References:</span>
@@ -395,6 +408,7 @@
 <span class="sd">        random initial conditions) or exactly (by iterating over the entire state space when EXACT=True).</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - nsim (int, optional): Number of initial conditions to simulate (default is 500).</span>
 <span class="sd">            - EXACT (bool, optional): If True, iterate over the entire state space and guarantee finding all steady states (2^N initial conditions); otherwise, use nsim random initial conditions. (Default is False.)</span>
 <span class="sd">            - initial_sample_points (list, optional): List of initial states (as binary vectors) to use. If provided and EXACT is False, these override random sampling.</span>
@@ -402,7 +416,9 @@
 <span class="sd">            - DEBUG (bool, optional): If True, print debugging information during simulation.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - dict: A dictionary containing:</span>
+<span class="sd">                </span>
 <span class="sd">                - SteadyStates (list): List of steady state values (in decimal form) found.</span>
 <span class="sd">                - NumberOfSteadyStates (int): Total number of unique steady states.</span>
 <span class="sd">                - BasinSizes (list): List of counts showing how many initial conditions converged to each steady state.</span>
@@ -506,6 +522,7 @@
 <span class="sd">        and if given, it is normalized and used to bias the random permutation of node update order.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - nsim (int, optional): Number of simulation runs (default is 500).</span>
 <span class="sd">            - stochastic_weights (list, optional): List of stochastic weights (one per node) used to bias update order. If empty, uniform random order is used.</span>
 <span class="sd">            - initial_condition (int or list/np.array, optional): The initial state for all simulations. If an integer, it is converted to a binary vector. Default is 0.</span>
@@ -513,7 +530,9 @@
 <span class="sd">            - DEBUG (bool, optional): If True, print debugging information (default is False).</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - dict: A dictionary containing:</span>
+<span class="sd">                </span>
 <span class="sd">                - SteadyStates (list): List of steady state values (in decimal form) reached.</span>
 <span class="sd">                - NumberOfSteadyStates (int): Total number of unique steady states.</span>
 <span class="sd">                - BasinSizes (list): List of counts of how many simulations reached each steady state.</span>
@@ -618,13 +637,16 @@
 <span class="sd">        the set of initial sample points used, the explored state space, and the number of simulations that timed out.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - nsim (int, optional): Number of initial conditions to simulate (default is 500). Ignored if &#39;initial_sample_points&#39; are provided.</span>
 <span class="sd">            - initial_sample_points (list, optional): List of initial states (in decimal) to use.</span>
 <span class="sd">            - n_steps_timeout (int, optional): Maximum number of update steps allowed per simulation (default 100000).</span>
 <span class="sd">            - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If True, initial_sample_points are provided as binary vectors; if False, they are given as decimal numbers. Default is True.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - dict: A dictionary containing:</span>
+<span class="sd">                </span>
 <span class="sd">                - Attractors (list): List of attractors (each as a list of states in the attractor cycle).</span>
 <span class="sd">                - NumberOfAttractors (int): Total number of unique attractors found. This is a lower bound.</span>
 <span class="sd">                - BasinSizes (list): List of counts for each attractor. This is an unbiased estimator.</span>
@@ -708,10 +730,13 @@
 <span class="sd">        Attractors and their basin sizes are then determined by iterating over the entire state space.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - RETURN_STG_DICT (bool, optional): If True, the state space is returned as a dictionary, in which each state is associated by its decimal representation.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - dict: A dictionary containing:</span>
+<span class="sd">                </span>
 <span class="sd">                - Attractors (list): List of attractors (each attractor is represented as a list of states forming the cycle).</span>
 <span class="sd">                - NumberOfAttractors (int): Total number of unique attractors.</span>
 <span class="sd">                - BasinSizes (list): List of counts for each attractor.</span>
@@ -776,9 +801,10 @@
 <span class="sd">        and a corresponding list of essential regulators.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - BooleanNetwork: A Boolean network object where:</span>
-<span class="sd">                - F is a list of N Boolean functions containing functions of length 2^(m_i), with m_i ≤ n_i,</span>
-<span class="sd">                  representing the functions restricted to the essential regulators.</span>
+<span class="sd">                </span>
+<span class="sd">                - F is a list of N Boolean functions containing functions of length 2^(m_i), with m_i ≤ n_i, representing the functions restricted to the essential regulators.</span>
 <span class="sd">                - I is a list of N lists containing the indices of the essential regulators for each node.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">F_essential</span> <span class="o">=</span> <span class="p">[]</span>
@@ -821,12 +847,15 @@
 <span class="sd">        the wiring diagram for that node.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - control_target (int): Index of the target node to be perturbed.</span>
 <span class="sd">            - control_source (int): Index of the regulator whose influence is to be removed.</span>
 <span class="sd">            - type_of_edge_control (int, optional): Source value in regulation after control. Default is 0.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - BooleanNetwork object where:</span>
+<span class="sd">                </span>
 <span class="sd">                - F is the updated list of Boolean functions after perturbation.</span>
 <span class="sd">                - I is the updated wiring diagram after removing the control regulator from the target node.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -856,6 +885,7 @@
 <span class="sd">        A node is considered an external input if it has exactly one regulator and that regulator is the node itself.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - np.array: Array of node indices that are external inputs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">])</span></div>
@@ -873,12 +903,15 @@
 <span class="sd">        the average Hamming distance between the resulting updated states of the original and perturbed networks.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - nsim (int, optional): Number of simulations to perform. Default is 1000.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - float: The average Hamming distance (Derrida value) over nsim simulations.</span>
 
 <span class="sd">        References:</span>
+<span class="sd">            </span>
 <span class="sd">            Derrida, B., &amp; Pomeau, Y. (1986). Random networks of automata: a simple annealed approximation. Europhysics letters, 1(2), 45.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">EXACT</span><span class="p">:</span>
@@ -908,7 +941,9 @@
 <span class="sd">        as well as robustness measures for each basin of attraction and each attractor.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - dict: A dictionary containing:</span>
+<span class="sd">                </span>
 <span class="sd">                - Attractors (list): List of attractors (each attractor is represented as a list of state decimal numbers).</span>
 <span class="sd">                - ExactNumberOfAttractors (int): The exact number of network attractors.</span>
 <span class="sd">                - BasinSizes (list): List of exact basin sizes for each attractor.</span>
@@ -921,10 +956,9 @@
 <span class="sd">                - AttractorFragility (list): exact fragility of each attractor.</span>
 <span class="sd">        </span>
 <span class="sd">        References:</span>
-<span class="sd">            [1] Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., &amp; Rozum, J. C. (2023).</span>
-<span class="sd">                Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.</span>
-<span class="sd">            [2] Bavisetty, V. S. N., Wheeler, M., &amp; Kadelka, C. (2025). </span>
-<span class="sd">                xxxx arXiv preprint arXiv:xxx.xxx.</span>
+<span class="sd">            </span>
+<span class="sd">            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., &amp; Rozum, J. C. (2023). Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.</span>
+<span class="sd">            #. Bavisetty, V. S. N., Wheeler, M., &amp; Kadelka, C. (2025). xxxx arXiv preprint arXiv:xxx.xxx.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">()</span>
 
@@ -1028,6 +1062,7 @@
 
 <span class="sd">        This function samples the attractor landscape by simulating the network from a number of different initial</span>
 <span class="sd">        conditions. It computes:</span>
+<span class="sd">            </span>
 <span class="sd">            - The coherence: the proportion of neighboring states (in the Boolean hypercube) that, after synchronous update, transition to the same attractor.</span>
 <span class="sd">            - The fragility: a measure of how much the attractor state changes (assumed under synchronous update) in response to perturbations.</span>
 <span class="sd">            - The final time-step Hamming distance between perturbed trajectories.</span>
@@ -1035,11 +1070,14 @@
 <span class="sd">        In addition, it collects several details about each attractor (such as basin sizes, coherence of each basin, etc.).</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - number_different_IC (int, optional): Number of different initial conditions to sample (default is 500).</span>
 <span class="sd">            - RETURN_ATTRACTOR_COHERENCE (bool, optional): Determines whether the attractor coherence should also be computed (default True, i.e., Yes).</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - dict: A dictionary containing:</span>
+<span class="sd">                </span>
 <span class="sd">                - Attractors (list): List of attractors (each attractor is represented as a list of state decimal numbers).</span>
 <span class="sd">                - LowerBoundOfNumberOfAttractors (int): The lower bound on the number of attractors found.</span>
 <span class="sd">                - BasinSizes (list): List of basin sizes for each attractor.</span>
@@ -1052,10 +1090,9 @@
 <span class="sd">                - AttractorFragility (list): The exact fragility of each attractor (only computed and returned if RETURN_ATTRACTOR_COHERENCE == True).</span>
 
 <span class="sd">        References:</span>
-<span class="sd">            [1] Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., &amp; Rozum, J. C. (2023).</span>
-<span class="sd">                Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.</span>
-<span class="sd">            [2] Bavisetty, V. S. N., Wheeler, M., &amp; Kadelka, C. (2025). </span>
-<span class="sd">                xxxx arXiv preprint arXiv:xxx.xxx.</span>
+<span class="sd">            </span>
+<span class="sd">            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., &amp; Rozum, J. C. (2023). Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.</span>
+<span class="sd">            #. Bavisetty, V. S. N., Wheeler, M., &amp; Kadelka, C. (2025). xxxx arXiv preprint arXiv:xxx.xxx.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">lcm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
@@ -1324,6 +1361,7 @@
 <span class="sd">        The function constructs a directed graph from these edges and returns its strongly connected components.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - list: A list of sets, each representing a strongly connected component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">edges_wiring_diagram</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1359,11 +1397,13 @@
 <span class="sd">        Self-loops can be optionally ignored, and constant nodes can be excluded.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - constants (list, optional): List of constant nodes.</span>
 <span class="sd">            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.</span>
 <span class="sd">            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded from the matrix.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - np.array: The binary adjacency matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
@@ -1390,12 +1430,14 @@
 <span class="sd">        -1 for decreasing (inhibiting) regulations, and NaN for any other type.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - type_of_each_regulation (list): List of lists corresponding to the type of regulation (&#39;increasing&#39; or &#39;decreasing&#39;) for each edge in I.</span>
 <span class="sd">            - constants (list, optional): List of constant nodes.</span>
 <span class="sd">            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.</span>
 <span class="sd">            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - np.array: The signed adjacency matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
@@ -1428,12 +1470,14 @@
 <span class="sd">        Edges are signed according to the type of regulation (&#39;increasing&#39; or &#39;decreasing&#39;).</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - type_of_each_regulation (list): List of lists specifying the type of regulation for each edge.</span>
 <span class="sd">            - constants (list, optional): List of constant nodes.</span>
 <span class="sd">            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.</span>
 <span class="sd">            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - np.array: The signed effective graph as a matrix of edge effectiveness values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
@@ -1465,6 +1509,7 @@
 <span class="sd">        A feed-forward loop (FFL) is a three-node motif where node i regulates node k both directly and indirectly via node j.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - tuple: A tuple (ffls, types), where ffls is a list of FFLs and types is a list of corresponding monotonicity types.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ffls</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1500,12 +1545,17 @@
 <span class="sd">        If types_I (the type of each regulation) is provided, it also returns the corresponding regulation types.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - types_I (list, optional): List of lists specifying the type (e.g., &#39;increasing&#39; or &#39;decreasing&#39;) for each regulation.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            If types_I is provided:</span>
+<span class="sd">                </span>
 <span class="sd">                - tuple: (ffls, types) where ffls is a list of identified FFLs (each as a list [i, j, k]), and types is a list of corresponding regulation type triplets.</span>
+<span class="sd">                </span>
 <span class="sd">            Otherwise:</span>
+<span class="sd">                </span>
 <span class="sd">                - list: A list of identified FFLs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">all_tfs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">)))</span>
@@ -1547,10 +1597,12 @@
 <span class="sd">        from each regulator to its target based on the wiring diagram I.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - constants (list): List of constant names.</span>
 <span class="sd">            - variables (list): List of variable names.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - networkx.DiGraph: The noderated directed graph.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">constants</span><span class="p">)</span>
@@ -1570,9 +1622,11 @@
 <span class="sd">        Only edges among the first n_variables (excluding constant self-loops) are included.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - n_variables (int): Number of variable nodes (constants are excluded).</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - networkx.DiGraph: The generated directed graph.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1595,9 +1649,11 @@
 <span class="sd">        The loop is assumed to be ordered such that the first node is repeated at the end.</span>
 
 <span class="sd">        Parameters:</span>
+<span class="sd">            </span>
 <span class="sd">            - loop (list): List of node indices representing the loop.</span>
 
 <span class="sd">        Returns:</span>
+<span class="sd">            </span>
 <span class="sd">            - list: A list of regulation types corresponding to each edge in the loop.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
