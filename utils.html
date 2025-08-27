@@ -168,27 +168,18 @@ The expression can include Boolean operators and comparisons, and the order of v
 is determined by their first occurrence in the expression.</p>
 <dl>
 <dt>Parameters:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>expr (str): A text string containing an evaluable Boolean expression.</dt><dd><dl class="simple">
-<dt>Examples:</dt><dd><p>‘A AND NOT B’
-‘x1 + x2 + x3 &gt; 1’
-‘(x1 + x2 + x3) % 2 == 0’</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</li>
+<li><p>expr (str): A text string containing an evaluable Boolean expression.</p></li>
 </ul>
 </dd>
-<dt>Returns:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>tuple:</dt><dd><ul>
+<dt>Returns:</dt><dd><ul>
+<li><p>tuple:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>f (list): The right-hand side of the Boolean function (truth table) as a list of length 2**n,
 where n is the number of inputs.</p></li>
 <li><p>var (list): A list of variable names (of length n) in the order they were encountered.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 </ul>
 </dd>

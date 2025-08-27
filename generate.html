@@ -110,12 +110,13 @@ Last Edited on Thu Aug 14 2025</p>
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT_DEPTH</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LINEAR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ALLOW_DEGENERATED_FUNCTIONS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">USE_ABSOLUTE_BIAS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/generate.html#random_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random Boolean function in n variables under flexible constraints.</p>
 <dl>
-<dt>Selection logic (first match applies):</dt><dd><ul class="simple">
+<dt>Selection logic (first match applies):</dt><dd><ul>
 <li><p>If <cite>LINEAR</cite>: return a random <strong>linear</strong> Boolean function (<cite>random_linear_function</cite>).</p></li>
 <li><p>Else if <cite>depth &gt; 0</cite> and <cite>layer_structure is None</cite>: return a <strong>k-canalizing</strong> function with k = min(depth, n) using <cite>random_k_canalizing_function</cite>, with exact canalizing depth if <cite>EXACT_DEPTH=True</cite>.</p></li>
 <li><p>Else if <cite>layer_structure is not None</cite>: return a function with the specified <strong>canalizing layer structure</strong> using <cite>random_k_canalizing_function_with_specific_layer_structure</cite>, with exact canalizing depth if <cite>EXACT_DEPTH=True</cite>.</p></li>
-<li><dl class="simple">
-<dt>Else if <cite>hamming_weight is None</cite>: Choose a bias:</dt><dd><ul>
+<li><p>Else if <cite>hamming_weight is None</cite>: Choose a bias:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>If <cite>USE_ABSOLUTE_BIAS=True</cite>, pick randomly from {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}.</p></li>
 <li><p>Else, use <cite>bias</cite> directly.</p></li>
 <li><dl class="simple">
@@ -129,18 +130,18 @@ Last Edited on Thu Aug 14 2025</p>
 </dl>
 </li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </li>
-<li><dl class="simple">
-<dt>Else (exact <cite>hamming_weight</cite> is provided): sample uniformly a truth table with the requested number of ones, and keep resampling until the additional constraints implied by <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite> are satisfied:</dt><dd><ul>
+<li><p>Else (exact <cite>hamming_weight</cite> is provided): sample uniformly a truth table with the requested number of ones, and keep resampling until the additional constraints implied by <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite> are satisfied:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>: accept only <strong>non-canalizing</strong>.</p></li>
 <li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and not <cite>EXACT_DEPTH</cite>: accept immediately.</p></li>
 <li><p>If not <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>: accept only <strong>non-canalizing &amp; non-degenerated</strong>.</p></li>
 <li><p>Else: accept only <strong>non-degenerated</strong>.</p></li>
 </ul>
-</dd>
-</dl>
+<p>xxxxxxxxxx xxxx</p>
+</div></blockquote>
 </li>
 </ul>
 </dd>
@@ -359,8 +360,8 @@ of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.</p>
 If EXACT_DEPTH is True, the function will have exactly k canalizing variables; otherwise, its canalizing depth may exceed k.</p>
 <dl class="simple">
 <dt>Parameters:</dt><dd><ul class="simple">
-<li><p>n (int): Total number of variables.</p></li>
-<li><p>k (int): Number of canalizing variables. Set k==n to generate a random nested canalizing function.</p></li>
+<li><p>n (int): Number of variables.</p></li>
+<li><p>k (int): Number of canalizing variables. Set ‘k=n’ to generate a random nested canalizing function.</p></li>
 <li><p>EXACT_DEPTH (bool, optional): If True, enforce that the canalizing depth is exactly k (default is False).</p></li>
 <li><p>ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False) and k==0 and layer_structure is None, degenerated functions may be created as in classical NK-Kauffman networks.</p></li>
 </ul>
