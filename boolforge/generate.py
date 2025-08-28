@@ -679,7 +679,7 @@ def rewire_wiring_diagram(I,average_swaps_per_edge=10,DO_NOT_ADD_SELF_REGULATION
         - I (list[list[int]], list[np.ndarray[int]]): Representation of the adjacency matrix / wiring diagram as a list where `I[target]` contains the regulators of node `target`. Each inner list must contain distinct integers in `{0, ..., len(I)-1}`.
         - average_swaps_per_edge (float, optional): Target number of **successful** swaps per edge. Larger values typically yield better mixing (more randomized graphs) but take longer. Default 10.
         - DO_NOT_ADD_SELF_REGULATION (bool, optional): If True, proposed swaps that would create a self-loop `u→u` are rejected. Default True.
-        - FIX_SELF_REGULATION (bool, optional): If True, *existing* self-loops are kept **fixed** and excluded from the pool of swappable edges (they remain as-is in the output). If False, self-loops—if present—may be swapped away; if `DO_NOT_ADD_SELF_REGULATION` is True, no new self-loops will be created. Default True.
+        - FIX_SELF_REGULATION (bool, optional): If True, *existing* self-loops are kept **fixed** and excluded from the pool of swappable edges (they remain as-is in the output). If False, self-loops, if present, may be swapped away; if `DO_NOT_ADD_SELF_REGULATION` is True, no new self-loops will be created. Default True.
 
     Returns:
         
@@ -697,8 +697,8 @@ def rewire_wiring_diagram(I,average_swaps_per_edge=10,DO_NOT_ADD_SELF_REGULATION
 
     Example:
         
-        >>> I = [[1,2], [3], [1], [0,1]]   # x0 <- {1,2}; x1 <- {3}; x2 <- {1}, x3 <- {0,1}
-        >>> J = rewire_wiring_diagram(I, average_swaps_per_edge=5, seed=7)
+        >>> I = random_network(8,3).I   
+        >>> J = rewire_wiring_diagram(I)
         >>> sorted(map(len, I)) == sorted(map(len, J))          # in-degrees
         True
         >>> def outdeg(adj):
@@ -885,7 +885,7 @@ def random_network(N=None, n=None,
         ...                     NO_SELF_REGULATION=True, STRONGLY_CONNECTED=True)
 
         >>> # Exact Hamming weights (broadcast)
-        >>> bn = random_network(N=6, n=3, hamming_weights=4, depths=0, EXACT_DEPTH=False)
+        >>> bn = random_network(N=6, n=3, hamming_weights=4)
 
         >>> # To ensure strong connectivity, set ALLOW_DEGENERATED_FUNCTIONS=False and STRONGLY_CONNECTED=True
         >>> bn = random_network(N,n,ALLOW_DEGENERATED_FUNCTIONS=False,STRONGLY_CONNECTED=True) 
@@ -987,7 +987,7 @@ def random_null_model(bn, wiring_diagram = 'fixed', PRESERVE_BIAS = True, PRESER
         - `**kwargs`: Forwarded to the wiring-diagram routine selected above:
             
             - If `wiring_diagram == 'fixed_indegree'`: passed to `random_wiring_diagram` (e.g., `NO_SELF_REGULATION`, `STRONGLY_CONNECTED`, etc.).
-            - If `wiring_diagram == 'fixed_in_and_outdegree'`: passed to `rewire_wiring_diagram` (e.g., `average_swaps_per_edge`, `seed`, `DO_NOT_ADD_SELF_REGULATION`, `FIX_SELF_REGULATION`).
+            - If `wiring_diagram == 'fixed_in_and_outdegree'`: passed to `rewire_wiring_diagram` (e.g., `average_swaps_per_edge`, `DO_NOT_ADD_SELF_REGULATION`, `FIX_SELF_REGULATION`).
 
     Returns:
         
@@ -1021,9 +1021,9 @@ def random_null_model(bn, wiring_diagram = 'fixed', PRESERVE_BIAS = True, PRESER
         ...                         PRESERVE_BIAS=True, PRESERVE_CANALIZING_DEPTH=False,
         ...                         NO_SELF_REGULATION=True)
 
-        >>> # Preserve both in- and out-degrees via swaps; set seed
+        >>> # Preserve both in- and out-degrees via swaps
         >>> bn4 = random_null_model(bn, wiring_diagram='fixed_in_and_outdegree',
-        ...                         average_swaps_per_edge=15, seed=123)
+        ...                         average_swaps_per_edge=15)
     """
     rng = utils._coerce_rng(rng)
     if wiring_diagram == 'fixed':
