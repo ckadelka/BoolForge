@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="manual.html">Manual</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="boolean_function.html">Boolean Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="boolean_network.html">Boolean Network</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generate.html">Generate</a></li>
@@ -75,7 +75,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="manual.html">Manual</a></li>
+          <li class="breadcrumb-item"><a href="docs.html">Documentation</a></li>
       <li class="breadcrumb-item active">Utils</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/utils.rst.txt" rel="nofollow"> View page source</a>
@@ -94,7 +94,7 @@
 <p>&#64;author: Claus Kadelka, Benjamin Coberly</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.utils.bin2dec">
-<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">bin2dec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_vector</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#bin2dec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.bin2dec" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">bin2dec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#bin2dec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.bin2dec" title="Link to this definition"></a></dt>
 <dd><p>Convert a binary vector to an integer.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
@@ -112,7 +112,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.utils.dec2bin">
-<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">dec2bin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#dec2bin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.dec2bin" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">dec2bin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integer_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#dec2bin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.dec2bin" title="Link to this definition"></a></dt>
 <dd><p>Convert an integer to a binary vector.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
@@ -131,7 +131,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.utils.check_if_empty">
-<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">check_if_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#check_if_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.check_if_empty" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">check_if_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#check_if_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.check_if_empty" title="Link to this definition"></a></dt>
 <dd><p>Check if the provided list or NumPy array is empty.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
@@ -149,15 +149,15 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.utils.bool_to_poly">
-<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">bool_to_poly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_side_of_truth_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#bool_to_poly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.bool_to_poly" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">bool_to_poly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_side_of_truth_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#bool_to_poly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.bool_to_poly" title="Link to this definition"></a></dt>
 <dd><p>Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>f (list): Boolean function as a vector (list of length 2^n, where n is the number of inputs).</p></li>
-<li><p>left_side_of_truth_table (list | optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.</p></li>
-<li><p>indices (list | optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).</p></li>
-<li><p>prefix (str | optional): Prefix for variable names in the polynomial, default ‘’.</p></li>
+<li><p>left_side_of_truth_table (list | None, optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.</p></li>
+<li><p>indices (list | None, optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).</p></li>
+<li><p>prefix (str, optional): Prefix for variable names in the polynomial, default ‘’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -170,7 +170,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.utils.f_from_expression">
-<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">f_from_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#f_from_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.f_from_expression" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">f_from_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#f_from_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.f_from_expression" title="Link to this definition"></a></dt>
 <dd><p>Extract a Boolean function from a string expression.</p>
 <p>The function converts an input expression into its truth table representation.
 The expression can include Boolean operators and comparisons, and the order of variables
@@ -212,7 +212,7 @@ where n is the number of inputs.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight">
-<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">get_layer_structure_of_an_NCF_given_its_Hamming_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#get_layer_structure_of_an_NCF_given_its_Hamming_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">get_layer_structure_of_an_NCF_given_its_Hamming_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#get_layer_structure_of_an_NCF_given_its_Hamming_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight" title="Link to this definition"></a></dt>
 <dd><p>Compute the canalizing layer structure of a nested canalizing function (NCF) given its Hamming weight.</p>
 <p>There exists a bijection between the Hamming weight (with w equivalent to 2^n - w) and the canalizing layer structure of an NCF.
 The layer structure is represented as [k_1, …, k_r], where each k_i ≥ 1 and, if n &gt; 1, for the last layer k_r ≥ 2.</p>

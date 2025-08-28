@@ -41,7 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../manual.html">Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
@@ -81,6 +81,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">boolforge.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
@@ -118,22 +121,22 @@
 
 <span class="sd">    **Constructor Parameters:**</span>
 <span class="sd">        </span>
-<span class="sd">        - f (list, np.array, str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.</span>
-<span class="sd">        - name (str | optional): The name of the node regulated by the Boolean function (default &#39;&#39;).</span>
+<span class="sd">        - f (list | np.array | str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.</span>
+<span class="sd">        - name (str, optional): The name of the node regulated by the Boolean function (default &#39;&#39;).</span>
 <span class="sd">        </span>
 <span class="sd">    **Members:**</span>
 <span class="sd">        </span>
 <span class="sd">        - f (np.array): A numpy array of length 2^n representing the outputs of a Boolean function with n inputs.</span>
 <span class="sd">        - n (int): The number of inputs for the Boolean function.</span>
 <span class="sd">        - variables (np.array): A numpy array of n strings with variable names, default x0, ..., x_{n-1}.</span>
-<span class="sd">        - name (str | optional): The name of the node regulated by the Boolean function (default &#39;&#39;)</span>
+<span class="sd">        - name (str): The name of the node regulated by the Boolean function (default &#39;&#39;)</span>
 <span class="sd">        - properties (dict): Dynamically created dictionary with additional information about the function (canalizing layer structure, type of inputs, etc.)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;f&#39;</span><span class="p">,</span><span class="s1">&#39;n&#39;</span><span class="p">,</span><span class="s1">&#39;variables&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="s1">&#39;properties&#39;</span><span class="p">]</span>
     
     <span class="n">left_side_of_truth_tables</span> <span class="o">=</span> <span class="p">{}</span>
     
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">name</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">f_from_expression</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -179,7 +182,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.to_cana">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.to_cana">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_cana</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_cana</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;cana.boolean_node.BooleanNode&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        **Compatability method:**</span>
 <span class="sd">            </span>
@@ -211,15 +214,16 @@
             <span class="n">masks</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">))[</span><span class="kc">None</span><span class="p">]</span>  <span class="c1"># shape (1, n)</span>
             <span class="n">lhs</span> <span class="o">=</span> <span class="p">((</span><span class="n">vals</span> <span class="o">&amp;</span> <span class="n">masks</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>   
             <span class="n">BooleanFunction</span><span class="o">.</span><span class="n">left_side_of_truth_tables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">lhs</span>
+            <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">lhs</span>
         <span class="k">return</span> <span class="n">left_side_of_truth_table</span>
     
     
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_hamming_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_hamming_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
     
 <div class="viewcode-block" id="BooleanFunction.is_constant">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_constant">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether a Boolean function is constant.</span>
 
@@ -232,7 +236,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.is_degenerated">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_degenerated">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_degenerated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_degenerated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine if a Boolean function contains non-essential variables.</span>
 
@@ -260,7 +264,7 @@
 
 <div class="viewcode-block" id="BooleanFunction.get_essential_variables">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_essential_variables">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_essential_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_essential_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the indices of essential variables in a Boolean function.</span>
 
@@ -291,7 +295,7 @@
 
 <div class="viewcode-block" id="BooleanFunction.get_number_of_essential_variables">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_essential_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_essential_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Count the number of essential variables in a Boolean function.</span>
 
@@ -305,7 +309,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.get_type_of_inputs">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_type_of_inputs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_type_of_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_type_of_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine for each input of the Boolean function whether it is positive, negative, conditional or non-essential.</span>
 
@@ -340,7 +344,7 @@
 
 <div class="viewcode-block" id="BooleanFunction.is_monotonic">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_monotonic">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_monotonic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_monotonic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine if a Boolean function is monotonic.</span>
 
@@ -357,7 +361,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.get_symmetry_groups">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_symmetry_groups">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_symmetry_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_symmetry_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine all symmetry groups of input variables for a Boolean function.</span>
 
@@ -390,7 +394,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.get_absolute_bias">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_absolute_bias">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_absolute_bias</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_absolute_bias</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the absolute bias of a Boolean function.</span>
 
@@ -405,7 +409,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.get_average_sensitivity">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_average_sensitivity">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_average_sensitivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">EXACT</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">NORMALIZED</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_average_sensitivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">EXACT</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">NORMALIZED</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the average sensitivity of a Boolean function.</span>
 
@@ -415,9 +419,9 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - nsim (int | optional): Number of random samples (default is 10000, used when EXACT is False).</span>
-<span class="sd">            - EXACT (bool | optional): If True, compute the exact sensitivity by iterating over all inputs; otherwise, use sampling (default).</span>
-<span class="sd">            - NORMALIZED (bool | optional): If True, return the normalized sensitivity (divided by the number of function inputs); otherwise, return the total count.</span>
+<span class="sd">            - nsim (int, optional): Number of random samples (default is 10000, used when EXACT is False).</span>
+<span class="sd">            - EXACT (bool, optional): If True, compute the exact sensitivity by iterating over all inputs; otherwise, use sampling (default).</span>
+<span class="sd">            - NORMALIZED (bool, optional): If True, return the normalized sensitivity (divided by the number of function inputs); otherwise, return the total count.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -455,7 +459,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.is_canalizing">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_canalizing">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine if a Boolean function is canalizing.</span>
 
@@ -480,7 +484,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.is_k_canalizing">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_k_canalizing">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_k_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_k_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine if a Boolean function is k-canalizing.</span>
 
@@ -575,7 +579,7 @@
 
 <div class="viewcode-block" id="BooleanFunction.get_layer_structure">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_layer_structure">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the canalizing layer structure of a Boolean function.</span>
 
@@ -615,7 +619,7 @@
 
 <div class="viewcode-block" id="BooleanFunction.get_canalizing_depth">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_canalizing_depth">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_canalizing_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_canalizing_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the canalizing depth of the function.</span>
 <span class="sd">        </span>
@@ -631,7 +635,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.get_kset_canalizing_proportion">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_kset_canalizing_proportion">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_kset_canalizing_proportion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_kset_canalizing_proportion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the proportion of k-set canalizing input sets for a Boolean function.</span>
 
@@ -672,7 +676,7 @@
 
 <div class="viewcode-block" id="BooleanFunction.is_kset_canalizing">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_kset_canalizing">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_kset_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_kset_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine if a Boolean function is k-set canalizing.</span>
 
@@ -694,10 +698,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kset_canalizing_proportion</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span></div>
 
 
-
 <div class="viewcode-block" id="BooleanFunction.get_canalizing_strength">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_canalizing_strength">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_canalizing_strength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_canalizing_strength</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the canalizing strength of a Boolean function via exhaustive enumeration.</span>
 
@@ -727,7 +730,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.get_input_redundancy">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_input_redundancy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_input_redundancy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_input_redundancy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. important::</span>
 <span class="sd">            This method requires an installation of CANA (See `Extended Functionality`_). If CANA is not found, this method wil return None.</span>
@@ -755,7 +758,7 @@
     
 <div class="viewcode-block" id="BooleanFunction.get_edge_effectiveness">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_edge_effectiveness">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_effectiveness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_effectiveness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. important::</span>
 <span class="sd">            This method requires an installation of CANA (See `Extended Functionality`_). If CANA is not found, this method wil return None.</span>
@@ -783,7 +786,7 @@
 
 <div class="viewcode-block" id="BooleanFunction.get_effective_degree">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_effective_degree">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_effective_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_effective_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        .. important::</span>
 <span class="sd">            This method requires an installation of CANA (See `Extended Functionality`_). If CANA is not found, this method wil return None.</span>
@@ -796,7 +799,7 @@
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
-<span class="sd">            - list: A value in [0, 1] representing the effective degree for each input.</span>
+<span class="sd">            - list: A value in [0, 1] representing the effective degree for each input. #TODO</span>
 
 <span class="sd">        **References:**</span>
 

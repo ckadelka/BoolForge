@@ -41,7 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../manual.html">Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
@@ -87,7 +87,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_py_random</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.random</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span> <span class="k">as</span> <span class="n">_NPGen</span><span class="p">,</span> <span class="n">RandomState</span> <span class="k">as</span> <span class="n">_NPRandomState</span><span class="p">,</span> <span class="n">SeedSequence</span><span class="p">,</span> <span class="n">default_rng</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">_NPGen</span> <span class="o">|</span> <span class="n">_NPRandomState</span> <span class="o">|</span> <span class="n">_py_random</span><span class="o">.</span><span class="n">Random</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_NPGen</span><span class="p">:</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coerce_rng</span><span class="p">(</span><span class="n">rng</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">_NPGen</span><span class="p">,</span> <span class="n">_NPRandomState</span><span class="p">,</span> <span class="n">_py_random</span><span class="o">.</span><span class="n">Random</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_NPGen</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a NumPy Generator given a variety of rng-like inputs.</span>
 
@@ -121,7 +124,7 @@
 
 <div class="viewcode-block" id="bin2dec">
 <a class="viewcode-back" href="../../utils.html#boolforge.utils.bin2dec">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">bin2dec</span><span class="p">(</span><span class="n">binary_vector</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bin2dec</span><span class="p">(</span><span class="n">binary_vector</span> <span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a binary vector to an integer.</span>
 
@@ -142,7 +145,7 @@
 
 <div class="viewcode-block" id="dec2bin">
 <a class="viewcode-back" href="../../utils.html#boolforge.utils.dec2bin">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">dec2bin</span><span class="p">(</span><span class="n">integer_value</span><span class="p">,</span> <span class="n">num_bits</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dec2bin</span><span class="p">(</span><span class="n">integer_value</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_bits</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert an integer to a binary vector.</span>
 
@@ -162,7 +165,7 @@
 
 <div class="viewcode-block" id="check_if_empty">
 <a class="viewcode-back" href="../../utils.html#boolforge.utils.check_if_empty">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">check_if_empty</span><span class="p">(</span><span class="n">my_list</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_if_empty</span><span class="p">(</span><span class="n">my_list</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if the provided list or NumPy array is empty.</span>
 
@@ -179,8 +182,7 @@
             <span class="k">return</span> <span class="kc">True</span>
     <span class="k">elif</span> <span class="n">my_list</span> <span class="o">==</span> <span class="p">[]:</span>
         <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+    <span class="k">return</span> <span class="kc">False</span></div>
 
     
     
@@ -209,16 +211,17 @@
 
 <div class="viewcode-block" id="bool_to_poly">
 <a class="viewcode-back" href="../../utils.html#boolforge.utils.bool_to_poly">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">bool_to_poly</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">left_side_of_truth_table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bool_to_poly</span><span class="p">(</span><span class="n">f</span> <span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">left_side_of_truth_table</span> <span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">variables</span> <span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.</span>
 
 <span class="sd">    **Parameters:**</span>
 <span class="sd">        </span>
 <span class="sd">        - f (list): Boolean function as a vector (list of length 2^n, where n is the number of inputs).</span>
-<span class="sd">        - left_side_of_truth_table (list | optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.</span>
-<span class="sd">        - indices (list | optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).</span>
-<span class="sd">        - prefix (str | optional): Prefix for variable names in the polynomial, default &#39;&#39;.</span>
+<span class="sd">        - left_side_of_truth_table (list | None, optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.</span>
+<span class="sd">        - indices (list | None, optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).</span>
+<span class="sd">        - prefix (str, optional): Prefix for variable names in the polynomial, default &#39;&#39;.</span>
 
 <span class="sd">    **Returns:**</span>
 <span class="sd">        </span>
@@ -247,7 +250,7 @@
 
 <div class="viewcode-block" id="f_from_expression">
 <a class="viewcode-back" href="../../utils.html#boolforge.utils.f_from_expression">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">f_from_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">f_from_expression</span><span class="p">(</span><span class="n">expr</span> <span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract a Boolean function from a string expression.</span>
 
@@ -320,7 +323,7 @@
 
 <div class="viewcode-block" id="get_layer_structure_of_an_NCF_given_its_Hamming_weight">
 <a class="viewcode-back" href="../../utils.html#boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_layer_structure_of_an_NCF_given_its_Hamming_weight</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_layer_structure_of_an_NCF_given_its_Hamming_weight</span><span class="p">(</span><span class="n">n</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">w</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the canalizing layer structure of a nested canalizing function (NCF) given its Hamming weight.</span>
 

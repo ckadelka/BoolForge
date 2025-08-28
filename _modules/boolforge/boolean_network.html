@@ -41,7 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../manual.html">Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
@@ -85,6 +85,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">boolforge.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
@@ -109,9 +111,9 @@
 <span class="sd">    </span>
 <span class="sd">    **Constructor Parameters:**</span>
 <span class="sd">        </span>
-<span class="sd">        - F (list, numpy array): A list of N Boolean functions, or of N lists of length 2^n representing the outputs of a Boolean function with n inputs.</span>
-<span class="sd">        - I (list, numpy array): A list of N lists representing the regulators (or inputs) for each Boolean function.</span>
-<span class="sd">        - variables (list, numpy array | optional): A list of N strings representing the names of each variable, default = None.</span>
+<span class="sd">        - F (list | np.ndarray): A list of N Boolean functions, or of N lists of length 2^n representing the outputs of a Boolean function with n inputs.</span>
+<span class="sd">        - I (list | np.ndarray): A list of N lists representing the regulators (or inputs) for each Boolean function.</span>
+<span class="sd">        - variables (list | np.array, optional): A list of N strings representing the names of each variable, default = None.</span>
 
 <span class="sd">    **Members:**</span>
 <span class="sd">        </span>
@@ -123,7 +125,7 @@
     
     <span class="n">left_side_of_truth_tables</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">I</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">variables</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span> <span class="s2">&quot;F must be an array&quot;</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span> <span class="s2">&quot;I must be an array&quot;</span>
         <span class="c1">#assert (len(I[i]) == ns[i] for i in range(len(ns))), &quot;Malformed wiring diagram I&quot;</span>
@@ -209,7 +211,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.to_cana">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.to_cana">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_cana</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_cana</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;cana.boolean_network.BooleanNetwork&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        **Compatability method:**</span>
 <span class="sd">        </span>
@@ -228,7 +230,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.to_bnet">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.to_bnet">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_bnet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_bnet</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        **Compatability method:**</span>
 <span class="sd">            </span>
@@ -279,7 +281,7 @@
     
 <div class="viewcode-block" id="BooleanNetwork.get_outdegrees">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_outdegrees">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_outdegrees</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_outdegrees</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the outdegree of each node.</span>
 <span class="sd">        </span>
@@ -297,7 +299,7 @@
     
 <div class="viewcode-block" id="BooleanNetwork.update_single_node">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_single_node">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_single_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">states_regulators</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_single_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">states_regulators</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the state of a single node.</span>
 
@@ -306,8 +308,8 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - bf (BooleanFunction): Boolean function object.</span>
-<span class="sd">            - states_regulators (list, np.array): Binary vector representing the states of the node&#39;s regulators.</span>
+<span class="sd">            - index (int): The index of the Boolean Function in F.</span>
+<span class="sd">            - states_regulators (list | np.array): Binary vector representing the states of the node&#39;s regulators.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -319,7 +321,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.update_network_synchronously">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_network_synchronously">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_network_synchronously</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_network_synchronously</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform a synchronous update of a Boolean network.</span>
 
@@ -327,7 +329,7 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - X (list, np.array): Current state vector of the network.</span>
+<span class="sd">            - X (list | np.array): Current state vector of the network.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -344,7 +346,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.update_network_synchronously_many_times">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_network_synchronously_many_times">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_network_synchronously_many_times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_network_synchronously_many_times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">n_steps</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the state of a Boolean network sychronously multiple time steps.</span>
 
@@ -352,7 +354,7 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - X (list, np.array): Initial state vector of the network.</span>
+<span class="sd">            - X (list | np.array): Initial state vector of the network.</span>
 <span class="sd">            - n_steps (int): Number of update iterations to perform.</span>
 
 <span class="sd">        **Returns:**</span>
@@ -367,7 +369,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.update_network_SDDS">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_network_SDDS">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_network_SDDS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_network_SDDS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">P</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform a stochastic update (SDDS) on a Boolean network.</span>
 
@@ -377,7 +379,7 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - X (list, np.array): Current state vector.</span>
+<span class="sd">            - X (list | np.array): Current state vector.</span>
 <span class="sd">            - P (np.array): A len(F)×2 array of probabilities; for each node i, P[i,0] is the activation probability, and P[i,1] is the degradation probability.</span>
 
 <span class="sd">        **Returns:**</span>
@@ -400,8 +402,9 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_steady_states_asynchronous">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_steady_states_asynchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">EXACT</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                       <span class="n">initial_sample_points</span><span class="o">=</span><span class="p">[],</span> <span class="n">search_depth</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">DEBUG</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_steady_states_asynchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">EXACT</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">initial_sample_points</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">search_depth</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+                                       <span class="n">DEBUG</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the steady states of a Boolean network under asynchronous updates.</span>
 
@@ -517,7 +520,10 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_steady_states_asynchronous_given_one_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">stochastic_weights</span><span class="o">=</span><span class="p">[],</span> <span class="n">initial_condition</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">search_depth</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">DEBUG</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_steady_states_asynchronous_given_one_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+                                                                   <span class="n">stochastic_weights</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">initial_condition</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                                                   <span class="n">search_depth</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">DEBUG</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                                                   <span class="o">*</span><span class="p">,</span> <span class="n">rng</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the steady states reachable from one initial condition using weighted asynchronous updates.</span>
 
@@ -527,11 +533,11 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - nsim (int | optional): Number of simulation runs (default is 500).</span>
-<span class="sd">            - stochastic_weights (list | optional): List of stochastic weights (one per node) used to bias update order. If empty, uniform random order is used.</span>
-<span class="sd">            - initial_condition (int, list, np.array | optional): The initial state for all simulations. If an integer, it is converted to a binary vector. Default is 0.</span>
-<span class="sd">            - search_depth (int | optional): Maximum number of asynchronous update iterations per simulation (default is 50).</span>
-<span class="sd">            - DEBUG (bool | optional): If True, print debugging information (default is False).</span>
+<span class="sd">            - nsim (int, optional): Number of simulation runs (default is 500).</span>
+<span class="sd">            - stochastic_weights (list, optional): List of stochastic weights (one per node) used to bias update order. If empty, uniform random order is used.</span>
+<span class="sd">            - initial_condition (int | list | np.array, optional): The initial state for all simulations. If an integer, it is converted to a binary vector. Default is 0.</span>
+<span class="sd">            - search_depth (int, optional): Maximum number of asynchronous update iterations per simulation (default is 50).</span>
+<span class="sd">            - DEBUG (bool, optional): If True, print debugging information (default is False).</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -630,8 +636,10 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_attractors_synchronous">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_synchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">initial_sample_points</span><span class="o">=</span><span class="p">[],</span> <span class="n">n_steps_timeout</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
-                                   <span class="n">INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_synchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+                                   <span class="n">initial_sample_points</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">n_steps_timeout</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">,</span>
+                                   <span class="n">INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                   <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the number of attractors in a Boolean network using an alternative (v2) approach.</span>
 
@@ -642,10 +650,10 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - nsim (int | optional): Number of initial conditions to simulate (default is 500). Ignored if &#39;initial_sample_points&#39; are provided.</span>
-<span class="sd">            - initial_sample_points (list | optional): List of initial states (in decimal) to use.</span>
-<span class="sd">            - n_steps_timeout (int | optional): Maximum number of update steps allowed per simulation (default 100000).</span>
-<span class="sd">            - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool | optional): If True, initial_sample_points are provided as binary vectors; if False, they are given as decimal numbers. Default is True.</span>
+<span class="sd">            - nsim (int, optional): Number of initial conditions to simulate (default is 500). Ignored if &#39;initial_sample_points&#39; are provided.</span>
+<span class="sd">            - initial_sample_points (list, optional): List of initial states (in decimal) to use.</span>
+<span class="sd">            - n_steps_timeout (int, optional): Maximum number of update steps allowed per simulation (default 100000).</span>
+<span class="sd">            - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If True, initial_sample_points are provided as binary vectors; if False, they are given as decimal numbers. Default is True.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -725,7 +733,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_attractors_synchronous_exact">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_synchronous_exact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RETURN_STG_DICT</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_synchronous_exact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RETURN_STG_DICT</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the exact number of attractors in a Boolean network using a fast, vectorized approach.</span>
 
@@ -735,7 +743,7 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - RETURN_STG_DICT (bool | optional): If True, the state space is returned as a dictionary, in which each state is associated by its decimal representation.</span>
+<span class="sd">            - RETURN_STG_DICT (bool, optional): If True, the state space is returned as a dictionary, in which each state is associated by its decimal representation.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -795,7 +803,7 @@
     <span class="c1">## Transform Boolean networks</span>
 <div class="viewcode-block" id="BooleanNetwork.get_essential_network">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_essential_network">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_essential_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_essential_network</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BooleanNetwork&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the essential components of a Boolean network.</span>
 
@@ -842,7 +850,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_edge_controlled_network">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_edge_controlled_network">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_controlled_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_target</span><span class="p">,</span> <span class="n">control_source</span><span class="p">,</span> <span class="n">type_of_edge_control</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_edge_controlled_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_target</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">control_source</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">type_of_edge_control</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BooleanNetwork&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a perturbed Boolean network by removing the influence of a specified regulator on a specified target.</span>
 
@@ -854,7 +862,7 @@
 <span class="sd">            </span>
 <span class="sd">            - control_target (int): Index of the target node to be perturbed.</span>
 <span class="sd">            - control_source (int): Index of the regulator whose influence is to be removed.</span>
-<span class="sd">            - type_of_edge_control (int | optional): Source value in regulation after control. Default is 0.</span>
+<span class="sd">            - type_of_edge_control (int, optional): Source value in regulation after control. Default is 0.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -882,7 +890,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_external_inputs">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_external_inputs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_external_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_external_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identify external inputs in a Boolean network.</span>
 
@@ -899,7 +907,7 @@
     <span class="c1">## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility</span>
 <div class="viewcode-block" id="BooleanNetwork.get_derrida_value">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_derrida_value">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_derrida_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">EXACT</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_derrida_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsim</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">EXACT</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate the Derrida value for a Boolean network.</span>
 
@@ -908,7 +916,8 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - nsim (int | optional): Number of simulations to perform. Default is 1000.</span>
+<span class="sd">            - nsim (int, optional): Number of simulations to perform. Default is 1000.</span>
+<span class="sd">            - EXACT (bool, optional): #TODO</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -937,7 +946,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_and_robustness_measures_synchronous_exact</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_and_robustness_measures_synchronous_exact</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the attractors and several robustness measures of a Boolean network.</span>
 
@@ -1059,8 +1068,8 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_attractors_and_robustness_measures_synchronous">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_and_robustness_measures_synchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number_different_IC</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
-                                                           <span class="n">RETURN_ATTRACTOR_COHERENCE</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attractors_and_robustness_measures_synchronous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number_different_IC</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+                                                           <span class="n">RETURN_ATTRACTOR_COHERENCE</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Approximate global robustness measures and attractors.</span>
 
@@ -1357,7 +1366,7 @@
         
 <div class="viewcode-block" id="BooleanNetwork.get_strongly_connected_components">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_strongly_connected_components">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_strongly_connected_components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_strongly_connected_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the strongly connected components of a wiring diagram.</span>
 
@@ -1392,7 +1401,9 @@
 
 <div class="viewcode-block" id="BooleanNetwork.adjacency_matrix">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.adjacency_matrix">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">adjacency_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">[],</span> <span class="n">IGNORE_SELFLOOPS</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">IGNORE_CONSTANTS</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">adjacency_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constants</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
+                         <span class="n">IGNORE_SELFLOOPS</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                         <span class="n">IGNORE_CONSTANTS</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct the (binary) adjacency matrix from the wiring diagram.</span>
 
@@ -1402,9 +1413,9 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - constants (list | optional): List of constant nodes.</span>
-<span class="sd">            - IGNORE_SELFLOOPS (bool | optional): If True, self-loops are ignored.</span>
-<span class="sd">            - IGNORE_CONSTANTS (bool | optional): If True, constant nodes are excluded from the matrix.</span>
+<span class="sd">            - constants (list, optional): List of constant nodes.</span>
+<span class="sd">            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.</span>
+<span class="sd">            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded from the matrix.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -1426,7 +1437,9 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_signed_adjacency_matrix">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_signed_adjacency_matrix">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_signed_adjacency_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_of_each_regulation</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">[],</span> <span class="n">IGNORE_SELFLOOPS</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">IGNORE_CONSTANTS</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_signed_adjacency_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_of_each_regulation</span> <span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+                                    <span class="n">constants</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">IGNORE_SELFLOOPS</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">IGNORE_CONSTANTS</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct the signed adjacency matrix of a Boolean network.</span>
 
@@ -1436,9 +1449,9 @@
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
 <span class="sd">            - type_of_each_regulation (list): List of lists corresponding to the type of regulation (&#39;increasing&#39; or &#39;decreasing&#39;) for each edge in I.</span>
-<span class="sd">            - constants (list | optional): List of constant nodes.</span>
-<span class="sd">            - IGNORE_SELFLOOPS (bool | optional): If True, self-loops are ignored.</span>
-<span class="sd">            - IGNORE_CONSTANTS (bool | optional): If True, constant nodes are excluded.</span>
+<span class="sd">            - constants (list, optional): List of constant nodes.</span>
+<span class="sd">            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.</span>
+<span class="sd">            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -1465,7 +1478,9 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_signed_effective_graph">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_signed_effective_graph">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_signed_effective_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_of_each_regulation</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">[],</span> <span class="n">IGNORE_SELFLOOPS</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">IGNORE_CONSTANTS</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_signed_effective_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_of_each_regulation</span> <span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+                                   <span class="n">constants</span> <span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">IGNORE_SELFLOOPS</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                   <span class="n">IGNORE_CONSTANTS</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct the signed effective graph of a Boolean network.</span>
 
@@ -1476,9 +1491,9 @@
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
 <span class="sd">            - type_of_each_regulation (list): List of lists specifying the type of regulation for each edge.</span>
-<span class="sd">            - constants (list | optional): List of constant nodes.</span>
-<span class="sd">            - IGNORE_SELFLOOPS (bool | optional): If True, self-loops are ignored.</span>
-<span class="sd">            - IGNORE_CONSTANTS (bool | optional): If True, constant nodes are excluded.</span>
+<span class="sd">            - constants (list, optional): List of constant nodes.</span>
+<span class="sd">            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.</span>
+<span class="sd">            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -1506,7 +1521,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_ffls">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_ffls">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_ffls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ffls</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identify feed-forward loops (FFLs) in a Boolean network and optionally determine their types.</span>
 
@@ -1541,7 +1556,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_ffls_from_I">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_ffls_from_I">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_ffls_from_I</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types_I</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ffls_from_I</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types_I</span> <span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identify feed-forward loops (FFLs) in a Boolean network based solely on the wiring diagram.</span>
 
@@ -1550,7 +1565,7 @@
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - types_I (list | optional): List of lists specifying the type (e.g., &#39;increasing&#39; or &#39;decreasing&#39;) for each regulation.</span>
+<span class="sd">            - types_I (list, optional): List of lists specifying the type (e.g., &#39;increasing&#39; or &#39;decreasing&#39;) for each regulation.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -1593,7 +1608,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.generate_networkx_graph">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.generate_networkx_graph">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">generate_networkx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constants</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_networkx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constants</span> <span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">variables</span> <span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a NetworkX directed graph from a wiring diagram.</span>
 
@@ -1619,7 +1634,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.generate_networkx_graph_from_edges">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.generate_networkx_graph_from_edges">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">generate_networkx_graph_from_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_variables</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_networkx_graph_from_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_variables</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a NetworkX directed graph from an edge list derived from the wiring diagram.</span>
 
@@ -1644,7 +1659,7 @@
 
 <div class="viewcode-block" id="BooleanNetwork.get_type_of_loop">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_type_of_loop">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_type_of_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_type_of_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span> <span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the regulation types along a feedback loop.</span>
 

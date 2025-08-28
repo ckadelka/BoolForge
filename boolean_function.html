@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Boolean Network" href="boolean_network.html" />
-    <link rel="prev" title="Manual" href="manual.html" /> 
+    <link rel="prev" title="Documentation" href="docs.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,7 +44,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="manual.html">Manual</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Boolean Function</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction"><code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.to_cana"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.to_cana()</span></code></a></li>
@@ -93,7 +93,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="manual.html">Manual</a></li>
+          <li class="breadcrumb-item"><a href="docs.html">Documentation</a></li>
       <li class="breadcrumb-item active">Boolean Function</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/boolean_function.rst.txt" rel="nofollow"> View page source</a>
@@ -112,14 +112,14 @@
 <p>&#64;author: Benjamin Coberly, Claus Kadelka</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">boolforge.boolean_function.</span></span><span class="sig-name descname"><span class="pre">BooleanFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">boolforge.boolean_function.</span></span><span class="sig-name descname"><span class="pre">BooleanFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class representing a Boolean function.</p>
 <p><strong>Constructor Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>f (list, np.array, str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.</p></li>
-<li><p>name (str | optional): The name of the node regulated by the Boolean function (default ‘’).</p></li>
+<li><p>f (list | np.array | str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.</p></li>
+<li><p>name (str, optional): The name of the node regulated by the Boolean function (default ‘’).</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Members:</strong></p>
@@ -128,13 +128,13 @@
 <li><p>f (np.array): A numpy array of length 2^n representing the outputs of a Boolean function with n inputs.</p></li>
 <li><p>n (int): The number of inputs for the Boolean function.</p></li>
 <li><p>variables (np.array): A numpy array of n strings with variable names, default x0, …, x_{n-1}.</p></li>
-<li><p>name (str | optional): The name of the node regulated by the Boolean function (default ‘’)</p></li>
+<li><p>name (str): The name of the node regulated by the Boolean function (default ‘’)</p></li>
 <li><p>properties (dict): Dynamically created dictionary with additional information about the function (canalizing layer structure, type of inputs, etc.)</p></li>
 </ul>
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.to_cana">
-<span class="sig-name descname"><span class="pre">to_cana</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_cana" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_cana</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">cana.boolean_node.BooleanNode</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_cana" title="Link to this definition"></a></dt>
 <dd><p><strong>Compatability method:</strong></p>
 <blockquote>
 <div><p>Returns an instance of cana.boolean_node.BooleanNode from the cana module.</p>
@@ -149,7 +149,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.is_constant">
-<span class="sig-name descname"><span class="pre">is_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_constant" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_constant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_constant" title="Link to this definition"></a></dt>
 <dd><p>Check whether a Boolean function is constant.</p>
 <p><strong>Returns:</strong></p>
 <blockquote>
@@ -161,7 +161,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.is_degenerated">
-<span class="sig-name descname"><span class="pre">is_degenerated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_degenerated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_degenerated" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_degenerated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_degenerated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_degenerated" title="Link to this definition"></a></dt>
 <dd><p>Determine if a Boolean function contains non-essential variables.</p>
 <p>A variable is non-essential if the function’s output does not depend on it.</p>
 <p><strong>Returns:</strong></p>
@@ -174,7 +174,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_essential_variables">
-<span class="sig-name descname"><span class="pre">get_essential_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_essential_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_essential_variables" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_essential_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_essential_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_essential_variables" title="Link to this definition"></a></dt>
 <dd><p>Determine the indices of essential variables in a Boolean function.</p>
 <p>A variable is essential if changing its value (while holding the others constant) can change the output of f.</p>
 <p><strong>Returns:</strong></p>
@@ -187,7 +187,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables">
-<span class="sig-name descname"><span class="pre">get_number_of_essential_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_number_of_essential_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_number_of_essential_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_number_of_essential_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables" title="Link to this definition"></a></dt>
 <dd><p>Count the number of essential variables in a Boolean function.</p>
 <p><strong>Returns:</strong></p>
 <blockquote>
@@ -199,7 +199,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_type_of_inputs">
-<span class="sig-name descname"><span class="pre">get_type_of_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_type_of_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_type_of_inputs" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_type_of_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_type_of_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_type_of_inputs" title="Link to this definition"></a></dt>
 <dd><p>Determine for each input of the Boolean function whether it is positive, negative, conditional or non-essential.</p>
 <p><strong>Returns:</strong></p>
 <blockquote>
@@ -211,7 +211,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.is_monotonic">
-<span class="sig-name descname"><span class="pre">is_monotonic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_monotonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_monotonic" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_monotonic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_monotonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_monotonic" title="Link to this definition"></a></dt>
 <dd><p>Determine if a Boolean function is monotonic.</p>
 <p>A Boolean function is monotonic if it is monotonic in each variable. 
 That is, if for all i=1,…,n: f(x_1,…,x_i=0,…,x_n) &gt;= f(x_1,…,x_i=1,…,x_n) for all (x_1,…,x_n) or f(x_1,…,x_i=0,…,x_n) &lt;= f(x_1,…,x_i=1,…,x_n) for all (x_1,…,x_n)</p>
@@ -225,7 +225,7 @@ That is, if for all i=1,…,n: f(x_1,…,x_i=0,…,x_n) &gt;= f(x_1,…,x_i=1,�
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_symmetry_groups">
-<span class="sig-name descname"><span class="pre">get_symmetry_groups</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_symmetry_groups"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_symmetry_groups" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_symmetry_groups</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_symmetry_groups"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_symmetry_groups" title="Link to this definition"></a></dt>
 <dd><p>Determine all symmetry groups of input variables for a Boolean function.</p>
 <p>Two variables are in the same symmetry group if swapping their values does not change the output
 of the function for any input of the other variables.</p>
@@ -239,7 +239,7 @@ of the function for any input of the other variables.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_absolute_bias">
-<span class="sig-name descname"><span class="pre">get_absolute_bias</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_absolute_bias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_absolute_bias" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_absolute_bias</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_absolute_bias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_absolute_bias" title="Link to this definition"></a></dt>
 <dd><p>Compute the absolute bias of a Boolean function.</p>
 <p>The absolute bias is defined as <cite>|(self.get_hamming_weight() / 2^(n-1)) - 1|</cite>, which quantifies how far the function’s output distribution deviates from being balanced.</p>
 <p><strong>Returns:</strong></p>
@@ -252,7 +252,7 @@ of the function for any input of the other variables.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_average_sensitivity">
-<span class="sig-name descname"><span class="pre">get_average_sensitivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORMALIZED</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_average_sensitivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_average_sensitivity" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_average_sensitivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORMALIZED</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_average_sensitivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_average_sensitivity" title="Link to this definition"></a></dt>
 <dd><p>Compute the average sensitivity of a Boolean function.</p>
 <p>The average sensitivity is equivalent to the Derrida value D(F,1) when the update rule is sampled
 from the same space. This function can compute the exact sensitivity by exhaustively iterating over all inputs (if EXACT is True)
@@ -260,9 +260,9 @@ or estimate it via Monte Carlo sampling (if EXACT is False). The result can be n
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>nsim (int | optional): Number of random samples (default is 10000, used when EXACT is False).</p></li>
-<li><p>EXACT (bool | optional): If True, compute the exact sensitivity by iterating over all inputs; otherwise, use sampling (default).</p></li>
-<li><p>NORMALIZED (bool | optional): If True, return the normalized sensitivity (divided by the number of function inputs); otherwise, return the total count.</p></li>
+<li><p>nsim (int, optional): Number of random samples (default is 10000, used when EXACT is False).</p></li>
+<li><p>EXACT (bool, optional): If True, compute the exact sensitivity by iterating over all inputs; otherwise, use sampling (default).</p></li>
+<li><p>NORMALIZED (bool, optional): If True, return the normalized sensitivity (divided by the number of function inputs); otherwise, return the total count.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -275,7 +275,7 @@ or estimate it via Monte Carlo sampling (if EXACT is False). The result can be n
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.is_canalizing">
-<span class="sig-name descname"><span class="pre">is_canalizing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_canalizing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_canalizing" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_canalizing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_canalizing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_canalizing" title="Link to this definition"></a></dt>
 <dd><p>Determine if a Boolean function is canalizing.</p>
 <p>A Boolean function f(x_1, …, x_n) is canalizing if there exists at least one variable x_i and a value a ∈ {0, 1} 
 such that f(x_1, …, x_i = a, …, x_n) is constant.</p>
@@ -289,7 +289,7 @@ such that f(x_1, …, x_i = a, …, x_n) is constant.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.is_k_canalizing">
-<span class="sig-name descname"><span class="pre">is_k_canalizing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_k_canalizing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_k_canalizing" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_k_canalizing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_k_canalizing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_k_canalizing" title="Link to this definition"></a></dt>
 <dd><p>Determine if a Boolean function is k-canalizing.</p>
 <p>A Boolean function is k-canalizing if it has at least k conditionally canalizing variables.
 This is checked recursively: after fixing a canalizing variable (with a fixed canalizing input that forces the output),
@@ -317,7 +317,7 @@ the subfunction (core function) must itself be canalizing for the next variable,
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_layer_structure">
-<span class="sig-name descname"><span class="pre">get_layer_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_layer_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_layer_structure" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_layer_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_layer_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_layer_structure" title="Link to this definition"></a></dt>
 <dd><p>Determine the canalizing layer structure of a Boolean function.</p>
 <p>This function decomposes a Boolean function into its canalizing layers (standard monomial form)
 by recursively identifying and removing conditionally canalizing variables.
@@ -352,7 +352,7 @@ the core function of the non-canalizing variables, and the order of the canalizi
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_canalizing_depth">
-<span class="sig-name descname"><span class="pre">get_canalizing_depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_canalizing_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_canalizing_depth" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_canalizing_depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_canalizing_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_canalizing_depth" title="Link to this definition"></a></dt>
 <dd><p>Returns the canalizing depth of the function.</p>
 <p><strong>Returns:</strong></p>
 <blockquote>
@@ -364,7 +364,7 @@ the core function of the non-canalizing variables, and the order of the canalizi
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_kset_canalizing_proportion">
-<span class="sig-name descname"><span class="pre">get_kset_canalizing_proportion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_kset_canalizing_proportion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_kset_canalizing_proportion" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_kset_canalizing_proportion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_kset_canalizing_proportion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_kset_canalizing_proportion" title="Link to this definition"></a></dt>
 <dd><p>Compute the proportion of k-set canalizing input sets for a Boolean function.</p>
 <p>For a given k, this function calculates the probability that a randomly chosen set of k inputs canalizes the function,
 i.e., forces the output regardless of the remaining variables.</p>
@@ -390,7 +390,7 @@ i.e., forces the output regardless of the remaining variables.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.is_kset_canalizing">
-<span class="sig-name descname"><span class="pre">is_kset_canalizing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_kset_canalizing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_kset_canalizing" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_kset_canalizing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_kset_canalizing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_kset_canalizing" title="Link to this definition"></a></dt>
 <dd><p>Determine if a Boolean function is k-set canalizing.</p>
 <p>A Boolean function is k-set canalizing if there exists a set of k variables such that setting these variables to specific values
 forces the output of the function, irrespective of the other n - k inputs.</p>
@@ -416,7 +416,7 @@ forces the output of the function, irrespective of the other n - k inputs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_canalizing_strength">
-<span class="sig-name descname"><span class="pre">get_canalizing_strength</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_canalizing_strength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_canalizing_strength" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_canalizing_strength</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_canalizing_strength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_canalizing_strength" title="Link to this definition"></a></dt>
 <dd><p>Compute the canalizing strength of a Boolean function via exhaustive enumeration.</p>
 <p>The canalizing strength is defined as a weighted average of the proportions of k-set canalizing inputs for k = 1 to n-1.
 It is 0 for minimally canalizing functions (e.g., Boolean parity functions) and 1 for maximally canalizing functions
@@ -444,7 +444,7 @@ It is 0 for minimally canalizing functions (e.g., Boolean parity functions) and 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_input_redundancy">
-<span class="sig-name descname"><span class="pre">get_input_redundancy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_input_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_input_redundancy" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_input_redundancy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_input_redundancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_input_redundancy" title="Link to this definition"></a></dt>
 <dd><div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>This method requires an installation of CANA (See <a class="reference external" href="https://ckadelka.github.io/BoolForge/installation.html#extended-functionality">Extended Functionality</a>). If CANA is not found, this method wil return None.</p>
@@ -469,7 +469,7 @@ Constant functions have an input redundancy of 1 (none of the inputs are needed)
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_edge_effectiveness">
-<span class="sig-name descname"><span class="pre">get_edge_effectiveness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_edge_effectiveness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_edge_effectiveness" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_edge_effectiveness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_edge_effectiveness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_edge_effectiveness" title="Link to this definition"></a></dt>
 <dd><div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>This method requires an installation of CANA (See <a class="reference external" href="https://ckadelka.github.io/BoolForge/installation.html#extended-functionality">Extended Functionality</a>). If CANA is not found, this method wil return None.</p>
@@ -494,7 +494,7 @@ Non-essential inputs have an effectiveness of 0, whereas inputs that always flip
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_effective_degree">
-<span class="sig-name descname"><span class="pre">get_effective_degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_effective_degree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_effective_degree" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_effective_degree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_effective_degree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_effective_degree" title="Link to this definition"></a></dt>
 <dd><div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>This method requires an installation of CANA (See <a class="reference external" href="https://ckadelka.github.io/BoolForge/installation.html#extended-functionality">Extended Functionality</a>). If CANA is not found, this method wil return None.</p>
@@ -505,7 +505,7 @@ Non-essential inputs have an effectiveness of 0, whereas inputs that always flip
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>list: A value in [0, 1] representing the effective degree for each input.</p></li>
+<li><p>list: A value in [0, 1] representing the effective degree for each input. #TODO</p></li>
 </ul>
 </div></blockquote>
 <p><strong>References:</strong></p>
@@ -525,7 +525,7 @@ Non-essential inputs have an effectiveness of 0, whereas inputs that always flip
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="manual.html" class="btn btn-neutral float-left" title="Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="docs.html" class="btn btn-neutral float-left" title="Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="boolean_network.html" class="btn btn-neutral float-right" title="Boolean Network" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
