@@ -40,8 +40,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../documentation.html">Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../manual.html">Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
 </ul>
 
         </div>
@@ -75,7 +76,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Created on Tue Jul 29 09:25:40 2025</span>
 
-<span class="sd">@author: Claus Kadelka</span>
+<span class="sd">@author: Claus Kadelka, Benjamin Coberly</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
@@ -90,7 +91,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a NumPy Generator given a variety of rng-like inputs.</span>
 
-<span class="sd">    Accepts:</span>
+<span class="sd">    **Accepts:**</span>
 <span class="sd">        </span>
 <span class="sd">      - None                -&gt; default_rng()</span>
 <span class="sd">      - int (seed)          -&gt; default_rng(seed)</span>
@@ -98,9 +99,9 @@
 <span class="sd">      - np.random.RandomState -&gt; converted via SeedSequence</span>
 <span class="sd">      - random.Random       -&gt; converted via SeedSequence</span>
 
-<span class="sd">    Raises:</span>
+<span class="sd">    **Raises:**</span>
 <span class="sd">        </span>
-<span class="sd">        - TypeError for unsupported inputs.</span>
+<span class="sd">        - TypeError: for unsupported inputs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">rng</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">default_rng</span><span class="p">()</span>
@@ -124,11 +125,11 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a binary vector to an integer.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    **Parameters:**</span>
 <span class="sd">        </span>
 <span class="sd">        - binary_vector (list): List containing binary digits (0 or 1).</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    **Returns:**</span>
 <span class="sd">        </span>
 <span class="sd">        - int: Integer value converted from the binary vector.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -145,12 +146,12 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert an integer to a binary vector.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    **Parameters:**</span>
 <span class="sd">        </span>
 <span class="sd">        - integer_value (int): Integer value to be converted.</span>
 <span class="sd">        - num_bits (int): Number of bits in the binary representation.</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    **Returns:**</span>
 <span class="sd">        </span>
 <span class="sd">        - list: List containing binary digits (0 or 1).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -165,11 +166,11 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if the provided list or NumPy array is empty.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    **Parameters:**</span>
 <span class="sd">        </span>
-<span class="sd">        - my_list (list or np.ndarray): The list or array to check.</span>
+<span class="sd">        - my_list (list, np.ndarray): The list or array to check.</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    **Returns:**</span>
 <span class="sd">        </span>
 <span class="sd">        - bool: True if my_list is empty (or has size 0 for a NumPy array), False otherwise.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -212,14 +213,14 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    **Parameters:**</span>
 <span class="sd">        </span>
 <span class="sd">        - f (list): Boolean function as a vector (list of length 2^n, where n is the number of inputs).</span>
-<span class="sd">        - left_side_of_truth_table (list, optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.</span>
-<span class="sd">        - indices (list, optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).</span>
-<span class="sd">        - prefix (str, optional): Prefix for variable names in the polynomial, default &#39;&#39;.</span>
+<span class="sd">        - left_side_of_truth_table (list | optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.</span>
+<span class="sd">        - indices (list | optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).</span>
+<span class="sd">        - prefix (str | optional): Prefix for variable names in the polynomial, default &#39;&#39;.</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    **Returns:**</span>
 <span class="sd">        </span>
 <span class="sd">        - str: A string representing the Boolean function in disjunctive normal form (DNF).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -254,11 +255,11 @@
 <span class="sd">    The expression can include Boolean operators and comparisons, and the order of variables</span>
 <span class="sd">    is determined by their first occurrence in the expression.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    **Parameters:**</span>
 <span class="sd">        </span>
 <span class="sd">        - expr (str): A text string containing an evaluable Boolean expression.</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    **Returns:**</span>
 <span class="sd">        </span>
 <span class="sd">        - tuple:</span>
 <span class="sd">            </span>
@@ -266,7 +267,7 @@
 <span class="sd">              where n is the number of inputs.</span>
 <span class="sd">            - var (list): A list of variable names (of length n) in the order they were encountered.</span>
 <span class="sd">    </span>
-<span class="sd">    Examples:</span>
+<span class="sd">    **Examples:**</span>
 <span class="sd">        </span>
 <span class="sd">        &gt;&gt;&gt; f_from_expression(&#39;A AND NOT B&#39;) #nested canalizing function</span>
 <span class="sd">        ([0, 0, 1, 0], [&#39;A&#39;, &#39;B&#39;])</span>
@@ -326,21 +327,21 @@
 <span class="sd">    There exists a bijection between the Hamming weight (with w equivalent to 2^n - w) and the canalizing layer structure of an NCF.</span>
 <span class="sd">    The layer structure is represented as [k_1, ..., k_r], where each k_i ≥ 1 and, if n &gt; 1, for the last layer k_r ≥ 2.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    **Parameters:**</span>
 <span class="sd">        </span>
 <span class="sd">        - n (int): Number of inputs (variables) of the NCF.</span>
 <span class="sd">        - w (int): Odd Hamming weight of the NCF, i.e., the number of 1s in the 2^n-vector representation of the function.</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    **Returns:**</span>
 <span class="sd">        </span>
 <span class="sd">        - tuple: A tuple (r, layer_structure_NCF), where:</span>
 <span class="sd">            </span>
 <span class="sd">            - r (int): The number of canalizing layers.</span>
 <span class="sd">            - layer_structure_NCF (list): A list [k_1, ..., k_r] describing the number of variables in each layer.</span>
 
-<span class="sd">    References:</span>
+<span class="sd">    **References:**</span>
 <span class="sd">        </span>
-<span class="sd">        Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.</span>
+<span class="sd">        #. Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">w</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">r</span> <span class="o">=</span> <span class="mi">1</span>

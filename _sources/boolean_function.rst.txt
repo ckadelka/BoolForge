@@ -2,7 +2,7 @@ Boolean Function
 ----------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
 .. automodule:: boolforge.boolean_function
    :members:

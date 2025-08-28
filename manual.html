@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Boolean Function" href="boolean_function.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Manual</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="boolean_function.html">Boolean Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boolean_network.html">Boolean Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html">Generate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Manual</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/manual.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="manual">
+<h1>Manual<a class="headerlink" href="#manual" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="boolean_function.html">Boolean Function</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction"><code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.to_cana"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.to_cana()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.is_constant"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.is_constant()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.is_degenerated"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.is_degenerated()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_essential_variables"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_essential_variables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_number_of_essential_variables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_type_of_inputs"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_type_of_inputs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.is_monotonic"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.is_monotonic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_symmetry_groups"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_symmetry_groups()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_absolute_bias"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_absolute_bias()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_average_sensitivity"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_average_sensitivity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.is_canalizing"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.is_canalizing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.is_k_canalizing"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.is_k_canalizing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_layer_structure"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_layer_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_canalizing_depth"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_canalizing_depth()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_kset_canalizing_proportion"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_kset_canalizing_proportion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.is_kset_canalizing"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.is_kset_canalizing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_canalizing_strength"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_canalizing_strength()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_input_redundancy"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_input_redundancy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_edge_effectiveness"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_edge_effectiveness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_effective_degree"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.get_effective_degree()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="boolean_network.html">Boolean Network</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.to_cana"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.to_cana()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.to_bnet"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.to_bnet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_outdegrees"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_outdegrees()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_single_node"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.update_single_node()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_network_synchronously"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.update_network_synchronously()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_network_synchronously_many_times"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.update_network_synchronously_many_times()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_network_SDDS"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.update_network_SDDS()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_steady_states_asynchronous()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_synchronous()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_synchronous_exact()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_essential_network"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_essential_network()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_edge_controlled_network"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_edge_controlled_network()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_external_inputs"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_external_inputs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_derrida_value"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_derrida_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_and_robustness_measures_synchronous()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_strongly_connected_components"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_strongly_connected_components()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.adjacency_matrix"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.adjacency_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_signed_adjacency_matrix"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_signed_adjacency_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_signed_effective_graph"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_signed_effective_graph()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_ffls"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_ffls()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_ffls_from_I"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_ffls_from_I()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.generate_networkx_graph"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.generate_networkx_graph()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.generate_networkx_graph_from_edges"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.generate_networkx_graph_from_edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_type_of_loop"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_type_of_loop()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generate.html">Generate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_function"><code class="docutils literal notranslate"><span class="pre">random_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_function_with_bias"><code class="docutils literal notranslate"><span class="pre">random_function_with_bias()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_function_with_exact_hamming_weight"><code class="docutils literal notranslate"><span class="pre">random_function_with_exact_hamming_weight()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_linear_function"><code class="docutils literal notranslate"><span class="pre">random_linear_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_non_degenerated_function"><code class="docutils literal notranslate"><span class="pre">random_non_degenerated_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_degenerated_function"><code class="docutils literal notranslate"><span class="pre">random_degenerated_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_non_canalizing_function"><code class="docutils literal notranslate"><span class="pre">random_non_canalizing_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_non_canalizing_non_degenerated_function"><code class="docutils literal notranslate"><span class="pre">random_non_canalizing_non_degenerated_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_k_canalizing_function"><code class="docutils literal notranslate"><span class="pre">random_k_canalizing_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_k_canalizing_function_with_specific_layer_structure"><code class="docutils literal notranslate"><span class="pre">random_k_canalizing_function_with_specific_layer_structure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_nested_canalizing_function"><code class="docutils literal notranslate"><span class="pre">random_nested_canalizing_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_NCF"><code class="docutils literal notranslate"><span class="pre">random_NCF()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_degrees"><code class="docutils literal notranslate"><span class="pre">random_degrees()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_edge_list"><code class="docutils literal notranslate"><span class="pre">random_edge_list()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_wiring_diagram"><code class="docutils literal notranslate"><span class="pre">random_wiring_diagram()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.rewire_wiring_diagram"><code class="docutils literal notranslate"><span class="pre">rewire_wiring_diagram()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_network"><code class="docutils literal notranslate"><span class="pre">random_network()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html#boolforge.generate.random_null_model"><code class="docutils literal notranslate"><span class="pre">random_null_model()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#boolforge.utils.bin2dec"><code class="docutils literal notranslate"><span class="pre">bin2dec()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#boolforge.utils.dec2bin"><code class="docutils literal notranslate"><span class="pre">dec2bin()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#boolforge.utils.check_if_empty"><code class="docutils literal notranslate"><span class="pre">check_if_empty()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#boolforge.utils.bool_to_poly"><code class="docutils literal notranslate"><span class="pre">bool_to_poly()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#boolforge.utils.f_from_expression"><code class="docutils literal notranslate"><span class="pre">f_from_expression()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight"><code class="docutils literal notranslate"><span class="pre">get_layer_structure_of_an_NCF_given_its_Hamming_weight()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="boolean_function.html" class="btn btn-neutral float-right" title="Boolean Function" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
