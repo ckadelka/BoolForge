@@ -2,11 +2,11 @@ Installation
 ============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
 Python
 ------
-*BoolForge* is developed for Python 3 and is not compatible with Python 2.
+*BoolForge* is developed for Python 3.8+ and is not compatible with prior versions of Python.
 
 Windows
 -------

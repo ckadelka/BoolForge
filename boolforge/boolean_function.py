@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Aug 12 11:03:49 2025
-Last Edited on Thu Aug 14 2025
 
 @author: Benjamin Coberly, Claus Kadelka
 """
@@ -43,18 +42,18 @@ class BooleanFunction(object):
     """
     A class representing a Boolean function.
 
-    Parameters:
+    **Constructor Parameters:**
         
-        - f (list or numpy array or str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.
-        - name (str, optional): The name of the node regulated by the Boolean function (default '').
+        - f (list, np.array, str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.
+        - name (str | optional): The name of the node regulated by the Boolean function (default '').
         
-    Members:
+    **Members:**
         
-        - f (numpy array): A numpy array of length 2^n representing the outputs of a Boolean function with n inputs.
+        - f (np.array): A numpy array of length 2^n representing the outputs of a Boolean function with n inputs.
         - n (int): The number of inputs for the Boolean function.
-        - variables (numpy array): A numpy array of n strings with variable names, default x0, ..., x_{n-1}.
-        - name (str, optional): The name of the node regulated by the Boolean function (default '')
-        - properties: Dynamically created dictionary with additional information about the function (canalizing layer structure, type of inputs, etc.)
+        - variables (np.array): A numpy array of n strings with variable names, default x0, ..., x_{n-1}.
+        - name (str | optional): The name of the node regulated by the Boolean function (default '')
+        - properties (dict): Dynamically created dictionary with additional information about the function (canalizing layer structure, type of inputs, etc.)
     """
     __slots__ = ['f','n','variables','name','properties']
     
@@ -106,9 +105,11 @@ class BooleanFunction(object):
     
     def to_cana(self):
         """
-        Compatability method: Returns an instance of cana.boolean_node.BooleanNode from the cana module.
+        **Compatability method:**
+            
+            Returns an instance of cana.boolean_node.BooleanNode from the cana module.
 
-        Returns:
+        **Returns:**
             
             - An instance of cana.boolean_node.BooleanNode
         """
@@ -121,7 +122,7 @@ class BooleanFunction(object):
         """
         Internal method that enables computing the left hand side of the truth table only once per degree n.
         
-        Returns:
+        **Returns:**
             
             - np.ndarray: Array of size 2^n x n representing all input combinations of an n-input Boolean function.
         """
@@ -143,7 +144,7 @@ class BooleanFunction(object):
         """
         Check whether a Boolean function is constant.
 
-        Returns:
+        **Returns:**
             
             - bool: True if f is constant (all outputs are 0 or all are 1), False otherwise.
         """
@@ -155,7 +156,7 @@ class BooleanFunction(object):
 
         A variable is non-essential if the function's output does not depend on it.
 
-        Returns:
+        **Returns:**
             
             - bool: True if f contains at least one non-essential variable, False if all variables are essential.
         """
@@ -180,7 +181,7 @@ class BooleanFunction(object):
 
         A variable is essential if changing its value (while holding the others constant) can change the output of f.
 
-        Returns:
+        **Returns:**
             
             - list: List of indices corresponding to the essential variables.
         """
@@ -206,7 +207,7 @@ class BooleanFunction(object):
         """
         Count the number of essential variables in a Boolean function.
 
-        Returns:
+        **Returns:**
             
             - int: The number of essential variables.
         """
@@ -217,7 +218,7 @@ class BooleanFunction(object):
         """
         Determine for each input of the Boolean function whether it is positive, negative, conditional or non-essential.
 
-        Returns:
+        **Returns:**
             
             - np.ndarray of str: The type of each input of the Boolean function.
         """
@@ -252,7 +253,7 @@ class BooleanFunction(object):
         A Boolean function is monotonic if it is monotonic in each variable. 
         That is, if for all i=1,...,n: f(x_1,...,x_i=0,...,x_n) >= f(x_1,...,x_i=1,...,x_n) for all (x_1,...,x_n) or f(x_1,...,x_i=0,...,x_n) <= f(x_1,...,x_i=1,...,x_n) for all (x_1,...,x_n)
 
-        Returns:
+        **Returns:**
             
             - bool: True if f contains no conditional variables, False if at least one variable is conditional.
         """            
@@ -266,7 +267,7 @@ class BooleanFunction(object):
         Two variables are in the same symmetry group if swapping their values does not change the output
         of the function for any input of the other variables.
 
-        Returns:
+        **Returns:**
             
             - list: A list of lists where each inner list contains indices of variables that form a symmetry group.
         """
@@ -295,7 +296,7 @@ class BooleanFunction(object):
 
         The absolute bias is defined as `|(self.get_hamming_weight() / 2^(n-1)) - 1|`, which quantifies how far the function's output distribution deviates from being balanced.
 
-        Returns:
+        **Returns:**
             
             - float: The absolute bias of the Boolean function.
         """
@@ -309,13 +310,13 @@ class BooleanFunction(object):
         from the same space. This function can compute the exact sensitivity by exhaustively iterating over all inputs (if EXACT is True)
         or estimate it via Monte Carlo sampling (if EXACT is False). The result can be normalized by the number of inputs.
 
-        Parameters:
+        **Parameters:**
             
-            - nsim (int, optional): Number of random samples (default is 10000, used when EXACT is False).
-            - EXACT (bool, optional): If True, compute the exact sensitivity by iterating over all inputs; otherwise, use sampling (default).
-            - NORMALIZED (bool, optional): If True, return the normalized sensitivity (divided by the number of function inputs); otherwise, return the total count.
+            - nsim (int | optional): Number of random samples (default is 10000, used when EXACT is False).
+            - EXACT (bool | optional): If True, compute the exact sensitivity by iterating over all inputs; otherwise, use sampling (default).
+            - NORMALIZED (bool | optional): If True, return the normalized sensitivity (divided by the number of function inputs); otherwise, return the total count.
 
-        Returns:
+        **Returns:**
             
             - float: The (normalized) average sensitivity of the Boolean function.
         """        
@@ -355,7 +356,7 @@ class BooleanFunction(object):
         A Boolean function f(x_1, ..., x_n) is canalizing if there exists at least one variable x_i and a value a ∈ {0, 1} 
         such that f(x_1, ..., x_i = a, ..., x_n) is constant.
 
-        Returns:
+        **Returns:**
             
             - bool: True if f is canalizing, False otherwise.
         """
@@ -378,15 +379,15 @@ class BooleanFunction(object):
         This is checked recursively: after fixing a canalizing variable (with a fixed canalizing input that forces the output),
         the subfunction (core function) must itself be canalizing for the next variable, and so on.
 
-        Parameters:
+        **Parameters:**
             
             - k (int): The desired canalizing depth (0 ≤ k ≤ n). Note: every function is 0-canalizing.
 
-        Returns:
+        **Returns:**
             
             - bool: True if f is k-canalizing, False otherwise.
 
-        References:
+        **References:**
             
             #. He, Q., & Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth. Physica D: Nonlinear Phenomena, 314, 1-8.
             #. Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D. (2022). Revealing the canalizing structure of Boolean functions: Algorithms and applications. Automatica, 146, 110630.
@@ -471,7 +472,7 @@ class BooleanFunction(object):
         The output includes the canalizing depth, the number of layers, the canalizing inputs and outputs,
         the core function of the non-canalizing variables, and the order of the canalizing variables.
 
-        Returns:
+        **Returns:**
             
             - dict: A dictionary (self.properties) containing:
                 
@@ -483,7 +484,7 @@ class BooleanFunction(object):
                 - OrderOfCanalizingVariables (np.array): Array of indices representing the order of canalizing variables.
                 - LayerStructure (np.array): Indicates the number of variables in each canalizing layer
                 
-        References:
+        **References:**
             
             #. He, Q., & Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth. Physica D: Nonlinear Phenomena, 314, 1-8.
             #. Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D. (2022). Revealing the canalizing structure of Boolean functions: Algorithms and applications. Automatica, 146, 110630.
@@ -503,7 +504,7 @@ class BooleanFunction(object):
         """
         Returns the canalizing depth of the function.
         
-        Returns:
+        **Returns:**
             
             - int: The canalizing depth (number of conditionally canalizing variables).
         """
@@ -519,17 +520,17 @@ class BooleanFunction(object):
         For a given k, this function calculates the probability that a randomly chosen set of k inputs canalizes the function,
         i.e., forces the output regardless of the remaining variables.
 
-        Parameters:
+        **Parameters:**
             
             - k (int): The size of the variable set (0 ≤ k ≤ n).
 
-        Returns:
+        **Returns:**
             
             - float: The proportion of k-set canalizing input sets.
 
-        References:
+        **References:**
             
-            Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions. Advances in Applied Mathematics, 145, 102475.
+            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions. Advances in Applied Mathematics, 145, 102475.
         """
         assert type(k)==int and 0<=k<=self.n, "k must be an integer and satisfy 0 <= k <= degree n"
         
@@ -557,17 +558,17 @@ class BooleanFunction(object):
         A Boolean function is k-set canalizing if there exists a set of k variables such that setting these variables to specific values
         forces the output of the function, irrespective of the other n - k inputs.
 
-        Parameters:
+        **Parameters:**
             
             - k (int): The size of the variable set (with 0 ≤ k ≤ n).
 
-        Returns:
+        **Returns:**
             
             - bool: True if f is k-set canalizing, False otherwise.
 
-        References:
+        **References:**
             
-            Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions. Advances in Applied Mathematics, 145, 102475.
+            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions. Advances in Applied Mathematics, 145, 102475.
         """
         return self.get_kset_canalizing_proportion(k)>0
 
@@ -580,16 +581,16 @@ class BooleanFunction(object):
         It is 0 for minimally canalizing functions (e.g., Boolean parity functions) and 1 for maximally canalizing functions
         (e.g., nested canalizing functions with one layer).
 
-        Returns:
+        **Returns:**
             
             - tuple:
                 
                 - float: The canalizing strength of f.
                 - list: A list of the k-set canalizing proportions for k = 1, 2, ..., n-1.
 
-        References:
+        **References:**
             
-            Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions. Advances in Applied Mathematics, 145, 102475.
+            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively canalizing Boolean functions. Advances in Applied Mathematics, 145, 102475.
         """
         if self.n==1:
             print("Warning:\nCanalizing strength is only properly defined for Boolean functions with n > 1 inputs. Returned 1 for n==1.")
@@ -602,7 +603,7 @@ class BooleanFunction(object):
     def get_input_redundancy(self):
         """
         .. important::
-            This method requires an installation of CANA. See `Extended Functionality`_ for more information.
+            This method requires an installation of CANA (See `Extended Functionality`_). If CANA is not found, this method wil return None.
         .. _Extended Functionality: https://ckadelka.github.io/BoolForge/installation.html#extended-functionality
 
         Compute the input redundancy of a Boolean function.
@@ -610,11 +611,11 @@ class BooleanFunction(object):
         The input redundancy quantifies how many inputs are not required to determine the function’s output.
         Constant functions have an input redundancy of 1 (none of the inputs are needed), whereas parity functions have an input redundancy of 0 (all inputs are necessary).
 
-        Returns:
+        **Returns:**
             
             - float: Normalized input redundancy in the interval [0, 1].
 
-        References:
+        **References:**
             
             #. Marques-Pita, M., & Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.
             #. Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.
@@ -627,7 +628,7 @@ class BooleanFunction(object):
     def get_edge_effectiveness(self):
         """
         .. important::
-            This method requires an installation of CANA. See `Extended Functionality`_ for more information.
+            This method requires an installation of CANA (See `Extended Functionality`_). If CANA is not found, this method wil return None.
         .. _Extended Functionality: https://ckadelka.github.io/BoolForge/installation.html#extended-functionality
 
         Compute the edge effectiveness for each regulator of a Boolean function.
@@ -635,11 +636,11 @@ class BooleanFunction(object):
         Edge effectiveness measures how much flipping a given input (regulator) influences the output.
         Non-essential inputs have an effectiveness of 0, whereas inputs that always flip the output when toggled have an effectiveness of 1.
         
-        Returns:
+        **Returns:**
             
             - list: A list of n floats in [0, 1] representing the edge effectiveness for each input.
 
-        References:
+        **References:**
             
             #. Marques-Pita, M., & Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.
             #. Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.
@@ -652,7 +653,7 @@ class BooleanFunction(object):
     def get_effective_degree(self):
         """
         .. important::
-            This method requires an installation of CANA. See `Extended Functionality`_ for more information.
+            This method requires an installation of CANA (See `Extended Functionality`_). If CANA is not found, this method wil return None.
         .. _Extended Functionality: https://ckadelka.github.io/BoolForge/installation.html#extended-functionality
         
         Compute the effective degree, i.e., the sum of the edge effectivenesses of each regulator, of a Boolean function.
@@ -660,11 +661,11 @@ class BooleanFunction(object):
         Edge effectiveness measures how much flipping a given input (regulator) influences the output.
         Non-essential inputs have an effectiveness of 0, whereas inputs that always flip the output when toggled have an effectiveness of 1.
 
-        Returns:
+        **Returns:**
             
             - list: A value in [0, 1] representing the effective degree for each input.
 
-        References:
+        **References:**
 
             #. Marques-Pita, M., & Rocha, L. M. (2013). Canalization and control in automata networks: body segmentation in Drosophila melanogaster. PloS One, 8(3), e55946.
             #. Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018). CANA: a python package for quantifying control and canalization in Boolean networks. Frontiers in Physiology, 9, 1046.

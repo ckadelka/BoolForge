@@ -6,5 +6,6 @@ Home
 .. toctree::
    :maxdepth: 2
 
-   installation
-   documentation
+   install
+   manual
+   genindex

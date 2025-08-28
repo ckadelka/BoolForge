@@ -4,7 +4,7 @@
 """
 Created on Tue Jul 29 09:25:40 2025
 
-@author: Claus Kadelka
+@author: Claus Kadelka, Benjamin Coberly
 """
 
 
@@ -19,7 +19,7 @@ def _coerce_rng(rng: int | _NPGen | _NPRandomState | _py_random.Random | None = 
     """
     Return a NumPy Generator given a variety of rng-like inputs.
 
-    Accepts:
+    **Accepts:**
         
       - None                -> default_rng()
       - int (seed)          -> default_rng(seed)
@@ -27,9 +27,9 @@ def _coerce_rng(rng: int | _NPGen | _NPRandomState | _py_random.Random | None = 
       - np.random.RandomState -> converted via SeedSequence
       - random.Random       -> converted via SeedSequence
 
-    Raises:
+    **Raises:**
         
-        - TypeError for unsupported inputs.
+        - TypeError: for unsupported inputs.
     """
     if rng is None:
         return default_rng()
@@ -51,11 +51,11 @@ def bin2dec(binary_vector):
     """
     Convert a binary vector to an integer.
 
-    Parameters:
+    **Parameters:**
         
         - binary_vector (list): List containing binary digits (0 or 1).
 
-    Returns:
+    **Returns:**
         
         - int: Integer value converted from the binary vector.
     """
@@ -69,12 +69,12 @@ def dec2bin(integer_value, num_bits):
     """
     Convert an integer to a binary vector.
 
-    Parameters:
+    **Parameters:**
         
         - integer_value (int): Integer value to be converted.
         - num_bits (int): Number of bits in the binary representation.
 
-    Returns:
+    **Returns:**
         
         - list: List containing binary digits (0 or 1).
     """
@@ -86,11 +86,11 @@ def check_if_empty(my_list):
     """
     Check if the provided list or NumPy array is empty.
 
-    Parameters:
+    **Parameters:**
         
-        - my_list (list or np.ndarray): The list or array to check.
+        - my_list (list, np.ndarray): The list or array to check.
 
-    Returns:
+    **Returns:**
         
         - bool: True if my_list is empty (or has size 0 for a NumPy array), False otherwise.
     """
@@ -130,14 +130,14 @@ def bool_to_poly(f, left_side_of_truth_table=None, variables=None, prefix=''):
     """
     Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.
 
-    Parameters:
+    **Parameters:**
         
         - f (list): Boolean function as a vector (list of length 2^n, where n is the number of inputs).
-        - left_side_of_truth_table (list, optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.
-        - indices (list, optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).
-        - prefix (str, optional): Prefix for variable names in the polynomial, default ''.
+        - left_side_of_truth_table (list | optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.
+        - indices (list | optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).
+        - prefix (str | optional): Prefix for variable names in the polynomial, default ''.
 
-    Returns:
+    **Returns:**
         
         - str: A string representing the Boolean function in disjunctive normal form (DNF).
     """
@@ -169,11 +169,11 @@ def f_from_expression(expr):
     The expression can include Boolean operators and comparisons, and the order of variables
     is determined by their first occurrence in the expression.
 
-    Parameters:
+    **Parameters:**
         
         - expr (str): A text string containing an evaluable Boolean expression.
 
-    Returns:
+    **Returns:**
         
         - tuple:
             
@@ -181,7 +181,7 @@ def f_from_expression(expr):
               where n is the number of inputs.
             - var (list): A list of variable names (of length n) in the order they were encountered.
     
-    Examples:
+    **Examples:**
         
         >>> f_from_expression('A AND NOT B') #nested canalizing function
         ([0, 0, 1, 0], ['A', 'B'])
@@ -238,21 +238,21 @@ def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n, w):
     There exists a bijection between the Hamming weight (with w equivalent to 2^n - w) and the canalizing layer structure of an NCF.
     The layer structure is represented as [k_1, ..., k_r], where each k_i ≥ 1 and, if n > 1, for the last layer k_r ≥ 2.
 
-    Parameters:
+    **Parameters:**
         
         - n (int): Number of inputs (variables) of the NCF.
         - w (int): Odd Hamming weight of the NCF, i.e., the number of 1s in the 2^n-vector representation of the function.
 
-    Returns:
+    **Returns:**
         
         - tuple: A tuple (r, layer_structure_NCF), where:
             
             - r (int): The number of canalizing layers.
             - layer_structure_NCF (list): A list [k_1, ..., k_r] describing the number of variables in each layer.
 
-    References:
+    **References:**
         
-        Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.
+        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.
     """
     if w == 1:
         r = 1

@@ -2,7 +2,7 @@ Generate
 --------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
 .. automodule:: boolforge.generate
    :members:
