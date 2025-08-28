@@ -20,6 +20,7 @@ def _coerce_rng(rng: int | _NPGen | _NPRandomState | _py_random.Random | None = 
     Return a NumPy Generator given a variety of rng-like inputs.
 
     Accepts:
+        
       - None                -> default_rng()
       - int (seed)          -> default_rng(seed)
       - np.random.Generator -> returned as-is
@@ -27,7 +28,8 @@ def _coerce_rng(rng: int | _NPGen | _NPRandomState | _py_random.Random | None = 
       - random.Random       -> converted via SeedSequence
 
     Raises:
-      TypeError for unsupported inputs.
+        
+        - TypeError for unsupported inputs.
     """
     if rng is None:
         return default_rng()
@@ -50,9 +52,11 @@ def bin2dec(binary_vector):
     Convert a binary vector to an integer.
 
     Parameters:
+        
         - binary_vector (list): List containing binary digits (0 or 1).
 
     Returns:
+        
         - int: Integer value converted from the binary vector.
     """
     decimal = 0
@@ -66,10 +70,12 @@ def dec2bin(integer_value, num_bits):
     Convert an integer to a binary vector.
 
     Parameters:
+        
         - integer_value (int): Integer value to be converted.
         - num_bits (int): Number of bits in the binary representation.
 
     Returns:
+        
         - list: List containing binary digits (0 or 1).
     """
     binary_string = bin(integer_value)[2:].zfill(num_bits)
@@ -81,9 +87,11 @@ def check_if_empty(my_list):
     Check if the provided list or NumPy array is empty.
 
     Parameters:
+        
         - my_list (list or np.ndarray): The list or array to check.
 
     Returns:
+        
         - bool: True if my_list is empty (or has size 0 for a NumPy array), False otherwise.
     """
     if isinstance(my_list, np.ndarray):
@@ -123,12 +131,14 @@ def bool_to_poly(f, left_side_of_truth_table=None, variables=None, prefix=''):
     Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.
 
     Parameters:
+        
         - f (list): Boolean function as a vector (list of length 2^n, where n is the number of inputs).
         - left_side_of_truth_table (list, optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.
         - indices (list, optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).
         - prefix (str, optional): Prefix for variable names in the polynomial, default ''.
 
     Returns:
+        
         - str: A string representing the Boolean function in disjunctive normal form (DNF).
     """
     len_f = len(f)
@@ -160,9 +170,11 @@ def f_from_expression(expr):
     is determined by their first occurrence in the expression.
 
     Parameters:
+        
         - expr (str): A text string containing an evaluable Boolean expression.
 
     Returns:
+        
         - tuple:
             
             - f (list): The right-hand side of the Boolean function (truth table) as a list of length 2**n,
@@ -170,6 +182,7 @@ def f_from_expression(expr):
             - var (list): A list of variable names (of length n) in the order they were encountered.
     
     Examples:
+        
         >>> f_from_expression('A AND NOT B') #nested canalizing function
         ([0, 0, 1, 0], ['A', 'B'])
         
@@ -226,17 +239,20 @@ def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n, w):
     The layer structure is represented as [k_1, ..., k_r], where each k_i ≥ 1 and, if n > 1, for the last layer k_r ≥ 2.
 
     Parameters:
+        
         - n (int): Number of inputs (variables) of the NCF.
         - w (int): Odd Hamming weight of the NCF, i.e., the number of 1s in the 2^n-vector representation of the function.
 
     Returns:
+        
         - tuple: A tuple (r, layer_structure_NCF), where:
+            
             - r (int): The number of canalizing layers.
             - layer_structure_NCF (list): A list [k_1, ..., k_r] describing the number of variables in each layer.
 
     References:
-        Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks.
-        Physica D: Nonlinear Phenomena, 353, 39-47.
+        
+        Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.
     """
     if w == 1:
         r = 1

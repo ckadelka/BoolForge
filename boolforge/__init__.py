@@ -6,4 +6,4 @@ from boolforge.boolean_network import *
 try:
     from boolforge._version import __version__
 except ImportError:
-    __version__ = '???'
+    __version__ = 'unknown'
