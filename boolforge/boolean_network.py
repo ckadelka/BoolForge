@@ -186,8 +186,11 @@ class BooleanNetwork(object):
         if self.N in BooleanNetwork.left_side_of_truth_tables:
             left_side_of_truth_table = BooleanNetwork.left_side_of_truth_tables[self.N]
         else:
-            left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.N)))
-            BooleanNetwork.left_side_of_truth_tables[self.N] = left_side_of_truth_table
+            #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.N)))
+            vals = np.arange(2**self.N, dtype=np.uint64)[:, None]              # shape (2^n, 1)
+            masks = (1 << np.arange(self.N-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
+            lhs = ((vals & masks) != 0).astype(np.uint8)
+            BooleanNetwork.left_side_of_truth_tables[self.N] = lhs
         return left_side_of_truth_table
     
     

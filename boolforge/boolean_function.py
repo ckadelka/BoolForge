@@ -128,8 +128,11 @@ class BooleanFunction(object):
         if self.n in BooleanFunction.left_side_of_truth_tables:
             left_side_of_truth_table = BooleanFunction.left_side_of_truth_tables[self.n]
         else:
-            left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.n)))
-            BooleanFunction.left_side_of_truth_tables[self.n] = left_side_of_truth_table
+            #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.n)))
+            vals = np.arange(2**self.n, dtype=np.uint64)[:, None]              # shape (2^n, 1)
+            masks = (1 << np.arange(self.n-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
+            lhs = ((vals & masks) != 0).astype(np.uint8)   
+            BooleanFunction.left_side_of_truth_tables[self.n] = lhs
         return left_side_of_truth_table
     
     

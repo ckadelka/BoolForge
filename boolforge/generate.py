@@ -31,9 +31,13 @@ def get_left_side_of_truth_table(n):
     if n in left_side_of_truth_tables:
         left_side_of_truth_table = left_side_of_truth_tables[n]
     else:
-        left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
-        left_side_of_truth_tables[n] = left_side_of_truth_table
+        #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
+        vals = np.arange(2**n, dtype=np.uint64)[:, None]              # shape (2^n, 1)
+        masks = (1 << np.arange(n-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
+        lhs = ((vals & masks) != 0).astype(np.uint8)                  # shape (2^n, n)
+        left_side_of_truth_tables[n] = lhs
     return left_side_of_truth_table
+
 
 
 ## Random function generation
@@ -150,7 +154,7 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
             f=random_function_with_exact_hamming_weight(n, hamming_weight,rng=rng)
     else:
         if USE_ABSOLUTE_BIAS:
-            assert 0<=absolute_bias<=1,"absolute_bias must be in [0,1]. It is double the absolute difference of bias from 0.5."
+            assert 0<=absolute_bias<=1,"absolute_bias must be in [0,1]. Absolute bias determines the choice of `bias`, which is set randomly to `0.5*(1−absolute_bias)` or `0.5*(1+absolute_bias)`."
             bias_of_function = rng.choice([0.5*(1-absolute_bias),0.5*(1+absolute_bias)])
         else:
             assert 0<=bias<=1,"bias must be in [0,1]. It describes the probability of a 1 in the randomly generated function."            
@@ -380,7 +384,6 @@ def random_k_canalizing_function(n, k, EXACT_DEPTH=False, ALLOW_DEGENERATED_FUNC
     assert n - k != 1 or not EXACT_DEPTH,'There are no functions of exact canalizing depth n-1.\nEither set EXACT_DEPTH=False or ensure k != n-1'
     assert isinstance(k, (int, np.integer)) and 0 <= k and k <= n,'k, the canalizing depth, must satisfy 0 <= k <= n.'
 
-    left_side_of_truth_table = get_left_side_of_truth_table(n)
     num_values = 2**n
     aas = rng.integers(2, size=k)  # canalizing inputs
     bbs = rng.integers(2, size=k)  # canalized outputs
@@ -392,15 +395,15 @@ def random_k_canalizing_function(n, k, EXACT_DEPTH=False, ALLOW_DEGENERATED_FUNC
                                         ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,rng=rng)
     else:
         core_function = [1 - bbs[-1]]
-    counter_non_canalized_positions = 0
-    for i in range(num_values):
-        for j in range(k):
-            if left_side_of_truth_table[i][can_vars[j]] == aas[j]:
-                f[i] = bbs[j]
-                break
-        else:
-            f[i] = core_function[counter_non_canalized_positions]
-            counter_non_canalized_positions += 1
+    
+    left_side_of_truth_table = get_left_side_of_truth_table(n)
+    f = np.full(2**n, -1, dtype=np.int8)
+    for j in range(k):
+        mask = (left_side_of_truth_table[:, can_vars[j]] == aas[j]) & (f < 0)
+        f[mask] = bbs[j]
+    # fill remaining with core truth table
+    f[f < 0] = np.asarray(core_function, dtype=np.int8)
+
     return BooleanFunction(f)
 
 
@@ -438,7 +441,6 @@ def random_k_canalizing_function_with_specific_layer_structure(n, layer_structur
     assert depth < n or layer_structure[-1] > 1 or n == 1,'The last layer of an NCF (i.e., an n-canalizing function) has to have size >= 2 whenever n > 1.\nIf depth=sum(layer_structure)=n, ensure that layer_structure[-1]>=2.'
     assert min(layer_structure) >= 1,'Each layer must have at least one variable (each element of layer_structure must be >= 1).'
     
-    left_side_of_truth_table = get_left_side_of_truth_table(n)
 
     size_state_space = 2**n
     aas = rng.integers(2, size=depth)  # canalizing inputs
@@ -455,15 +457,15 @@ def random_k_canalizing_function_with_specific_layer_structure(n, layer_structur
         core_function = random_function(n=n-depth,depth=0,EXACT_DEPTH=EXACT_DEPTH,ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,rng=rng)
     else:
         core_function = [1 - bbs[-1]]
-    counter_non_canalized_positions = 0
-    for i in range(size_state_space):
-        for j in range(depth):
-            if left_side_of_truth_table[i][can_vars[j]] == aas[j]:
-                f[i] = bbs[j]
-                break
-        else:
-            f[i] = core_function[counter_non_canalized_positions]
-            counter_non_canalized_positions += 1
+    
+    left_side_of_truth_table = get_left_side_of_truth_table(n)
+    f = np.full(2**n, -1, dtype=np.int8)
+    for j in range(depth):
+        mask = (left_side_of_truth_table[:, can_vars[j]] == aas[j]) & (f < 0)
+        f[mask] = bbs[j]
+    # fill remaining with core truth table
+    f[f < 0] = np.asarray(core_function, dtype=np.int8)
+            
     return BooleanFunction(f)
 
 
@@ -595,6 +597,9 @@ def random_edge_list(N, indegrees, NO_SELF_REGULATION, AT_LEAST_ONE_REGULATOR_PE
                 indices = rng.choice(np.arange(N), indegrees[i], replace=False)
             edge_list.extend(list(zip(indices, i * np.ones(indegrees[i], dtype=int))))
     else:
+        target_sources = [set() for _ in range(N)]
+        for s, t in edge_list:
+            target_sources[t].add(s)
         edge_list = []
         outdegrees = np.zeros(N, dtype=int)
         sum_indegrees = sum(indegrees)  # total number of regulations
@@ -608,17 +613,24 @@ def random_edge_list(N, indegrees, NO_SELF_REGULATION, AT_LEAST_ONE_REGULATOR_PE
         while min(outdegrees) == 0:
             index_sink = np.where(outdegrees == 0)[0][0]
             index_edge = rng.integers(sum_indegrees)
-            if NO_SELF_REGULATION:
-                while edge_list[index_edge][1] == index_sink:
-                    index_edge = rng.integers(sum_indegrees)
+            t = edge_list[index_edge][1]
+            if NO_SELF_REGULATION and t == index_sink: # avoid self-regulation
+                continue
+            if index_sink in target_sources[t]: # skip if it would duplicate (index_sink -> t)
+                continue
+            # perform replacement & update bookkeeping
+            old_source = edge_list[index_edge][0]
+            target_sources[t].discard(old_source)
+            target_sources[t].add(index_sink)
+            edge_list[index_edge] = (index_sink, t)
             outdegrees[index_sink] += 1
-            outdegrees[edge_list[index_edge][0]] -= 1
-            edge_list[index_edge] = (index_sink, edge_list[index_edge][1])
+            outdegrees[old_source] -= 1
     return edge_list
 
 
 def random_wiring_diagram(N,n,NO_SELF_REGULATION=True, STRONGLY_CONNECTED=False,
                           indegree_distribution='constant', 
+                          AT_LEAST_ONE_REGULATOR_PER_NODE = False,
                           n_attempts_to_generate_strongly_connected_network = 1000, *, rng=None):
     """
     Generate a random wiring diagram for a network of N nodes.
@@ -634,6 +646,7 @@ def random_wiring_diagram(N,n,NO_SELF_REGULATION=True, STRONGLY_CONNECTED=False,
         - NO_SELF_REGULATION (bool, optional): If True, self-regulation is disallowed (default is True).
         - STRONGLY_CONNECTED (bool, optional): If True, the generated network is forced to be strongly connected (default is False).
         - indegree_distribution (str, optional): In-degree distribution to use. Options include 'constant' (or 'dirac'/'delta'), 'uniform', or 'poisson'. Default is 'constant'.
+        - AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure that each node has at least one outgoing edge (default is False).
         - n_attempts_to_generate_strongly_connected_network (integer, optional): Number of attempts to generate a strongly connected wiring diagram before raising an error and quitting.
  
     Returns:
@@ -648,7 +661,7 @@ def random_wiring_diagram(N,n,NO_SELF_REGULATION=True, STRONGLY_CONNECTED=False,
 
     counter = 0
     while True:  # Keep generating until we have a strongly connected graph
-        edges_wiring_diagram = random_edge_list(N, indegrees, NO_SELF_REGULATION, rng=rng)
+        edges_wiring_diagram = random_edge_list(N, indegrees, NO_SELF_REGULATION, AT_LEAST_ONE_REGULATOR_PER_NODE=AT_LEAST_ONE_REGULATOR_PER_NODE, rng=rng)
         if STRONGLY_CONNECTED:#may take a long time ("forever") if n is small and N is large
             G = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
             if not nx.is_strongly_connected(G):
@@ -797,6 +810,7 @@ def random_network(N=None, n=None,
                    NO_SELF_REGULATION=True, 
                    STRONGLY_CONNECTED=False, 
                    indegree_distribution='constant', 
+                   AT_LEAST_ONE_REGULATOR_PER_NODE=False,
                    n_attempts_to_generate_strongly_connected_network = 1000, 
                    I=None, *, rng=None):
     """
@@ -841,6 +855,7 @@ def random_network(N=None, n=None,
         - NO_SELF_REGULATION (bool, optional): If True, forbids self-loops in **generated** wiring diagrams. Has no effect when `I` is provided. Default True.
         - STRONGLY_CONNECTED (bool, optional): If True, the wiring generation retries until a strongly connected directed graph is found (up to a maximum number of attempts) (ignored if `I` is provided). Default False.
         - indegree_distribution ({'constant','dirac','delta','uniform','poisson'}, optional): Distribution used when sampling in-degrees (ignored if `I` is provided). Default 'constant'.
+        - AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure that each node has at least one outgoing edge (default is False).
         - n_attempts_to_generate_strongly_connected_network (int, optional): Max attempts for strong connectivity before raising. Default 1000.
         - I (list[list[int]], list[np.ndarray], None, optional): Existing wiring diagram. If provided, `N` and `n` are ignored and `indegrees` are computed from `I`.
 
@@ -895,6 +910,7 @@ def random_network(N=None, n=None,
         I,indegrees = random_wiring_diagram(N,n,NO_SELF_REGULATION=NO_SELF_REGULATION, 
                                             STRONGLY_CONNECTED=STRONGLY_CONNECTED,
                                             indegree_distribution=indegree_distribution, 
+                                            AT_LEAST_ONE_REGULATOR_PER_NODE=AT_LEAST_ONE_REGULATOR_PER_NODE,
                                             n_attempts_to_generate_strongly_connected_network = n_attempts_to_generate_strongly_connected_network,rng=rng)
     elif I is not None: #load wiring diagram
         assert isinstance(I, (list, np.ndarray)), "I must be a list or np.array of lists or np.arrays. Each inner list describes the regulators of node i (indexed by 0,1,...,len(I)-1)"
