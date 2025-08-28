@@ -48,8 +48,8 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
     Selection logic (first match applies):
         
         - If `LINEAR`: return a random **linear** Boolean function (`random_linear_function`).
-        - Else if `layer_structure is not None`: return a function with the specified **canalizing layer structure** using `random_k_canalizing_function_with_specific_layer_structure`, with exact canalizing depth if `EXACT_DEPTH=True`.
-        - Else if `depth > 0`: return a **k-canalizing** function with k = min(depth, n) using `random_k_canalizing_function`, with exact canalizing depth if `EXACT_DEPTH=True`.
+        - Else if `layer_structure is not None`: return a function with the specified **canalizing layer structure** using `random_k_canalizing_function_with_specific_layer_structure`, with exact canalizing depth if `EXACT_DEPTH`.
+        - Else if `depth > 0`: return a **k-canalizing** function with k = min(depth, n) using `random_k_canalizing_function`, with exact canalizing depth if `EXACT_DEPTH`.
         - Else if exact `hamming_weight` is provided: sample uniformly a truth table with the requested number of ones, and keep resampling until the additional constraints implied by `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH` are satisfied:
 
             - If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: return a **non-canalizing** function with exact Hamming weight.
@@ -60,7 +60,7 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
  
             - Choose a bias:
                 
-                - If `USE_ABSOLUTE_BIAS=True`, pick randomly from {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}.
+                - If `USE_ABSOLUTE_BIAS`, set `bias` randomly to `0.5*(1−absolute_bias)` or `0.5*(1+absolute_bias)`.
                 - Else, use `bias` directly.
             - Then:
                 
@@ -73,13 +73,13 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
     Parameters:
         
         - n (int): Number of variables (n >= 1 for most nontrivial generators).
-        - depth (int, optional): Requested canalizing depth (used when `layer_structure is None` and `depth > 0`). If `EXACT_DEPTH=True`, the function has exactly this depth (clipped at n); otherwise, at least this depth. Default 0.
+        - depth (int, optional): Requested canalizing depth (used when `layer_structure is None` and `depth > 0`). If `EXACT_DEPTH`, the function has exactly this depth (clipped at n); otherwise, at least this depth. Default 0.
         - EXACT_DEPTH (bool, optional): Enforce exact canalizing depth where applicable. For the case `depth == 0` this implies **non-canalizing**. Default False.
         - layer_structure (list[int], None, optional): Canalizing layer structure [k1, ..., kr]. If provided, it takes precedence over `depth`. Exact depth behavior follows `EXACT_DEPTH`. Default None.
         - LINEAR (bool, optional): If True, ignore other generation options and return a random linear function. Default False.
         - ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True, generators in the “random” branches may return functions with non-essential inputs. If False, those branches insist on non-degenerated functions. Default False.
-        - bias (float, optional): Probability of 1s when sampling with bias (ignored if `USE_ABSOLUTE_BIAS=True` or a different branch is taken). Must be in [0,1]. Default 0.5.
-        - absolute_bias (float, optional): Absolute deviation parameter in [0,1] used when `USE_ABSOLUTE_BIAS=True`. The actual bias is chosen at random from {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}. Default 0.
+        - bias (float, optional): Probability of 1s when sampling with bias (ignored if `USE_ABSOLUTE_BIAS` or a different branch is taken). Must be in [0,1]. Default 0.5.
+        - absolute_bias (float, optional): Absolute deviation parameter in [0,1] used when `USE_ABSOLUTE_BIAS`. The actual bias is chosen at random from {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}. Default 0.
         - USE_ABSOLUTE_BIAS (bool, optional): If True, use `absolute_bias` to set the distance from 0.5; otherwise use `bias` directly. Default False.
         - hamming_weight (int, None, optional): If provided, enforce an exact number of ones in the truth table (0..2^n). Additional constraints apply with `EXACT_DEPTH` and degeneracy settings (see selection logic above). Default None.
         - rng (None, optional): Argument for the random number generator, implemented in 'utils._coerce_rng'.
@@ -95,7 +95,7 @@ def random_function(n, depth=0, EXACT_DEPTH=False, layer_structure=None,
             - `0 <= bias <= 1` (when used),
             - `0 <= absolute_bias <= 1` (when used),
             - `hamming_weight` in {0, ..., 2^n} (when used),
-            - If `EXACT_DEPTH=True` and `depth==0`, then `hamming_weight` must be in {2,3,...,2^n−2} (since weights 0,1,2^n−1,2^n are canalizing).
+            - If `EXACT_DEPTH` and `depth==0`, then `hamming_weight` must be in {2,3,...,2^n−2} (since weights 0,1,2^n−1,2^n are canalizing).
             
         - AssertionError (from called generators): Some subroutines require `n > 1` for non-canalizing generation.
 
@@ -693,7 +693,7 @@ def rewire_wiring_diagram(I,average_swaps_per_edge=10,DO_NOT_ADD_SELF_REGULATION
 
     Notes:
         
-        - If your input contains self-loops and you want to keep them exactly as in `I`, use the defaults (`FIX_SELF_REGULATION=True`, `DO_NOT_ADD_SELF_REGULATION=True`).
+        - If your input contains self-loops and you want to keep them exactly as in `I`, use the defaults (`FIX_SELF_REGULATION`, `DO_NOT_ADD_SELF_REGULATION`).
 
     Example:
         
@@ -823,7 +823,7 @@ def random_network(N=None, n=None,
             - 'poisson': `n` is a positive rate lambda; in-degrees are Poisson (lambda) draws, truncated into [1, N - int(NO_SELF_REGULATION)].
             - If `n` is an N-length vector of integers, it is taken as the exact in-degrees.
             
-        - depths (int, list, np.ndarray, optional): Requested canalizing depth per node for rule generation. If an integer, it is broadcast to all nodes and clipped at each node's in-degree. If a vector, it must have length N. Interpreted as **minimum** depth unless `EXACT_DEPTH=True`. Default 0.
+        - depths (int, list, np.ndarray, optional): Requested canalizing depth per node for rule generation. If an integer, it is broadcast to all nodes and clipped at each node's in-degree. If a vector, it must have length N. Interpreted as **minimum** depth unless `EXACT_DEPTH`. Default 0.
         - EXACT_DEPTH (bool, optional): If True, each function is generated with **exactly** the requested depth (or the sum of the corresponding `layer_structures[i]` if provided). If False, depth is **at least** as large as requested. Default False.
         - layer_structures (list, list[list[int]], None, optional): Canalizing **layer structure** specifications.
         
@@ -834,9 +834,9 @@ def random_network(N=None, n=None,
             
         - ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True and `depths==0` and `layer_structures is None`, degenerated functions (with non-essential inputs) may be generated (classical NK-Kauffman models). If False, generated functions are essential in all variables. Default False.
         - LINEAR (bool, optional): If True, generate linear Boolean functions for all nodes; other rule parameters (bias, canalization, etc.) are ignored. Default False.
-        - biases (float, list, np.ndarray, optional): Probability of output 1 when generating random (nonlinear) functions, used only if `depths==0`, `layer_structures is None`, and `LINEAR=False` and `USE_ABSOLUTE_BIAS=False`. If a scalar, broadcast to length N. Must lie in [0, 1]. Default 0.5.
-        - absolute_biases (float, list, np.ndarray, optional): Absolute deviation from 0.5 (i.e., `|bias-0.5|*2`), used only if `depths==0`, `layer_structures is None`, `LINEAR=False`, and `USE_ABSOLUTE_BIAS=True`. If a scalar, broadcast to length N. Must lie in [0, 1]. Default 0.0.
-        - USE_ABSOLUTE_BIAS (bool, optional): If True, `absolute_biases` is used to set the bias per rule to either `0.5*(1 - abs_bias)` or `0.5*(1 + abs_bias)` at random. If False, `biases` is used. Only relevant when `depths==0`, `layer_structures is None`, and `LINEAR=False`. Default True.
+        - biases (float, list, np.ndarray, optional): Probability of output 1 when generating random (nonlinear) functions, used only if `depths==0`, `layer_structures is None`, and `not LINEAR` and `not USE_ABSOLUTE_BIAS`. If a scalar, broadcast to length N. Must lie in [0, 1]. Default 0.5.
+        - absolute_biases (float, list, np.ndarray, optional): Absolute deviation from 0.5 (i.e., `|bias-0.5|*2`), used only if `depths==0`, `layer_structures is None`, `not LINEAR`, and `USE_ABSOLUTE_BIAS`. If a scalar, broadcast to length N. Must lie in [0, 1]. Default 0.0.
+        - USE_ABSOLUTE_BIAS (bool, optional): If True, `absolute_biases` is used to set the bias per rule to either `0.5*(1 - abs_bias)` or `0.5*(1 + abs_bias)` at random. If False, `biases` is used. Only relevant when `depths==0`, `layer_structures is None`, and `not LINEAR`. Default True.
         - hamming_weights (int, list, np.ndarray, None, optional): Exact Hamming weights (number of ones in each truth table). If None, no exact constraint is enforced. If a scalar, broadcast to N. If a vector, must have length N. Values must be in {0, ..., 2^k} for a k-input rule. Additional constraints apply when requesting exact depth zero (see Notes).
         - NO_SELF_REGULATION (bool, optional): If True, forbids self-loops in **generated** wiring diagrams. Has no effect when `I` is provided. Default True.
         - STRONGLY_CONNECTED (bool, optional): If True, the wiring generation retries until a strongly connected directed graph is found (up to a maximum number of attempts) (ignored if `I` is provided). Default False.
@@ -851,14 +851,13 @@ def random_network(N=None, n=None,
     Raises:
         
         - AssertionError: If input shapes/types are invalid or constraints are violated (e.g., requested depth > in-degree, malformed layer structures, invalid bias vectors, etc.).
-        - RuntimeError: If `STRONGLY_CONNECTED=True` and a strongly connected wiring diagram cannot be generated within `n_attempts_to_generate_strongly_connected_network` tries.
+        - RuntimeError: If `STRONGLY_CONNECTED` and a strongly connected wiring diagram cannot be generated within `n_attempts_to_generate_strongly_connected_network` tries.
 
     Notes:
         
         - **Precedence** for rule constraints: `LINEAR` → `layer_structures` (if provided) → `depths` (+ `EXACT_DEPTH`) and bias settings only apply when no canalization constraints are requested.
-        - **Bias controls**: Use `USE_ABSOLUTE_BIAS=True` with `absolute_biases` to enforce a fixed distance from 0.5 while allowing either high or low bias with equal chance. Otherwise, set `USE_ABSOLUTE_BIAS=False` and provide `biases` directly.
-        - **Hamming weights & canalization**: When `EXACT_DEPTH=True` and the target depth is 0, Hamming weights {0, 1, 2^k - 1, 2^k} correspond to canalizing functions and are therefore disallowed in the non-canalizing branch (the implementation enforces this).
-        - **Randomness**: Both `numpy.random` and Python's `random` may be used by downstream generators. For reproducibility, set seeds in both where appropriate.
+        - **Bias controls**: Use `USE_ABSOLUTE_BIAS` with `absolute_biases` to enforce a fixed distance from 0.5 while allowing either high or low bias with equal chance. Otherwise, set `USE_ABSOLUTE_BIAS=False` and provide `biases` directly.
+        - **Hamming weights & canalization**: When `EXACT_DEPTH` and the target depth is 0, Hamming weights {0, 1, 2^k - 1, 2^k} correspond to canalizing functions and are therefore disallowed if forcing non-canalizing functions through `EXACT_DEPTH` (the implementation enforces this).
 
     Examples:
         
