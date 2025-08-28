@@ -9,6 +9,9 @@ Created on Tue Aug 12 11:03:49 2025
 import numpy as np
 import itertools
 
+from typing import Union
+from typing import Optional
+
 try:
     import boolforge.utils as utils
 except ModuleNotFoundError:
@@ -44,22 +47,22 @@ class BooleanFunction(object):
 
     **Constructor Parameters:**
         
-        - f (list, np.array, str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.
-        - name (str | optional): The name of the node regulated by the Boolean function (default '').
+        - f (list | np.array | str): A list of length 2^n representing the outputs of a Boolean function with n inputs, or a string that can be properly evaluated, see utils.f_from_expression.
+        - name (str, optional): The name of the node regulated by the Boolean function (default '').
         
     **Members:**
         
         - f (np.array): A numpy array of length 2^n representing the outputs of a Boolean function with n inputs.
         - n (int): The number of inputs for the Boolean function.
         - variables (np.array): A numpy array of n strings with variable names, default x0, ..., x_{n-1}.
-        - name (str | optional): The name of the node regulated by the Boolean function (default '')
+        - name (str): The name of the node regulated by the Boolean function (default '')
         - properties (dict): Dynamically created dictionary with additional information about the function (canalizing layer structure, type of inputs, etc.)
     """
     __slots__ = ['f','n','variables','name','properties']
     
     left_side_of_truth_tables = {}
     
-    def __init__(self, f, name=''):
+    def __init__(self, f : Union[list, np.array, str], name : str = ""):
         self.name = name
         if isinstance(f, str):
             f, self.variables = utils.f_from_expression(f)
@@ -103,7 +106,7 @@ class BooleanFunction(object):
     def __setitem__(self, index, value):
         self.f[index] = value
     
-    def to_cana(self):
+    def to_cana(self) -> "cana.boolean_node.BooleanNode":
         """
         **Compatability method:**
             
@@ -134,13 +137,14 @@ class BooleanFunction(object):
             masks = (1 << np.arange(self.n-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
             lhs = ((vals & masks) != 0).astype(np.uint8)   
             BooleanFunction.left_side_of_truth_tables[self.n] = lhs
+            left_side_of_truth_table = lhs
         return left_side_of_truth_table
     
     
-    def get_hamming_weight(self):
+    def get_hamming_weight(self) -> int:
         return int(self.f.sum())
     
-    def is_constant(self):
+    def is_constant(self) -> bool:
         """
         Check whether a Boolean function is constant.
 
@@ -150,7 +154,7 @@ class BooleanFunction(object):
         """
         return self.get_hamming_weight() in [0, 2**self.n]
     
-    def is_degenerated(self):
+    def is_degenerated(self) -> bool:
         """
         Determine if a Boolean function contains non-essential variables.
 
@@ -175,7 +179,7 @@ class BooleanFunction(object):
                 return True
         return False
 
-    def get_essential_variables(self):
+    def get_essential_variables(self) -> list:
         """
         Determine the indices of essential variables in a Boolean function.
 
@@ -203,7 +207,7 @@ class BooleanFunction(object):
                 essential_variables.remove(i)
         return essential_variables 
 
-    def get_number_of_essential_variables(self):
+    def get_number_of_essential_variables(self) -> int:
         """
         Count the number of essential variables in a Boolean function.
 
@@ -214,7 +218,7 @@ class BooleanFunction(object):
         return len(self.get_essential_variables())
     
     
-    def get_type_of_inputs(self):
+    def get_type_of_inputs(self) -> np.ndarray:
         """
         Determine for each input of the Boolean function whether it is positive, negative, conditional or non-essential.
 
@@ -246,7 +250,7 @@ class BooleanFunction(object):
             return types
 
 
-    def is_monotonic(self):
+    def is_monotonic(self) -> bool:
         """
         Determine if a Boolean function is monotonic.
 
@@ -260,7 +264,7 @@ class BooleanFunction(object):
         return 'conditional' not in self.get_type_of_inputs()
     
     
-    def get_symmetry_groups(self):
+    def get_symmetry_groups(self) -> list:
         """
         Determine all symmetry groups of input variables for a Boolean function.
 
@@ -290,7 +294,7 @@ class BooleanFunction(object):
                     symmetry_groups[-1].append(j)
         return symmetry_groups
     
-    def get_absolute_bias(self):
+    def get_absolute_bias(self) -> float:
         """
         Compute the absolute bias of a Boolean function.
 
@@ -302,7 +306,7 @@ class BooleanFunction(object):
         """
         return abs(self.get_hamming_weight() * 1.0 / 2**(self.n - 1) - 1)
     
-    def get_average_sensitivity(self, nsim=10000, EXACT=False, NORMALIZED=True, *, rng=None):
+    def get_average_sensitivity(self, nsim : int = 10000, EXACT : bool = False, NORMALIZED : bool = True, *, rng = None) -> float:
         """
         Compute the average sensitivity of a Boolean function.
 
@@ -312,9 +316,9 @@ class BooleanFunction(object):
 
         **Parameters:**
             
-            - nsim (int | optional): Number of random samples (default is 10000, used when EXACT is False).
-            - EXACT (bool | optional): If True, compute the exact sensitivity by iterating over all inputs; otherwise, use sampling (default).
-            - NORMALIZED (bool | optional): If True, return the normalized sensitivity (divided by the number of function inputs); otherwise, return the total count.
+            - nsim (int, optional): Number of random samples (default is 10000, used when EXACT is False).
+            - EXACT (bool, optional): If True, compute the exact sensitivity by iterating over all inputs; otherwise, use sampling (default).
+            - NORMALIZED (bool, optional): If True, return the normalized sensitivity (divided by the number of function inputs); otherwise, return the total count.
 
         **Returns:**
             
@@ -349,7 +353,7 @@ class BooleanFunction(object):
                 return self.n * s / nsim
     
     
-    def is_canalizing(self):
+    def is_canalizing(self) -> bool:
         """
         Determine if a Boolean function is canalizing.
 
@@ -371,7 +375,7 @@ class BooleanFunction(object):
         else:
             return False
     
-    def is_k_canalizing(self, k):
+    def is_k_canalizing(self, k : int) -> bool:
         """
         Determine if a Boolean function is k-canalizing.
 
@@ -463,7 +467,7 @@ class BooleanFunction(object):
         
             return (depth, number_layers, can_inputs, can_outputs, self, can_order)        
 
-    def get_layer_structure(self):
+    def get_layer_structure(self) -> dict:
         """
         Determine the canalizing layer structure of a Boolean function.
 
@@ -500,7 +504,7 @@ class BooleanFunction(object):
             return {key: self.properties[key] for key in ["CanalizingDepth", "NumberOfLayers", "CanalizingInputs", "CanalizedOutputs", "CoreFunction", "OrderOfCanalizingVariables",'LayerStructure']}
 
 
-    def get_canalizing_depth(self):
+    def get_canalizing_depth(self) -> int:
         """
         Returns the canalizing depth of the function.
         
@@ -513,7 +517,7 @@ class BooleanFunction(object):
         return self.properties["CanalizingDepth"]
 
     
-    def get_kset_canalizing_proportion(self, k):
+    def get_kset_canalizing_proportion(self, k : int) -> float:
         """
         Compute the proportion of k-set canalizing input sets for a Boolean function.
 
@@ -551,7 +555,7 @@ class BooleanFunction(object):
         is_there_canalization = np.isin(np.dot(Ak, self.f), [0, desired_value])
         return sum(is_there_canalization) / len(is_there_canalization)
 
-    def is_kset_canalizing(self, k):
+    def is_kset_canalizing(self, k : int) -> bool:
         """
         Determine if a Boolean function is k-set canalizing.
 
@@ -572,8 +576,7 @@ class BooleanFunction(object):
         """
         return self.get_kset_canalizing_proportion(k)>0
 
-
-    def get_canalizing_strength(self):
+    def get_canalizing_strength(self) -> tuple:
         """
         Compute the canalizing strength of a Boolean function via exhaustive enumeration.
 
@@ -600,7 +603,7 @@ class BooleanFunction(object):
             res.append(self.get_kset_canalizing_proportion(k))
         return np.mean(np.multiply(res, 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1))), res
     
-    def get_input_redundancy(self):
+    def get_input_redundancy(self) -> Optional[float]:
         """
         .. important::
             This method requires an installation of CANA (See `Extended Functionality`_). If CANA is not found, this method wil return None.
@@ -625,7 +628,7 @@ class BooleanFunction(object):
         print('The method \'get_input_redundancy\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
     
-    def get_edge_effectiveness(self):
+    def get_edge_effectiveness(self) -> Optional[list]:
         """
         .. important::
             This method requires an installation of CANA (See `Extended Functionality`_). If CANA is not found, this method wil return None.
@@ -650,7 +653,7 @@ class BooleanFunction(object):
         print('The method \'get_edge_effectiveness\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
 
-    def get_effective_degree(self):
+    def get_effective_degree(self) -> Optional[float]:
         """
         .. important::
             This method requires an installation of CANA (See `Extended Functionality`_). If CANA is not found, this method wil return None.
@@ -663,7 +666,7 @@ class BooleanFunction(object):
 
         **Returns:**
             
-            - list: A value in [0, 1] representing the effective degree for each input.
+            - list: A value in [0, 1] representing the effective degree for each input. #TODO
 
         **References:**
 

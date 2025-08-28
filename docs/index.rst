@@ -7,5 +7,5 @@ Home
    :maxdepth: 2
 
    install
-   manual
+   docs
    genindex

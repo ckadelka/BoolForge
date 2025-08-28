@@ -15,7 +15,10 @@ import itertools
 import random as _py_random
 from numpy.random import Generator as _NPGen, RandomState as _NPRandomState, SeedSequence, default_rng
 
-def _coerce_rng(rng: int | _NPGen | _NPRandomState | _py_random.Random | None = None) -> _NPGen:
+from typing import Union
+from typing import Optional
+
+def _coerce_rng(rng : Union[int, _NPGen, _NPRandomState, _py_random.Random, None] = None) -> _NPGen:
     """
     Return a NumPy Generator given a variety of rng-like inputs.
 
@@ -47,7 +50,7 @@ def _coerce_rng(rng: int | _NPGen | _NPRandomState | _py_random.Random | None = 
         return default_rng(SeedSequence(entropy))
     raise TypeError(f"Unsupported rng type: {type(rng)!r}")
 
-def bin2dec(binary_vector):
+def bin2dec(binary_vector : list) -> int:
     """
     Convert a binary vector to an integer.
 
@@ -65,7 +68,7 @@ def bin2dec(binary_vector):
     return int(decimal)
 
 
-def dec2bin(integer_value, num_bits):
+def dec2bin(integer_value : int, num_bits : int) -> list:
     """
     Convert an integer to a binary vector.
 
@@ -82,7 +85,7 @@ def dec2bin(integer_value, num_bits):
     return [int(bit) for bit in binary_string]
 
 
-def check_if_empty(my_list):
+def check_if_empty(my_list : Union[list, np.ndarray]) -> bool:
     """
     Check if the provided list or NumPy array is empty.
 
@@ -99,8 +102,7 @@ def check_if_empty(my_list):
             return True
     elif my_list == []:
         return True
-    else:
-        return False
+    return False
     
     
 def is_list_or_array_of_ints(x, required_length=None):
@@ -126,16 +128,17 @@ def is_list_or_array_of_floats(x, required_length=None):
     return False
 
 
-def bool_to_poly(f, left_side_of_truth_table=None, variables=None, prefix=''):
+def bool_to_poly(f : list, left_side_of_truth_table : Optional[list] = None,
+                 variables : Optional[list] = None, prefix : str = '') -> str:
     """
     Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.
 
     **Parameters:**
         
         - f (list): Boolean function as a vector (list of length 2^n, where n is the number of inputs).
-        - left_side_of_truth_table (list | optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.
-        - indices (list | optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).
-        - prefix (str | optional): Prefix for variable names in the polynomial, default ''.
+        - left_side_of_truth_table (list | None, optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.
+        - indices (list | None, optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).
+        - prefix (str, optional): Prefix for variable names in the polynomial, default ''.
 
     **Returns:**
         
@@ -161,7 +164,7 @@ def bool_to_poly(f, left_side_of_truth_table=None, variables=None, prefix=''):
         return '0'
 
 
-def f_from_expression(expr):
+def f_from_expression(expr : str) -> tuple:
     """
     Extract a Boolean function from a string expression.
 
@@ -231,7 +234,7 @@ def flatten(l):
     return [item for sublist in l for item in sublist]
 
 
-def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n, w):
+def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n : int, w : int) -> tuple:
     """
     Compute the canalizing layer structure of a nested canalizing function (NCF) given its Hamming weight.
 
