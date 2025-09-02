@@ -36,8 +36,8 @@ def get_left_side_of_truth_table(n):
         #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
         vals = np.arange(2**n, dtype=np.uint64)[:, None]              # shape (2^n, 1)
         masks = (1 << np.arange(n-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
-        lhs = ((vals & masks) != 0).astype(np.uint8)                  # shape (2^n, n)
-        left_side_of_truth_tables[n] = lhs
+        left_side_of_truth_table = ((vals & masks) != 0).astype(np.uint8)                  # shape (2^n, n)
+        left_side_of_truth_tables[n] = left_side_of_truth_table
     return left_side_of_truth_table
 
 
