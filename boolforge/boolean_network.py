@@ -74,7 +74,7 @@ class BooleanNetwork(object):
         
         self.F = []
         for ii,f in enumerate(F):
-            if type(f) in [ list, np.array, str ]:
+            if isinstance(f, (list, np.ndarray, str)):
                 self.F.append(BF(f,name = self.variables[ii]))
             elif isinstance(f, BF):
                 f.name = self.variables[ii]
