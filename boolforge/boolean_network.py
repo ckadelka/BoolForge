@@ -37,16 +37,24 @@ class BooleanNetwork(object):
     
     **Constructor Parameters:**
         
-        - F (list | np.ndarray): A list of N Boolean functions, or of N lists of length 2^n representing the outputs of a Boolean function with n inputs.
-        - I (list | np.ndarray): A list of N lists representing the regulators (or inputs) for each Boolean function.
-        - variables (list | np.array, optional): A list of N strings representing the names of each variable, default = None.
+        - F (list[BooleanFunction | list[int]] | np.ndarray[BooleanFunction |
+          list[int]]): A list of N Boolean functions, or of N lists of length
+          2^n representing the outputs of a Boolean function with n inputs.
+          
+        - I (list[list[int]] | np.ndarray[list[int]]): A list of N lists
+          representing the regulators (or inputs) for each Boolean function.
+          
+        - variables (list[str] | np.array[str], optional): A list of N strings
+          representing the names of each variable, default = None.
 
     **Members:**
         
-        - F (list): As passed by the constructor.
-        - I (list): As passed by the constructor.
-        - variables (np.array): As passed by the constructor.
+        - F (list[BooleanFunction]): As passed by the constructor.
+        - I (list[np.array[int]]): As passed by the constructor.
+        - variables (np.array[str]): As passed by the constructor.
         - N (int): The number of variables in the Boolean network.
+        - indegrees (list[int]): The indegrees for each node.
+        - outdegrees (list[int]): The outdegrees of each node;
     """
     
     left_side_of_truth_tables = {}
@@ -80,7 +88,17 @@ class BooleanNetwork(object):
         
 
     @classmethod
-    def from_cana(cls, cana_BooleanNetwork):
+    def from_cana(cls, cana_BooleanNetwork : "cana.boolean_network.BooleanNetwork") -> "BooleanNetwork":
+        """
+        **Compatability Method:**
+        
+            Converts an instance of cana.boolean_network.BooleanNetwork from
+            the cana module into a Boolforge BooleanNetwork object.
+        
+        **Returns**:
+            
+                - A BooleanNetwork object.
+        """
         F = []
         I = []
         variables = []
@@ -97,7 +115,17 @@ class BooleanNetwork(object):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_bnet(cls, bnet):
+    def from_bnet(cls, bnet : str) -> "BooleanNetwork":
+        """
+        **Compatability Method:**
+        
+            Converts a bnet string from the pyboolnet module into a Boolforge
+            BooleanNetwork object.
+        
+        **Returns**:
+            
+                - A BooleanNetwork object.
+        """
         variables = []
         functions = []
         for line in bnet.split('\n'):
@@ -139,7 +167,8 @@ class BooleanNetwork(object):
         """
         **Compatability method:**
         
-            Returns an instance of the class cana.BooleanNetwork from the cana module.
+            Returns an instance of the class cana.BooleanNetwork from the
+            cana module.
 
         **Returns:**
             
@@ -194,8 +223,8 @@ class BooleanNetwork(object):
             #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.N)))
             vals = np.arange(2**self.N, dtype=np.uint64)[:, None]              # shape (2^n, 1)
             masks = (1 << np.arange(self.N-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
-            lhs = ((vals & masks) != 0).astype(np.uint8)
-            BooleanNetwork.left_side_of_truth_tables[self.N] = lhs
+            left_side_of_truth_table = ((vals & masks) != 0).astype(np.uint8)
+            BooleanNetwork.left_side_of_truth_tables[self.N] = left_side_of_truth_table
         return left_side_of_truth_table
     
     
@@ -205,7 +234,7 @@ class BooleanNetwork(object):
         
         **Returns:**
             
-            - np.array: Outdegree of each node.
+            - np.array[int]: Outdegree of each node.
         """
         outdegrees = np.zeros(self.N,dtype=int)
         for regulators in self.I:
@@ -214,17 +243,20 @@ class BooleanNetwork(object):
         return outdegrees
         
     
-    def update_single_node(self, index : int, states_regulators : Union[list, np.array]) -> int:
+    def update_single_node(self, index : int,
+        states_regulators : Union[list, np.array]) -> int:
         """
         Update the state of a single node.
 
-        The new state is obtained by applying the Boolean function f to the states of its regulators.
-        The regulator states are converted to a decimal index using utils.bin2dec.
+        The new state is obtained by applying the Boolean function f to the
+        states of its regulators. The regulator states are converted to a
+        decimal index using utils.bin2dec.
 
         **Parameters:**
             
             - index (int): The index of the Boolean Function in F.
-            - states_regulators (list | np.array): Binary vector representing the states of the node's regulators.
+            - states_regulators (list[int] | np.array[int]): Binary vector
+              representing the states of the node's regulators.
 
         **Returns:**
             
@@ -237,15 +269,16 @@ class BooleanNetwork(object):
         """
         Perform a synchronous update of a Boolean network.
 
-        Each node's new state is determined by applying its Boolean function to the current states of its regulators.
+        Each node's new state is determined by applying its Boolean function
+        to the current states of its regulators.
 
         **Parameters:**
             
-            - X (list | np.array): Current state vector of the network.
+            - X (list[int] | np.array[int]): Current state vector of the network.
 
         **Returns:**
             
-            - np.array: New state vector after the update.
+            - np.array[int]: New state vector after the update.
         """
         if type(X)==list:
             X = np.array(X)
@@ -255,42 +288,52 @@ class BooleanNetwork(object):
         return Fx
 
 
-    def update_network_synchronously_many_times(self, X : Union[list, np.array], n_steps : int) -> np.array:
+    def update_network_synchronously_many_times(self, X : Union[list, np.array],
+        n_steps : int) -> np.array:
         """
         Update the state of a Boolean network sychronously multiple time steps.
 
-        Starting from the initial state, the network is updated synchronously n_steps times using the update_network_synchronously function.
+        Starting from the initial state, the network is updated synchronously
+        n_steps times using the update_network_synchronously function.
 
         **Parameters:**
             
-            - X (list | np.array): Initial state vector of the network.
+            - X (list[int] | np.array[int]): Initial state vector of the network.
             - n_steps (int): Number of update iterations to perform.
 
         **Returns:**
             
-            - np.array: Final state vector after n_steps updates.
+            - np.array[int]: Final state vector after n_steps updates.
         """
         for i in range(n_steps):
             X = self.update_network_synchronously(X)
         return X
 
 
-    def update_network_SDDS(self, X : Union[list, np.array], P : np.array, *, rng=None) -> np.array:
+    def update_network_SDDS(self, X : Union[list, np.array], P : np.array,
+        *, rng=None) -> np.array:
         """
         Perform a stochastic update (SDDS) on a Boolean network.
 
-        For each node, the next state is computed as nextstep = F[i] evaluated on the current states of its regulators.
-        If nextstep > X[i], the node is activated with probability P[i,0]; if nextstep < X[i],
-        the node is degraded with probability P[i,1]. Otherwise, the state remains unchanged.
+        For each node, the next state is computed as nextstep = F[i] evaluated
+        on the current states of its regulators. If nextstep > X[i], the node
+        is activated with probability P[i,0]; if nextstep < X[i], the node is
+        degraded with probability P[i,1]. Otherwise, the state remains unchanged.
 
         **Parameters:**
             
-            - X (list | np.array): Current state vector.
-            - P (np.array): A len(F)×2 array of probabilities; for each node i, P[i,0] is the activation probability, and P[i,1] is the degradation probability.
+            - X (list[int] | np.array[int]): Current state vector.
+            - P (np.array[float]): A len(F)×2 array of probabilities; for each
+              node i, P[i,0] is the activation probability, and P[i,1] is the
+              degradation probability.
+            
+            - rng (None, optional): Argument for the random number generator,
+              implemented in 'utils._coerce_rng'.
 
         **Returns:**
             
-            - np.array: Updated state vector after applying the stochastic update.
+            - np.array[int]: Updated state vector after applying the
+              stochastic update.
         """
         rng = utils._coerce_rng(rng)
         if type(X)==list:
@@ -306,35 +349,62 @@ class BooleanNetwork(object):
 
 
     def get_steady_states_asynchronous(self, nsim : int = 500, EXACT : bool = False,
-                                       initial_sample_points : list = [], search_depth : int = 50,
-                                       DEBUG : bool = False, *, rng=None) -> dict:
+        initial_sample_points : list = [], search_depth : int = 50,
+        DEBUG : bool = False, *, rng=None) -> dict:
         """
         Compute the steady states of a Boolean network under asynchronous updates.
 
-        This function simulates asynchronous updates of a Boolean network (with N nodes)
-        for a given number of initial conditions (nsim). For each initial state, the network
-        is updated asynchronously until a steady state (or attractor) is reached or until a maximum
-        search depth is exceeded. The simulation can be performed either approximately (by sampling nsim
-        random initial conditions) or exactly (by iterating over the entire state space when EXACT=True).
+        This function simulates asynchronous updates of a Boolean network
+        (with N nodes) for a given number of initial conditions (nsim). For
+        each initial state, the network is updated asynchronously until a
+        steady state (or attractor) is reached or until a maximum search depth
+        is exceeded. The simulation can be performed either approximately
+        (by sampling nsim random initial conditions) or exactly (by iterating
+        over the entire state space when EXACT == True).
 
         **Parameters:**
             
-            - nsim (int, optional): Number of initial conditions to simulate (default is 500).
-            - EXACT (bool, optional): If True, iterate over the entire state space and guarantee finding all steady states (2^N initial conditions); otherwise, use nsim random initial conditions. (Default is False.)
-            - initial_sample_points (list, optional): List of initial states (as binary vectors) to use. If provided and EXACT is False, these override random sampling.
-            - search_depth (int, optional): Maximum number of asynchronous update iterations to attempt per simulation.
-            - DEBUG (bool, optional): If True, print debugging information during simulation.
+            - nsim (int, optional): Number of initial conditions to simulate
+              (default is 500).
+              
+            - EXACT (bool, optional): If True, iterate over the entire state
+              space and guarantee finding all steady states (2^N initial
+              conditions); otherwise, use nsim random initial conditions.
+              (Default is False.)
+              
+            - initial_sample_points (list[list[int]], optional): List of
+              initial states (as binary vectors) to use. If provided and EXACT
+              is False, these override random sampling.
+              
+            - search_depth (int, optional): Maximum number of asynchronous
+              update iterations to attempt per simulation.
+              
+            - DEBUG (bool, optional): If True, print debugging information
+              during simulation.
+            
+            - rng (None, optional): Argument for the random number generator,
+              implemented in 'utils._coerce_rng'.
 
         **Returns:**
             
-            - dict: A dictionary containing:
+            - dict[str:Variant]: A dictionary containing:
                 
-                - SteadyStates (list): List of steady state values (in decimal form) found.
+                - SteadyStates (list[int]): List of steady state
+                  values (in decimal form) found.
+                  
                 - NumberOfSteadyStates (int): Total number of unique steady states.
-                - BasinSizes (list): List of counts showing how many initial conditions converged to each steady state.
-                - SteadyStateDict (dict): Dictionary mapping a steady state (in decimal) to its index in the steady_states list.
-                - FunctionTransitionDict (dict): Dictionary caching state transitions. Keys are tuples (xdec, i) and values are the updated state.
-                - InitialSamplePoints (list): The list of initial sample points used (if provided) or those generated during simulation.
+                - BasinSizes (list[int]): List of counts showing how many
+                  initial conditions converged to each steady state.
+                  
+                - SteadyStateDict (dict[int:int]): Dictionary mapping a steady
+                  state (in decimal) to its index in the steady_states list.
+                  
+                - FunctionTransitionDict (dict[tuple(int, int):int]):
+                  Dictionary caching state transitions. Keys are tuples (xdec,
+                  i) and values are the updated state.
+                  
+                - InitialSamplePoints (list[int]): The list of initial sample
+                  points used (if provided) or those generated during simulation.
         """
         rng = utils._coerce_rng(rng)
         if EXACT:
@@ -420,36 +490,62 @@ class BooleanNetwork(object):
                 initial_sample_points if initial_sample_points != [] else sampled_points)))
 
 
-    def get_steady_states_asynchronous_given_one_initial_condition(self, nsim : int = 500,
-                                                                   stochastic_weights : list = [], initial_condition : Union[int, list, np.array] = 0,
-                                                                   search_depth : int = 50, DEBUG : bool = False,
-                                                                   *, rng = None) -> dict:
+    def get_steady_states_asynchronous_given_one_initial_condition(self,
+        nsim : int = 500, stochastic_weights : list = [],
+        initial_condition : Union[int, list, np.array] = 0, search_depth : int = 50,
+        DEBUG : bool = False,*, rng = None) -> dict:
         """
-        Determine the steady states reachable from one initial condition using weighted asynchronous updates.
+        Determine the steady states reachable from one initial condition using
+        weighted asynchronous updates.
 
-        This function is similar to steady_states_asynchronous_given_one_IC but allows the update order
-        to be influenced by provided stochastic weights (one per node). A weight vector (of length N) may be provided,
-        and if given, it is normalized and used to bias the random permutation of node update order.
+        This function is similar to steady_states_asynchronous_given_one_IC but
+        allows the update order to be influenced by provided stochastic weights
+        (one per node). A weight vector (of length N) may be provided, and if
+        given, it is normalized and used to bias the random permutation of
+        node update order.
 
         **Parameters:**
             
             - nsim (int, optional): Number of simulation runs (default is 500).
-            - stochastic_weights (list, optional): List of stochastic weights (one per node) used to bias update order. If empty, uniform random order is used.
-            - initial_condition (int | list | np.array, optional): The initial state for all simulations. If an integer, it is converted to a binary vector. Default is 0.
-            - search_depth (int, optional): Maximum number of asynchronous update iterations per simulation (default is 50).
-            - DEBUG (bool, optional): If True, print debugging information (default is False).
+            - stochastic_weights (list[float], optional): List of stochastic
+              weights (one per node) used to bias update order. If empty,
+              uniform random order is used.
+              
+            - initial_condition (int | list[int] | np.array[int], optional):
+              The initial state for all simulations. If an integer, it is
+              converted to a binary vector. Default is 0.
+              
+            - search_depth (int, optional): Maximum number of asynchronous
+              update iterations per simulation (default is 50).
+              
+            - DEBUG (bool, optional): If True, print debugging information
+              (default is False).
+              
+            - rng (None, optional): Argument for the random number generator,
+              implemented in 'utils._coerce_rng'.
 
         **Returns:**
             
-            - dict: A dictionary containing:
+            - dict[str:Variant]: A dictionary containing:
                 
-                - SteadyStates (list): List of steady state values (in decimal form) reached.
+                - SteadyStates (list[int]): List of steady state values (in
+                  decimal form) reached.
+                
                 - NumberOfSteadyStates (int): Total number of unique steady states.
-                - BasinSizes (list): List of counts of how many simulations reached each steady state.
-                - TransientTimes (list): List of lists with transient times (number of updates) for each steady state.
-                - SteadyStateDict (dict): Dictionary mapping a steady state (in decimal) to its index.
-                - FunctionTransitionDict (dict): Dictionary caching computed state transitions.
-                - UpdateQueues (list): List of state update queues (the sequence of states encountered) for each simulation.
+                - BasinSizes (list[int]): List of counts of how many
+                  simulations reached each steady state.
+                  
+                - TransientTimes (list[list[int]]): List of lists with
+                  transient times (number of updates) for each steady state.
+                  
+                - SteadyStateDict (dict[int:int]): Dictionary mapping a steady
+                  state (in decimal) to its index.
+                  
+                - FunctionTransitionDict (dict[tuple(int, int):int]):
+                  Dictionary caching computed state transitions.
+                  
+                - UpdateQueues (list[list[int]]): List of state update queues
+                  (the sequence of states encountered) for each simulation.
         """
         rng = utils._coerce_rng(rng)
         
@@ -534,35 +630,64 @@ class BooleanNetwork(object):
 
 
     def get_attractors_synchronous(self, nsim : int = 500,
-                                   initial_sample_points : list = [], n_steps_timeout : int = 100000,
-                                   INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS : bool = True,
-                                   *, rng=None) -> dict:
+        initial_sample_points : list = [], n_steps_timeout : int = 100000,
+        INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS : bool = True, *, rng=None) -> dict:
         """
-        Compute the number of attractors in a Boolean network using an alternative (v2) approach.
+        Compute the number of attractors in a Boolean network using an
+        alternative (v2) approach.
 
-        This version is optimized for networks with longer average path lengths. For each of nb initial conditions,
-        the network is updated synchronously until an attractor is reached or until n_steps_timeout is exceeded.
-        The function returns the attractors found, their basin sizes, a mapping of states to attractors,
-        the set of initial sample points used, the explored state space, and the number of simulations that timed out.
+        This version is optimized for networks with longer average path
+        lengths. For each of nb initial conditions, the network is updated
+        synchronously until an attractor is reached or until n_steps_timeout
+        is exceeded. The function returns the attractors found, their basin
+        sizes, a mapping of states to attractors, the set of initial sample
+        points used, the explored state space, and the number of simulations
+        that timed out.
 
         **Parameters:**
             
-            - nsim (int, optional): Number of initial conditions to simulate (default is 500). Ignored if 'initial_sample_points' are provided.
-            - initial_sample_points (list, optional): List of initial states (in decimal) to use.
-            - n_steps_timeout (int, optional): Maximum number of update steps allowed per simulation (default 100000).
-            - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If True, initial_sample_points are provided as binary vectors; if False, they are given as decimal numbers. Default is True.
+            - nsim (int, optional): Number of initial conditions to simulate
+              (default is 500). Ignored if 'initial_sample_points' are provided.
+              
+            - initial_sample_points (list[int | list[int]], optional): List of
+              initial states (in decimal) to use.
+              
+            - n_steps_timeout (int, optional): Maximum number of update steps
+              allowed per simulation (default 100000).
+              
+            - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If
+              True, initial_sample_points are provided as binary vectors; if
+              False, they are given as decimal numbers. Default is True.
+              
+            - rng (None, optional): Argument for the random number generator,
+              implemented in 'utils._coerce_rng'.
 
         **Returns:**
             
-            - dict: A dictionary containing:
+            - dict[str:Variant]: A dictionary containing:
                 
-                - Attractors (list): List of attractors (each as a list of states in the attractor cycle).
-                - NumberOfAttractors (int): Total number of unique attractors found. This is a lower bound.
-                - BasinSizes (list): List of counts for each attractor. This is an unbiased estimator.
-                - AttractorDict (dict): Dictionary mapping states (in decimal) to the index of their attractor.
-                - InitialSamplePoints (list): The initial sample points used (if provided, they are returned; otherwise, the 'nsim' generated points are returned).
-                - StateSpace (list): Sample of the state transition graph (for 'InitialSamplePoints'), with each state represented as a decimal.
-                - NumberOfTimeouts (int): Number of simulations that timed out before reaching an attractor.
+                - Attractors (list[list[int]]): List of attractors (each as a
+                  list of states in the attractor cycle).
+                
+                - NumberOfAttractors (int): Total number of unique attractors
+                  found. This is a lower bound.
+                  
+                - BasinSizes (list[int]): List of counts for each attractor.
+                  This is an unbiased estimator.
+                  
+                - AttractorDict (dict[int:int]): Dictionary mapping states
+                  (in decimal) to the index of their attractor.
+                  
+                - InitialSamplePoints (list[int]): The initial sample points
+                  used (if provided, they are returned; otherwise, the 'nsim'
+                  generated points are returned).
+                  
+                - StateSpace (list[int]): Sample of the state transition graph
+                  (for 'InitialSamplePoints'), with each state represented as a
+                  decimal.
+                  
+                - NumberOfTimeouts (int): Number of simulations that timed out
+                  before reaching an attractor.
         """
         rng = utils._coerce_rng(rng)
         dictF = dict()
@@ -629,26 +754,40 @@ class BooleanNetwork(object):
 
     def get_attractors_synchronous_exact(self, RETURN_STG_DICT : bool = False) -> dict:
         """
-        Compute the exact number of attractors in a Boolean network using a fast, vectorized approach.
+        Compute the exact number of attractors in a Boolean network using a
+        fast, vectorized approach.
 
-        This function computes the state of each node for all 2^N states by constructing the network's state space,
-        then maps each state to its corresponding successor state via the Boolean functions F.
-        Attractors and their basin sizes are then determined by iterating over the entire state space.
+        This function computes the state of each node for all 2^N states by
+        constructing the network's state space, then maps each state to its
+        corresponding successor state via the Boolean functions F. Attractors
+        and their basin sizes are then determined by iterating over the entire
+        state space.
 
         **Parameters:**
             
-            - RETURN_STG_DICT (bool, optional): If True, the state space is returned as a dictionary, in which each state is associated by its decimal representation.
+            - RETURN_STG_DICT (bool, optional): If True, the state space is
+              returned as a dictionary, in which each state is associated by
+              its decimal representation.
 
         **Returns:**
             
-            - dict: A dictionary containing:
+            - dict[str:Variant]: A dictionary containing:
                 
-                - Attractors (list): List of attractors (each attractor is represented as a list of states forming the cycle).
+                - Attractors (list[list[int]]): List of attractors (each
+                  attractor is represented as a list of states forming the
+                  cycle).
+                
                 - NumberOfAttractors (int): Total number of unique attractors.
-                - BasinSizes (list): List of counts for each attractor.
-                - AttractorDict (dict): Dictionary mapping each state (in decimal) to its attractor index.
-                - STG (np.array): The state transition graph (of shape (2^N, N)).
-                - STGDict (dict, only returned if RETURN_DICTF==True): The state transition graph as dictionary, with each state represented by its decimal representation.
+                - BasinSizes (list[int]): List of counts for each attractor.
+                - AttractorDict (dict[int:int]): Dictionary mapping each state
+                  (in decimal) to its attractor index.
+                  
+                - STG (np.array[np.array[int]]): The state transition graph
+                  (of shape (2^N, N)).
+                  
+                - STGDict (dict[int:int], only returned if RETURN_DICTF==True):
+                  The state transition graph as dictionary, with each state
+                  represented by its decimal representation.
         """        
         left_side_of_truth_table = self.get_left_side_of_truth_table()
 
@@ -698,17 +837,22 @@ class BooleanNetwork(object):
         """
         Determine the essential components of a Boolean network.
 
-        For each node in a Boolean network, represented by its Boolean function and its regulators,
-        this function extracts the “essential” part of the function by removing non-essential regulators.
-        The resulting network contains, for each node, a reduced truth table (with only the essential inputs)
-        and a corresponding list of essential regulators.
+        For each node in a Boolean network, represented by its Boolean function
+        and its regulators, this function extracts the “essential” part of the
+        function by removing non-essential regulators. The resulting network
+        contains, for each node, a reduced truth table (with only the essential
+        inputs) and a corresponding list of essential regulators.
 
         **Returns:**
             
             - BooleanNetwork: A Boolean network object where:
                 
-                - F is a list of N Boolean functions containing functions of length 2^(m_i), with m_i ≤ n_i, representing the functions restricted to the essential regulators.
-                - I is a list of N lists containing the indices of the essential regulators for each node.
+                - F is a list of N Boolean functions containing functions of
+                  length 2^(m_i), with m_i ≤ n_i, representing the functions
+                  restricted to the essential regulators.
+                  
+                - I is a list of N lists containing the indices of the
+                  essential regulators for each node.
         """
         F_essential = []
         I_essential = []
@@ -738,26 +882,33 @@ class BooleanNetwork(object):
         return BooleanNetwork(F_essential, I_essential, self.variables)
 
 
-    def get_edge_controlled_network(self, control_target : int, control_source : int, type_of_edge_control : int = 0) -> "BooleanNetwork":
+    def get_edge_controlled_network(self, control_target : int,
+        control_source : int, type_of_edge_control : int = 0) -> "BooleanNetwork":
         """
-        Generate a perturbed Boolean network by removing the influence of a specified regulator on a specified target.
+        Generate a perturbed Boolean network by removing the influence of a
+        specified regulator on a specified target.
 
-        The function modifies the Boolean function for a target node by restricting it to those entries in its truth table
-        where the input from a given regulator equals the specified type_of_control. The regulator is then removed from
-        the wiring diagram for that node.
+        The function modifies the Boolean function for a target node by
+        restricting it to those entries in its truth table where the input
+        from a given regulator equals the specified type_of_control. The
+        regulator is then removed from the wiring diagram for that node.
 
         **Parameters:**
             
             - control_target (int): Index of the target node to be perturbed.
-            - control_source (int): Index of the regulator whose influence is to be removed.
-            - type_of_edge_control (int, optional): Source value in regulation after control. Default is 0.
+            - control_source (int): Index of the regulator whose influence is
+              to be removed.
+              
+            - type_of_edge_control (int, optional): Source value in regulation
+              after control. Default is 0.
 
         **Returns:**
             
             - BooleanNetwork object where:
                 
                 - F is the updated list of Boolean functions after perturbation.
-                - I is the updated wiring diagram after removing the control regulator from the target node.
+                - I is the updated wiring diagram after removing the control
+                  regulator from the target node.
         """
         assert type_of_edge_control in [0,1], "type_of_edge_control must be 0 or 1."
         assert control_source in self.I[control_target], "control_source=%i does not regulate control_target=%i." % (control_source,control_target)
@@ -779,35 +930,45 @@ class BooleanNetwork(object):
         """
         Identify external inputs in a Boolean network.
 
-        A node is considered an external input if it has exactly one regulator and that regulator is the node itself.
+        A node is considered an external input if it has exactly one regulator
+        and that regulator is the node itself.
 
         **Returns:**
             
-            - np.array: Array of node indices that are external inputs.
+            - np.array[int]: Array of node indices that are external inputs.
         """
         return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i])
 
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
-    def get_derrida_value(self, nsim : int = 1000, EXACT : bool = False, *, rng = None) -> float:
+    def get_derrida_value(self, nsim : int = 1000, EXACT : bool = False,
+        *, rng = None) -> float:
         """
         Estimate the Derrida value for a Boolean network.
 
-        The Derrida value is computed by perturbing a single node in a randomly chosen state and measuring
-        the average Hamming distance between the resulting updated states of the original and perturbed networks.
+        The Derrida value is computed by perturbing a single node in a randomly
+        chosen state and measuring the average Hamming distance between the
+        resulting updated states of the original and perturbed networks.
 
         **Parameters:**
             
-            - nsim (int, optional): Number of simulations to perform. Default is 1000.
+            - nsim (int, optional): Number of simulations to perform. Default
+              is 1000.
+              
             - EXACT (bool, optional): #TODO
+            
+            - rng (None, optional): Argument for the random number generator,
+              implemented in 'utils._coerce_rng'.
 
         **Returns:**
             
-            - float: The average Hamming distance (Derrida value) over nsim simulations.
+            - float: The average Hamming distance (Derrida value) over
+              nsim simulations.
 
         **References:**
             
-            #. Derrida, B., & Pomeau, Y. (1986). Random networks of automata: a simple annealed approximation. Europhysics letters, 1(2), 45.
+            #. Derrida, B., & Pomeau, Y. (1986). Random networks of automata:
+               a simple annealed approximation. Europhysics letters, 1(2), 45.
         """
         if EXACT:
             return np.mean([bf.get_average_sensitivity(EXACT=True,NORMALIZED=False) for bf in self.F])
@@ -829,28 +990,44 @@ class BooleanNetwork(object):
         """
         Compute the attractors and several robustness measures of a Boolean network.
 
-        This function computes the exact attractors and robustness (coherence and fragility) of the entire network,
-        as well as robustness measures for each basin of attraction and each attractor.
+        This function computes the exact attractors and robustness (coherence
+        and fragility) of the entire network, as well as robustness measures
+        for each basin of attraction and each attractor.
 
         **Returns:**
             
-            - dict: A dictionary containing:
+            - dict[str:Variant]: A dictionary containing:
                 
-                - Attractors (list): List of attractors (each attractor is represented as a list of state decimal numbers).
-                - ExactNumberOfAttractors (int): The exact number of network attractors.
-                - BasinSizes (list): List of exact basin sizes for each attractor.
-                - AttractorDict (dict): Dictionary mapping each state (in decimal) to its attractor index.
+                - Attractors (list[list[int]]): List of attractors (each
+                  attractor is represented as a list of state decimal numbers).
+                
+                - ExactNumberOfAttractors (int): The exact number of network
+                  attractors.
+                  
+                - BasinSizes (list[int]): List of exact basin sizes for each
+                  attractor.
+                  
+                - AttractorDict (dict[int:int]): Dictionary mapping each state
+                  (in decimal) to its attractor index.
+                  
                 - Coherence (float): overall exact network coherence
                 - Fragility (float): overall exact network fragility
-                - BasinCoherence (list): exact coherence of each basin.
-                - BasinFragility (list): exact fragility of each basin.
-                - AttractorCoherence (list): exact coherence of each attractor.
-                - AttractorFragility (list): exact fragility of each attractor.
+                - BasinCoherence (list[float]): exact coherence of each basin.
+                - BasinFragility (list[float]): exact fragility of each basin.
+                - AttractorCoherence (list[float]): exact coherence of each
+                  attractor.
+                  
+                - AttractorFragility (list[float]): exact fragility of each
+                  attractor.
         
         **References:**
             
-            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum, J. C. (2023). Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.
-            #. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). xxxx arXiv preprint arXiv:xxx.xxx.
+            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum,
+               J. C. (2023). Models of cell processes are far from the edge of
+               chaos. PRX life, 1(2), 023009.
+               
+            #. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). xxxx
+               arXiv preprint arXiv:xxx.xxx.
         """
         left_side_of_truth_table = self.get_left_side_of_truth_table()
 
@@ -859,7 +1036,11 @@ class BooleanNetwork(object):
         len_attractors = list(map(len,attractors))
         
         if n_attractors == 1:
-            return (attractors, n_attractors, np.array(basin_sizes)/2**self.N, attractor_dict, np.ones(1), np.zeros(1), np.ones(1), np.zeros(1), 1, 0)
+            return dict(zip(["Attractors", "ExactNumberOfAttractors", "BasinSizes",
+                             "AttractorDict", "BasinCoherence", "BasinFragility",
+                             "AttractorCoherence", "AttractorFragility", "Coherence", "Fragility"],
+                (attractors, n_attractors, np.array(basin_sizes)/2**self.N,
+                 attractor_dict, np.ones(1), np.zeros(1), np.ones(1), np.zeros(1), 1, 0)))
         
         mean_states_attractors = []
         is_attr_dict = dict()
@@ -945,43 +1126,79 @@ class BooleanNetwork(object):
 
 
     def get_attractors_and_robustness_measures_synchronous(self, number_different_IC : int = 500,
-                                                           RETURN_ATTRACTOR_COHERENCE : bool = True, *, rng=None) -> dict:
+        RETURN_ATTRACTOR_COHERENCE : bool = True, *, rng=None) -> dict:
         """
         Approximate global robustness measures and attractors.
 
-        This function samples the attractor landscape by simulating the network from a number of different initial
-        conditions. It computes:
+        This function samples the attractor landscape by simulating the network
+        from a number of different initial conditions. It computes:
             
-            - The coherence: the proportion of neighboring states (in the Boolean hypercube) that, after synchronous update, transition to the same attractor.
-            - The fragility: a measure of how much the attractor state changes (assumed under synchronous update) in response to perturbations.
+            - The coherence: the proportion of neighboring states (in the
+              Boolean hypercube) that, after synchronous update, transition to
+              the same attractor.
+            
+            - The fragility: a measure of how much the attractor state changes
+              (assumed under synchronous update) in response to perturbations.
+              
             - The final time-step Hamming distance between perturbed trajectories.
 
-        In addition, it collects several details about each attractor (such as basin sizes, coherence of each basin, etc.).
+        In addition, it collects several details about each attractor (such as
+        basin sizes, coherence of each basin, etc.).
 
         **Parameters:**
             
-            - number_different_IC (int, optional): Number of different initial conditions to sample (default is 500).
-            - RETURN_ATTRACTOR_COHERENCE (bool, optional): Determines whether the attractor coherence should also be computed (default True, i.e., Yes).
+            - number_different_IC (int, optional): Number of different initial
+              conditions to sample (default is 500).
+              
+            - RETURN_ATTRACTOR_COHERENCE (bool, optional): Determines whether
+              the attractor coherence should also be computed (default True,
+              i.e., Yes).
+              
+            - rng (None, optional): Argument for the random number generator,
+              implemented in 'utils._coerce_rng'.
 
         **Returns:**
             
-            - dict: A dictionary containing:
+            - dict[str:Variant]: A dictionary containing:
                 
-                - Attractors (list): List of attractors (each attractor is represented as a list of state decimal numbers).
-                - LowerBoundOfNumberOfAttractors (int): The lower bound on the number of attractors found.
-                - BasinSizes (list): List of basin sizes for each attractor.
-                - CoherenceApproximation (float): The approximate overall network coherence.
-                - FragilityApproximation (float): The approximate overall network fragility.
-                - FinalHammingDistanceApproximation (float): The approximate final Hamming distance measure.
-                - BasinCoherenceApproximation (list): The approximate coherence of each basin.
-                - BasinFragilityApproximation (list): The approximate fragility of each basin.
-                - AttractorCoherence (list): The exact coherence of each attractor (only computed and returned if RETURN_ATTRACTOR_COHERENCE == True).
-                - AttractorFragility (list): The exact fragility of each attractor (only computed and returned if RETURN_ATTRACTOR_COHERENCE == True).
+                - Attractors (list[list[int]]): List of attractors (each
+                  attractor is represented as a list of state decimal numbers).
+                
+                - LowerBoundOfNumberOfAttractors (int): The lower bound on the
+                  number of attractors found.
+                  
+                - BasinSizes (list[int]): List of basin sizes for each attractor.
+                - CoherenceApproximation (float): The approximate overall
+                  network coherence.
+                  
+                - FragilityApproximation (float): The approximate overall
+                  network fragility.
+                  
+                - FinalHammingDistanceApproximation (float): The approximate
+                  final Hamming distance measure.
+                  
+                - BasinCoherenceApproximation (list[float]): The approximate
+                  coherence of each basin.
+                  
+                - BasinFragilityApproximation (list[float]): The approximate
+                  fragility of each basin.
+                  
+                - AttractorCoherence (list[float]): The exact coherence of
+                  each attractor (only computed and returned if
+                  RETURN_ATTRACTOR_COHERENCE == True).
+                  
+                - AttractorFragility (list[float]): The exact fragility of
+                  each attractor (only computed and returned if
+                  RETURN_ATTRACTOR_COHERENCE == True).
 
         **References:**
             
-            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum, J. C. (2023). Models of cell processes are far from the edge of chaos. PRX life, 1(2), 023009.
-            #. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). xxxx arXiv preprint arXiv:xxx.xxx.
+            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum,
+               J. C. (2023). Models of cell processes are far from the edge of
+               chaos. PRX life, 1(2), 023009.
+               
+            #. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). xxxx
+               arXiv preprint arXiv:xxx.xxx.
         """
         rng = utils._coerce_rng(rng)
         def lcm(a, b):
@@ -1243,12 +1460,14 @@ class BooleanNetwork(object):
         """
         Determine the strongly connected components of a wiring diagram.
 
-        The wiring diagram is provided as a list of lists I, where I[i] contains the indices of regulators for node i.
-        The function constructs a directed graph from these edges and returns its strongly connected components.
+        The wiring diagram is provided as a list of lists I, where I[i]
+        contains the indices of regulators for node i. The function constructs
+        a directed graph from these edges and returns its strongly connected
+        components.
 
         **Returns:**
             
-            - list: A list of sets, each representing a strongly connected component.
+            - list[set[int]]: A list of sets, each representing a strongly connected component.
         """
         edges_wiring_diagram = []
         for target, regulators in enumerate(self.I):
@@ -1258,6 +1477,9 @@ class BooleanNetwork(object):
         return [scc for scc in nx.strongly_connected_components(subG)]
 
     def get_modular_structure(self):
+        """
+        TODO: temp
+        """
         sccs = self.get_strongly_connected_components()
         scc_dict = {}
         for j,s in enumerate(sccs):
@@ -1272,24 +1494,25 @@ class BooleanNetwork(object):
         return dag
 
     def adjacency_matrix(self, constants : list = [],
-                         IGNORE_SELFLOOPS : bool = False,
-                         IGNORE_CONSTANTS : bool = True) -> np.array:
+        IGNORE_SELFLOOPS : bool = False, IGNORE_CONSTANTS : bool = True) -> np.array:
         """
         Construct the (binary) adjacency matrix from the wiring diagram.
 
-        Given the wiring diagram I (a list of regulator lists for each node) and a list of constants,
-        this function builds an adjacency matrix where each entry m[j, i] is 1 if node j regulates node i.
-        Self-loops can be optionally ignored, and constant nodes can be excluded.
+        Given the wiring diagram I (a list of regulator lists for each node)
+        and a list of constants, this function builds an adjacency matrix
+        where each entry m[j, i] is 1 if node j regulates node i. Self-loops
+        can be optionally ignored, and constant nodes can be excluded.
 
         **Parameters:**
             
-            - constants (list, optional): List of constant nodes.
+            - constants (list[int], optional): List of constant nodes.
             - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded from the matrix.
+            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are
+              excluded from the matrix.
 
         **Returns:**
             
-            - np.array: The binary adjacency matrix.
+            - np.array[np.array[int]]: The binary adjacency matrix.
         """
         n = len(self.I)
         n_constants = len(constants)
@@ -1305,24 +1528,29 @@ class BooleanNetwork(object):
 
 
     def get_signed_adjacency_matrix(self, type_of_each_regulation : list,
-                                    constants : list = [], IGNORE_SELFLOOPS : bool = False,
-                                    IGNORE_CONSTANTS : bool = True) -> np.array:
+        constants : list = [], IGNORE_SELFLOOPS : bool = False,
+        IGNORE_CONSTANTS : bool = True) -> np.array:
         """
         Construct the signed adjacency matrix of a Boolean network.
 
-        The signed adjacency matrix assigns +1 for increasing (activating) regulations,
-        -1 for decreasing (inhibiting) regulations, and NaN for any other type.
+        The signed adjacency matrix assigns +1 for increasing (activating)
+        regulations, -1 for decreasing (inhibiting) regulations, and NaN for
+        any other type.
 
         **Parameters:**
             
-            - type_of_each_regulation (list): List of lists corresponding to the type of regulation ('increasing' or 'decreasing') for each edge in I.
-            - constants (list, optional): List of constant nodes.
+            - type_of_each_regulation (list[str]): List of lists corresponding
+              to the type of regulation ('increasing' or 'decreasing') for
+              each edge in I.
+              
+            - constants (list[int], optional): List of constant nodes.
             - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded.
+            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
+              are excluded.
 
         **Returns:**
             
-            - np.array: The signed adjacency matrix.
+            - np.array[np.array[int]]: The signed adjacency matrix.
         """
         n = len(self.I)
         n_constants = len(constants)
@@ -1343,25 +1571,31 @@ class BooleanNetwork(object):
 
 
     def get_signed_effective_graph(self, type_of_each_regulation : list,
-                                   constants : list = [], IGNORE_SELFLOOPS : bool = False,
-                                   IGNORE_CONSTANTS : bool = True) -> np.array:
+        constants : list = [], IGNORE_SELFLOOPS : bool = False,
+        IGNORE_CONSTANTS : bool = True) -> np.array:
         """
         Construct the signed effective graph of a Boolean network.
 
-        This function computes an effective graph in which each edge is weighted by its effectiveness.
-        Effectiveness is obtained via get_edge_effectiveness on the corresponding Boolean function.
-        Edges are signed according to the type of regulation ('increasing' or 'decreasing').
+        This function computes an effective graph in which each edge is
+        weighted by its effectiveness. Effectiveness is obtained via
+        get_edge_effectiveness on the corresponding Boolean function. Edges
+        are signed according to the type of regulation ('increasing' or
+        'decreasing').
 
         **Parameters:**
             
-            - type_of_each_regulation (list): List of lists specifying the type of regulation for each edge.
-            - constants (list, optional): List of constant nodes.
+            - type_of_each_regulation (list[str]): List of lists specifying
+              the type of regulation for each edge.
+              
+            - constants (list[int], optional): List of constant nodes.
             - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are excluded.
+            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
+              are excluded.
 
         **Returns:**
             
-            - np.array: The signed effective graph as a matrix of edge effectiveness values.
+            - np.array[float]: The signed effective graph as a matrix of edge
+              effectiveness values.
         """
         n = len(self.I)
         n_constants = len(constants)
@@ -1384,13 +1618,18 @@ class BooleanNetwork(object):
 
     def get_ffls(self) -> tuple:
         """
-        Identify feed-forward loops (FFLs) in a Boolean network and optionally determine their types.
+        Identify feed-forward loops (FFLs) in a Boolean network and optionally
+        determine their types.
 
-        A feed-forward loop (FFL) is a three-node motif where node i regulates node k both directly and indirectly via node j.
+        A feed-forward loop (FFL) is a three-node motif where node i regulates
+        node k both directly and indirectly via node j.
 
         **Returns:**
             
-            - tuple: A tuple (ffls, types), where ffls is a list of FFLs and types is a list of corresponding monotonicity types.
+            - tuple[list[int], list[int]]:
+                
+                A tuple (ffls, types), where ffls is a list of FFLs and
+                types is a list of corresponding monotonicity types.
         """
         ffls = []
         types = []
@@ -1416,24 +1655,30 @@ class BooleanNetwork(object):
 
     def get_ffls_from_I(self, types_I : Optional[list] = None) -> Union[tuple, list]:
         """
-        Identify feed-forward loops (FFLs) in a Boolean network based solely on the wiring diagram.
+        Identify feed-forward loops (FFLs) in a Boolean network based solely
+        on the wiring diagram.
 
-        The function uses the inverted wiring diagram to identify common targets and returns the FFLs found.
-        If types_I (the type of each regulation) is provided, it also returns the corresponding regulation types.
+        The function uses the inverted wiring diagram to identify common
+        targets and returns the FFLs found. If types_I (the type of each
+        regulation) is provided, it also returns the corresponding regulation
+        types.
 
         **Parameters:**
             
-            - types_I (list, optional): List of lists specifying the type (e.g., 'increasing' or 'decreasing') for each regulation.
+            - types_I (list[list[str]], optional): List of lists specifying
+              the type (e.g., 'increasing' or 'decreasing') for each regulation.
 
         **Returns:**
             
             If types_I is provided:
                 
-                - tuple: (ffls, types) where ffls is a list of identified FFLs (each as a list [i, j, k]), and types is a list of corresponding regulation type triplets.
+                - tuple[list[int], list[int]]: (ffls, types) where ffls is a
+                  list of identified FFLs (each as a list [i, j, k]), and
+                  types is a list of corresponding regulation type triplets.
                 
             Otherwise:
                 
-                - list: A list of identified FFLs.
+                - list[list[int]]: A list of identified FFLs.
         """
         all_tfs = list(range(len(self.I)))
         n_tfs = len(all_tfs)
@@ -1467,13 +1712,14 @@ class BooleanNetwork(object):
         """
         Generate a NetworkX directed graph from a wiring diagram.
 
-        Nodes are labeled with variable names (from variables) and constant names (from constants). Edges are added
-        from each regulator to its target based on the wiring diagram I.
+        Nodes are labeled with variable names (from variables) and constant
+        names (from constants). Edges are added from each regulator to its
+        target based on the wiring diagram I.
 
         **Parameters:**
             
-            - constants (list): List of constant names.
-            - variables (list): List of variable names.
+            - constants (list[str]): List of constant names.
+            - variables (list[str]): List of variable names.
 
         **Returns:**
             
@@ -1488,13 +1734,16 @@ class BooleanNetwork(object):
 
     def generate_networkx_graph_from_edges(self, n_variables : int) -> nx.DiGraph:
         """
-        Generate a NetworkX directed graph from an edge list derived from the wiring diagram.
+        Generate a NetworkX directed graph from an edge list derived from the
+        wiring diagram.
 
-        Only edges among the first n_variables (excluding constant self-loops) are included.
+        Only edges among the first n_variables (excluding constant self-loops)
+        are included.
 
         **Parameters:**
             
-            - n_variables (int): Number of variable nodes (constants are excluded).
+            - n_variables (int): Number of variable nodes (constants are
+              excluded).
 
         **Returns:**
             
@@ -1512,17 +1761,19 @@ class BooleanNetwork(object):
         """
         Determine the regulation types along a feedback loop.
 
-        For a given loop (a list of node indices), this function returns a list containing
-        the type (e.g., 'increasing' or 'decreasing') of each regulation along the loop.
-        The loop is assumed to be ordered such that the first node is repeated at the end.
+        For a given loop (a list of node indices), this function returns a
+        list containing the type (e.g., 'increasing' or 'decreasing') of each
+        regulation along the loop. The loop is assumed to be ordered such that
+        the first node is repeated at the end.
 
         **Parameters:**
             
-            - loop (list): List of node indices representing the loop.
+            - loop (list[int]): List of node indices representing the loop.
 
         **Returns:**
             
-            - list: A list of regulation types corresponding to each edge in the loop.
+            - list[int]: A list of regulation types corresponding to each edge
+              in the loop.
         """
         n = len(loop)
         dummy = loop[:]

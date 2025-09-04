@@ -56,7 +56,7 @@ def bin2dec(binary_vector : list) -> int:
 
     **Parameters:**
         
-        - binary_vector (list): List containing binary digits (0 or 1).
+        - binary_vector (list[int]): List containing binary digits (0 or 1).
 
     **Returns:**
         
@@ -79,7 +79,7 @@ def dec2bin(integer_value : int, num_bits : int) -> list:
 
     **Returns:**
         
-        - list: List containing binary digits (0 or 1).
+        - list[int]: List containing binary digits (0 or 1).
     """
     binary_string = bin(integer_value)[2:].zfill(num_bits)
     return [int(bit) for bit in binary_string]
@@ -91,11 +91,13 @@ def check_if_empty(my_list : Union[list, np.ndarray]) -> bool:
 
     **Parameters:**
         
-        - my_list (list, np.ndarray): The list or array to check.
+        - my_list (list[Variant], np.ndarray[Variant]): The list or array
+          to check.
 
     **Returns:**
         
-        - bool: True if my_list is empty (or has size 0 for a NumPy array), False otherwise.
+        - bool: True if my_list is empty (or has size 0 for a NumPy array),
+          False otherwise.
     """
     if isinstance(my_list, np.ndarray):
         if my_list.size == 0:
@@ -106,6 +108,9 @@ def check_if_empty(my_list : Union[list, np.ndarray]) -> bool:
     
     
 def is_list_or_array_of_ints(x, required_length=None):
+    """
+    TEMP #TODO: x
+    """
     # Case 1: Python list
     if isinstance(x, list):
         return (required_length is None or len(x) == required_length) and all(isinstance(el, (int, np.integer)) for el in x)
@@ -117,6 +122,9 @@ def is_list_or_array_of_ints(x, required_length=None):
     return False
 
 def is_list_or_array_of_floats(x, required_length=None):
+    """
+    TODO: TEMP
+    """
     # Case 1: Python list
     if isinstance(x, list):
         return (required_length is None or len(x) == required_length) and all(isinstance(el, (float, np.floating)) for el in x)
@@ -131,18 +139,29 @@ def is_list_or_array_of_floats(x, required_length=None):
 def bool_to_poly(f : list, left_side_of_truth_table : Optional[list] = None,
                  variables : Optional[list] = None, prefix : str = '') -> str:
     """
-    Transform a Boolean function from truth table format to polynomial format in non-reduced DNF.
+    Transform a Boolean function from truth table format to polynomial format
+    in non-reduced DNF.
 
     **Parameters:**
         
-        - f (list): Boolean function as a vector (list of length 2^n, where n is the number of inputs).
-        - left_side_of_truth_table (list | None, optional): The left-hand side of the Boolean truth table (a list of tuples of size 2^n x n). If provided, it speeds up computation.
-        - indices (list | None, optional): List of indices to use for variable naming. If empty or not matching the required number, defaults to list(range(n)).
-        - prefix (str, optional): Prefix for variable names in the polynomial, default ''.
+        - f (list[int]): Boolean function as a vector (list of length 2^n,
+          where n is the number of inputs).
+        
+        - left_side_of_truth_table (list[list[int]] | None, optional):
+          The left-hand side of the Boolean truth table (a list of tuples
+          of size 2^n x n). If provided, it speeds up computation.
+          
+        - variables (list[str] | None, optional): List of indices to use for
+          variable naming. If empty or not matching the required number,
+          defaults to list(range(n)).
+          
+        - prefix (str, optional): Prefix for variable names in the polynomial,
+          default ''.
 
     **Returns:**
         
-        - str: A string representing the Boolean function in disjunctive normal form (DNF).
+        - str: A string representing the Boolean function in disjunctive
+          normal form (DNF).
     """
     len_f = len(f)
     n = int(np.log2(len_f))
@@ -169,8 +188,8 @@ def f_from_expression(expr : str) -> tuple:
     Extract a Boolean function from a string expression.
 
     The function converts an input expression into its truth table representation.
-    The expression can include Boolean operators and comparisons, and the order of variables
-    is determined by their first occurrence in the expression.
+    The expression can include Boolean operators and comparisons, and the order
+    of variables is determined by their first occurrence in the expression.
 
     **Parameters:**
         
@@ -178,11 +197,14 @@ def f_from_expression(expr : str) -> tuple:
 
     **Returns:**
         
-        - tuple:
+        - tuple[list[int], list[str]]:
             
-            - f (list): The right-hand side of the Boolean function (truth table) as a list of length 2**n,
-              where n is the number of inputs.
-            - var (list): A list of variable names (of length n) in the order they were encountered.
+            - f (list[int]): The right-hand side of the Boolean function
+              (truth table) as a list of length 2**n, where n is the number
+              of inputs.
+              
+            - var (list[str]): A list of variable names (of length n) in the
+              order they were encountered.
     
     **Examples:**
         
@@ -231,31 +253,41 @@ def f_from_expression(expr : str) -> tuple:
 
 
 def flatten(l):
+    """
+    TODO: TEMP
+    """
     return [item for sublist in l for item in sublist]
 
 
 def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n : int, w : int) -> tuple:
     """
-    Compute the canalizing layer structure of a nested canalizing function (NCF) given its Hamming weight.
+    Compute the canalizing layer structure of a nested canalizing function
+    (NCF) given its Hamming weight.
 
-    There exists a bijection between the Hamming weight (with w equivalent to 2^n - w) and the canalizing layer structure of an NCF.
-    The layer structure is represented as [k_1, ..., k_r], where each k_i ≥ 1 and, if n > 1, for the last layer k_r ≥ 2.
+    There exists a bijection between the Hamming weight (with w equivalent to
+    2^n - w) and the canalizing layer structure of an NCF. The layer structure
+    is represented as [k_1, ..., k_r], where each k_i ≥ 1 and, if n > 1, for
+    the last layer k_r ≥ 2.
 
     **Parameters:**
         
         - n (int): Number of inputs (variables) of the NCF.
-        - w (int): Odd Hamming weight of the NCF, i.e., the number of 1s in the 2^n-vector representation of the function.
+        - w (int): Odd Hamming weight of the NCF, i.e., the number of 1s in
+          the 2^n-vector representation of the function.
 
     **Returns:**
         
-        - tuple: A tuple (r, layer_structure_NCF), where:
+        - tuple[int, list[int]]: A tuple (r, layer_structure_NCF), where:
             
             - r (int): The number of canalizing layers.
-            - layer_structure_NCF (list): A list [k_1, ..., k_r] describing the number of variables in each layer.
+            - layer_structure_NCF (list[int]): A list [k_1, ..., k_r]
+              describing the number of variables in each layer.
 
     **References:**
         
-        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.
+        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence
+           of canalization on the robustness of Boolean networks. Physica D:
+           Nonlinear Phenomena, 353, 39-47.
     """
     if w == 1:
         r = 1
