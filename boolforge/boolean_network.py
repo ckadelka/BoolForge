@@ -398,12 +398,11 @@ class BooleanNetwork(object):
                 - BasinSizes (list[int]): List of counts showing how many
                   initial conditions converged to each steady state.
                   
-                - SteadyStateDict (dict[int:int]): Dictionary mapping a steady
-                  state (in decimal) to its index in the steady_states list.
-                  
-                - FunctionTransitionDict (dict[tuple(int, int):int]):
-                  Dictionary caching state transitions. Keys are tuples (xdec,
-                  i) and values are the updated state.
+                - STGAsynchronous (dict[tuple(int, int):int]):
+                  The asynchronous state transition graph. 
+                  STGAsynchronous[(a,i)] = c implies that state a is updated to state c 
+                  when the ith variable is updated. Here, a and c are decimal
+                  representations of the state and i is in {0,1,...,self.N-1}.
                   
                 - InitialSamplePoints (list[int]): The list of initial sample
                   points used (if provided) or those generated during simulation.
@@ -419,7 +418,7 @@ class BooleanNetwork(object):
             "(and initial sample points ignored)"
         )
                 
-        dictF = dict()
+        STG_asynchronous = dict()
         steady_states = []
         basin_sizes = []
         steady_state_dict = dict()   
@@ -449,23 +448,23 @@ class BooleanNetwork(object):
                     update_order_to_try = rng.permutation(self.N)
                     for i in update_order_to_try:
                         try:
-                            fxdec = dictF[(xdec, i)]
+                            fxdec = STG_asynchronous[(xdec, i.item())]
                             if fxdec != xdec:
                                 FOUND_NEW_STATE = True
                                 x[i] = 1 - x[i]
                         except KeyError:
                             fx_i = self.update_single_node(i, x[self.I[i]])
                             if fx_i > x[i]:
-                                fxdec = xdec + 2**(self.N - 1 - i)
+                                fxdec = xdec + 2**(self.N - 1 - i.item())
                                 x[i] = 1
                                 FOUND_NEW_STATE = True
                             elif fx_i < x[i]:
-                                fxdec = xdec - 2**(self.N - 1 - i)
+                                fxdec = xdec - 2**(self.N - 1 - i.item())
                                 x[i] = 0
                                 FOUND_NEW_STATE = True
                             else:
                                 fxdec = xdec
-                            dictF.update({(xdec, i.item()): fxdec})
+                            STG_asynchronous.update({(xdec, i.item()): fxdec})
                         if FOUND_NEW_STATE:
                             xdec = fxdec
                             break
@@ -487,14 +486,14 @@ class BooleanNetwork(object):
             print('Warning: only %i of the %i tested initial conditions eventually reached a steady state. Try increasing the search depth. '
                   'It may however also be the case that your asynchronous state space contains a limit cycle.' %
                   (sum(basin_sizes), nsim if not EXACT else 2**self.N))
-        return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "SteadyStateDict", "FunctionTransitionDict", "InitialSamplePoints"],
-                        (steady_states, len(steady_states), basin_sizes, steady_state_dict, dictF,
+        return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "STGAsynchronous", "InitialSamplePoints"],
+                        (steady_states, len(steady_states), basin_sizes, STG_asynchronous,
                 initial_sample_points if initial_sample_points != [] else sampled_points)))
 
 
     def get_steady_states_asynchronous_given_one_initial_condition(self,
-        nsim : int = 500, stochastic_weights : list = [],
-        initial_condition : Union[int, list, np.array] = 0, search_depth : int = 50,
+        initial_condition : Union[int, list, np.array] = 0,
+        nsim : int = 500, stochastic_weights : list = [],search_depth : int = 50,
         DEBUG : bool = False,*, rng = None) -> dict:
         """
         Determine the steady states reachable from one initial condition using
@@ -507,15 +506,16 @@ class BooleanNetwork(object):
         node update order.
 
         **Parameters:**
-            
-            - nsim (int, optional): Number of simulation runs (default is 500).
-            - stochastic_weights (list[float], optional): List of stochastic
-              weights (one per node) used to bias update order. If empty,
-              uniform random order is used.
-              
+
             - initial_condition (int | list[int] | np.array[int], optional):
               The initial state for all simulations. If an integer, it is
               converted to a binary vector. Default is 0.
+              
+            - nsim (int, optional): Number of simulation runs (default is 500).
+            
+            - stochastic_weights (list[float], optional): List of stochastic
+              weights (one per node) used to bias update order. If empty,
+              uniform random order is used.
               
             - search_depth (int, optional): Maximum number of asynchronous
               update iterations per simulation (default is 50).
@@ -534,6 +534,7 @@ class BooleanNetwork(object):
                   decimal form) reached.
                 
                 - NumberOfSteadyStates (int): Total number of unique steady states.
+                
                 - BasinSizes (list[int]): List of counts of how many
                   simulations reached each steady state.
                   
@@ -542,9 +543,9 @@ class BooleanNetwork(object):
                   
                 - STGAsynchronous (dict[tuple(int, int):int]):
                   A sample of the asynchronous state transition graph. 
-                  STGAsynchronous[(a,b)] = c implies that state a is updated to state b 
-                  when the variable at index b is updated. Here, a and b are decimal
-                  representations of the state and b in {0,1,...,self.N-1}.
+                  STGAsynchronous[(a,i)] = c implies that state a is updated to state c
+                  when the ith variable is updated. Here, a and c are decimal
+                  representations of the state and i is in {0,1,...,self.N-1}.
                   
                 - UpdateQueues (list[list[int]]): List of state update queues
                   (the sequence of states encountered) for each simulation.
@@ -583,23 +584,23 @@ class BooleanNetwork(object):
                         update_order_to_try = rng.permutation(self.N)
                     for i in update_order_to_try:
                         try:
-                            fxdec = STG_async[(xdec, i)]
+                            fxdec = STG_async[(xdec, i.item())]
                             if fxdec != xdec:
                                 FOUND_NEW_STATE = True
                                 x[i] = 1 - x[i]
                         except KeyError:
                             fx_i = self.update_single_node(i, x[self.I[i]])
                             if fx_i > x[i]:
-                                fxdec = xdec + 2**(self.N - 1 - i)
+                                fxdec = xdec + 2**(self.N - 1 - i.item())
                                 x[i] = 1
                                 FOUND_NEW_STATE = True
                             elif fx_i < x[i]:
-                                fxdec = xdec - 2**(self.N - 1 - i)
+                                fxdec = xdec - 2**(self.N - 1 - i.item())
                                 x[i] = 0
                                 FOUND_NEW_STATE = True
                             else:
                                 fxdec = xdec
-                            STG_async.update({(xdec, i): fxdec})
+                            STG_async.update({(xdec, i.item()): fxdec})
                         if FOUND_NEW_STATE:
                             xdec = fxdec
                             queue.append(xdec)
