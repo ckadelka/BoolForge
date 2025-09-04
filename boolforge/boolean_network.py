@@ -799,7 +799,7 @@ class BooleanNetwork(object):
                 if self.F[i].f[j]:
                     # For rows in left_side_of_truth_table where the columns I[i] equal x, set STG accordingly.
                     STG[np.all(left_side_of_truth_table[:, self.I[i]] == np.array(x), axis=1), i] = 1
-        STG_dict = dict(zip(list(range(2**self.N)), np.dot(STG, powers_of_two)))
+        STG_dict = dict(zip(list(range(2**self.N)), np.dot(STG, powers_of_two).tolist()))
         
         attractors = []
         basin_sizes = []
@@ -1235,7 +1235,7 @@ class BooleanNetwork(object):
                 if j == 0:
                     x = rng.integers(2, size=self.N)
                     if self.N<64:
-                        xdec = np.dot(x, powers_of_2)
+                        xdec = np.dot(x, powers_of_2).item()
                     else: #out of range of np.int64
                         xdec = ''.join(str(bit) for bit in x)
                     x_old = x.copy()
@@ -1244,7 +1244,7 @@ class BooleanNetwork(object):
                     random_flipped_bit = rng.integers(self.N)
                     x[random_flipped_bit] = 1 - x[random_flipped_bit]
                     if self.N<64:
-                        xdec = np.dot(x, powers_of_2)
+                        xdec = np.dot(x, powers_of_2).item()
                     else: #out of range of np.int64
                         xdec = ''.join(str(bit) for bit in x)               
                 queue = [xdec]
@@ -1258,11 +1258,11 @@ class BooleanNetwork(object):
                             fx = []
                             for jj in range(self.N):
                                 if self.indegrees[jj]>0:
-                                    fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.indegrees[jj]])])
+                                    fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.indegrees[jj]]).item()])
                                 else:#constant functions whose regulators were all fixed to a specific value
                                     fx.append(self.F[jj].f[0])
                             if self.N<64:
-                                fxdec = np.dot(fx, powers_of_2)
+                                fxdec = np.dot(fx, powers_of_2).item()
                             else:
                                 fxdec = ''.join(str(bit) for bit in fx)               
                             dictF.update({xdec: fxdec})
@@ -1377,7 +1377,7 @@ class BooleanNetwork(object):
                             x = np.array(list(attractor_state), dtype=int)
                         x[i] = 1 - x[i]
                         if self.N<64:
-                            xdec = np.dot(x, powers_of_2)
+                            xdec = np.dot(x, powers_of_2).item()
                         else:
                             xdec = ''.join(str(bit) for bit in x)
                         queue = [xdec]
@@ -1391,11 +1391,11 @@ class BooleanNetwork(object):
                                     fx = []
                                     for jj in range(self.N):
                                         if self.indegrees[jj]>0:
-                                            fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.indegrees[jj]])])
+                                            fx.append(self.F[jj].f[np.dot(x[self.I[jj]], powers_of_2s[self.indegrees[jj]]).item()])
                                         else:#constant functions whose regulators were all fixed to a specific value
                                             fx.append(self.F[jj].f[0])
                                     if self.N<64:
-                                        fxdec = np.dot(fx, powers_of_2)
+                                        fxdec = np.dot(fx, powers_of_2).item()
                                     else:
                                         fxdec = ''.join(str(bit) for bit in fx)               
                                     dictF.update({xdec: fxdec})
