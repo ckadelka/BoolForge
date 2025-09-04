@@ -955,7 +955,7 @@ class BooleanNetwork(object):
             - nsim (int, optional): Number of simulations to perform. Default
               is 1000.
               
-            - EXACT (bool, optional): #TODO
+            - EXACT (bool, optional): If True, the exact Derrida value is computed and 'nsim' is ignored. Otherwise, 'nsim' simulations are used to approximate the Derrida value.
             
             - rng (None, optional): Argument for the random number generator,
               implemented in 'utils._coerce_rng'.
@@ -1460,11 +1460,6 @@ class BooleanNetwork(object):
         """
         Determine the strongly connected components of a wiring diagram.
 
-        The wiring diagram is provided as a list of lists I, where I[i]
-        contains the indices of regulators for node i. The function constructs
-        a directed graph from these edges and returns its strongly connected
-        components.
-
         **Returns:**
             
             - list[set[int]]: A list of sets, each representing a strongly connected component.
@@ -1478,7 +1473,17 @@ class BooleanNetwork(object):
 
     def get_modular_structure(self):
         """
-        TODO: temp
+        Determine the modular structure of a Boolean network.
+
+        The modular structure is defined by a directed acyclic graph (DAG) whose
+        nodes are the strongly connected components (SCCs) of the underlying wiring
+        diagram and whose directed edges indicate a regulation from one SCC to another SCC.
+
+        **Returns:**
+            
+            - set[tuple[int]]: A set of edges, describing a directed acyclic graph
+              indicating the regulations between modules (i.e., strongly connected
+              components of the underlying wiring diagram).
         """
         sccs = self.get_strongly_connected_components()
         scc_dict = {}
