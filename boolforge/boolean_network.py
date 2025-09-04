@@ -85,6 +85,8 @@ class BooleanNetwork(object):
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.indegrees = list(map(len, self.I))
         self.outdegrees = self.get_outdegrees()
+        self.STG = None
+        self.attractor_info_sync_exact = None
         
 
     @classmethod
@@ -262,7 +264,7 @@ class BooleanNetwork(object):
             
             - int: Updated state of the node (0 or 1).
         """
-        return self.F[index].f[utils.bin2dec(states_regulators)]
+        return self.F[index].f[utils.bin2dec(states_regulators)].item()
 
 
     def update_network_synchronously(self, X : Union[list, np.array]) -> np.array:
@@ -463,7 +465,7 @@ class BooleanNetwork(object):
                                 FOUND_NEW_STATE = True
                             else:
                                 fxdec = xdec
-                            dictF.update({(xdec, i): fxdec})
+                            dictF.update({(xdec, i.item()): fxdec})
                         if FOUND_NEW_STATE:
                             xdec = fxdec
                             break
@@ -538,11 +540,11 @@ class BooleanNetwork(object):
                 - TransientTimes (list[list[int]]): List of lists with
                   transient times (number of updates) for each steady state.
                   
-                - SteadyStateDict (dict[int:int]): Dictionary mapping a steady
-                  state (in decimal) to its index.
-                  
-                - FunctionTransitionDict (dict[tuple(int, int):int]):
-                  Dictionary caching computed state transitions.
+                - STGAsynchronous (dict[tuple(int, int):int]):
+                  A sample of the asynchronous state transition graph. 
+                  STGAsynchronous[(a,b)] = c implies that state a is updated to state b 
+                  when the variable at index b is updated. Here, a and b are decimal
+                  representations of the state and b in {0,1,...,self.N-1}.
                   
                 - UpdateQueues (list[list[int]]): List of state update queues
                   (the sequence of states encountered) for each simulation.
@@ -560,7 +562,7 @@ class BooleanNetwork(object):
         if stochastic_weights != []:
             stochastic_weights = np.array(stochastic_weights) / sum(stochastic_weights)
         
-        dictF = dict()
+        STG_async = dict()
         steady_states = []
         basin_sizes = []
         transient_times = []
@@ -581,7 +583,7 @@ class BooleanNetwork(object):
                         update_order_to_try = rng.permutation(self.N)
                     for i in update_order_to_try:
                         try:
-                            fxdec = dictF[(xdec, i)]
+                            fxdec = STG_async[(xdec, i)]
                             if fxdec != xdec:
                                 FOUND_NEW_STATE = True
                                 x[i] = 1 - x[i]
@@ -597,7 +599,7 @@ class BooleanNetwork(object):
                                 FOUND_NEW_STATE = True
                             else:
                                 fxdec = xdec
-                            dictF.update({(xdec, i): fxdec})
+                            STG_async.update({(xdec, i): fxdec})
                         if FOUND_NEW_STATE:
                             xdec = fxdec
                             queue.append(xdec)
@@ -625,12 +627,12 @@ class BooleanNetwork(object):
         if sum(basin_sizes) < nsim:
             print('Warning: only %i of the %i tested initial conditions eventually reached a steady state. '
                   'Try increasing the search depth. It may also be that your asynchronous state space contains a limit cycle.' % (sum(basin_sizes), nsim))
-        return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "TransientTimes", "SteadyStateDict", "FunctionTransitionDict", "UpdateQueues"],
-                        (steady_states, len(steady_states), basin_sizes, transient_times, steady_state_dict, dictF, queues)))
+        return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "TransientTimes", "STGAsynchronous", "UpdateQueues"],
+                        (steady_states, len(steady_states), basin_sizes, transient_times, STG_async, queues)))
 
 
     def get_attractors_synchronous(self, nsim : int = 500,
-        initial_sample_points : list = [], n_steps_timeout : int = 100000,
+        initial_sample_points : list = [], n_steps_timeout : int = 1000,
         INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS : bool = True, *, rng=None) -> dict:
         """
         Compute the number of attractors in a Boolean network using an
@@ -653,7 +655,7 @@ class BooleanNetwork(object):
               initial states (in decimal) to use.
               
             - n_steps_timeout (int, optional): Maximum number of update steps
-              allowed per simulation (default 100000).
+              allowed per simulation (default 1000).
               
             - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If
               True, initial_sample_points are provided as binary vectors; if
@@ -682,19 +684,20 @@ class BooleanNetwork(object):
                   used (if provided, they are returned; otherwise, the 'nsim'
                   generated points are returned).
                   
-                - StateSpace (list[int]): Sample of the state transition graph
-                  (for 'InitialSamplePoints'), with each state represented as a
-                  decimal.
+                - STG (dict[int:int]):
+                  A sample of the state transition graph as dictionary, with 
+                  each state represented by its decimal representation.
                   
                 - NumberOfTimeouts (int): Number of simulations that timed out
-                  before reaching an attractor.
+                  before reaching an attractor. Increase 'n_steps_timeout' to 
+                  reduce this number.
         """
         rng = utils._coerce_rng(rng)
         dictF = dict()
         attractors = []
         basin_sizes = []
         attr_dict = dict()
-        STG = []
+        STG = dict()
         
         sampled_points = []
         n_timeout = 0
@@ -726,7 +729,7 @@ class BooleanNetwork(object):
                     dictF.update({xdec: fxdec})
                     x = fx
                 if count == 0:
-                    STG.append(fxdec)
+                    STG.update({xdec:fxdec})
                 try:
                     index_attr = attr_dict[fxdec]
                     basin_sizes[index_attr] += 1
@@ -752,22 +755,32 @@ class BooleanNetwork(object):
                 STG, n_timeout)))
 
 
-    def get_attractors_synchronous_exact(self, RETURN_STG_DICT : bool = False) -> dict:
+    def compute_synchronous_state_transition_graph(self) -> dict:
+        """
+        Compute the entire synchronous state transition graph for all 2^N states,
+        which is of type dict[int:int]. That is, each state is represented by 
+        its decimal representation.
+        """  
+        left_side_of_truth_table = self.get_left_side_of_truth_table()
+
+        powers_of_two = np.array([2**i for i in range(self.N)])[::-1]
+        
+        STG_full = np.zeros((2**self.N, self.N), dtype=int)
+        for i in range(self.N):
+            for j, x in enumerate(itertools.product([0, 1], repeat=self.indegrees[i])):
+                if self.F[i].f[j]:
+                    # For rows in left_side_of_truth_table where the columns I[i] equal x, set STG accordingly.
+                    STG_full[np.all(left_side_of_truth_table[:, self.I[i]] == np.array(x), axis=1), i] = 1
+        self.STG = dict(zip(list(range(2**self.N)), np.dot(STG_full, powers_of_two).tolist()))
+                
+
+    def get_attractors_synchronous_exact(self) -> dict:
         """
         Compute the exact number of attractors in a Boolean network using a
         fast, vectorized approach.
 
-        This function computes the state of each node for all 2^N states by
-        constructing the network's state space, then maps each state to its
-        corresponding successor state via the Boolean functions F. Attractors
-        and their basin sizes are then determined by iterating over the entire
-        state space.
-
-        **Parameters:**
-            
-            - RETURN_STG_DICT (bool, optional): If True, the state space is
-              returned as a dictionary, in which each state is associated by
-              its decimal representation.
+        This function computes all attractors and their basin sizes from the 
+        the full state transition graph.
 
         **Returns:**
             
@@ -778,28 +791,19 @@ class BooleanNetwork(object):
                   cycle).
                 
                 - NumberOfAttractors (int): Total number of unique attractors.
+                
                 - BasinSizes (list[int]): List of counts for each attractor.
+                
                 - AttractorDict (dict[int:int]): Dictionary mapping each state
                   (in decimal) to its attractor index.
                   
-                - STG (np.array[np.array[int]]): The state transition graph
-                  (of shape (2^N, N)).
-                  
-                - STGDict (dict[int:int], only returned if RETURN_DICTF==True):
+                - STG (dict[int:int]):
                   The state transition graph as dictionary, with each state
                   represented by its decimal representation.
         """        
-        left_side_of_truth_table = self.get_left_side_of_truth_table()
 
-        powers_of_two = np.array([2**i for i in range(self.N)])[::-1]
-        
-        STG = np.zeros((2**self.N, self.N), dtype=int)
-        for i in range(self.N):
-            for j, x in enumerate(itertools.product([0, 1], repeat=self.indegrees[i])):
-                if self.F[i].f[j]:
-                    # For rows in left_side_of_truth_table where the columns I[i] equal x, set STG accordingly.
-                    STG[np.all(left_side_of_truth_table[:, self.I[i]] == np.array(x), axis=1), i] = 1
-        STG_dict = dict(zip(list(range(2**self.N)), np.dot(STG, powers_of_two).tolist()))
+        if self.STG is None:
+            self.compute_synchronous_state_transition_graph()
         
         attractors = []
         basin_sizes = []
@@ -807,7 +811,7 @@ class BooleanNetwork(object):
         for xdec in range(2**self.N):
             queue = [xdec]
             while True:
-                fxdec = STG_dict[xdec]
+                fxdec = self.STG[xdec]
                 try:
                     index_attr = attractor_dict[fxdec]
                     basin_sizes[index_attr] += 1
@@ -824,12 +828,8 @@ class BooleanNetwork(object):
                         pass
                 queue.append(fxdec)
                 xdec = fxdec
-        if RETURN_STG_DICT:
-            return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "STG", "STGDict"],
-                            (attractors, len(attractors), basin_sizes, attractor_dict, STG, STG_dict)))  
-        else:
-            return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "STG"],
-                            (attractors, len(attractors), basin_sizes, attractor_dict, STG)))  
+        return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "STG"],
+                        (attractors, len(attractors), basin_sizes, attractor_dict, self.STG)))  
 
 
     ## Transform Boolean networks
