@@ -84,6 +84,18 @@ def dec2bin(integer_value : int, num_bits : int) -> list:
     binary_string = bin(integer_value)[2:].zfill(num_bits)
     return [int(bit) for bit in binary_string]
 
+left_side_of_truth_tables = {}
+
+def get_left_side_of_truth_table(N):
+    if N in left_side_of_truth_tables:
+        left_side_of_truth_table = left_side_of_truth_tables[N]
+    else:
+        #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.N)))
+        vals = np.arange(2**N, dtype=np.uint64)[:, None]              # shape (2^n, 1)
+        masks = (1 << np.arange(N-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
+        left_side_of_truth_table = ((vals & masks) != 0).astype(np.uint8)
+        left_side_of_truth_tables[N] = left_side_of_truth_table
+    return left_side_of_truth_table
 
 def check_if_empty(my_list : Union[list, np.ndarray]) -> bool:
     """

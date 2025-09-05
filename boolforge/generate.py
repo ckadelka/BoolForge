@@ -7,8 +7,6 @@ Created on Tue Jul 29 09:25:40 2025
 """
 
 ##Imports
-import itertools
-
 import numpy as np
 import networkx as nx
 
@@ -23,23 +21,6 @@ except ModuleNotFoundError:
     from boolean_function import BooleanFunction
     from boolean_network import BooleanNetwork
     import utils
-
-
-## Helper variables and functions 
-
-left_side_of_truth_tables = {}
-
-def get_left_side_of_truth_table(n):
-    if n in left_side_of_truth_tables:
-        left_side_of_truth_table = left_side_of_truth_tables[n]
-    else:
-        #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
-        vals = np.arange(2**n, dtype=np.uint64)[:, None]              # shape (2^n, 1)
-        masks = (1 << np.arange(n-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
-        left_side_of_truth_table = ((vals & masks) != 0).astype(np.uint8)                  # shape (2^n, n)
-        left_side_of_truth_tables[n] = left_side_of_truth_table
-    return left_side_of_truth_table
-
 
 
 ## Random function generation
@@ -537,7 +518,7 @@ def random_k_canalizing_function(n : int, k : int, EXACT_DEPTH : bool = False,
     else:
         core_function = [1 - bbs[-1]]
     
-    left_side_of_truth_table = get_left_side_of_truth_table(n)
+    left_side_of_truth_table = utils.get_left_side_of_truth_table(n)
     f = np.full(2**n, -1, dtype=np.int8)
     for j in range(k):
         mask = (left_side_of_truth_table[:, can_vars[j]] == aas[j]) & (f < 0)
@@ -620,7 +601,7 @@ def random_k_canalizing_function_with_specific_layer_structure(n : int,
     else:
         core_function = [1 - bbs[-1]]
     
-    left_side_of_truth_table = get_left_side_of_truth_table(n)
+    left_side_of_truth_table = utils.get_left_side_of_truth_table(n)
     f = np.full(2**n, -1, dtype=np.int8)
     for j in range(depth):
         mask = (left_side_of_truth_table[:, can_vars[j]] == aas[j]) & (f < 0)
@@ -1482,7 +1463,7 @@ def random_null_model(bn : BooleanNetwork, wiring_diagram : str = 'fixed',
                             break
             newf = -np.ones(2**bn.indegrees[i],dtype=int)
             for j in range(depth):
-                newf[np.where(np.bitwise_and(newf==-1,get_left_side_of_truth_table(bn.indegrees[i])[:,can_order[j]]==can_inputs[j]))[0]] = can_outputs[j]
+                newf[np.where(np.bitwise_and(newf==-1,utils.get_left_side_of_truth_table(bn.indegrees[i])[:,can_order[j]]==can_inputs[j]))[0]] = can_outputs[j]
             newf[np.where(newf==-1)[0]] = core_function
             newf = BooleanFunction(newf)
         elif PRESERVE_BIAS:  #and PRESERVE_CANALIZING_DEPTH==False

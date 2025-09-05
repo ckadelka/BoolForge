@@ -161,6 +161,10 @@ class BooleanNetwork(object):
                     I[-1].append(n_variables+n_constants)
                     dict_constants[v] = n_constants
                     n_constants+=1
+                    variables.append(v)
+        for i in range(n_constants):
+            F.append([0,1])
+            I.append([n_variables+i])
         
         return cls(F = F, I = I, variables=variables)
 
@@ -216,18 +220,6 @@ class BooleanNetwork(object):
         result = cls.__new__(cls)
         result.__dict__.update(self.__dict__)
         return result
-    
-    
-    def get_left_side_of_truth_table(self):
-        if self.N in BooleanNetwork.left_side_of_truth_tables:
-            left_side_of_truth_table = BooleanNetwork.left_side_of_truth_tables[self.N]
-        else:
-            #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.N)))
-            vals = np.arange(2**self.N, dtype=np.uint64)[:, None]              # shape (2^n, 1)
-            masks = (1 << np.arange(self.N-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
-            left_side_of_truth_table = ((vals & masks) != 0).astype(np.uint8)
-            BooleanNetwork.left_side_of_truth_tables[self.N] = left_side_of_truth_table
-        return left_side_of_truth_table
     
     
     def get_outdegrees(self) -> np.array:
@@ -400,7 +392,7 @@ class BooleanNetwork(object):
                   
                 - STGAsynchronous (dict[tuple(int, int):int]):
                   The asynchronous state transition graph. 
-                  STGAsynchronous[(a,i)] = c implies that state a is updated to state c 
+                  STGAsynchronous[(a,i)] = c implies that state a transitions to state c 
                   when the ith variable is updated. Here, a and c are decimal
                   representations of the state and i is in {0,1,...,self.N-1}.
                   
@@ -409,7 +401,7 @@ class BooleanNetwork(object):
         """
         rng = utils._coerce_rng(rng)
         if EXACT:
-            left_side_of_truth_table = self.get_left_side_of_truth_table()
+            left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
 
         sampled_points = []
         
@@ -543,7 +535,7 @@ class BooleanNetwork(object):
                   
                 - STGAsynchronous (dict[tuple(int, int):int]):
                   A sample of the asynchronous state transition graph. 
-                  STGAsynchronous[(a,i)] = c implies that state a is updated to state c
+                  STGAsynchronous[(a,i)] = c implies that state a transitions to state c
                   when the ith variable is updated. Here, a and c are decimal
                   representations of the state and i is in {0,1,...,self.N-1}.
                   
@@ -762,7 +754,7 @@ class BooleanNetwork(object):
         which is of type dict[int:int]. That is, each state is represented by 
         its decimal representation.
         """  
-        left_side_of_truth_table = self.get_left_side_of_truth_table()
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
 
         powers_of_two = np.array([2**i for i in range(self.N)])[::-1]
         
@@ -917,7 +909,7 @@ class BooleanNetwork(object):
         F_new = [bf.f for bf in self.F]
         I_new = [i for i in self.I]
 
-        left_side_of_truth_table = self.get_left_side_of_truth_table()
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
 
         index = list(self.I[control_target]).index(control_source)
         F_new[control_target] = F_new[control_target][left_side_of_truth_table[:, index] == type_of_edge_control]
@@ -1030,7 +1022,7 @@ class BooleanNetwork(object):
             #. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). xxxx
                arXiv preprint arXiv:xxx.xxx.
         """
-        left_side_of_truth_table = self.get_left_side_of_truth_table()
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
 
         result = self.get_attractors_synchronous_exact()
         attractors, n_attractors, basin_sizes, attractor_dict = result["Attractors"], result["NumberOfAttractors"], result["BasinSizes"], result["AttractorDict"]

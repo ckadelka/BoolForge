@@ -151,27 +151,6 @@ class BooleanFunction(object):
         print('The method \'to_cana_BooleanNode\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
     
-    def _get_left_side_of_truth_table(self):
-        """
-        Internal method that enables computing the left hand side of the truth
-        table only once per degree n.
-        
-        **Returns:**
-            
-            - np.ndarray[int]: Array of size 2^n x n representing all input
-              combinations of an n-input Boolean function.
-        """
-        if self.n in BooleanFunction.left_side_of_truth_tables:
-            left_side_of_truth_table = BooleanFunction.left_side_of_truth_tables[self.n]
-        else:
-            #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.n)))
-            vals = np.arange(2**self.n, dtype=np.uint64)[:, None]              # shape (2^n, 1)
-            masks = (1 << np.arange(self.n-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
-            lhs = ((vals & masks) != 0).astype(np.uint8)   
-            BooleanFunction.left_side_of_truth_tables[self.n] = lhs
-            left_side_of_truth_table = lhs
-        return left_side_of_truth_table
-    
     
     def get_hamming_weight(self) -> int:
         """
@@ -331,7 +310,7 @@ class BooleanFunction(object):
                 left_to_check[i] = 0
             for j in range(i + 1, self.n):
                 diff = sum(2**np.arange(self.n - i - 2, self.n - j - 2, -1))
-                for ii, x in enumerate(self._get_left_side_of_truth_table()):
+                for ii, x in enumerate(utils.get_left_side_of_truth_table(self.n)):
                     if x[i] != x[j] and x[i] == 0 and self.f[ii] != self.f[ii + diff]:
                         break
                 else:
@@ -386,7 +365,7 @@ class BooleanFunction(object):
         size_state_space = 2**self.n
         s = 0
         if EXACT:
-            for ii, X in enumerate(self._get_left_side_of_truth_table()):
+            for ii, X in enumerate(utils.get_left_side_of_truth_table(self.n)):
                 for i in range(self.n):
                     Y = X.copy()
                     Y[i] = 1 - X[i]
@@ -634,7 +613,7 @@ class BooleanFunction(object):
         if k == 0:
             return float(self.is_constant())
         desired_value = 2**(self.n - k)
-        T = self._get_left_side_of_truth_table().T
+        T = utils.get_left_side_of_truth_table(self.n).T
         Tk = list(itertools.product([0, 1], repeat=k))
         A = np.r_[T, 1 - T]
         Ak = []
