@@ -25,9 +25,19 @@ except ModuleNotFoundError:
     __LOADED_CANA__=False
     
 
-def get_layer_structure_from_canalized_outputs(can_outputs):
+def get_layer_structure_from_canalized_outputs(can_outputs : list) -> list:
     """
-    TEMP #TODO
+    Composes the layer structure when given canalized outputs.
+    
+    **Parameters**:
+        
+        - can_outputs (list[int] | np.array[int]): Array of canalized output
+          values.
+    
+    **Returns**:
+        
+        - list[int]: The composed layer structure for the provided canalized
+          outputs.
     """
     canalizing_depth = len(can_outputs)
     if canalizing_depth == 0:
@@ -78,8 +88,8 @@ class BooleanFunction(object):
     
     left_side_of_truth_tables = {}
     
-    def __init__(self, f : Union[list, np.array, str], name : str = ""):
-        self.name = name
+    def __init__(self, f : Union[list, np.array, str], _name : str = ""):
+        self.name = _name
         if isinstance(f, str):
             f, self.variables = utils.f_from_expression(f)
             self.n = len(self.variables)
@@ -114,9 +124,14 @@ class BooleanFunction(object):
         return f"{self.f}"
         #return f"{self.f.tolist()}"
         
-    def str_expr(self):
+    def str_expr(self) -> str:
         """
-        TEMP #TODO
+        Returns the Boolean function converted into polynomial format in
+        non-reduced DNF.
+        
+        **Returns**:
+            
+            - str: Polynomial format in non-reduced DNF of the Boolean function.
         """
         return utils.bool_to_poly(self.f,variables=self.variables)
     
@@ -154,7 +169,12 @@ class BooleanFunction(object):
     
     def get_hamming_weight(self) -> int:
         """
-        TEMP #TODO
+        Calculate the number of non-zero bits in the bit vector representing
+        a Boolean function.
+        
+        **Returns:**
+        
+            - int: The number of non-zero bits in the bit vector.
         """
         return int(self.f.sum())
     

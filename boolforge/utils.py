@@ -119,9 +119,20 @@ def check_if_empty(my_list : Union[list, np.ndarray]) -> bool:
     return False
     
     
-def is_list_or_array_of_ints(x, required_length=None):
+def is_list_or_array_of_ints(x : Union[list, np.ndarray],
+    required_length : int = None) -> bool:
     """
-    TEMP #TODO: x
+    Determines if the array-like x contains elements of the 'integer' type.
+    
+    **Parameters**:
+        - x (list | np.ndarray): The array-like to check.
+        - required_length (int | None, optional): The exact length x must have
+          to return true. If None, this check is ignored.
+          
+    **Returns**:
+        - bool: True if x holds elements of type int or np.integer. If
+          required_length is not None, then the length of x must equal required_length
+          as well. Returns false otherwise.
     """
     # Case 1: Python list
     if isinstance(x, list):
@@ -133,9 +144,20 @@ def is_list_or_array_of_ints(x, required_length=None):
     
     return False
 
-def is_list_or_array_of_floats(x, required_length=None):
+def is_list_or_array_of_floats(x : Union[list, np.ndarray],
+    required_length : int = None) -> bool:
     """
-    TODO: TEMP
+    Determines if the array-like x contains elements of the 'floating point' type.
+    
+    **Parameters**:
+        - x (list | np.ndarray): The array-like to check.
+        - required_length (int | None, optional): The exact length x must have
+          to return true. If None, this check is ignored.
+          
+    **Returns**:
+        - bool: True if x holds elements of type float or np.floating. If
+          required_length is not None, then the length of x must equal required_length
+          as well. Returns false otherwise.
     """
     # Case 1: Python list
     if isinstance(x, list):
@@ -264,9 +286,17 @@ def f_from_expression(expr : str) -> tuple:
     return f, np.array(var)
 
 
-def flatten(l):
+def flatten(l : Union[list, np.array]) -> list:
     """
-    TODO: TEMP
+    Converts an array of arrays into an array containing the elements of each
+    subarray, effectively reducing the dimension of the array by 1.
+    
+    **Paramters**:
+        - l (list[list[Variant] | np.array[Variant]] | np.array[list[Variant]
+          | np.array[Variant]]): Array of arrays to reduce the dimension of.
+    
+    **Returns**:
+        - list[Variant]: Array with its dimensions reduced by 1.
     """
     return [item for sublist in l for item in sublist]
 
