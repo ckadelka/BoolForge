@@ -170,8 +170,8 @@ def is_list_or_array_of_floats(x : Union[list, np.ndarray],
     return False
 
 
-def bool_to_poly(f : list, left_side_of_truth_table : Optional[list] = None,
-                 variables : Optional[list] = None, prefix : str = '') -> str:
+def bool_to_poly(f : list, variables : Optional[list] = None,
+    prefix : str = '') -> str:
     """
     Transform a Boolean function from truth table format to polynomial format
     in non-reduced DNF.
@@ -180,10 +180,6 @@ def bool_to_poly(f : list, left_side_of_truth_table : Optional[list] = None,
         
         - f (list[int]): Boolean function as a vector (list of length 2^n,
           where n is the number of inputs).
-        
-        - left_side_of_truth_table (list[list[int]] | None, optional):
-          The left-hand side of the Boolean truth table (a list of tuples
-          of size 2^n x n). If provided, it speeds up computation.
           
         - variables (list[str] | None, optional): List of indices to use for
           variable naming. If empty or not matching the required number,
@@ -202,8 +198,7 @@ def bool_to_poly(f : list, left_side_of_truth_table : Optional[list] = None,
     if variables is None or len(variables) != n:
         prefix = 'x'
         variables = [prefix+str(i) for i in range(n)]
-    if left_side_of_truth_table is None:  # to reduce run time, this should be calculated once and then passed as argument
-        left_side_of_truth_table = list(itertools.product([0, 1], repeat=n))
+    left_side_of_truth_table = get_left_side_of_truth_table(n)
     num_values = 2 ** n
     text = []
     for i in range(num_values):
@@ -216,6 +211,55 @@ def bool_to_poly(f : list, left_side_of_truth_table : Optional[list] = None,
     else:
         return '0'
 
+def bool_to_expr(f : list, variables : Optional[list] = None,
+    prefix : str = '', AND : str = '&', OR : str = '|', NOT : str = '!') -> str:
+    """
+    Transform a Boolean function from truth table format to logical expression
+    format in non-reduced DNF.
+
+    **Parameters:**
+        
+        - f (list[int]): Boolean function as a vector (list of length 2^n,
+          where n is the number of inputs).
+          
+        - variables (list[str] | None, optional): List of indices to use for
+          variable naming. If empty or not matching the required number,
+          defaults to list(range(n)).
+          
+        - prefix (str, optional): Prefix for variable names in the polynomial,
+          default ''.
+        
+        - AND (str, optional): Character(s) to use for the And operator.
+          Defaults to '&'.
+        
+        - OR (str, optional): Character(s) to use for the Or operator. Defaults
+          to '|'.
+        
+        - NOT (str, optional): Character(s) to use for the Not operator.
+          Defaults to '!'.
+
+    **Returns:**
+        
+        - str: A string representing the Boolean function in disjunctive
+          normal form (DNF).
+    """
+    len_f = len(f)
+    n = int(np.log2(len_f))
+    if variables is None or len(variables) != n:
+        prefix = 'x'
+        variables = [prefix+str(i) for i in range(n)]
+    left_side_of_truth_table = get_left_side_of_truth_table(n)
+    num_values = 2 ** n
+    text = []
+    for i in range(num_values):
+        if f[i] == True:
+            monomial = AND.join([("%s" % (v)) if entry == 1 else ("%s%s" % (NOT, v)) 
+                                  for v, entry in zip(variables, left_side_of_truth_table[i])])
+            text.append(monomial)
+    if text != []:
+        return '(' + (")%s(" % OR).join(text) + ')'
+    return ''
+    
 
 def f_from_expression(expr : str) -> tuple:
     """
