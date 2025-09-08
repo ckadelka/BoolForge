@@ -88,8 +88,8 @@ class BooleanFunction(object):
     
     left_side_of_truth_tables = {}
     
-    def __init__(self, f : Union[list, np.array, str], _name : str = ""):
-        self.name = _name
+    def __init__(self, f : Union[list, np.array, str], name : str = ""):
+        self.name = name
         if isinstance(f, str):
             f, self.variables = utils.f_from_expression(f)
             self.n = len(self.variables)
