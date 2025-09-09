@@ -1025,27 +1025,27 @@ def rewire_wiring_diagram(I : Union[list, np.array],
 
 
 #for testing:
-# depths=0
+# depth=0
 # EXACT_DEPTH=False
-# layer_structures=None
+# layer_structure=None
 # ALLOW_DEGENERATED_FUNCTIONS=False
 # LINEAR=False, 
-# biases=0.5
-# absolute_biases = 0.
+# bias=0.5
+# absolute_bias = 0.
 # USE_ABSOLUTE_BIAS=True
-# hamming_weights = None
+# hamming_weight = None
 # NO_SELF_REGULATION=True
 # STRONGLY_CONNECTED=False
 # indegree_distribution='constant'
 # n_attempts_to_generate_strongly_connected_network = 1000
 
 def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndarray, None] = None, 
-    depths : Union[int, list, np.ndarray] = 0, EXACT_DEPTH : bool = False,
-    layer_structures : Optional[list] = None, 
+    depth : Union[int, list, np.ndarray] = 0, EXACT_DEPTH : bool = False,
+    layer_structure : Optional[list] = None, 
     ALLOW_DEGENERATED_FUNCTIONS : bool = False, LINEAR : bool = False, 
-    biases : Union[float, list, np.ndarray] = 0.5,
-    absolute_biases : Union[float, list, np.ndarray] = 0., USE_ABSOLUTE_BIAS : bool = True,
-    hamming_weights : Union[int, list, np.ndarray, None] = None,
+    bias : Union[float, list, np.ndarray] = 0.5,
+    absolute_bias : Union[float, list, np.ndarray] = 0., USE_ABSOLUTE_BIAS : bool = True,
+    hamming_weight : Union[int, list, np.ndarray, None] = None,
     NO_SELF_REGULATION : bool = True, STRONGLY_CONNECTED : bool = False, 
     indegree_distribution : str = 'constant', 
     AT_LEAST_ONE_REGULATOR_PER_NODE : bool =False,
@@ -1097,7 +1097,7 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
             - If `n` is an N-length vector of integers, it is taken as the
               exact in-degrees.
             
-        - depths (int | list[int] | np.ndarray[int], optional): Requested
+        - depth (int | list[int] | np.ndarray[int], optional): Requested
           canalizing depth per node for rule generation. If an integer, it
           is broadcast to all nodes and clipped at each node's in-degree. If a
           vector, it must have length N. Interpreted as **minimum** depth
@@ -1105,27 +1105,27 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
           
         - EXACT_DEPTH (bool, optional): If True, each function is generated
           with **exactly** the requested depth (or the sum of the
-          corresponding `layer_structures[i]` if provided). If False, depth
+          corresponding `layer_structure[i]` if provided). If False, depth
           is **at least** as large as requested. Default False.
           
-        - layer_structures (list | list[list[int]] | None, optional):
+        - layer_structure (list | list[list[int]] | None, optional):
           Canalizing **layer structure** specifications.
         
-            - If `None` (default), generation is controlled by `depths` /
+            - If `None` (default), generation is controlled by `depth` /
               `EXACT_DEPTH`.
               
             - If a single list like `[k1, ..., kr]`, the same structure is
               used for all nodes.
               
-            - If a list of lists of length N, `layer_structures[i]` is used
+            - If a list of lists of length N, `layer_structure[i]` is used
               for node i.
               
             - In all cases, `sum(layer_structure[i])` must be <= the node's
-              in-degree. When provided, `layer_structures` takes precedence
-              over `depths`.
+              in-degree. When provided, `layer_structure` takes precedence
+              over `depth`.
             
         - ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True and
-          `depths==0` and `layer_structures is None`, degenerated functions
+          `depth==0` and `layer_structure is None`, degenerated functions
           (with non-essential inputs) may be generated (classical NK-Kauffman
           models). If False, generated functions are essential in all
           variables. Default False.
@@ -1134,25 +1134,25 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
           for all nodes; other rule parameters (bias, canalization, etc.) are
           ignored. Default False.
           
-        - biases (float | list[float] | np.ndarray[float], optional):
+        - bias (float | list[float] | np.ndarray[float], optional):
           Probability of output 1 when generating random (nonlinear)
-          functions, used only if `depths==0`, `layer_structures is None`,
+          functions, used only if `depth==0`, `layer_structure is None`,
           and `not LINEAR` and `not USE_ABSOLUTE_BIAS`. If a scalar, broadcast
           to length N. Must lie in [0, 1]. Default 0.5.
           
-        - absolute_biases (float | list[float] | np.ndarray[float], optional):
+        - absolute_bias (float | list[float] | np.ndarray[float], optional):
           Absolute deviation from 0.5 (i.e., `|bias-0.5|*2`), used only if
-          `depths==0`, `layer_structures is None`, `not LINEAR`, and
+          `depth==0`, `layer_structure is None`, `not LINEAR`, and
           `USE_ABSOLUTE_BIAS`. If a scalar, broadcast to length N. Must lie
           in [0, 1]. Default 0.0.
         
-        - USE_ABSOLUTE_BIAS (bool, optional): If True, `absolute_biases`
+        - USE_ABSOLUTE_BIAS (bool, optional): If True, `absolute_bias`
           is used to set the bias per rule to either `0.5*(1 - abs_bias)` or
-          `0.5*(1 + abs_bias)` at random. If False, `biases` is used. Only
-          relevant when `depths==0`, `layer_structures is None`, and
+          `0.5*(1 + abs_bias)` at random. If False, `bias` is used. Only
+          relevant when `depth==0`, `layer_structure is None`, and
           `not LINEAR`. Default True.
           
-        - hamming_weights (int | list[int] | np.ndarray[int] | None,
+        - hamming_weight (int | list[int] | np.ndarray[int] | None,
           optional): Exact Hamming weights (number of ones in each truth
           table). If None, no exact constraint is enforced. If a scalar,
           broadcast to N. If a vector, must have length N. Values must be
@@ -1203,14 +1203,14 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
 
     **Notes:**
         
-        - **Precedence** for rule constraints: `LINEAR` → `layer_structures`
-          (if provided) → `depths` (+ `EXACT_DEPTH`) and bias settings only
+        - **Precedence** for rule constraints: `LINEAR` → `layer_structure`
+          (if provided) → `depth` (+ `EXACT_DEPTH`) and bias settings only
           apply when no canalization constraints are requested.
           
-        - **Bias controls**: Use `USE_ABSOLUTE_BIAS` with `absolute_biases`
+        - **Bias controls**: Use `USE_ABSOLUTE_BIAS` with `absolute_bias`
           to enforce a fixed distance from 0.5 while allowing either high or
           low bias with equal chance. Otherwise, set `USE_ABSOLUTE_BIAS=False`
-          and provide `biases` directly.
+          and provide `bias` directly.
           
         - **Hamming weights & canalization**: When `EXACT_DEPTH` and the
           target depth is 0, Hamming weights {0, 1, 2^k - 1, 2^k} correspond
@@ -1231,10 +1231,10 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
         >>> bn  = random_network(I=bn0.I)
 
         >>> # Exact canalizing depth k for all nodes
-        >>> bn = random_network(N=8, n=3, depths=1, EXACT_DEPTH=True)
+        >>> bn = random_network(N=8, n=3, depth=1, EXACT_DEPTH=True)
 
         >>> # Nested canalizing update rules with specific layer structure (broadcast)
-        >>> bn = random_network(N=5, n=3, layer_structures=[1,2])  # same for all nodes
+        >>> bn = random_network(N=5, n=3, layer_structure=[1,2])  # same for all nodes
 
         >>> # Linear rules
         >>> bn = random_network(N=7, n=2, LINEAR=True)
@@ -1244,7 +1244,7 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
         ...                     NO_SELF_REGULATION=True, STRONGLY_CONNECTED=True)
 
         >>> # Exact Hamming weights (broadcast)
-        >>> bn = random_network(N=6, n=3, hamming_weights=4)
+        >>> bn = random_network(N=6, n=3, hamming_weight=4)
 
         >>> # To ensure strong connectivity, set ALLOW_DEGENERATED_FUNCTIONS=False
         >>> # and STRONGLY_CONNECTED=True
@@ -1269,50 +1269,50 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
         
        
     # Process the inputs, turn single inputs into vectors of length N
-    if isinstance(depths, (int, np.integer)):
-        assert depths >= 0 ,'The canalizing depth must be an integer between 0 and min(indegrees) or an N-dimensional vector of integers must be provided to use different depths per function.'
-        depths = [min(indegrees[i],depths) for i in range(N)]
-    elif utils.is_list_or_array_of_ints(depths, required_length=N):
-        depths = [min(indegrees[i],depths[i]) for i in range(N)]
-        assert min(depths) >= 0,"'depths' received a vector as input.\nTo use a user-defined vector, ensure that it is an N-dimensional vector where each element is a non-negative integer."
+    if isinstance(depth, (int, np.integer)):
+        assert depth >= 0 ,'The canalizing depth must be an integer between 0 and min(indegrees) or an N-dimensional vector of integers must be provided to use different depths per function.'
+        depth = [min(indegrees[i],depth) for i in range(N)]
+    elif utils.is_list_or_array_of_ints(depth, required_length=N):
+        depth = [min(indegrees[i],depth[i]) for i in range(N)]
+        assert min(depth) >= 0,"'depth' received a vector as input.\nTo use a user-defined vector, ensure that it is an N-dimensional vector where each element is a non-negative integer."
     else:
-        raise AssertionError("Wrong input format for 'depths'.\nIt must be a single integer (or N-dimensional vector of integers) between 0 and N, specifying the minimal canalizing depth or exact canalizing depth (if EXACT_DEPTH==True).")            
+        raise AssertionError("Wrong input format for 'depth'.\nIt must be a single integer (or N-dimensional vector of integers) between 0 and N, specifying the minimal canalizing depth or exact canalizing depth (if EXACT_DEPTH==True).")            
     
-    if layer_structures == None:
-        layer_structures = [None] * N
-    elif utils.is_list_or_array_of_ints(layer_structures):
-        depth = sum(layer_structures)
-        assert depth==0 or (min(layer_structures)>=1 and depth <= min(indegrees)), 'The layer structure must be [] or a vector of positive integers with 0 <= depth = sum(layer_structure) <= N.'
-        layer_structures = [layer_structures[:]] * N
-    elif np.all([utils.is_list_or_array_of_ints(el) for el in layer_structures]) and len(layer_structures) == N:
-        for i,layer_structure in enumerate(layer_structures):
+    if layer_structure == None:
+        layer_structure = [None] * N
+    elif utils.is_list_or_array_of_ints(layer_structure):
+        depth = sum(layer_structure)
+        assert depth==0 or (min(layer_structure)>=1 and depth <= min(indegrees)), 'The layer structure must be [] or a vector of positive integers with 0 <= depth = sum(layer_structure) <= N.'
+        layer_structure = [layer_structure[:]] * N
+    elif np.all([utils.is_list_or_array_of_ints(el) for el in layer_structure]) and len(layer_structure) == N:
+        for i,layer_structure in enumerate(layer_structure):
             depth = sum(layer_structure)
             assert depth==0 or (min(layer_structure)>=1 and depth <= indegrees[i]), 'Ensure that layer_structure is an N-dimensional vector where each element represents a layer structure and is either [] or a vector of positive integers with 0 <= depth = sum(layer_structure[i]) <= n = indegrees[i].'
     else:
         raise AssertionError("Wrong input format for 'layer_structure'.\nIt must be a single vector (or N-dimensional vector of layer structures) where the sum of each element is between 0 and N.")
     
-    if isinstance(biases, (float, np.floating)):
-        biases = [biases] * N
-    elif not utils.is_list_or_array_of_floats(biases, required_length=N):
-        raise AssertionError("Wrong input format for 'biases'.\nIt must be a single float (or N-dimensional vector of floats) in [0,1] , specifying the bias (probability of a 1) in the generation of the Boolean function.")            
+    if isinstance(bias, (float, np.floating)):
+        bias = [bias] * N
+    elif not utils.is_list_or_array_of_floats(bias, required_length=N):
+        raise AssertionError("Wrong input format for 'bias'.\nIt must be a single float (or N-dimensional vector of floats) in [0,1] , specifying the bias (probability of a 1) in the generation of the Boolean function.")            
     
-    if isinstance(absolute_biases, (float, np.floating)):
-        absolute_biases = [absolute_biases] * N
-    elif not utils.is_list_or_array_of_floats(absolute_biases, required_length=N):
-        raise AssertionError("Wrong input format for 'absolute_biases'.\nIt must be a single float (or N-dimensional vector of floats) in [0,1], specifying the absolute bias (divergence from the 'unbiased bias' of 0.5) in the generation of the Boolean function.")            
+    if isinstance(absolute_bias, (float, np.floating)):
+        absolute_bias = [absolute_bias] * N
+    elif not utils.is_list_or_array_of_floats(absolute_bias, required_length=N):
+        raise AssertionError("Wrong input format for 'absolute_bias'.\nIt must be a single float (or N-dimensional vector of floats) in [0,1], specifying the absolute bias (divergence from the 'unbiased bias' of 0.5) in the generation of the Boolean function.")            
 
-    if hamming_weights == None:
-        hamming_weights = [None] * N    
-    elif isinstance(hamming_weights, (int, np.integer)):
-        hamming_weights = [hamming_weights] * N
-    elif not utils.is_list_or_array_of_ints(hamming_weights, required_length=N):
-        raise AssertionError("Wrong input format for 'hamming_weights'.\nIf provided, it must be a single integer (or N-dimensional vector of integers) in {0,1,...,2^n}, specifying the number of 1s in the truth table of each Boolean function.\nIf EXACT_DEPTH == True and depths==0, it must be in {2,3,...,2^n-2} because all functions with Hamming weight 0,1,2^n-1,2^n are canalizing.")            
+    if hamming_weight == None:
+        hamming_weight = [None] * N    
+    elif isinstance(hamming_weight, (int, np.integer)):
+        hamming_weight = [hamming_weight] * N
+    elif not utils.is_list_or_array_of_ints(hamming_weight, required_length=N):
+        raise AssertionError("Wrong input format for 'hamming_weight'.\nIf provided, it must be a single integer (or N-dimensional vector of integers) in {0,1,...,2^n}, specifying the number of 1s in the truth table of each Boolean function.\nIf EXACT_DEPTH == True and depth==0, it must be in {2,3,...,2^n-2} because all functions with Hamming weight 0,1,2^n-1,2^n are canalizing.")            
             
     #generate functions
-    F = [random_function(n=indegrees[i], depth=depths[i], EXACT_DEPTH=EXACT_DEPTH, layer_structure=layer_structures[i], 
+    F = [random_function(n=indegrees[i], depth=depth[i], EXACT_DEPTH=EXACT_DEPTH, layer_structure=layer_structure[i], 
                      LINEAR=LINEAR, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,
-                     bias=biases[i], absolute_bias=absolute_biases[i], USE_ABSOLUTE_BIAS=USE_ABSOLUTE_BIAS,
-                     hamming_weight=hamming_weights[i],rng=rng) for i in range(N)]
+                     bias=bias[i], absolute_bias=absolute_bias[i], USE_ABSOLUTE_BIAS=USE_ABSOLUTE_BIAS,
+                     hamming_weight=hamming_weight[i],rng=rng) for i in range(N)]
 
     return BooleanNetwork(F, I)
 
