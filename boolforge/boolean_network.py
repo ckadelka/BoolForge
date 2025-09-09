@@ -392,9 +392,10 @@ class BooleanNetwork(object):
                   
                 - STGAsynchronous (dict[tuple(int, int):int]):
                   The asynchronous state transition graph. 
-                  STGAsynchronous[(a,i)] = c implies that state a transitions to state c 
-                  when the ith variable is updated. Here, a and c are decimal
-                  representations of the state and i is in {0,1,...,self.N-1}.
+                  STGAsynchronous[(a,i)] = c implies that state a transitions
+                  to state c when the ith variable is updated. Here, a and c
+                  are decimal representations of the state and i is in {0, 1,
+                  ..., self.N-1}.
                   
                 - InitialSamplePoints (list[int]): The list of initial sample
                   points used (if provided) or those generated during simulation.
@@ -535,9 +536,10 @@ class BooleanNetwork(object):
                   
                 - STGAsynchronous (dict[tuple(int, int):int]):
                   A sample of the asynchronous state transition graph. 
-                  STGAsynchronous[(a,i)] = c implies that state a transitions to state c
-                  when the ith variable is updated. Here, a and c are decimal
-                  representations of the state and i is in {0,1,...,self.N-1}.
+                  STGAsynchronous[(a,i)] = c implies that state a transitions
+                  to state c when the ith variable is updated. Here, a and c
+                  are decimal representations of the state and i is in {0, 1,
+                  ..., self.N-1}.
                   
                 - UpdateQueues (list[list[int]]): List of state update queues
                   (the sequence of states encountered) for each simulation.
@@ -949,7 +951,9 @@ class BooleanNetwork(object):
             - nsim (int, optional): Number of simulations to perform. Default
               is 1000.
               
-            - EXACT (bool, optional): If True, the exact Derrida value is computed and 'nsim' is ignored. Otherwise, 'nsim' simulations are used to approximate the Derrida value.
+            - EXACT (bool, optional): If True, the exact Derrida value is
+              computed and 'nsim' is ignored. Otherwise, 'nsim' simulations
+              are used to approximate the Derrida value.
             
             - rng (None, optional): Argument for the random number generator,
               implemented in 'utils._coerce_rng'.
@@ -1456,7 +1460,8 @@ class BooleanNetwork(object):
 
         **Returns:**
             
-            - list[set[int]]: A list of sets, each representing a strongly connected component.
+            - list[set[int]]: A list of sets, each representing a strongly
+              connected component.
         """
         edges_wiring_diagram = []
         for target, regulators in enumerate(self.I):
