@@ -626,6 +626,7 @@ class BooleanNetwork(object):
 
     def get_attractors_synchronous(self, nsim : int = 500,
         initial_sample_points : list = [], n_steps_timeout : int = 1000,
+        external_input_values = None,
         INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS : bool = True, *, rng=None) -> dict:
         """
         Compute the number of attractors in a Boolean network using an
