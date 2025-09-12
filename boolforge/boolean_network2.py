@@ -481,7 +481,7 @@ class BooleanNetwork(WiringDiagram):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_bnet(cls, bnet : str) -> "BooleanNetwork":
+    def from_bnet(cls, bnet : str, separator : str = ',') -> "BooleanNetwork":
         """
         **Compatability Method:**
         
@@ -498,14 +498,10 @@ class BooleanNetwork(WiringDiagram):
             if line=='' or line[0] == '#':
                 continue
             try:
-                functions.append(line.split(',')[1].strip())
-                variables.append(line.split(',')[0].strip())
+                functions.append(line.split(separator)[1].strip())
+                variables.append(line.split(separator)[0].strip())
             except IndexError:
-                try:
-                    functions.append(line.split('=')[1].strip())
-                    variables.append(line.split('=')[0].strip())
-                except IndexError:
-                    continue
+                continue
         dict_variables = dict(zip(variables,range(len(variables))))
         n_variables = len(variables)
         F = []
