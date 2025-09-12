@@ -47,11 +47,12 @@ class WiringDiagram(object):
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.indegrees = list(map(len, self.I))
         self.outdegrees = self.get_outdegrees()
-        if weights is not None:
-            self.weights = weights
+        # if weights is not None:
+        #     self.weights = weights
 
     def __getitem__(self, index):
         return self.I[index]
+
 
     def get_outdegrees(self) -> np.array:
         """
@@ -66,7 +67,7 @@ class WiringDiagram(object):
             for regulator in regulators:
                 outdegrees[regulator] += 1
         return outdegrees
-    
+
 
     def get_strongly_connected_components(self) -> list:
         """
@@ -430,13 +431,11 @@ class BooleanNetwork(WiringDiagram):
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node;
     """
-    
-    left_side_of_truth_tables = {}
 
     def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None, SIMPLIFY_FUNCTIONS=False):
-        assert len(F)==self.N, "len(F)==len(I) required"
-        
+        assert isinstance(F, (list, np.ndarray)), "F must be an array"
         super().__init__(self,I,variables)
+        assert len(F)==self.N, "len(F)==len(I) required"
         
         self.F = []
         for ii,f in enumerate(F):
@@ -447,7 +446,7 @@ class BooleanNetwork(WiringDiagram):
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
-                
+
         self.STG = None
         self.attractor_info_sync_exact = None
         if SIMPLIFY_FUNCTIONS:
@@ -550,13 +549,12 @@ class BooleanNetwork(WiringDiagram):
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
         return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts)))
 
-
     def to_bnet(self) -> str:
         """
         **Compatability method:**
             
             Returns a bnet object from the pyboolnet module.
-
+        
         **Returns:**
             
             - A string describing a bnet from the pyboolnet module.
@@ -566,7 +564,22 @@ class BooleanNetwork(WiringDiagram):
             polynomial = utils.bool_to_poly(bf.f,variables=self.variables[regulators])
             lines.append(f'{variable},\t{polynomial}')
         return '\n'.join(lines)
+    
+    def to_bnet_expr(self) -> str:
+        """
+        **Compatability method:**
+            
+            Returns a bnet string formatting as logical expressions.
         
+        **Returns:**
+            
+            - A string describing a bnet as a logical expression.
+        """
+        lines = []
+        for bf,regulators,variable in zip(self.F,self.I,self.variables):
+            expression = bf.to_expression(" & ", " | ")
+            lines.append(f'{variable},\t{expression}')
+        return '\n'.join(lines)
     
     def __len__(self):
         return self.N
@@ -695,6 +708,7 @@ class BooleanNetwork(WiringDiagram):
         return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i])
 
     
+
     
     def update_single_node(self, index : int,
         states_regulators : Union[list, np.array]) -> int:

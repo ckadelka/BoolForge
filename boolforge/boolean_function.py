@@ -166,6 +166,38 @@ class BooleanFunction(object):
         print('The method \'to_cana_BooleanNode\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
     
+    def to_expression(self, AND : str = '&', OR : str = '|', NOT : str = '!') -> str:
+        """
+        Transform a Boolean function from truth table format to logical expression
+        format in non-reduced DNF.
+
+        **Parameters:**
+            
+            - AND (str, optional): Character(s) to use for the And operator.
+              Defaults to '&'.
+            
+            - OR (str, optional): Character(s) to use for the Or operator. Defaults
+              to '|'.
+            
+            - NOT (str, optional): Character(s) to use for the Not operator.
+              Defaults to '!'.
+
+        **Returns:**
+            
+            - str: A string representing the Boolean function in disjunctive
+              normal form (DNF).
+        """
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.n)
+        num_values = 2 ** self.n
+        text = []
+        for i in range(num_values):
+            if self.f[i] == True:
+                monomial = AND.join([("%s" % (v)) if entry == 1 else ("(%s%s)" % (NOT, v)) 
+                                      for v, entry in zip(self.variables, left_side_of_truth_table[i])])
+                text.append(monomial)
+        if text != []:
+            return '(' + (")%s(" % OR).join(text) + ')'
+        return ''
     
     def get_hamming_weight(self) -> int:
         """
