@@ -31,7 +31,382 @@ except ModuleNotFoundError:
     __LOADED_CANA__=False
 
 
-class BooleanNetwork(object):
+
+class WiringDiagram(object):
+    def __init__(self, I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None):
+        assert isinstance(I, (list, np.ndarray)), "I must be an array"
+        #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
+        assert variables is None or len(I)==len(variables), "len(I)==len(variables) required if variable names are provided"
+        
+        self.N = len(I)
+        if variables is None:
+            self.variables = np.array(['x'+str(i) for i in range(self.N)])
+        else:
+            self.variables = np.array(variables)
+
+        self.I = [np.array(regulators,dtype=int) for regulators in I]
+        self.indegrees = list(map(len, self.I))
+        self.outdegrees = self.get_outdegrees()
+        # if weights is not None:
+        #     self.weights = weights
+
+    def __getitem__(self, index):
+        return self.I[index]
+
+
+    def get_outdegrees(self) -> np.array:
+        """
+        Returns the outdegree of each node.
+        
+        **Returns:**
+            
+            - np.array[int]: Outdegree of each node.
+        """
+        outdegrees = np.zeros(self.N,dtype=int)
+        for regulators in self.I:
+            for regulator in regulators:
+                outdegrees[regulator] += 1
+        return outdegrees
+
+
+    def get_strongly_connected_components(self) -> list:
+        """
+        Determine the strongly connected components of a wiring diagram.
+
+        **Returns:**
+            
+            - list[set[int]]: A list of sets, each representing a strongly
+              connected component.
+        """
+        edges_wiring_diagram = []
+        for target, regulators in enumerate(self.I):
+            for regulator in regulators:
+                edges_wiring_diagram.append((regulator, target))
+        subG = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
+        return [scc for scc in nx.strongly_connected_components(subG)]
+
+    def get_modular_structure(self):
+        """
+        Determine the modular structure of a Boolean network.
+
+        The modular structure is defined by a directed acyclic graph (DAG) whose
+        nodes are the strongly connected components (SCCs) of the underlying wiring
+        diagram and whose directed edges indicate a regulation from one SCC to another SCC.
+
+        **Returns:**
+            
+            - set[tuple[int]]: A set of edges, describing a directed acyclic graph
+              indicating the regulations between modules (i.e., strongly connected
+              components of the underlying wiring diagram).
+        """
+        sccs = self.get_strongly_connected_components()
+        scc_dict = {}
+        for j,s in enumerate(sccs):
+            for el in s:
+                scc_dict.update({el:j})
+        dag = set()
+        for target,regulators in enumerate(self.I):
+            for regulator in regulators:
+                edge = (scc_dict[regulator],scc_dict[target])
+                if edge[0]!=edge[1]:
+                    dag.add(edge)   
+        return dag
+
+    def adjacency_matrix(self, constants : list = [],
+        IGNORE_SELFLOOPS : bool = False, IGNORE_CONSTANTS : bool = True) -> np.array:
+        """
+        Construct the (binary) adjacency matrix from the wiring diagram.
+
+        Given the wiring diagram I (a list of regulator lists for each node)
+        and a list of constants, this function builds an adjacency matrix
+        where each entry m[j, i] is 1 if node j regulates node i. Self-loops
+        can be optionally ignored, and constant nodes can be excluded.
+
+        **Parameters:**
+            
+            - constants (list[int], optional): List of constant nodes.
+            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
+            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are
+              excluded from the matrix.
+
+        **Returns:**
+            
+            - np.array[np.array[int]]: The binary adjacency matrix.
+        """
+        n = len(self.I)
+        n_constants = len(constants)
+        if IGNORE_CONSTANTS:
+            m = np.zeros((n - n_constants, n - n_constants), dtype=int)
+            for i in range(len(self.I)):
+                for j in self.I[i]:
+                    if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
+                        m[j, i] = 1
+            return m
+        else:
+            return self.adjacency_matrix([], IGNORE_CONSTANTS=True)
+
+
+    def get_signed_adjacency_matrix(self, type_of_each_regulation : list,
+        constants : list = [], IGNORE_SELFLOOPS : bool = False,
+        IGNORE_CONSTANTS : bool = True) -> np.array:
+        """
+        Construct the signed adjacency matrix of a Boolean network.
+
+        The signed adjacency matrix assigns +1 for increasing (activating)
+        regulations, -1 for decreasing (inhibiting) regulations, and NaN for
+        any other type.
+
+        **Parameters:**
+            
+            - type_of_each_regulation (list[str]): List of lists corresponding
+              to the type of regulation ('increasing' or 'decreasing') for
+              each edge in I.
+              
+            - constants (list[int], optional): List of constant nodes.
+            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
+            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
+              are excluded.
+
+        **Returns:**
+            
+            - np.array[np.array[int]]: The signed adjacency matrix.
+        """
+        n = len(self.I)
+        n_constants = len(constants)
+        if IGNORE_CONSTANTS:
+            m = np.zeros((n - n_constants, n - n_constants), dtype=int)
+            for i, (regulators, type_of_regulation) in enumerate(zip(self.I, type_of_each_regulation)):
+                for j, t in zip(regulators, type_of_regulation):
+                    if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
+                        if t == 'increasing':
+                            m[j, i] = 1 
+                        elif t == 'decreasing':
+                            m[j, i] = -1 
+                        else:
+                            m[j, i] = np.nan
+            return m
+        else:
+            return self.get_signed_adjacency_matrix(type_of_each_regulation, [], IGNORE_CONSTANTS=True)
+
+
+    def get_signed_effective_graph(self, type_of_each_regulation : list,
+        constants : list = [], IGNORE_SELFLOOPS : bool = False,
+        IGNORE_CONSTANTS : bool = True) -> np.array:
+        """
+        Construct the signed effective graph of a Boolean network.
+
+        This function computes an effective graph in which each edge is
+        weighted by its effectiveness. Effectiveness is obtained via
+        get_edge_effectiveness on the corresponding Boolean function. Edges
+        are signed according to the type of regulation ('increasing' or
+        'decreasing').
+
+        **Parameters:**
+            
+            - type_of_each_regulation (list[str]): List of lists specifying
+              the type of regulation for each edge.
+              
+            - constants (list[int], optional): List of constant nodes.
+            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
+            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
+              are excluded.
+
+        **Returns:**
+            
+            - np.array[float]: The signed effective graph as a matrix of edge
+              effectiveness values.
+        """
+        n = len(self.I)
+        n_constants = len(constants)
+        if IGNORE_CONSTANTS:
+            m = np.zeros((n - n_constants, n - n_constants), dtype=float)
+            for i, (regulators, type_of_regulation) in enumerate(zip(self.I, type_of_each_regulation)):
+                effectivenesses = self.F[i].get_edge_effectiveness()
+                for j, t, e in zip(regulators, type_of_regulation, effectivenesses):
+                    if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
+                        if t == 'increasing':
+                            m[j, i] = e
+                        elif t == 'decreasing':
+                            m[j, i] = -e
+                        else:
+                            m[j, i] = np.nan
+            return m
+        else:
+            return self.get_signed_effective_graph(type_of_each_regulation, [], IGNORE_CONSTANTS=True)
+
+
+    def get_ffls(self) -> tuple:
+        """
+        Identify feed-forward loops (FFLs) in a Boolean network and optionally
+        determine their types.
+
+        A feed-forward loop (FFL) is a three-node motif where node i regulates
+        node k both directly and indirectly via node j.
+
+        **Returns:**
+            
+            - tuple[list[int], list[int]]:
+                
+                A tuple (ffls, types), where ffls is a list of FFLs and
+                types is a list of corresponding monotonicity types.
+        """
+        ffls = []
+        types = []
+        for i in range(len(self.I)):
+            for j in range(i + 1, len(self.I)):
+                for k in range(len(self.I)):
+                    if i == k or j == k:
+                        continue
+                    # Check if there is an FFL: i regulates k and j regulates both i and k.
+                    if i in self.I[k] and i in self.I[j] and j in self.I[k]:
+                        ffls.append([i, j, k])
+                        # Compute types if F is provided.
+                        # (This example assumes a helper function is_monotonic exists and that I is ordered.)
+                        #monotonic_i = is_monotonic(F[i], True)[1]
+                        monotonic_j = self.F[j].is_monotonic(True)[1]
+                        monotonic_k = self.F[k].is_monotonic(True)[1]
+                        direct = monotonic_k[self.I[k].index(i)]
+                        indirect1 = monotonic_j[self.I[j].index(i)]
+                        indirect2 = monotonic_k[self.I[k].index(j)]
+                        types.append([direct, indirect1, indirect2])
+        return (ffls, types)
+
+
+    def get_ffls_from_I(self, types_I : Optional[list] = None) -> Union[tuple, list]:
+        """
+        Identify feed-forward loops (FFLs) in a Boolean network based solely
+        on the wiring diagram.
+
+        The function uses the inverted wiring diagram to identify common
+        targets and returns the FFLs found. If types_I (the type of each
+        regulation) is provided, it also returns the corresponding regulation
+        types.
+
+        **Parameters:**
+            
+            - types_I (list[list[str]], optional): List of lists specifying
+              the type (e.g., 'increasing' or 'decreasing') for each regulation.
+
+        **Returns:**
+            
+            If types_I is provided:
+                
+                - tuple[list[int], list[int]]: (ffls, types) where ffls is a
+                  list of identified FFLs (each as a list [i, j, k]), and
+                  types is a list of corresponding regulation type triplets.
+                
+            Otherwise:
+                
+                - list[list[int]]: A list of identified FFLs.
+        """
+        all_tfs = list(range(len(self.I)))
+        n_tfs = len(all_tfs)
+        all_tfs_dict = dict(zip(all_tfs, list(range(n_tfs))))
+        I_inv = [[] for _ in all_tfs]
+        for target, el in enumerate(self.I):
+            for regulator in el:
+                I_inv[all_tfs_dict[regulator]].append(target)
+        ffls = []
+        types = []
+        for i in range(n_tfs):  # master regulators
+            for j in range(n_tfs):
+                if i == j or all_tfs[j] not in I_inv[i]:
+                    continue
+                common_targets = list(set(I_inv[i]) & set(I_inv[j]))
+                for k in common_targets:
+                    if all_tfs[j] == k or all_tfs[i] == k:
+                        continue
+                    ffls.append([i, j, k])
+                    if self.weights is not None:
+                        direct = self.weights[k][self.I[k].index(all_tfs[i])]
+                        indirect1 = self.weights[all_tfs[j]][self.I[all_tfs[j]].index(all_tfs[i])]
+                        indirect2 = self.weights[k][self.I[k].index(all_tfs[j])]
+                        types.append([direct, indirect1, indirect2])
+        if self.weights is not None:
+            return (ffls, types)
+        else:
+            return ffls
+
+    def generate_networkx_graph(self, constants : list, variables : list) -> nx.DiGraph:
+        """
+        Generate a NetworkX directed graph from a wiring diagram.
+
+        Nodes are labeled with variable names (from variables) and constant
+        names (from constants). Edges are added from each regulator to its
+        target based on the wiring diagram I.
+
+        **Parameters:**
+            
+            - constants (list[str]): List of constant names.
+            - variables (list[str]): List of variable names.
+
+        **Returns:**
+            
+            - networkx.DiGraph: The noderated directed graph.
+        """
+        names = list(variables) + list(constants)
+        G = nx.DiGraph()
+        G.add_nodes_from(names)
+        G.add_edges_from([(names[self.I[i][j]], names[i]) for i in range(len(variables)) for j in range(len(self.I[i]))])
+        return G
+
+
+    def generate_networkx_graph_from_edges(self, n_variables : int) -> nx.DiGraph:
+        """
+        Generate a NetworkX directed graph from an edge list derived from the
+        wiring diagram.
+
+        Only edges among the first n_variables (excluding constant self-loops)
+        are included.
+
+        **Parameters:**
+            
+            - n_variables (int): Number of variable nodes (constants are
+              excluded).
+
+        **Returns:**
+            
+            - networkx.DiGraph: The generated directed graph.
+        """
+        edges = []
+        for j, regulators in enumerate(self.I):
+            if j >= n_variables:  # Exclude constant self-loops
+                break
+            for i in regulators:
+                edges.append((i, j))
+        return nx.DiGraph(edges)
+
+    def get_type_of_loop(self, loop : list) -> list:
+        """
+        Determine the regulation types along a feedback loop.
+
+        For a given loop (a list of node indices), this function returns a
+        list containing the type (e.g., 'increasing' or 'decreasing') of each
+        regulation along the loop. The loop is assumed to be ordered such that
+        the first node is repeated at the end.
+
+        **Parameters:**
+            
+            - loop (list[int]): List of node indices representing the loop.
+
+        **Returns:**
+            
+            - list[int]: A list of regulation types corresponding to each edge
+              in the loop.
+        """
+        n = len(loop)
+        dummy = loop[:]
+        dummy.append(loop[0])
+        res = []
+        for i in range(n):
+            # Assumes is_monotonic returns a tuple with the monotonicity information.
+            res.append(self.F[dummy[i+1]].is_monotonic(True)[1][list(self.I[dummy[i+1]]).index(dummy[i])])
+        return res
+
+
+
+
+class BooleanNetwork(WiringDiagram):
     """
     A class representing a Boolean network with N variables.
     
@@ -56,21 +431,11 @@ class BooleanNetwork(object):
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node;
     """
-    
-    left_side_of_truth_tables = {}
 
-    def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None):
+    def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None, SIMPLIFY_FUNCTIONS=False):
         assert isinstance(F, (list, np.ndarray)), "F must be an array"
-        assert isinstance(I, (list, np.ndarray)), "I must be an array"
-        #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
-        assert variables is None or len(F)==len(variables), "len(F)==len(variables) required if variable names are provided"
-        assert len(F)==len(I), "len(F)==len(I) required"
-        
-        self.N = len(F)
-        if variables is None:
-            self.variables = np.array(['x'+str(i) for i in range(len(F))])
-        else:
-            self.variables = np.array(variables)
+        super().__init__(self,I,variables)
+        assert len(F)==self.N, "len(F)==len(I) required"
         
         self.F = []
         for ii,f in enumerate(F):
@@ -81,12 +446,11 @@ class BooleanNetwork(object):
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
-                
-        self.I = [np.array(regulators,dtype=int) for regulators in I]
-        self.indegrees = list(map(len, self.I))
-        self.outdegrees = self.get_outdegrees()
+
         self.STG = None
         self.attractor_info_sync_exact = None
+        if SIMPLIFY_FUNCTIONS:
+            self = self.get_essential_network()
         
 
     @classmethod
@@ -117,7 +481,7 @@ class BooleanNetwork(object):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_bnet(cls, bnet : str) -> "BooleanNetwork":
+    def from_bnet(cls, bnet : str, separator : str = ',') -> "BooleanNetwork":
         """
         **Compatability Method:**
         
@@ -134,14 +498,10 @@ class BooleanNetwork(object):
             if line=='' or line[0] == '#':
                 continue
             try:
-                functions.append(line.split(',')[1].strip())
-                variables.append(line.split(',')[0].strip())
+                functions.append(line.split(separator)[1].strip())
+                variables.append(line.split(separator)[0].strip())
             except IndexError:
-                try:
-                    functions.append(line.split('=')[1].strip())
-                    variables.append(line.split('=')[0].strip())
-                except IndexError:
-                    continue
+                continue
         dict_variables = dict(zip(variables,range(len(variables))))
         n_variables = len(variables)
         F = []
@@ -234,22 +594,117 @@ class BooleanNetwork(object):
         result = cls.__new__(cls)
         result.__dict__.update(self.__dict__)
         return result
-    
-    
-    def get_outdegrees(self) -> np.array:
-        """
-        Returns the outdegree of each node.
         
+    
+    ## Transform Boolean networks
+    def get_essential_network(self) -> "BooleanNetwork":
+        """
+        Determine the essential components of a Boolean network.
+
+        For each node in a Boolean network, represented by its Boolean function
+        and its regulators, this function extracts the “essential” part of the
+        function by removing non-essential regulators. The resulting network
+        contains, for each node, a reduced truth table (with only the essential
+        inputs) and a corresponding list of essential regulators.
+
         **Returns:**
             
-            - np.array[int]: Outdegree of each node.
+            - BooleanNetwork: A Boolean network object where:
+                
+                - F is a list of N Boolean functions containing functions of
+                  length 2^(m_i), with m_i ≤ n_i, representing the functions
+                  restricted to the essential regulators.
+                  
+                - I is a list of N lists containing the indices of the
+                  essential regulators for each node.
         """
-        outdegrees = np.zeros(self.N,dtype=int)
-        for regulators in self.I:
-            for regulator in regulators:
-                outdegrees[regulator] += 1
-        return outdegrees
+        F_essential = []
+        I_essential = []
+        for bf, regulators in zip(self.F, self.I):
+            if len(bf.f) == 0:  # happens for biological networks if the actual indegree of f was too large for it to be loaded
+                F_essential.append(bf)
+                I_essential.append(regulators) #keep all regulators (unable to determine if all are essential)
+                continue
+            elif bf.f.get_hamming_weight() == 0: #constant zero function
+                F_essential.append(BF(np.array([0])))
+                I_essential.append(np.array([], dtype=int))
+                continue
+            elif bf.f.get_hamming_weight() == len(bf.f): #constant one function
+                F_essential.append(BF(np.array([1])))
+                I_essential.append(np.array([], dtype=int))
+                continue
+            essential_variables = np.array(bf.get_essential_variables())
+            n = len(regulators)
+            non_essential_variables = np.array(list(set(list(range(n))) - set(essential_variables)))
+            if len(non_essential_variables) == 0:
+                F_essential.append(bf)
+                I_essential.append(regulators)
+            else:
+                left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
+                F_essential.append(BF(bf.f[np.sum(left_side_of_truth_table[:, non_essential_variables], 1) == 0]))
+                I_essential.append(np.array(regulators)[essential_variables])
+        return BooleanNetwork(F_essential, I_essential, self.variables)
+
+
+    def get_edge_controlled_network(self, control_target : int,
+        control_source : int, type_of_edge_control : int = 0) -> "BooleanNetwork":
+        """
+        Generate a perturbed Boolean network by removing the influence of a
+        specified regulator on a specified target.
+
+        The function modifies the Boolean function for a target node by
+        restricting it to those entries in its truth table where the input
+        from a given regulator equals the specified type_of_control. The
+        regulator is then removed from the wiring diagram for that node.
+
+        **Parameters:**
+            
+            - control_target (int): Index of the target node to be perturbed.
+            - control_source (int): Index of the regulator whose influence is
+              to be removed.
+              
+            - type_of_edge_control (int, optional): Source value in regulation
+              after control. Default is 0.
+
+        **Returns:**
+            
+            - BooleanNetwork object where:
+                
+                - F is the updated list of Boolean functions after perturbation.
+                - I is the updated wiring diagram after removing the control
+                  regulator from the target node.
+        """
+        assert type_of_edge_control in [0,1], "type_of_edge_control must be 0 or 1."
+        assert control_source in self.I[control_target], "control_source=%i does not regulate control_target=%i." % (control_source,control_target)
         
+        F_new = [bf.f for bf in self.F]
+        I_new = [i for i in self.I]
+
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
+
+        index = list(self.I[control_target]).index(control_source)
+        F_new[control_target] = F_new[control_target][left_side_of_truth_table[:, index] == type_of_edge_control]
+        dummy = list(I_new[control_target])
+        dummy.remove(control_source)
+        I_new[control_target] = np.array(dummy)
+        return BooleanNetwork(F_new, I_new, self.variables)
+
+
+    def get_external_inputs(self) -> np.array:
+        """
+        Identify external inputs in a Boolean network.
+
+        A node is considered an external input if it has exactly one regulator
+        and that regulator is the node itself.
+
+        **Returns:**
+            
+            - np.array[int]: Array of node indices that are external inputs.
+        """
+        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i])
+
+    
+
     
     def update_single_node(self, index : int,
         states_regulators : Union[list, np.array]) -> int:
@@ -842,112 +1297,6 @@ class BooleanNetwork(object):
                         (attractors, len(attractors), basin_sizes, attractor_dict, self.STG)))  
 
 
-    ## Transform Boolean networks
-    def get_essential_network(self) -> "BooleanNetwork":
-        """
-        Determine the essential components of a Boolean network.
-
-        For each node in a Boolean network, represented by its Boolean function
-        and its regulators, this function extracts the “essential” part of the
-        function by removing non-essential regulators. The resulting network
-        contains, for each node, a reduced truth table (with only the essential
-        inputs) and a corresponding list of essential regulators.
-
-        **Returns:**
-            
-            - BooleanNetwork: A Boolean network object where:
-                
-                - F is a list of N Boolean functions containing functions of
-                  length 2^(m_i), with m_i ≤ n_i, representing the functions
-                  restricted to the essential regulators.
-                  
-                - I is a list of N lists containing the indices of the
-                  essential regulators for each node.
-        """
-        F_essential = []
-        I_essential = []
-        for bf, regulators in zip(self.F, self.I):
-            if len(bf.f) == 0:  # happens for biological networks if the actual indegree of f was too large for it to be loaded
-                F_essential.append(bf)
-                I_essential.append(regulators) #keep all regulators (unable to determine if all are essential)
-                continue
-            elif bf.f.get_hamming_weight() == 0: #constant zero function
-                F_essential.append(BF(np.array([0])))
-                I_essential.append(np.array([], dtype=int))
-                continue
-            elif bf.f.get_hamming_weight() == len(bf.f): #constant one function
-                F_essential.append(BF(np.array([1])))
-                I_essential.append(np.array([], dtype=int))
-                continue
-            essential_variables = np.array(bf.get_essential_variables())
-            n = len(regulators)
-            non_essential_variables = np.array(list(set(list(range(n))) - set(essential_variables)))
-            if len(non_essential_variables) == 0:
-                F_essential.append(bf)
-                I_essential.append(regulators)
-            else:
-                left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
-                F_essential.append(BF(bf.f[np.sum(left_side_of_truth_table[:, non_essential_variables], 1) == 0]))
-                I_essential.append(np.array(regulators)[essential_variables])
-        return BooleanNetwork(F_essential, I_essential, self.variables)
-
-
-    def get_edge_controlled_network(self, control_target : int,
-        control_source : int, type_of_edge_control : int = 0) -> "BooleanNetwork":
-        """
-        Generate a perturbed Boolean network by removing the influence of a
-        specified regulator on a specified target.
-
-        The function modifies the Boolean function for a target node by
-        restricting it to those entries in its truth table where the input
-        from a given regulator equals the specified type_of_control. The
-        regulator is then removed from the wiring diagram for that node.
-
-        **Parameters:**
-            
-            - control_target (int): Index of the target node to be perturbed.
-            - control_source (int): Index of the regulator whose influence is
-              to be removed.
-              
-            - type_of_edge_control (int, optional): Source value in regulation
-              after control. Default is 0.
-
-        **Returns:**
-            
-            - BooleanNetwork object where:
-                
-                - F is the updated list of Boolean functions after perturbation.
-                - I is the updated wiring diagram after removing the control
-                  regulator from the target node.
-        """
-        assert type_of_edge_control in [0,1], "type_of_edge_control must be 0 or 1."
-        assert control_source in self.I[control_target], "control_source=%i does not regulate control_target=%i." % (control_source,control_target)
-        
-        F_new = [bf.f for bf in self.F]
-        I_new = [i for i in self.I]
-
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
-
-        index = list(self.I[control_target]).index(control_source)
-        F_new[control_target] = F_new[control_target][left_side_of_truth_table[:, index] == type_of_edge_control]
-        dummy = list(I_new[control_target])
-        dummy.remove(control_source)
-        I_new[control_target] = np.array(dummy)
-        return BooleanNetwork(F_new, I_new, self.variables)
-
-
-    def get_external_inputs(self) -> np.array:
-        """
-        Identify external inputs in a Boolean network.
-
-        A node is considered an external input if it has exactly one regulator
-        and that regulator is the node itself.
-
-        **Returns:**
-            
-            - np.array[int]: Array of node indices that are external inputs.
-        """
-        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i])
 
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
@@ -1468,336 +1817,3 @@ class BooleanNetwork(object):
                              "AttractorCoherence", "AttractorFragility"],
                             tuple(results + [attractor_coherence,attractor_fragility])))
         
-    def get_strongly_connected_components(self) -> list:
-        """
-        Determine the strongly connected components of a wiring diagram.
-
-        **Returns:**
-            
-            - list[set[int]]: A list of sets, each representing a strongly
-              connected component.
-        """
-        edges_wiring_diagram = []
-        for target, regulators in enumerate(self.I):
-            for regulator in regulators:
-                edges_wiring_diagram.append((regulator, target))
-        subG = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
-        return [scc for scc in nx.strongly_connected_components(subG)]
-
-    def get_modular_structure(self):
-        """
-        Determine the modular structure of a Boolean network.
-
-        The modular structure is defined by a directed acyclic graph (DAG) whose
-        nodes are the strongly connected components (SCCs) of the underlying wiring
-        diagram and whose directed edges indicate a regulation from one SCC to another SCC.
-
-        **Returns:**
-            
-            - set[tuple[int]]: A set of edges, describing a directed acyclic graph
-              indicating the regulations between modules (i.e., strongly connected
-              components of the underlying wiring diagram).
-        """
-        sccs = self.get_strongly_connected_components()
-        scc_dict = {}
-        for j,s in enumerate(sccs):
-            for el in s:
-                scc_dict.update({el:j})
-        dag = set()
-        for target,regulators in enumerate(self.I):
-            for regulator in regulators:
-                edge = (scc_dict[regulator],scc_dict[target])
-                if edge[0]!=edge[1]:
-                    dag.add(edge)   
-        return dag
-
-    def adjacency_matrix(self, constants : list = [],
-        IGNORE_SELFLOOPS : bool = False, IGNORE_CONSTANTS : bool = True) -> np.array:
-        """
-        Construct the (binary) adjacency matrix from the wiring diagram.
-
-        Given the wiring diagram I (a list of regulator lists for each node)
-        and a list of constants, this function builds an adjacency matrix
-        where each entry m[j, i] is 1 if node j regulates node i. Self-loops
-        can be optionally ignored, and constant nodes can be excluded.
-
-        **Parameters:**
-            
-            - constants (list[int], optional): List of constant nodes.
-            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are
-              excluded from the matrix.
-
-        **Returns:**
-            
-            - np.array[np.array[int]]: The binary adjacency matrix.
-        """
-        n = len(self.I)
-        n_constants = len(constants)
-        if IGNORE_CONSTANTS:
-            m = np.zeros((n - n_constants, n - n_constants), dtype=int)
-            for i in range(len(self.I)):
-                for j in self.I[i]:
-                    if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
-                        m[j, i] = 1
-            return m
-        else:
-            return self.adjacency_matrix([], IGNORE_CONSTANTS=True)
-
-
-    def get_signed_adjacency_matrix(self, type_of_each_regulation : list,
-        constants : list = [], IGNORE_SELFLOOPS : bool = False,
-        IGNORE_CONSTANTS : bool = True) -> np.array:
-        """
-        Construct the signed adjacency matrix of a Boolean network.
-
-        The signed adjacency matrix assigns +1 for increasing (activating)
-        regulations, -1 for decreasing (inhibiting) regulations, and NaN for
-        any other type.
-
-        **Parameters:**
-            
-            - type_of_each_regulation (list[str]): List of lists corresponding
-              to the type of regulation ('increasing' or 'decreasing') for
-              each edge in I.
-              
-            - constants (list[int], optional): List of constant nodes.
-            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
-              are excluded.
-
-        **Returns:**
-            
-            - np.array[np.array[int]]: The signed adjacency matrix.
-        """
-        n = len(self.I)
-        n_constants = len(constants)
-        if IGNORE_CONSTANTS:
-            m = np.zeros((n - n_constants, n - n_constants), dtype=int)
-            for i, (regulators, type_of_regulation) in enumerate(zip(self.I, type_of_each_regulation)):
-                for j, t in zip(regulators, type_of_regulation):
-                    if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
-                        if t == 'increasing':
-                            m[j, i] = 1 
-                        elif t == 'decreasing':
-                            m[j, i] = -1 
-                        else:
-                            m[j, i] = np.nan
-            return m
-        else:
-            return self.get_signed_adjacency_matrix(type_of_each_regulation, [], IGNORE_CONSTANTS=True)
-
-
-    def get_signed_effective_graph(self, type_of_each_regulation : list,
-        constants : list = [], IGNORE_SELFLOOPS : bool = False,
-        IGNORE_CONSTANTS : bool = True) -> np.array:
-        """
-        Construct the signed effective graph of a Boolean network.
-
-        This function computes an effective graph in which each edge is
-        weighted by its effectiveness. Effectiveness is obtained via
-        get_edge_effectiveness on the corresponding Boolean function. Edges
-        are signed according to the type of regulation ('increasing' or
-        'decreasing').
-
-        **Parameters:**
-            
-            - type_of_each_regulation (list[str]): List of lists specifying
-              the type of regulation for each edge.
-              
-            - constants (list[int], optional): List of constant nodes.
-            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
-              are excluded.
-
-        **Returns:**
-            
-            - np.array[float]: The signed effective graph as a matrix of edge
-              effectiveness values.
-        """
-        n = len(self.I)
-        n_constants = len(constants)
-        if IGNORE_CONSTANTS:
-            m = np.zeros((n - n_constants, n - n_constants), dtype=float)
-            for i, (regulators, type_of_regulation) in enumerate(zip(self.I, type_of_each_regulation)):
-                effectivenesses = self.F[i].get_edge_effectiveness()
-                for j, t, e in zip(regulators, type_of_regulation, effectivenesses):
-                    if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
-                        if t == 'increasing':
-                            m[j, i] = e
-                        elif t == 'decreasing':
-                            m[j, i] = -e
-                        else:
-                            m[j, i] = np.nan
-            return m
-        else:
-            return self.get_signed_effective_graph(type_of_each_regulation, [], IGNORE_CONSTANTS=True)
-
-
-    def get_ffls(self) -> tuple:
-        """
-        Identify feed-forward loops (FFLs) in a Boolean network and optionally
-        determine their types.
-
-        A feed-forward loop (FFL) is a three-node motif where node i regulates
-        node k both directly and indirectly via node j.
-
-        **Returns:**
-            
-            - tuple[list[int], list[int]]:
-                
-                A tuple (ffls, types), where ffls is a list of FFLs and
-                types is a list of corresponding monotonicity types.
-        """
-        ffls = []
-        types = []
-        for i in range(len(self.I)):
-            for j in range(i + 1, len(self.I)):
-                for k in range(len(self.I)):
-                    if i == k or j == k:
-                        continue
-                    # Check if there is an FFL: i regulates k and j regulates both i and k.
-                    if i in self.I[k] and i in self.I[j] and j in self.I[k]:
-                        ffls.append([i, j, k])
-                        # Compute types if F is provided.
-                        # (This example assumes a helper function is_monotonic exists and that I is ordered.)
-                        #monotonic_i = is_monotonic(F[i], True)[1]
-                        monotonic_j = self.F[j].is_monotonic(True)[1]
-                        monotonic_k = self.F[k].is_monotonic(True)[1]
-                        direct = monotonic_k[self.I[k].index(i)]
-                        indirect1 = monotonic_j[self.I[j].index(i)]
-                        indirect2 = monotonic_k[self.I[k].index(j)]
-                        types.append([direct, indirect1, indirect2])
-        return (ffls, types)
-
-
-    def get_ffls_from_I(self, types_I : Optional[list] = None) -> Union[tuple, list]:
-        """
-        Identify feed-forward loops (FFLs) in a Boolean network based solely
-        on the wiring diagram.
-
-        The function uses the inverted wiring diagram to identify common
-        targets and returns the FFLs found. If types_I (the type of each
-        regulation) is provided, it also returns the corresponding regulation
-        types.
-
-        **Parameters:**
-            
-            - types_I (list[list[str]], optional): List of lists specifying
-              the type (e.g., 'increasing' or 'decreasing') for each regulation.
-
-        **Returns:**
-            
-            If types_I is provided:
-                
-                - tuple[list[int], list[int]]: (ffls, types) where ffls is a
-                  list of identified FFLs (each as a list [i, j, k]), and
-                  types is a list of corresponding regulation type triplets.
-                
-            Otherwise:
-                
-                - list[list[int]]: A list of identified FFLs.
-        """
-        all_tfs = list(range(len(self.I)))
-        n_tfs = len(all_tfs)
-        all_tfs_dict = dict(zip(all_tfs, list(range(n_tfs))))
-        I_inv = [[] for _ in all_tfs]
-        for target, el in enumerate(self.I):
-            for regulator in el:
-                I_inv[all_tfs_dict[regulator]].append(target)
-        ffls = []
-        types = []
-        for i in range(n_tfs):  # master regulators
-            for j in range(n_tfs):
-                if i == j or all_tfs[j] not in I_inv[i]:
-                    continue
-                common_targets = list(set(I_inv[i]) & set(I_inv[j]))
-                for k in common_targets:
-                    if all_tfs[j] == k or all_tfs[i] == k:
-                        continue
-                    ffls.append([i, j, k])
-                    if types_I is not None:
-                        direct = types_I[k][self.I[k].index(all_tfs[i])]
-                        indirect1 = types_I[all_tfs[j]][self.I[all_tfs[j]].index(all_tfs[i])]
-                        indirect2 = types_I[k][self.I[k].index(all_tfs[j])]
-                        types.append([direct, indirect1, indirect2])
-        if types_I is not None:
-            return (ffls, types)
-        else:
-            return ffls
-
-    def generate_networkx_graph(self, constants : list, variables : list) -> nx.DiGraph:
-        """
-        Generate a NetworkX directed graph from a wiring diagram.
-
-        Nodes are labeled with variable names (from variables) and constant
-        names (from constants). Edges are added from each regulator to its
-        target based on the wiring diagram I.
-
-        **Parameters:**
-            
-            - constants (list[str]): List of constant names.
-            - variables (list[str]): List of variable names.
-
-        **Returns:**
-            
-            - networkx.DiGraph: The noderated directed graph.
-        """
-        names = list(variables) + list(constants)
-        G = nx.DiGraph()
-        G.add_nodes_from(names)
-        G.add_edges_from([(names[self.I[i][j]], names[i]) for i in range(len(variables)) for j in range(len(self.I[i]))])
-        return G
-
-
-    def generate_networkx_graph_from_edges(self, n_variables : int) -> nx.DiGraph:
-        """
-        Generate a NetworkX directed graph from an edge list derived from the
-        wiring diagram.
-
-        Only edges among the first n_variables (excluding constant self-loops)
-        are included.
-
-        **Parameters:**
-            
-            - n_variables (int): Number of variable nodes (constants are
-              excluded).
-
-        **Returns:**
-            
-            - networkx.DiGraph: The generated directed graph.
-        """
-        edges = []
-        for j, regulators in enumerate(self.I):
-            if j >= n_variables:  # Exclude constant self-loops
-                break
-            for i in regulators:
-                edges.append((i, j))
-        return nx.DiGraph(edges)
-
-    def get_type_of_loop(self, loop : list) -> list:
-        """
-        Determine the regulation types along a feedback loop.
-
-        For a given loop (a list of node indices), this function returns a
-        list containing the type (e.g., 'increasing' or 'decreasing') of each
-        regulation along the loop. The loop is assumed to be ordered such that
-        the first node is repeated at the end.
-
-        **Parameters:**
-            
-            - loop (list[int]): List of node indices representing the loop.
-
-        **Returns:**
-            
-            - list[int]: A list of regulation types corresponding to each edge
-              in the loop.
-        """
-        n = len(loop)
-        dummy = loop[:]
-        dummy.append(loop[0])
-        res = []
-        for i in range(n):
-            # Assumes is_monotonic returns a tuple with the monotonicity information.
-            res.append(self.F[dummy[i+1]].is_monotonic(True)[1][list(self.I[dummy[i+1]]).index(dummy[i])])
-        return res
