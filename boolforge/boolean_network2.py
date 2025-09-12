@@ -542,13 +542,12 @@ class BooleanNetwork(WiringDiagram):
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
         return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts)))
 
-
     def to_bnet(self) -> str:
         """
         **Compatability method:**
             
             Returns a bnet object from the pyboolnet module.
-
+        
         **Returns:**
             
             - A string describing a bnet from the pyboolnet module.
@@ -558,7 +557,22 @@ class BooleanNetwork(WiringDiagram):
             polynomial = utils.bool_to_poly(bf.f,variables=self.variables[regulators])
             lines.append(f'{variable},\t{polynomial}')
         return '\n'.join(lines)
+    
+    def to_bnet_expr(self) -> str:
+        """
+        **Compatability method:**
+            
+            Returns a bnet string formatting as logical expressions.
         
+        **Returns:**
+            
+            - A string describing a bnet as a logical expression.
+        """
+        lines = []
+        for bf,regulators,variable in zip(self.F,self.I,self.variables):
+            expression = bf.to_expression(" & ", " | ")
+            lines.append(f'{variable},\t{expression}')
+        return '\n'.join(lines)
     
     def __len__(self):
         return self.N
