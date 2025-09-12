@@ -47,7 +47,26 @@ class WiringDiagram(object):
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.indegrees = list(map(len, self.I))
         self.outdegrees = self.get_outdegrees()
+        if weights is not None:
+            self.weights = weights
 
+    def __getitem__(self, index):
+        return self.I[index]
+
+    def get_outdegrees(self) -> np.array:
+        """
+        Returns the outdegree of each node.
+        
+        **Returns:**
+            
+            - np.array[int]: Outdegree of each node.
+        """
+        outdegrees = np.zeros(self.N,dtype=int)
+        for regulators in self.I:
+            for regulator in regulators:
+                outdegrees[regulator] += 1
+        return outdegrees
+    
 
     def get_strongly_connected_components(self) -> list:
         """
@@ -297,12 +316,12 @@ class WiringDiagram(object):
                     if all_tfs[j] == k or all_tfs[i] == k:
                         continue
                     ffls.append([i, j, k])
-                    if types_I is not None:
-                        direct = types_I[k][self.I[k].index(all_tfs[i])]
-                        indirect1 = types_I[all_tfs[j]][self.I[all_tfs[j]].index(all_tfs[i])]
-                        indirect2 = types_I[k][self.I[k].index(all_tfs[j])]
+                    if self.weights is not None:
+                        direct = self.weights[k][self.I[k].index(all_tfs[i])]
+                        indirect1 = self.weights[all_tfs[j]][self.I[all_tfs[j]].index(all_tfs[i])]
+                        indirect2 = self.weights[k][self.I[k].index(all_tfs[j])]
                         types.append([direct, indirect1, indirect2])
-        if types_I is not None:
+        if self.weights is not None:
             return (ffls, types)
         else:
             return ffls
@@ -414,18 +433,10 @@ class BooleanNetwork(WiringDiagram):
     
     left_side_of_truth_tables = {}
 
-    def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None):
-        assert isinstance(F, (list, np.ndarray)), "F must be an array"
-        assert isinstance(I, (list, np.ndarray)), "I must be an array"
-        #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
-        assert variables is None or len(F)==len(variables), "len(F)==len(variables) required if variable names are provided"
-        assert len(F)==len(I), "len(F)==len(I) required"
+    def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None, SIMPLIFY_FUNCTIONS=False):
+        assert len(F)==self.N, "len(F)==len(I) required"
         
-        self.N = len(F)
-        if variables is None:
-            self.variables = np.array(['x'+str(i) for i in range(self.N)])
-        else:
-            self.variables = np.array(variables)
+        super().__init__(self,I,variables)
         
         self.F = []
         for ii,f in enumerate(F):
@@ -437,11 +448,10 @@ class BooleanNetwork(WiringDiagram):
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
                 
-        self.I = [np.array(regulators,dtype=int) for regulators in I]
-        self.indegrees = list(map(len, self.I))
-        self.outdegrees = self.get_outdegrees()
         self.STG = None
         self.attractor_info_sync_exact = None
+        if SIMPLIFY_FUNCTIONS:
+            self = self.get_essential_network()
         
 
     @classmethod
@@ -575,22 +585,116 @@ class BooleanNetwork(WiringDiagram):
         result = cls.__new__(cls)
         result.__dict__.update(self.__dict__)
         return result
-    
-    
-    def get_outdegrees(self) -> np.array:
-        """
-        Returns the outdegree of each node.
         
+    
+    ## Transform Boolean networks
+    def get_essential_network(self) -> "BooleanNetwork":
+        """
+        Determine the essential components of a Boolean network.
+
+        For each node in a Boolean network, represented by its Boolean function
+        and its regulators, this function extracts the “essential” part of the
+        function by removing non-essential regulators. The resulting network
+        contains, for each node, a reduced truth table (with only the essential
+        inputs) and a corresponding list of essential regulators.
+
         **Returns:**
             
-            - np.array[int]: Outdegree of each node.
+            - BooleanNetwork: A Boolean network object where:
+                
+                - F is a list of N Boolean functions containing functions of
+                  length 2^(m_i), with m_i ≤ n_i, representing the functions
+                  restricted to the essential regulators.
+                  
+                - I is a list of N lists containing the indices of the
+                  essential regulators for each node.
         """
-        outdegrees = np.zeros(self.N,dtype=int)
-        for regulators in self.I:
-            for regulator in regulators:
-                outdegrees[regulator] += 1
-        return outdegrees
+        F_essential = []
+        I_essential = []
+        for bf, regulators in zip(self.F, self.I):
+            if len(bf.f) == 0:  # happens for biological networks if the actual indegree of f was too large for it to be loaded
+                F_essential.append(bf)
+                I_essential.append(regulators) #keep all regulators (unable to determine if all are essential)
+                continue
+            elif bf.f.get_hamming_weight() == 0: #constant zero function
+                F_essential.append(BF(np.array([0])))
+                I_essential.append(np.array([], dtype=int))
+                continue
+            elif bf.f.get_hamming_weight() == len(bf.f): #constant one function
+                F_essential.append(BF(np.array([1])))
+                I_essential.append(np.array([], dtype=int))
+                continue
+            essential_variables = np.array(bf.get_essential_variables())
+            n = len(regulators)
+            non_essential_variables = np.array(list(set(list(range(n))) - set(essential_variables)))
+            if len(non_essential_variables) == 0:
+                F_essential.append(bf)
+                I_essential.append(regulators)
+            else:
+                left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
+                F_essential.append(BF(bf.f[np.sum(left_side_of_truth_table[:, non_essential_variables], 1) == 0]))
+                I_essential.append(np.array(regulators)[essential_variables])
+        return BooleanNetwork(F_essential, I_essential, self.variables)
+
+
+    def get_edge_controlled_network(self, control_target : int,
+        control_source : int, type_of_edge_control : int = 0) -> "BooleanNetwork":
+        """
+        Generate a perturbed Boolean network by removing the influence of a
+        specified regulator on a specified target.
+
+        The function modifies the Boolean function for a target node by
+        restricting it to those entries in its truth table where the input
+        from a given regulator equals the specified type_of_control. The
+        regulator is then removed from the wiring diagram for that node.
+
+        **Parameters:**
+            
+            - control_target (int): Index of the target node to be perturbed.
+            - control_source (int): Index of the regulator whose influence is
+              to be removed.
+              
+            - type_of_edge_control (int, optional): Source value in regulation
+              after control. Default is 0.
+
+        **Returns:**
+            
+            - BooleanNetwork object where:
+                
+                - F is the updated list of Boolean functions after perturbation.
+                - I is the updated wiring diagram after removing the control
+                  regulator from the target node.
+        """
+        assert type_of_edge_control in [0,1], "type_of_edge_control must be 0 or 1."
+        assert control_source in self.I[control_target], "control_source=%i does not regulate control_target=%i." % (control_source,control_target)
         
+        F_new = [bf.f for bf in self.F]
+        I_new = [i for i in self.I]
+
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
+
+        index = list(self.I[control_target]).index(control_source)
+        F_new[control_target] = F_new[control_target][left_side_of_truth_table[:, index] == type_of_edge_control]
+        dummy = list(I_new[control_target])
+        dummy.remove(control_source)
+        I_new[control_target] = np.array(dummy)
+        return BooleanNetwork(F_new, I_new, self.variables)
+
+
+    def get_external_inputs(self) -> np.array:
+        """
+        Identify external inputs in a Boolean network.
+
+        A node is considered an external input if it has exactly one regulator
+        and that regulator is the node itself.
+
+        **Returns:**
+            
+            - np.array[int]: Array of node indices that are external inputs.
+        """
+        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i])
+
+    
     
     def update_single_node(self, index : int,
         states_regulators : Union[list, np.array]) -> int:
@@ -1183,112 +1287,6 @@ class BooleanNetwork(WiringDiagram):
                         (attractors, len(attractors), basin_sizes, attractor_dict, self.STG)))  
 
 
-    ## Transform Boolean networks
-    def get_essential_network(self) -> "BooleanNetwork":
-        """
-        Determine the essential components of a Boolean network.
-
-        For each node in a Boolean network, represented by its Boolean function
-        and its regulators, this function extracts the “essential” part of the
-        function by removing non-essential regulators. The resulting network
-        contains, for each node, a reduced truth table (with only the essential
-        inputs) and a corresponding list of essential regulators.
-
-        **Returns:**
-            
-            - BooleanNetwork: A Boolean network object where:
-                
-                - F is a list of N Boolean functions containing functions of
-                  length 2^(m_i), with m_i ≤ n_i, representing the functions
-                  restricted to the essential regulators.
-                  
-                - I is a list of N lists containing the indices of the
-                  essential regulators for each node.
-        """
-        F_essential = []
-        I_essential = []
-        for bf, regulators in zip(self.F, self.I):
-            if len(bf.f) == 0:  # happens for biological networks if the actual indegree of f was too large for it to be loaded
-                F_essential.append(bf)
-                I_essential.append(regulators) #keep all regulators (unable to determine if all are essential)
-                continue
-            elif bf.f.get_hamming_weight() == 0: #constant zero function
-                F_essential.append(BF(np.array([0])))
-                I_essential.append(np.array([], dtype=int))
-                continue
-            elif bf.f.get_hamming_weight() == len(bf.f): #constant one function
-                F_essential.append(BF(np.array([1])))
-                I_essential.append(np.array([], dtype=int))
-                continue
-            essential_variables = np.array(bf.get_essential_variables())
-            n = len(regulators)
-            non_essential_variables = np.array(list(set(list(range(n))) - set(essential_variables)))
-            if len(non_essential_variables) == 0:
-                F_essential.append(bf)
-                I_essential.append(regulators)
-            else:
-                left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
-                F_essential.append(BF(bf.f[np.sum(left_side_of_truth_table[:, non_essential_variables], 1) == 0]))
-                I_essential.append(np.array(regulators)[essential_variables])
-        return BooleanNetwork(F_essential, I_essential, self.variables)
-
-
-    def get_edge_controlled_network(self, control_target : int,
-        control_source : int, type_of_edge_control : int = 0) -> "BooleanNetwork":
-        """
-        Generate a perturbed Boolean network by removing the influence of a
-        specified regulator on a specified target.
-
-        The function modifies the Boolean function for a target node by
-        restricting it to those entries in its truth table where the input
-        from a given regulator equals the specified type_of_control. The
-        regulator is then removed from the wiring diagram for that node.
-
-        **Parameters:**
-            
-            - control_target (int): Index of the target node to be perturbed.
-            - control_source (int): Index of the regulator whose influence is
-              to be removed.
-              
-            - type_of_edge_control (int, optional): Source value in regulation
-              after control. Default is 0.
-
-        **Returns:**
-            
-            - BooleanNetwork object where:
-                
-                - F is the updated list of Boolean functions after perturbation.
-                - I is the updated wiring diagram after removing the control
-                  regulator from the target node.
-        """
-        assert type_of_edge_control in [0,1], "type_of_edge_control must be 0 or 1."
-        assert control_source in self.I[control_target], "control_source=%i does not regulate control_target=%i." % (control_source,control_target)
-        
-        F_new = [bf.f for bf in self.F]
-        I_new = [i for i in self.I]
-
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
-
-        index = list(self.I[control_target]).index(control_source)
-        F_new[control_target] = F_new[control_target][left_side_of_truth_table[:, index] == type_of_edge_control]
-        dummy = list(I_new[control_target])
-        dummy.remove(control_source)
-        I_new[control_target] = np.array(dummy)
-        return BooleanNetwork(F_new, I_new, self.variables)
-
-
-    def get_external_inputs(self) -> np.array:
-        """
-        Identify external inputs in a Boolean network.
-
-        A node is considered an external input if it has exactly one regulator
-        and that regulator is the node itself.
-
-        **Returns:**
-            
-            - np.array[int]: Array of node indices that are external inputs.
-        """
-        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i])
 
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
