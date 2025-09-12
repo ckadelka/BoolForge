@@ -48,6 +48,19 @@ class WiringDiagram(object):
         self.indegrees = list(map(len, self.I))
         self.outdegrees = self.get_outdegrees()
 
+    def get_outdegrees(self) -> np.array:
+        """
+        Returns the outdegree of each node.
+        
+        **Returns:**
+            
+            - np.array[int]: Outdegree of each node.
+        """
+        outdegrees = np.zeros(self.N,dtype=int)
+        for regulators in self.I:
+            for regulator in regulators:
+                outdegrees[regulator] += 1
+        return outdegrees
 
     def get_strongly_connected_components(self) -> list:
         """
@@ -564,22 +577,6 @@ class BooleanNetwork(WiringDiagram):
         result = cls.__new__(cls)
         result.__dict__.update(self.__dict__)
         return result
-    
-    
-    def get_outdegrees(self) -> np.array:
-        """
-        Returns the outdegree of each node.
-        
-        **Returns:**
-            
-            - np.array[int]: Outdegree of each node.
-        """
-        outdegrees = np.zeros(self.N,dtype=int)
-        for regulators in self.I:
-            for regulator in regulators:
-                outdegrees[regulator] += 1
-        return outdegrees
-        
     
     def update_single_node(self, index : int,
         states_regulators : Union[list, np.array]) -> int:
