@@ -411,21 +411,13 @@ class BooleanNetwork(WiringDiagram):
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node;
     """
-    
-    left_side_of_truth_tables = {}
 
     def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None):
         assert isinstance(F, (list, np.ndarray)), "F must be an array"
-        assert isinstance(I, (list, np.ndarray)), "I must be an array"
-        #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
-        assert variables is None or len(F)==len(variables), "len(F)==len(variables) required if variable names are provided"
         assert len(F)==len(I), "len(F)==len(I) required"
         
-        self.N = len(F)
-        if variables is None:
-            self.variables = np.array(['x'+str(i) for i in range(self.N)])
-        else:
-            self.variables = np.array(variables)
+        # construct wiring diagram
+        super().__init__(I, variables);
         
         self.F = []
         for ii,f in enumerate(F):
@@ -436,10 +428,7 @@ class BooleanNetwork(WiringDiagram):
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
-                
-        self.I = [np.array(regulators,dtype=int) for regulators in I]
-        self.indegrees = list(map(len, self.I))
-        self.outdegrees = self.get_outdegrees()
+        
         self.STG = None
         self.attractor_info_sync_exact = None
         
