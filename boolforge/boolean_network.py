@@ -30,7 +30,8 @@ except ModuleNotFoundError:
     print('The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.')
     __LOADED_CANA__=False
 
-
+class CustomError(Exception):
+        pass
 
 class WiringDiagram(object):
     def __init__(self, I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None):
@@ -434,7 +435,7 @@ class BooleanNetwork(WiringDiagram):
 
     def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None, SIMPLIFY_FUNCTIONS=False):
         assert isinstance(F, (list, np.ndarray)), "F must be an array"
-        super().__init__(self,I,variables)
+        super().__init__(I,variables)
         assert len(F)==self.N, "len(F)==len(I) required"
         
         self.F = []
@@ -502,6 +503,8 @@ class BooleanNetwork(WiringDiagram):
                 variables.append(line.split(separator)[0].strip())
             except IndexError:
                 continue
+        if len(functions)==0:
+            raise CustomError(f"Separator {separator} not found.")
         dict_variables = dict(zip(variables,range(len(variables))))
         n_variables = len(variables)
         F = []

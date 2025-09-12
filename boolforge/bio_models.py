@@ -42,5 +42,9 @@ for name,download_url in zip(file_names,file_download_urls):
     print(name)
     string = fetch_file(download_url)
     print(string)
+    try:
+        bn = boolforge.BooleanNetwork.from_bnet(string,separator='*=')
+    except boolforge.CustomError:
+        bn = boolforge.BooleanNetwork.from_bnet(string,separator='* =')
+    print(len(bn.F),len(bn.I),len(bn.variables))
     print()
-    bn = boolforge.BooleanNetwork.from_bnet(string,separator='*=')
