@@ -36,15 +36,20 @@ def fetch_file(download_url):
     r.raise_for_status()
     return r.text
 
+def load_model(download_url, possible_separators=['* =','*=','=',',']):
+    string = fetch_file(download_url)
+    for separator in possible_separators:
+        try:
+            bn = boolforge.BooleanNetwork.from_bnet(string,separator='*=')
+            break
+        except boolforge.CustomError:
+            pass 
+    return bn
+
 url = "https://api.github.com/repos/jcrozum/pystablemotifs/contents/models"
 file_names,file_download_urls = get_content_in_remote_folder(url)
 for name,download_url in zip(file_names,file_download_urls):
     print(name)
-    string = fetch_file(download_url)
-    print(string)
-    try:
-        bn = boolforge.BooleanNetwork.from_bnet(string,separator='*=')
-    except boolforge.CustomError:
-        bn = boolforge.BooleanNetwork.from_bnet(string,separator='* =')
+    bn = load_model(download_url)
     print(len(bn.F),len(bn.I),len(bn.variables))
     print()
