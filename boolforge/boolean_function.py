@@ -88,8 +88,6 @@ class BooleanFunction(object):
     
     __slots__ = ['f','n','variables','name','properties']
     
-    left_side_of_truth_tables = {}
-    
     def __init__(self, f : Union[list, np.array, str], name : str = ""):
         self.name = name
         if isinstance(f, str):

@@ -9,6 +9,7 @@ Created on Wed Aug 13 11:08:44 2025
 import itertools
 import math
 from collections import defaultdict
+from copy import deepcopy
 
 import numpy as np
 import networkx as nx
@@ -30,11 +31,32 @@ except ModuleNotFoundError:
     print('The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.')
     __LOADED_CANA__=False
 
-class CustomError(Exception):
-        pass
-
 class WiringDiagram(object):
-    def __init__(self, I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None):
+    """
+    A class representing a Wiring Diagram
+    
+    **Constructor Parameters:**
+
+        - I (list[list[int]] | np.ndarray[list[int]]): A list of N lists
+          representing the regulators (or inputs) for each Boolean function.
+
+        - variables (list[str] | np.array[str], optional): A list of N strings
+          representing the names of each variable, default = None.
+          
+        - weights (): #TODO
+
+    **Members:**
+        
+        - I (list[np.array[int]]): As passed by the constructor.
+        - variables (np.array[str]): As passed by the constructor.
+        - N (int): The number of variables in the Boolean network.
+        - indegrees (list[int]): The indegrees for each node.
+        - outdegrees (list[int]): The outdegrees of each node.
+        - weights (): As passed by the constructor.
+    """
+    
+    def __init__(self, I : Union[list, np.ndarray],
+    variables : Union[list, np.array, None] = None, weights = None):
         assert isinstance(I, (list, np.ndarray)), "I must be an array"
         #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
         assert variables is None or len(I)==len(variables), "len(I)==len(variables) required if variable names are provided"
@@ -48,8 +70,8 @@ class WiringDiagram(object):
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.indegrees = list(map(len, self.I))
         self.outdegrees = self.get_outdegrees()
-        # if weights is not None:
-        #     self.weights = weights
+        if weights is not None:
+            self.weights = weights
 
     def __getitem__(self, index):
         return self.I[index]
@@ -222,7 +244,7 @@ class WiringDiagram(object):
         if IGNORE_CONSTANTS:
             m = np.zeros((n - n_constants, n - n_constants), dtype=float)
             for i, (regulators, type_of_regulation) in enumerate(zip(self.I, type_of_each_regulation)):
-                effectivenesses = self.F[i].get_edge_effectiveness()
+                effectivenesses = self.F[i].get_edge_effectiveness() #TODO: F does not exist here
                 for j, t, e in zip(regulators, type_of_regulation, effectivenesses):
                     if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
                         if t == 'increasing':
@@ -264,7 +286,7 @@ class WiringDiagram(object):
                         # Compute types if F is provided.
                         # (This example assumes a helper function is_monotonic exists and that I is ordered.)
                         #monotonic_i = is_monotonic(F[i], True)[1]
-                        monotonic_j = self.F[j].is_monotonic(True)[1]
+                        monotonic_j = self.F[j].is_monotonic(True)[1] #TODO: F does not exist here
                         monotonic_k = self.F[k].is_monotonic(True)[1]
                         direct = monotonic_k[self.I[k].index(i)]
                         indirect1 = monotonic_j[self.I[j].index(i)]
@@ -401,10 +423,9 @@ class WiringDiagram(object):
         res = []
         for i in range(n):
             # Assumes is_monotonic returns a tuple with the monotonicity information.
+            #TODO: F does not exist here
             res.append(self.F[dummy[i+1]].is_monotonic(True)[1][list(self.I[dummy[i+1]]).index(dummy[i])])
         return res
-
-
 
 
 class BooleanNetwork(WiringDiagram):
@@ -412,16 +433,21 @@ class BooleanNetwork(WiringDiagram):
     A class representing a Boolean network with N variables.
     
     **Constructor Parameters:**
-        
+
         - F (list[BooleanFunction | list[int]] | np.ndarray[BooleanFunction |
           list[int]]): A list of N Boolean functions, or of N lists of length
           2^n representing the outputs of a Boolean function with n inputs.
-          
+
         - I (list[list[int]] | np.ndarray[list[int]]): A list of N lists
           representing the regulators (or inputs) for each Boolean function.
-          
+
         - variables (list[str] | np.array[str], optional): A list of N strings
           representing the names of each variable, default = None.
+          
+        - SIMPLIFY_FUNCTIONS (bool, optional): Constructs this Boolean Network
+          to only include its essential components. Defaults to False
+          
+        - weights (): #TODO
 
     **Members:**
         
@@ -430,12 +456,17 @@ class BooleanNetwork(WiringDiagram):
         - variables (np.array[str]): As passed by the constructor.
         - N (int): The number of variables in the Boolean network.
         - indegrees (list[int]): The indegrees for each node.
-        - outdegrees (list[int]): The outdegrees of each node;
+        - outdegrees (list[int]): The outdegrees of each node.
+        - STG (dict): The state transition graph.
+        - weights (): Defaults to None #TODO
+        - attractor_info_sync_exact (None): Unused
     """
 
-    def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray], variables : Union[list, np.array, None] = None, SIMPLIFY_FUNCTIONS=False):
+    def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray],
+    variables : Union[list, np.array, None] = None,
+    SIMPLIFY_FUNCTIONS : Optional[bool] = False, weights = None):
         assert isinstance(F, (list, np.ndarray)), "F must be an array"
-        super().__init__(I,variables)
+        super().__init__(I, variables, weights)
         assert len(F)==self.N, "len(F)==len(I) required"
         
         self.F = []
@@ -449,10 +480,32 @@ class BooleanNetwork(WiringDiagram):
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
 
         self.STG = None
-        self.attractor_info_sync_exact = None
+        self.attractor_info_sync_exact = None #TODO: unused internally
         if SIMPLIFY_FUNCTIONS:
             self = self.get_essential_network()
+
+    @classmethod
+    def from_wiring_diagram(cls, wiring_diagram : WiringDiagram, F : Union[list, np.ndarray]) -> "BooleanNetwork":
+        """
+        Creates a BooleanNetwork object out of a WiringDiagram object. Uses
+        deep copying.
         
+        **Parameters:**
+        
+            - wiring_diagram (WiringDiagram): The wiring diagram to use for the
+              Boolean network.
+              
+            - F (list[BooleanFunction | list[int]] | np.ndarray[BooleanFunction |
+              list[int]]): A list of N Boolean functions, or of N lists of length
+              2^n representing the outputs of a Boolean function with n inputs.
+        
+        **Returns:**
+        
+            - A BooleanNetwork object.
+        """
+        return cls(F = F, I = deepcopy(wiring_diagram.I),
+            variables = deepcopy(wiring_diagram.variables),
+            weights = deepcopy(wiring_diagram.weights))
 
     @classmethod
     def from_cana(cls, cana_BooleanNetwork : "cana.boolean_network.BooleanNetwork") -> "BooleanNetwork":
@@ -504,7 +557,7 @@ class BooleanNetwork(WiringDiagram):
             except IndexError:
                 continue
         if len(functions)==0:
-            raise CustomError(f"Separator {separator} not found.")
+            raise ValueError(f"Separator {separator} not found.")
         dict_variables = dict(zip(variables,range(len(variables))))
         n_variables = len(variables)
         F = []
@@ -552,32 +605,40 @@ class BooleanNetwork(WiringDiagram):
         """
         **Compatability method:**
             
-            Returns a bnet object from the pyboolnet module.
+            Returns a bnet string formatted as a polynomial.
         
         **Returns:**
             
-            - A string describing a bnet from the pyboolnet module.
+            - A string describing a bnet as a polynomial.
         """
         lines = []
-        for bf,regulators,variable in zip(self.F,self.I,self.variables):
-            polynomial = utils.bool_to_poly(bf.f,variables=self.variables[regulators])
-            lines.append(f'{variable},\t{polynomial}')
+        constants_indices = self.get_constants()
+        for i in range(self.N):
+            if i in constants_indices:
+                polynomial = str(self.F[i].f[0])
+            else:
+                polynomial = utils.bool_to_poly(self.F[i], self.variables[self.I[i]])
+            lines.append(f'{self.variables[i]},\t{polynomial}')
         return '\n'.join(lines)
     
     def to_bnet_expr(self) -> str:
         """
         **Compatability method:**
             
-            Returns a bnet string formatting as logical expressions.
+            Returns a bnet string formatted as a logical expression.
         
         **Returns:**
             
             - A string describing a bnet as a logical expression.
         """
         lines = []
-        for bf,regulators,variable in zip(self.F,self.I,self.variables):
-            expression = bf.to_expression(" & ", " | ")
-            lines.append(f'{variable},\t{expression}')
+        constants_indices = self.get_constants()
+        for i in range(self.N):
+            if i in constants_indices:
+                expression = str(self.F[i].f[0])
+            else:
+                expression = self.F[i].to_expression(" & ", " | ")
+            lines.append(f"{self.variables[i]},\t{expression}")
         return '\n'.join(lines)
     
     def __len__(self):
@@ -704,10 +765,19 @@ class BooleanNetwork(WiringDiagram):
             
             - np.array[int]: Array of node indices that are external inputs.
         """
-        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i])
+        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i], int)
 
-    
-
+    def get_constants(self) -> np.array:
+        """
+        Identify constants in a Boolean network.
+        
+        A node is considered a constant if it has no regulators.
+        
+        **Returns:**
+        
+            - np.array[int]: Array of node indices that are constants.
+        """
+        return np.array([i for i in range(self.N) if self.indegrees[i] == 0 and len(self.I[i]) == 0], int)
     
     def update_single_node(self, index : int,
         states_regulators : Union[list, np.array]) -> int:
