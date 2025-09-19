@@ -601,7 +601,7 @@ class BooleanNetwork(WiringDiagram):
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
         return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts)))
 
-    def to_bnet(self, separator=',\t', method = 'polynomial') -> str:
+    def to_bnet(self, separator=',\t', AS_POLYNOMIAL : bool = True) -> str:
         """
         **Compatability method:**
             
@@ -609,21 +609,26 @@ class BooleanNetwork(WiringDiagram):
         
         **Parameters:**
 
-            - A string describing how to separate the regulated node and its update function.
-            - method
+            - separator (str): A string used to separate the target variable
+              from the function. Defaults to ',\t'.
+              
+            - AS_POLYNOMIAL (bool, optional): Determines whether to return
+              the function as a polynomial or logical expression. If true,
+              returns as a polynomial, and if false, returns as a logical
+              expression. Defaults to true.
             
         **Returns:**
             
-            - A string describing a bnet as a polynomial.
+            - str: A string describing a bnet.
         """
         lines = []
         constants_indices = self.get_constants()
         for i in range(self.N):
             if i in constants_indices:
                 function = str(self.F[i].f[0])
-            elif method=='polynomial':
+            elif AS_POLYNOMIAL:
                 function = utils.bool_to_poly(self.F[i], self.variables[self.I[i]])
-            elif method=='logical':
+            else:
                 function = self.F[i].to_expression(" & ", " | ")
             lines.append(f'{self.variables[i]}{separator}{function}')
         return '\n'.join(lines)
