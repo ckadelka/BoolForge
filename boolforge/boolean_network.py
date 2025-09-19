@@ -548,11 +548,15 @@ class BooleanNetwork(WiringDiagram):
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
         return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts)))
 
-    def to_bnet(self) -> str:
+    def to_bnet(self, separator=',\t') -> str:
         """
         **Compatability method:**
             
             Returns a bnet object from the pyboolnet module.
+        
+        **Parameters:**
+
+            - A string describing how to separate the regulated node and its update function.
         
         **Returns:**
             
@@ -561,7 +565,7 @@ class BooleanNetwork(WiringDiagram):
         lines = []
         for bf,regulators,variable in zip(self.F,self.I,self.variables):
             polynomial = utils.bool_to_poly(bf.f,variables=self.variables[regulators])
-            lines.append(f'{variable},\t{polynomial}')
+            lines.append(f'{variable}{separator}{polynomial}')
         return '\n'.join(lines)
     
     def to_bnet_expr(self) -> str:

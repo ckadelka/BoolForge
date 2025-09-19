@@ -40,16 +40,21 @@ def load_model(download_url, possible_separators=['* =','*=','=',',']):
     string = fetch_file(download_url)
     for separator in possible_separators:
         try:
-            bn = boolforge.BooleanNetwork.from_bnet(string,separator='*=')
-            break
+            bn = boolforge.BooleanNetwork.from_bnet(string,separator=separator)
+            return bn
         except boolforge.CustomError:
             pass 
-    return bn
+    
 
+url = 'https://api.github.com/repos/ckadelka/DesignPrinciplesGeneNetworks/contents/update_rules_cell_collective/'
 url = "https://api.github.com/repos/jcrozum/pystablemotifs/contents/models"
 file_names,file_download_urls = get_content_in_remote_folder(url)
 for name,download_url in zip(file_names,file_download_urls):
     print(name)
     bn = load_model(download_url)
-    print(len(bn.F),len(bn.I),len(bn.variables))
-    print()
+    if bn is not None:
+        print(len(bn.F),len(bn.I),len(bn.variables))
+        print()
+    else:
+        print('Transformation Error')
+        print()
