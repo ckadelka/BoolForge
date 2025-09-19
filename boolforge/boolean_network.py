@@ -601,7 +601,7 @@ class BooleanNetwork(WiringDiagram):
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
         return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts)))
 
-    def to_bnet(self, separator=',\t') -> str:
+    def to_bnet(self, separator=',\t', method = 'polynomial') -> str:
         """
         **Compatability method:**
             
@@ -610,7 +610,8 @@ class BooleanNetwork(WiringDiagram):
         **Parameters:**
 
             - A string describing how to separate the regulated node and its update function.
-        
+            - method
+            
         **Returns:**
             
             - A string describing a bnet as a polynomial.
@@ -619,31 +620,14 @@ class BooleanNetwork(WiringDiagram):
         constants_indices = self.get_constants()
         for i in range(self.N):
             if i in constants_indices:
-                polynomial = str(self.F[i].f[0])
-            else:
-                polynomial = utils.bool_to_poly(self.F[i], self.variables[self.I[i]])
-            lines.append(f'{self.variables[i]}{separator}{polynomial}')
+                function = str(self.F[i].f[0])
+            elif method=='polynomial':
+                function = utils.bool_to_poly(self.F[i], self.variables[self.I[i]])
+            elif method=='logical':
+                function = self.F[i].to_expression(" & ", " | ")
+            lines.append(f'{self.variables[i]}{separator}{function}')
         return '\n'.join(lines)
-    
-    def to_bnet_expr(self) -> str:
-        """
-        **Compatability method:**
-            
-            Returns a bnet string formatted as a logical expression.
-        
-        **Returns:**
-            
-            - A string describing a bnet as a logical expression.
-        """
-        lines = []
-        constants_indices = self.get_constants()
-        for i in range(self.N):
-            if i in constants_indices:
-                expression = str(self.F[i].f[0])
-            else:
-                expression = self.F[i].to_expression(" & ", " | ")
-            lines.append(f"{self.variables[i]},\t{expression}")
-        return '\n'.join(lines)
+
     
     def __len__(self):
         return self.N
@@ -781,7 +765,7 @@ class BooleanNetwork(WiringDiagram):
         
             - np.array[int]: Array of node indices that are constants.
         """
-        return np.array([i for i in range(self.N) if self.indegrees[i] == 0 and len(self.I[i]) == 0], int)
+        return np.array([i for i in range(self.N) if self.indegrees[i] == 0], int)
     
     def update_single_node(self, index : int,
         states_regulators : Union[list, np.array]) -> int:
