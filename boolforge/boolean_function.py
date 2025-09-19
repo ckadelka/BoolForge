@@ -9,6 +9,8 @@ Created on Tue Aug 12 11:03:49 2025
 import numpy as np
 import itertools
 
+from quine_mccluskey.qm import QuineMcCluskey
+
 from typing import Union
 from typing import Optional
 
@@ -85,8 +87,6 @@ class BooleanFunction(object):
     """
     
     __slots__ = ['f','n','variables','name','properties']
-    
-    left_side_of_truth_tables = {}
     
     def __init__(self, f : Union[list, np.array, str], name : str = ""):
         self.name = name
@@ -169,7 +169,7 @@ class BooleanFunction(object):
     def to_expression(self, AND : str = '&', OR : str = '|', NOT : str = '!') -> str:
         """
         Transform a Boolean function from truth table format to logical expression
-        format in non-reduced DNF.
+        format using the Quine-McCluskey algorithm.
 
         **Parameters:**
             
@@ -184,20 +184,26 @@ class BooleanFunction(object):
 
         **Returns:**
             
-            - str: A string representing the Boolean function in disjunctive
-              normal form (DNF).
+            - str: A string representing the Boolean function.
         """
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.n)
-        num_values = 2 ** self.n
-        text = []
-        for i in range(num_values):
-            if self.f[i] == True:
-                monomial = AND.join([("%s" % (v)) if entry == 1 else ("(%s%s)" % (NOT, v)) 
-                                      for v, entry in zip(self.variables, left_side_of_truth_table[i])])
-                text.append(monomial)
-        if text != []:
-            return '(' + (")%s(" % OR).join(text) + ')'
-        return ''
+        minterms = []
+        for dec, bit in enumerate(self.f):
+            if bit:
+                minterms.append(dec)
+        
+        essential_prime_implicants = QuineMcCluskey().simplify(minterms, num_bits = self.n)
+        
+        expr = []
+        for essential_prime_implicant in essential_prime_implicants:
+            substring = []
+            for i in range(self.n):
+                bit_char = essential_prime_implicant[i]
+                if bit_char == '1':
+                    substring.append(self.variables[i])
+                elif bit_char == '0':
+                    substring.append("(%s%s)" % (NOT, self.variables[i]))
+            expr.append(AND.join(substring))
+        return '(' + (")%s(" % OR).join(expr) + ')'
     
     def get_hamming_weight(self) -> int:
         """
