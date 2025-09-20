@@ -211,6 +211,7 @@ def bool_to_poly(f : list, variables : Optional[list] = None,
     else:
         return '0'
 
+
 def f_from_expression(expr : str) -> tuple:
     """
     Extract a Boolean function from a string expression.
@@ -251,9 +252,9 @@ def f_from_expression(expr : str) -> tuple:
             return True
         except ValueError:
             return False
-    expr = expr.replace('(', ' ( ').replace(')', ' ) ').replace('!','not ').replace('~','not ')
-    expr_split = expr.split(' ')
-    var = []
+    expr_mod = expr.replace('(', ' ( ').replace(')', ' ) ').replace('!','not ').replace('~','not ')
+    expr_split = expr_mod.split(' ')
+    variables = []
     dict_var = dict()
     n_var = 0
     for i, el in enumerate(expr_split):
@@ -263,21 +264,22 @@ def f_from_expression(expr : str) -> tuple:
             except KeyError:
                 new_var = 'x[%i]' % n_var
                 dict_var.update({el: new_var})
-                var.append(el)
+                variables.append(el)
                 n_var += 1
-            expr_split[i] = new_var
-        elif el in ['AND','OR','NOT']:
-            expr_split[i] = el.lower()
-        elif el == '&':
-            expr_split[i] = 'and'
-        elif el == '|':
-            expr_split[i] = 'or'
-    expr = ' '.join(expr_split)
-    f = []
-    for x in itertools.product([0, 1], repeat=n_var):
-        x = list(map(bool, x))
-        f.append(int(eval(expr)))  # x_val is used implicitly in the eval context
-    return f, np.array(var)
+            expr_split[i] = el
+        elif el in ['AND', 'and']:
+            expr_split[i] = '&'
+        elif el in ['OR', 'or']:
+            expr_split[i] = '|'
+        elif el in ['NOT', 'not']:
+            expr_split[i] = '~'
+    expr_mod = ' '.join(expr_split)
+    
+    truth_table = get_left_side_of_truth_table(n_var)
+    local_dict = {var: truth_table[:, i] for i, var in enumerate(variables)}
+    f = eval(expr_mod, {"__builtins__": None}, local_dict)
+
+    return np.array(f,dtype=int), np.array(variables)
 
 
 def flatten(l : Union[list, np.array]) -> list:
