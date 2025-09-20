@@ -40,7 +40,7 @@ def load_model(download_url, max_degree=16, possible_separators=['* =','*=','=',
     string = fetch_file(download_url)
     for separator in possible_separators:
         try:
-            bn = boolforge.BooleanNetwork.from_bnet(string,separator=separator,max_degree=max_degree)
+            bn = boolforge.BooleanNetwork.from_string(string,separator=separator,max_degree=max_degree)
             return bn
         except:
             pass 

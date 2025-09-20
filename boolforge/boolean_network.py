@@ -569,13 +569,10 @@ class BooleanNetwork(WiringDiagram):
                     constants_and_variables.append(el)
         constants = list(set(constants_and_variables)-set(var))
         
-        print(var)
         
         dict_variables_and_constants = dict({original_not:new_not,original_and:new_and,original_or:new_or})
         dict_variables_and_constants.update(dict(list(zip(var,["x%iy" % i for i in range(len(var))]))))
         dict_variables_and_constants.update(list(zip(constants,["x%iy" % i for i in range(len(var),len(set(constants_and_variables)))]))) #constants at end
-
-        print(dict_variables_and_constants)
 
 
         for i,line in enumerate(tvec):
