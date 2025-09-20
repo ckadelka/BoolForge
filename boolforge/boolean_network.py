@@ -534,7 +534,7 @@ class BooleanNetwork(WiringDiagram):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_string(cls, string : str, separator : str = ',', max_degree : int = 16, original_not : str = 'NOT', original_and : str = 'AND', original_or : str = 'OR') -> "BooleanNetwork":
+    def from_string(cls, string : str, separator : str = ',', max_degree : int = 24, original_not : str = 'NOT', original_and : str = 'AND', original_or : str = 'OR') -> "BooleanNetwork":
         """
         **Compatability Method:**
         
@@ -548,7 +548,7 @@ class BooleanNetwork(WiringDiagram):
         get_dummy_variable = lambda i: 'x'+str(int(i))+'y'
         new_and, new_or, new_not = '&', '|', '~'
         
-        tvec = string.replace('\t',' ').replace('(',' ( ').replace(')',' ) ').splitlines()
+        tvec = string.replace('\t',' ').replace('(',' ( ').replace(')',' ) ').replace(separator,' '+separator+' ').replace(original_and,' '+original_and+' ').replace(original_not,' '+original_not+' ').replace(original_or,' '+original_or+' ').splitlines()
         
         #Deleting empty lines
         while '' in tvec:

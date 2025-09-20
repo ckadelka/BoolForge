@@ -36,7 +36,7 @@ def fetch_file(download_url):
     r.raise_for_status()
     return r.text
 
-def load_model(download_url, max_degree=16, possible_separators=['* =','*=','=',',']):
+def load_model(download_url, max_degree=24, possible_separators=['* =','*=','=',',']):
     string = fetch_file(download_url)
     for separator in possible_separators:
         try:
@@ -54,8 +54,14 @@ for i,(name,download_url) in enumerate(zip(file_names,file_download_urls)):
         #print(name)
         bn = load_model(download_url)
         if bn is not None:
-            #print(i, len(bn.F),len(bn.I),len(bn.variables))
+            print(i, len(bn.F),len(bn.I),len(bn.variables))
             print()
         else:
             print(i,name,'Transformation Error')
             print()
+            
+            
+f = open(folder+textfile,'r')
+text = f.read()
+text = text.replace('\t',' ').replace('(',' ( ').replace(')',' ) ')
+f.close()
