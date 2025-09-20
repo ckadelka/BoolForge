@@ -534,7 +534,7 @@ class BooleanNetwork(WiringDiagram):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_bnet(cls, bnet : str, separator : str = ',') -> "BooleanNetwork":
+    def from_bnet(cls, bnet : str, separator : str = ',', max_degree=16) -> "BooleanNetwork":
         """
         **Compatability Method:**
         
@@ -564,7 +564,7 @@ class BooleanNetwork(WiringDiagram):
         dict_constants = {}
         n_constants = 0
         for function in functions:
-            f,var = utils.f_from_expression(function)
+            f,var = utils.f_from_expression(function,max_degree=max_degree)
             F.append(f)
             I.append([])
             for v in var:

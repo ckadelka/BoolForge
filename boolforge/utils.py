@@ -212,7 +212,7 @@ def bool_to_poly(f : list, variables : Optional[list] = None,
         return '0'
 
 
-def f_from_expression(expr : str) -> tuple:
+def f_from_expression(expr : str, max_degree : int = 16) -> tuple:
     """
     Extract a Boolean function from a string expression.
 
@@ -275,10 +275,12 @@ def f_from_expression(expr : str) -> tuple:
             expr_split[i] = '~'
     expr_mod = ' '.join(expr_split)
     
-    truth_table = get_left_side_of_truth_table(n_var)
-    local_dict = {var: truth_table[:, i] for i, var in enumerate(variables)}
-    f = eval(expr_mod, {"__builtins__": None}, local_dict)
-
+    if n_var <= max_degree:
+        truth_table = get_left_side_of_truth_table(n_var)
+        local_dict = {var: truth_table[:, i] for i, var in enumerate(variables)}
+        f = eval(expr_mod, {"__builtins__": None}, local_dict)
+    else:
+        f = []
     return np.array(f,dtype=int), np.array(variables)
 
 
