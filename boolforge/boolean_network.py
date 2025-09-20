@@ -14,8 +14,7 @@ from copy import deepcopy
 import numpy as np
 import networkx as nx
 
-from typing import Union
-from typing import Optional
+from typing import Union, Optional
 
 try:
     import boolforge.utils as utils
