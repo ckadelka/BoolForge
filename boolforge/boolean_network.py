@@ -534,7 +534,7 @@ class BooleanNetwork(WiringDiagram):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_bnet(cls, bnet : str, separator : str = ',', max_degree=16) -> "BooleanNetwork":
+    def from_string(cls, string : str, separator : str = ',', max_degree : int = 16, original_not : str = 'NOT', original_and : str = 'AND', original_or : str = 'OR') -> "BooleanNetwork":
         """
         **Compatability Method:**
         
@@ -545,43 +545,74 @@ class BooleanNetwork(WiringDiagram):
             
                 - A BooleanNetwork object.
         """
-        variables = []
-        functions = []
-        for line in bnet.split('\n'):
-            if line=='' or line[0] == '#':
-                continue
-            try:
-                functions.append(line.split(separator)[1].strip())
-                variables.append(line.split(separator)[0].strip())
-            except IndexError:
-                continue
-        if len(functions)==0:
-            raise ValueError(f"Separator {separator} not found.")
-        dict_variables = dict(zip(variables,range(len(variables))))
-        n_variables = len(variables)
-        F = []
-        I = []
-        dict_constants = {}
-        n_constants = 0
-        for function in functions:
-            f,var = utils.f_from_expression(function,max_degree=max_degree)
-            F.append(f)
-            I.append([])
-            for v in var:
-                if v in dict_variables:
-                    I[-1].append(dict_variables[v])
-                elif v in dict_constants:
-                    I[-1].append(n_variables+dict_constants[v])
-                else:
-                    I[-1].append(n_variables+n_constants)
-                    dict_constants[v] = n_constants
-                    n_constants+=1
-                    variables.append(v)
-        for i in range(n_constants):
-            F.append([0,1])
-            I.append([n_variables+i])
+        get_dummy_variable = lambda i: 'x'+str(int(i))+'y'
+        new_and, new_or, new_not = '&', '|', '~'
         
-        return cls(F = F, I = I, variables=variables)
+        tvec = string.replace('\t',' ').replace('(',' ( ').replace(')',' ) ').splitlines()
+        
+        #Deleting empty lines
+        while '' in tvec:
+            tvec.remove('')
+            
+        n=len(tvec)
+        var=["" for i in range(n)]
+        
+        #Determining Variables, var contains the order of variables (may differ from original order)
+        for i in range(n):
+            var[i]=tvec[i][0:tvec[i].find(separator)].replace(' ','')
+
+        constants_and_variables = []
+        for line in tvec:
+            linesplit = line.split(' ')
+            for el in linesplit:
+                if el not in ['(',')','+','*','1',separator,original_not,original_and,original_or,'',' ']:
+                    constants_and_variables.append(el)
+        constants = list(set(constants_and_variables)-set(var))
+            
+        dict_variables_and_constants = dict({original_not:new_not,original_and:new_and,original_or:new_or})
+        dict_variables_and_constants.update(dict(list(zip(var,["x%iy" % i for i in range(len(var))]))))
+        dict_variables_and_constants.update(list(zip(constants,["x%iy" % i for i in range(len(var),len(set(constants_and_variables)))]))) #constants at end
+
+        for i,line in enumerate(tvec):
+            linesplit = line.split(' ')
+            for ii,el in enumerate(linesplit):
+                if el not in ['(',')','+','*','1',separator,new_not.strip(' '),new_and.strip(' '),new_or.strip(' '), '',' ']:
+                    linesplit[ii] = dict_variables_and_constants[el]
+            tvec[i] = ' '.join(linesplit)
+        #       
+        for ind in range(n):
+            tvec[ind]=tvec[ind][tvec[ind].find(separator)+len(separator):]
+            #tvec[ind]="("+tvec[ind]+")"
+
+        I = []
+        for i in range(n):
+            indices_open = utils.find_all_indices(tvec[i],'x')
+            indices_end = utils.find_all_indices(tvec[i],'y')
+            dummy = np.sort(np.array(list(map(int,list(set([tvec[i][(begin+1):end] for begin,end in zip(indices_open,indices_end)]))))))
+            I.append( dummy )
+            # dict_dummy = dict(list(zip(dummy,list(range(len(dummy))))))
+            # tvec_dummy = tvec[i][:]
+            # for el in dummy:
+            #     tvec_dummy = tvec_dummy.replace('x%iy' % el,'x%iy' % dict_dummy[el]) #needs to be done with an ascending order in dummy
+            # tvec_mod.append(tvec_dummy)        
+        
+        degree = list(map(len,I))
+        
+        F = []
+        for i in range(n):
+            if degree[i]<=max_degree:
+                truth_table = utils.get_left_side_of_truth_table(degree[i])
+                local_dict = {get_dummy_variable(I[i][j]): truth_table[:, j].astype(bool) for j in range(degree[i])}
+                f = eval(tvec[i], {"__builtins__": None}, local_dict)
+            else:
+                f = np.array([],dtype=int)
+            F.append(f.astype(int))
+        
+        for i in range(len(constants)):
+            F.append(np.array([0,1]))
+            I.append(np.array([len(var)+i]))
+        
+        return cls(F = F, I = I, variables=var+constants)
 
 
     def to_cana(self) -> "cana.boolean_network.BooleanNetwork":

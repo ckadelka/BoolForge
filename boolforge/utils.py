@@ -97,6 +97,21 @@ def get_left_side_of_truth_table(N):
         left_side_of_truth_tables[N] = left_side_of_truth_table
     return left_side_of_truth_table
 
+
+def find_all_indices(arr,el):
+    '''
+    Given a list arr, this function returns a list of all the indices i where arr[i]==el.
+    If el not in arr, it raises a ValueError.
+    '''
+    res=[]
+    for i,a in enumerate(arr):
+        if a==el:
+            res.append(i)
+    if res==[]:
+        raise ValueError('The element is not in the array at all')
+    return res
+
+
 def check_if_empty(my_list : Union[list, np.ndarray]) -> bool:
     """
     Check if the provided list or NumPy array is empty.

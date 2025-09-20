@@ -36,25 +36,26 @@ def fetch_file(download_url):
     r.raise_for_status()
     return r.text
 
-def load_model(download_url, possible_separators=['* =','*=','=',',']):
+def load_model(download_url, max_degree=16, possible_separators=['* =','*=','=',',']):
     string = fetch_file(download_url)
     for separator in possible_separators:
         try:
-            bn = boolforge.BooleanNetwork.from_bnet(string,separator=separator)
+            bn = boolforge.BooleanNetwork.from_bnet(string,separator=separator,max_degree=max_degree)
             return bn
         except:
             pass 
     
 
-url = 'https://api.github.com/repos/ckadelka/DesignPrinciplesGeneNetworks/contents/update_rules_cell_collective/'
+url = 'https://api.github.com/repos/ckadelka/DesignPrinciplesGeneNetworks/contents/update_rules_122_models_Kadelka_SciAdv/'
 #url = "https://api.github.com/repos/jcrozum/pystablemotifs/contents/models"
 file_names,file_download_urls = get_content_in_remote_folder(url)
 for i,(name,download_url) in enumerate(zip(file_names,file_download_urls)):
-    print(name)
-    bn = load_model(download_url)
-    if bn is not None:
-        print(i, len(bn.F),len(bn.I),len(bn.variables))
-        print()
-    else:
-        print('Transformation Error')
-        print()
+    if '.txt' in name:
+        #print(name)
+        bn = load_model(download_url)
+        if bn is not None:
+            #print(i, len(bn.F),len(bn.I),len(bn.variables))
+            print()
+        else:
+            print(i,name,'Transformation Error')
+            print()
