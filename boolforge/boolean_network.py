@@ -49,7 +49,7 @@ class WiringDiagram(object):
         - I (list[np.array[int]]): As passed by the constructor.
         - variables (np.array[str]): As passed by the constructor.
         - N (int): The number of variables in the Boolean network.
-        - N_const (int): The number of constants in the Boolean network.
+        - N_constants (int): The number of constants in the Boolean network.
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node.
         - weights (): As passed by the constructor.
@@ -65,10 +65,10 @@ class WiringDiagram(object):
         
         self.indegrees = list(map(len, self.I))
         
-        self.N_const = len(self.get_constants(False))
-        self.N = len(I) - self.N_const
+        self.N_constants = len(self.get_constants(False))
+        self.N = len(I) - self.N_constants
         
-        if self.N_const > 0:
+        if self.N_constants > 0:
             constants_dict = self.get_constants()
             remap = ([], [])
             for node in constants_dict.keys():
@@ -76,14 +76,14 @@ class WiringDiagram(object):
                     remap[1].append(node)
                 else:
                     remap[0].append(node)
-            self.__CRD__ = dict(zip(range(self.N + self.N_const), remap[0] + remap[1]))
+            self.__CRD__ = dict(zip(range(self.N + self.N_constants), remap[0] + remap[1]))
             self.I = [ self.I[self.__CRD__[i]] for i in range(len(self.I)) ]
             self.indegrees = list(map(len, self.I))
             if variables is not None:
                 variables = [ variables[self.__CRD__[i]] for i in range(len(variables)) ]
         
         if variables is None:
-            self.variables = np.array(['x'+str(i) for i in range(self.N + self.N_const)])
+            self.variables = np.array(['x'+str(i) for i in range(self.N + self.N_constants)])
         else:
             self.variables = np.array(variables)
         
@@ -102,7 +102,7 @@ class WiringDiagram(object):
             
             - np.array[int]: Outdegree of each node.
         """
-        outdegrees = np.zeros(self.N + self.N_const, int)
+        outdegrees = np.zeros(self.N + self.N_constants, int)
         for regulators in self.I:
             for regulator in regulators:
                 outdegrees[regulator] += 1
@@ -498,7 +498,7 @@ class BooleanNetwork(WiringDiagram):
         - I (list[np.array[int]]): As passed by the constructor.
         - variables (np.array[str]): As passed by the constructor.
         - N (int): The number of variables in the Boolean network.
-        - N_const (int): The number of constants in the Boolean network.
+        - N_constants (int): The number of constants in the Boolean network.
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node.
         - STG (dict): The state transition graph.
@@ -511,7 +511,7 @@ class BooleanNetwork(WiringDiagram):
     SIMPLIFY_FUNCTIONS : Optional[bool] = False, weights = None):
         assert isinstance(F, (list, np.ndarray)), "F must be an array"
         super().__init__(I, variables, weights)
-        assert len(F)==self.N+self.N_const, "len(F)==len(I) required"
+        assert len(F)==self.N+self.N_constants, "len(F)==len(I) required"
         
         self.F = []
         for ii,f in enumerate(F):
@@ -522,7 +522,7 @@ class BooleanNetwork(WiringDiagram):
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
-        if self.N_const > 0:
+        if self.N_constants > 0:
             self.F = [ self.F[self.__CRD__[i]] for i in range(len(self.F)) ]
 
         self.STG = None
@@ -719,7 +719,7 @@ class BooleanNetwork(WiringDiagram):
         """
         lines = []
         constants_indices = self.get_constants()
-        for i in range(self.N + self.N_const):
+        for i in range(self.N + self.N_constants):
             if constants_indices[i]:
                 function = str(self.F[i].f[0])
             elif AS_POLYNOMIAL:
@@ -731,7 +731,7 @@ class BooleanNetwork(WiringDiagram):
 
     
     def __len__(self):
-        return self.N + self.N_const
+        return self.N + self.N_constants
     
     
     def __str__(self):
