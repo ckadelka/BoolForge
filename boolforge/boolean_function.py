@@ -9,8 +9,6 @@ Created on Tue Aug 12 11:03:49 2025
 import numpy as np
 import itertools
 
-from quine_mccluskey.qm import QuineMcCluskey
-
 from typing import Union
 from typing import Optional
 
@@ -186,24 +184,7 @@ class BooleanFunction(object):
             
             - str: A string representing the Boolean function.
         """
-        minterms = []
-        for dec, bit in enumerate(self.f):
-            if bit:
-                minterms.append(dec)
-        
-        essential_prime_implicants = QuineMcCluskey().simplify(minterms, num_bits = self.n)
-        
-        expr = []
-        for essential_prime_implicant in essential_prime_implicants:
-            substring = []
-            for i in range(self.n):
-                bit_char = essential_prime_implicant[i]
-                if bit_char == '1':
-                    substring.append(self.variables[i])
-                elif bit_char == '0':
-                    substring.append("(%s%s)" % (NOT, self.variables[i]))
-            expr.append(AND.join(substring))
-        return '(' + (")%s(" % OR).join(expr) + ')'
+        return utils.bool_to_poly(self.f, self.variables).replace(' * ', AND).replace(' + ', OR).replace('1 - ', NOT)
     
     def get_hamming_weight(self) -> int:
         """

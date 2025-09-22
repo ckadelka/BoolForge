@@ -49,6 +49,7 @@ class WiringDiagram(object):
         - I (list[np.array[int]]): As passed by the constructor.
         - variables (np.array[str]): As passed by the constructor.
         - N (int): The number of variables in the Boolean network.
+        - N_const (int): The number of constants in the Boolean network.
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node.
         - weights (): As passed by the constructor.
@@ -60,21 +61,38 @@ class WiringDiagram(object):
         #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
         assert variables is None or len(I)==len(variables), "len(I)==len(variables) required if variable names are provided"
         
-        self.N = len(I)
+        self.I = [np.array(regulators,dtype=int) for regulators in I]
+        
+        self.indegrees = list(map(len, self.I))
+        
+        self.N_const = len(self.get_constants(False))
+        self.N = len(I) - self.N_const
+        
+        if self.N_const > 0:
+            constants_dict = self.get_constants()
+            remap = ([], [])
+            for node in constants_dict.keys():
+                if constants_dict[node]:
+                    remap[1].append(node)
+                else:
+                    remap[0].append(node)
+            self.__CRD__ = dict(zip(range(self.N + self.N_const), remap[0] + remap[1]))
+            self.I = [ self.I[self.__CRD__[i]] for i in range(len(self.I)) ]
+            self.indegrees = list(map(len, self.I))
+            if variables is not None:
+                variables = [ variables[self.__CRD__[i]] for i in range(len(variables)) ]
+        
         if variables is None:
-            self.variables = np.array(['x'+str(i) for i in range(self.N)])
+            self.variables = np.array(['x'+str(i) for i in range(self.N + self.N_const)])
         else:
             self.variables = np.array(variables)
-
-        self.I = [np.array(regulators,dtype=int) for regulators in I]
-        self.indegrees = list(map(len, self.I))
+        
         self.outdegrees = self.get_outdegrees()
         if weights is not None:
             self.weights = weights
 
     def __getitem__(self, index):
         return self.I[index]
-
 
     def get_outdegrees(self) -> np.array:
         """
@@ -84,12 +102,38 @@ class WiringDiagram(object):
             
             - np.array[int]: Outdegree of each node.
         """
-        outdegrees = np.zeros(self.N,dtype=int)
+        outdegrees = np.zeros(self.N + self.N_const, int)
         for regulators in self.I:
             for regulator in regulators:
                 outdegrees[regulator] += 1
         return outdegrees
 
+    def get_constants(self, AS_DICT : bool = True) -> Union[dict, np.array]:
+        """
+        Identify constants in a Boolean network.
+        
+        A node is considered a constant if it has no regulators.
+        
+        **Parameters:**
+        
+            - AS_DICT (bool, optional): Whether to return the indices of constants
+              as a dictionary or array. If true, returns as a dictionary. Defaults
+              to True.
+        
+        **Returns:**
+        
+            If AS_DICT is True:
+                
+                - dict[int:bool]: Dictionary determining if an index is a
+                  constant or not.
+                  
+            else:
+                - np.array[int]: Array of node indices that are constants.
+        """
+        rlI = range(len(self.I))
+        if AS_DICT:
+            return dict(zip(rlI, [self.indegrees[i] == 0 for i in rlI]))
+        return np.array([i for i in rlI if self.indegrees[i] == 0], int)
 
     def get_strongly_connected_components(self) -> list:
         """
@@ -454,6 +498,7 @@ class BooleanNetwork(WiringDiagram):
         - I (list[np.array[int]]): As passed by the constructor.
         - variables (np.array[str]): As passed by the constructor.
         - N (int): The number of variables in the Boolean network.
+        - N_const (int): The number of constants in the Boolean network.
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node.
         - STG (dict): The state transition graph.
@@ -466,7 +511,7 @@ class BooleanNetwork(WiringDiagram):
     SIMPLIFY_FUNCTIONS : Optional[bool] = False, weights = None):
         assert isinstance(F, (list, np.ndarray)), "F must be an array"
         super().__init__(I, variables, weights)
-        assert len(F)==self.N, "len(F)==len(I) required"
+        assert len(F)==self.N+self.N_const, "len(F)==len(I) required"
         
         self.F = []
         for ii,f in enumerate(F):
@@ -477,6 +522,8 @@ class BooleanNetwork(WiringDiagram):
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
+        if self.N_const > 0:
+            self.F = [ self.F[self.__CRD__[i]] for i in range(len(self.F)) ]
 
         self.STG = None
         self.attractor_info_sync_exact = None #TODO: unused internally
@@ -672,8 +719,8 @@ class BooleanNetwork(WiringDiagram):
         """
         lines = []
         constants_indices = self.get_constants()
-        for i in range(self.N):
-            if i in constants_indices:
+        for i in range(self.N + self.N_const):
+            if constants_indices[i]:
                 function = str(self.F[i].f[0])
             elif AS_POLYNOMIAL:
                 function = utils.bool_to_poly(self.F[i], self.variables[self.I[i]])
@@ -684,7 +731,7 @@ class BooleanNetwork(WiringDiagram):
 
     
     def __len__(self):
-        return self.N
+        return self.N + self.N_const
     
     
     def __str__(self):
@@ -731,11 +778,11 @@ class BooleanNetwork(WiringDiagram):
                 F_essential.append(bf)
                 I_essential.append(regulators) #keep all regulators (unable to determine if all are essential)
                 continue
-            elif bf.f.get_hamming_weight() == 0: #constant zero function
+            elif bf.get_hamming_weight() == 0: #constant zero function
                 F_essential.append(BF(np.array([0])))
                 I_essential.append(np.array([], dtype=int))
                 continue
-            elif bf.f.get_hamming_weight() == len(bf.f): #constant one function
+            elif bf.get_hamming_weight() == len(bf.f): #constant one function
                 F_essential.append(BF(np.array([1])))
                 I_essential.append(np.array([], dtype=int))
                 continue
@@ -808,18 +855,6 @@ class BooleanNetwork(WiringDiagram):
             - np.array[int]: Array of node indices that are external inputs.
         """
         return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i], int)
-
-    def get_constants(self) -> np.array:
-        """
-        Identify constants in a Boolean network.
-        
-        A node is considered a constant if it has no regulators.
-        
-        **Returns:**
-        
-            - np.array[int]: Array of node indices that are constants.
-        """
-        return np.array([i for i in range(self.N) if self.indegrees[i] == 0], int)
     
     def update_single_node(self, index : int,
         states_regulators : Union[list, np.array]) -> int:
