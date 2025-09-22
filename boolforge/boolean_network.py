@@ -577,7 +577,7 @@ class BooleanNetwork(WiringDiagram):
         for line in tvec:
             linesplit = line.split(' ')
             for el in linesplit:
-                if el not in ['(',')','+','*','1',separator,original_not,original_and,original_or,'',' ']:
+                if el not in ['(',')','+','*','1',separator,original_not,original_and,original_or,'',' '] and not is_float(el):
                     constants_and_variables.append(el)
         constants = list(set(constants_and_variables)-set(var))
         
@@ -590,7 +590,7 @@ class BooleanNetwork(WiringDiagram):
         for i,line in enumerate(tvec):
             linesplit = line.split(' ')
             for ii,el in enumerate(linesplit):
-                if el not in ['(',')','+','*','1',separator,new_not.strip(' '),new_and.strip(' '),new_or.strip(' '), '',' ']:
+                if el not in ['(',')','+','*','1',separator,new_not.strip(' '),new_and.strip(' '),new_or.strip(' '), '',' '] and not is_float(el):
                     linesplit[ii] = dict_variables_and_constants[el]
             tvec[i] = ' '.join(linesplit)
         #       
@@ -600,10 +600,13 @@ class BooleanNetwork(WiringDiagram):
 
         I = []
         for i in range(n):
-            indices_open = utils.find_all_indices(tvec[i],'x')
-            indices_end = utils.find_all_indices(tvec[i],'y')
-            dummy = np.sort(np.array(list(map(int,list(set([tvec[i][(begin+1):end] for begin,end in zip(indices_open,indices_end)]))))))
-            I.append( dummy )
+            try:
+                indices_open = utils.find_all_indices(tvec[i],'x')
+                indices_end = utils.find_all_indices(tvec[i],'y')
+                dummy = np.sort(np.array(list(map(int,list(set([tvec[i][(begin+1):end] for begin,end in zip(indices_open,indices_end)]))))))
+                I.append( dummy )
+            except ValueError:
+                I.append( np.array([],dtype=int))
             # dict_dummy = dict(list(zip(dummy,list(range(len(dummy))))))
             # tvec_dummy = tvec[i][:]
             # for el in dummy:
@@ -614,7 +617,9 @@ class BooleanNetwork(WiringDiagram):
         
         F = []
         for i in range(n):
-            if degree[i]<=max_degree:
+            if degree[i]==0:
+                f = np.array([int(tvec[i])],dtype=int)
+            elif degree[i]<=max_degree:
                 truth_table = utils.get_left_side_of_truth_table(degree[i])
                 local_dict = {get_dummy_variable(I[i][j]): truth_table[:, j].astype(bool) for j in range(degree[i])}
                 f = eval(tvec[i], {"__builtins__": None}, local_dict)

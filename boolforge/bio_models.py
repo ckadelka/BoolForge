@@ -60,7 +60,7 @@ def load_model(download_url, max_degree=24, possible_separators=['* =','*=','=',
     
 
 url = 'https://api.github.com/repos/ckadelka/DesignPrinciplesGeneNetworks/contents/update_rules_122_models_Kadelka_SciAdv/'
-#url = "https://api.github.com/repos/jcrozum/pystablemotifs/contents/models"
+url = "https://api.github.com/repos/jcrozum/pystablemotifs/contents/models"
 file_names,file_download_urls = get_content_in_remote_folder(url)
 for i,(name,download_url) in enumerate(zip(file_names,file_download_urls)):
     if '.txt' in name:
