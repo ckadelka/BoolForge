@@ -548,14 +548,26 @@ class BooleanNetwork(WiringDiagram):
         get_dummy_variable = lambda i: 'x'+str(int(i))+'y'
         new_and, new_or, new_not = '&', '|', '~'
         
-        tvec = string.replace('\t',' ').replace('(',' ( ').replace(')',' ) ').replace(separator,' '+separator+' ').replace(original_and,' '+original_and+' ').replace(original_not,' '+original_not+' ').replace(original_or,' '+original_or+' ').splitlines()
+        tvec = string.replace('\t',' ').replace('(',' ( ').replace(')',' ) ').replace(separator,' '+separator+' ')
+        if original_and == '&':
+            tvec = tvec.replace(original_and,' '+original_and+' ')
+        if original_or == '|':
+            tvec = tvec.replace(original_or,' '+original_or+' ')
+        if original_not == '~':
+            tvec = tvec.replace(original_not,' '+original_not+' ')
+        tvec = tvec.splitlines()
         
         #Deleting empty lines
         while '' in tvec:
             tvec.remove('')
+        
+        for i in range(len(tvec)-1,-1,-1):
+            if tvec[i][0]=='#':
+                tvec.pop(i)
             
         n=len(tvec)
         var=["" for i in range(n)]
+        
         
         #Determining Variables, var contains the order of variables (may differ from original order)
         for i in range(n):
@@ -564,6 +576,7 @@ class BooleanNetwork(WiringDiagram):
         constants_and_variables = []
         for line in tvec:
             linesplit = line.split(' ')
+            print(line)
             for el in linesplit:
                 if el not in ['(',')','+','*','1',separator,original_not,original_and,original_or,'',' ']:
                     constants_and_variables.append(el)

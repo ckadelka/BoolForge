@@ -8,6 +8,9 @@ Created on Fri Sep 12 11:48:48 2025
 
 import requests
 import boolforge
+import pickle
+import io
+
 
 def _get_content_in_remote_folder(url,file_names,file_download_urls):
     folder = requests.get(url)
@@ -36,14 +39,24 @@ def fetch_file(download_url):
     r.raise_for_status()
     return r.text
 
-def load_model(download_url, max_degree=24, possible_separators=['* =','*=','=',',']):
+def fetch_file_bytes(download_url):
+    r = requests.get(download_url)
+    r.raise_for_status()
+    return r.content  # return bytes, not str
+
+def load_model(download_url, max_degree=24, possible_separators=['* =','*=','=',','],original_not = 'NOT', original_and  = 'AND', original_or = 'OR'):
     string = fetch_file(download_url)
     for separator in possible_separators:
-        try:
-            bn = boolforge.BooleanNetwork.from_string(string,separator=separator,max_degree=max_degree)
-            return bn
-        except:
-            pass 
+        for (original_not,original_and,original_or) in [('not','and','or'),('NOT','AND','OR'),('!','&','|')]:
+            try:
+                bn = boolforge.BooleanNetwork.from_string(string,separator=separator,
+                                                          max_degree=max_degree,
+                                                          original_not=original_not,
+                                                          original_and=original_and,
+                                                          original_or=original_or)
+                return bn
+            except:
+                pass 
     
 
 url = 'https://api.github.com/repos/ckadelka/DesignPrinciplesGeneNetworks/contents/update_rules_122_models_Kadelka_SciAdv/'
@@ -51,17 +64,19 @@ url = 'https://api.github.com/repos/ckadelka/DesignPrinciplesGeneNetworks/conten
 file_names,file_download_urls = get_content_in_remote_folder(url)
 for i,(name,download_url) in enumerate(zip(file_names,file_download_urls)):
     if '.txt' in name:
-        #print(name)
-        bn = load_model(download_url)
+        if 'tabular' in name:
+            [F, I, var, constants] = pickle.load(io.BytesIO(fetch_file_bytes(download_url)))
+            for i in range(len(constants)):
+                F.append([0,1])
+                I.append([len(var)+i])
+            bn = boolforge.BooleanNetwork(F,I,var+constants)
+        else:
+            #print(name)
+            bn = load_model(download_url)
         if bn is not None:
             print(i, len(bn.F),len(bn.I),len(bn.variables))
             print()
         else:
             print(i,name,'Transformation Error')
             print()
-            
-            
-f = open(folder+textfile,'r')
-text = f.read()
-text = text.replace('\t',' ').replace('(',' ( ').replace(')',' ) ')
-f.close()
+
