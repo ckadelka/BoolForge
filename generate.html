@@ -112,16 +112,30 @@
 <p>Selection logic (first match applies):</p>
 <blockquote>
 <div><ul>
-<li><p>If <cite>LINEAR</cite>: return a random <strong>linear</strong> Boolean function (<cite>random_linear_function</cite>).</p></li>
-<li><p>Else if <cite>layer_structure is not None</cite>: return a function with the specified <strong>canalizing layer structure</strong> using <cite>random_k_canalizing_function_with_specific_layer_structure</cite>, with exact canalizing depth if <cite>EXACT_DEPTH</cite>.</p></li>
-<li><p>Else if <cite>depth &gt; 0</cite>: return a <strong>k-canalizing</strong> function with k = min(depth, n) using <cite>random_k_canalizing_function</cite>, with exact canalizing depth if <cite>EXACT_DEPTH</cite>.</p></li>
-<li><p>Else if exact <cite>hamming_weight</cite> is provided: sample uniformly a truth table with the requested number of ones, and keep resampling until the additional constraints implied by <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite> are satisfied:</p>
+<li><p>If <cite>LINEAR</cite>: return a random <strong>linear</strong> Boolean function
+(<cite>random_linear_function</cite>).</p></li>
+<li><p>Else if <cite>layer_structure is not None</cite>: return a function with the
+specified <strong>canalizing layer structure</strong> using
+<cite>random_k_canalizing_function_with_specific_layer_structure</cite>,
+with exact canalizing depth if <cite>EXACT_DEPTH</cite>.</p></li>
+<li><p>Else if <cite>depth &gt; 0</cite>: return a <strong>k-canalizing</strong> function with k =
+min(depth, n) using <cite>random_k_canalizing_function</cite>, with exact
+canalizing depth if <cite>EXACT_DEPTH</cite>.</p></li>
+<li><p>Else if exact <cite>hamming_weight</cite> is provided: sample uniformly a truth
+table with the requested number of ones, and keep resampling until
+the additional constraints implied by <cite>ALLOW_DEGENERATED_FUNCTIONS</cite>
+and <cite>EXACT_DEPTH</cite> are satisfied:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>: return a <strong>non-canalizing</strong> function with exact Hamming weight.</p></li>
-<li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and not <cite>EXACT_DEPTH</cite>: return a fully random function with exact Hamming weight.</p></li>
-<li><p>If not <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>: return a <strong>non-canalizing &amp; non-degenerated</strong> function with exact Hamming weight.</p></li>
-<li><p>Else: return a <strong>non-degenerated</strong> function with exact Hamming weight.</p></li>
+<li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>: return a
+<strong>non-canalizing</strong> function with exact Hamming weight.</p></li>
+<li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and not <cite>EXACT_DEPTH</cite>: return
+a fully random function with exact Hamming weight.</p></li>
+<li><p>If not <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>: return
+a <strong>non-canalizing &amp; non-degenerated</strong> function with exact
+Hamming weight.</p></li>
+<li><p>Else: return a <strong>non-degenerated</strong> function with exact Hamming
+weight.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -131,7 +145,8 @@
 <li><p>Choose a bias:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>If <cite>USE_ABSOLUTE_BIAS</cite>, set <cite>bias</cite> randomly to <cite>0.5*(1−absolute_bias)</cite> or <cite>0.5*(1+absolute_bias)</cite>.</p></li>
+<li><p>If <cite>USE_ABSOLUTE_BIAS</cite>, set <cite>bias</cite> randomly to
+<cite>0.5*(1−absolute_bias)</cite> or <cite>0.5*(1+absolute_bias)</cite>.</p></li>
 <li><p>Else, use <cite>bias</cite> directly.</p></li>
 </ul>
 </div></blockquote>
@@ -139,10 +154,18 @@
 <li><p>Then:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>: return a <strong>non-canalizing</strong> function with that bias (<cite>random_non_canalizing_function</cite>).</p></li>
-<li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and not <cite>EXACT_DEPTH</cite>: return a fully random function with that bias, as used in classical NK-Kauffman models (<cite>random_function_with_bias</cite>).</p></li>
-<li><p>If not <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>: return a <strong>non-canalizing, non-degenerated</strong> function (<cite>random_non_canalizing_non_degenerated_function</cite>).</p></li>
-<li><p>Else (default, if only ‘n’ is provided): return a <strong>non-degenerated</strong> function with that bias (<cite>random_non_degenerated_function</cite>).</p></li>
+<li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>: return
+a <strong>non-canalizing</strong> function with that bias
+(<cite>random_non_canalizing_function</cite>).</p></li>
+<li><p>If <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and not <cite>EXACT_DEPTH</cite>:
+return a fully random function with that bias, as used in
+classical NK-Kauffman models (<cite>random_function_with_bias</cite>).</p></li>
+<li><p>If not <cite>ALLOW_DEGENERATED_FUNCTIONS</cite> and <cite>EXACT_DEPTH</cite>:
+return a <strong>non-canalizing, non-degenerated</strong> function
+(<cite>random_non_canalizing_non_degenerated_function</cite>).</p></li>
+<li><p>Else (default, if only ‘n’ is provided): return a
+<strong>non-degenerated</strong> function with that bias
+(<cite>random_non_degenerated_function</cite>).</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -155,16 +178,36 @@
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Number of variables (n &gt;= 1 for most nontrivial generators).</p></li>
-<li><p>depth (int, optional): Requested canalizing depth (used when <cite>layer_structure is None</cite> and <cite>depth &gt; 0</cite>). If <cite>EXACT_DEPTH</cite>, the function has exactly this depth (clipped at n); otherwise, at least this depth. Default 0.</p></li>
-<li><p>EXACT_DEPTH (bool, optional): Enforce exact canalizing depth where applicable. For the case <cite>depth == 0</cite> this implies <strong>non-canalizing</strong>. Default False.</p></li>
-<li><p>layer_structure (list[int] | None, optional): Canalizing layer structure [k1, …, kr]. If provided, it takes precedence over <cite>depth</cite>. Exact depth behavior follows <cite>EXACT_DEPTH</cite>. Default None.</p></li>
-<li><p>LINEAR (bool, optional): If True, ignore other generation options and return a random linear function. Default False.</p></li>
-<li><p>ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True, generators in the “random” branches may return functions with non-essential inputs. If False, those branches insist on non-degenerated functions. Default False.</p></li>
-<li><p>bias (float, optional): Probability of 1s when sampling with bias (ignored if <cite>USE_ABSOLUTE_BIAS</cite> or a different branch is taken). Must be in [0,1]. Default 0.5.</p></li>
-<li><p>absolute_bias (float, optional): Absolute deviation parameter in [0,1] used when <cite>USE_ABSOLUTE_BIAS</cite>. The actual bias is chosen at random from {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}. Default 0.</p></li>
-<li><p>USE_ABSOLUTE_BIAS (bool, optional): If True, use <cite>absolute_bias</cite> to set the distance from 0.5; otherwise use <cite>bias</cite> directly. Default False.</p></li>
-<li><p>hamming_weight (int | None, optional): If provided, enforce an exact number of ones in the truth table (0..2^n). Additional constraints apply with <cite>EXACT_DEPTH</cite> and degeneracy settings (see selection logic above). Default None.</p></li>
-<li><p>rng (None, optional): Argument for the random number generator, implemented in ‘utils._coerce_rng’.</p></li>
+<li><p>depth (int, optional): Requested canalizing depth (used when
+<cite>layer_structure is None</cite> and <cite>depth &gt; 0</cite>). If <cite>EXACT_DEPTH</cite>,
+the function has exactly this depth (clipped at n); otherwise, at
+least this depth. Default 0.</p></li>
+<li><p>EXACT_DEPTH (bool, optional): Enforce exact canalizing depth where
+applicable. For the case <cite>depth == 0</cite> this implies
+<strong>non-canalizing</strong>. Default False.</p></li>
+<li><p>layer_structure (list[int] | None, optional): Canalizing layer
+structure [k1, …, kr]. If provided, it takes precedence over
+<cite>depth</cite>. Exact depth behavior follows <cite>EXACT_DEPTH</cite>. Default None.</p></li>
+<li><p>LINEAR (bool, optional): If True, ignore other generation options
+and return a random linear function. Default False.</p></li>
+<li><p>ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True, generators
+in the “random” branches may return functions with non-essential
+inputs. If False, those branches insist on non-degenerated functions.
+Default False.</p></li>
+<li><p>bias (float, optional): Probability of 1s when sampling with bias
+(ignored if <cite>USE_ABSOLUTE_BIAS</cite> or a different branch is taken).
+Must be in [0,1]. Default 0.5.</p></li>
+<li><p>absolute_bias (float, optional): Absolute deviation parameter in
+[0,1] used when <cite>USE_ABSOLUTE_BIAS</cite>. The actual bias is chosen at
+random from {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}. Default 0.</p></li>
+<li><p>USE_ABSOLUTE_BIAS (bool, optional): If True, use <cite>absolute_bias</cite> to
+set the distance from 0.5; otherwise use <cite>bias</cite> directly. Default False.</p></li>
+<li><p>hamming_weight (int | None, optional): If provided, enforce an
+exact number of ones in the truth table (0..2^n). Additional
+constraints apply with <cite>EXACT_DEPTH</cite> and degeneracy settings (see
+selection logic above). Default None.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -182,17 +225,22 @@
 <li><p><cite>0 &lt;= bias &lt;= 1</cite> (when used),</p></li>
 <li><p><cite>0 &lt;= absolute_bias &lt;= 1</cite> (when used),</p></li>
 <li><p><cite>hamming_weight</cite> in {0, …, 2^n} (when used),</p></li>
-<li><p>If <cite>EXACT_DEPTH</cite> and <cite>depth==0</cite>, then <cite>hamming_weight</cite> must be in {2,3,…,2^n−2} (since weights 0,1,2^n−1,2^n are canalizing).</p></li>
+<li><p>If <cite>EXACT_DEPTH</cite> and <cite>depth==0</cite>, then <cite>hamming_weight</cite>
+must be in {2,3,…,2^n−2} (since weights 0,1,2^n−1,2^n are
+canalizing).</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p>AssertionError (from called generators): Some subroutines require <cite>n &gt; 1</cite> for non-canalizing generation.</p></li>
+<li><p>AssertionError (from called generators): Some subroutines require
+<cite>n &gt; 1</cite> for non-canalizing generation.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Notes:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Extremely biased random functions (with bias very close to 0 or 1) are often degenerated and highly canalizing; some functions force bias in [0.001,0.999] to avoid RunTimeErrors.</p></li>
+<li><p>Extremely biased random functions (with bias very close to 0 or 1)
+are often degenerated and highly canalizing; some functions force
+bias in [0.001,0.999] to avoid RunTimeErrors.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Examples:</strong></p>
@@ -217,7 +265,8 @@
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fixed Hamming weight under non-canalizing + non-degenerated constraints</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -226,13 +275,17 @@
 <dt class="sig sig-object py" id="boolforge.generate.random_function_with_bias">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_function_with_bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_function_with_bias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_function_with_bias" title="Link to this definition"></a></dt>
 <dd><p>Generate a random Boolean function in n variables with a specified bias.</p>
-<p>The Boolean function is represented as a truth table (an array of length 2^n) in which each entry is 0 or 1.
-Each entry is set to 1 with probability <cite>bias</cite>.</p>
+<p>The Boolean function is represented as a truth table (an array of length
+2^n) in which each entry is 0 or 1. Each entry is set to 1 with
+probability <cite>bias</cite>.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Number of variables.</p></li>
-<li><p>bias (float, optional): Probability that a given entry is 1 (default is 0.5).</p></li>
+<li><p>bias (float, optional): Probability that a given entry is 1
+(default is 0.5).</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -246,14 +299,19 @@ Each entry is set to 1 with probability <cite>bias</cite>.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_function_with_exact_hamming_weight">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_function_with_exact_hamming_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_function_with_exact_hamming_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_function_with_exact_hamming_weight" title="Link to this definition"></a></dt>
-<dd><p>Generate a random Boolean function in n variables with exact Hamming weight (number of ones).</p>
-<p>The Boolean function is represented as a truth table (an array of length 2^n) in which each entry is 0 or 1.
-Exactly ‘hamming_weight’ entries are set to 1.</p>
+<dd><p>Generate a random Boolean function in n variables with exact Hamming
+weight (number of ones).</p>
+<p>The Boolean function is represented as a truth table (an array of length
+2^n) in which each entry is 0 or 1. Exactly ‘hamming_weight’ entries are
+set to 1.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Number of variables.</p></li>
-<li><p>hamming_weight (int): Probability that a given entry is 1 (default is 0.5).</p></li>
+<li><p>hamming_weight (int): Probability that a given entry is 1
+(default is 0.5).</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -268,12 +326,15 @@ Exactly ‘hamming_weight’ entries are set to 1.</p>
 <dt class="sig sig-object py" id="boolforge.generate.random_linear_function">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_linear_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_linear_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_linear_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random linear Boolean function in n variables.</p>
-<p>A random linear Boolean function is constructed by randomly choosing whether to include each variable or its negation in a linear sum.
-The resulting expression is then reduced modulo 2.</p>
+<p>A random linear Boolean function is constructed by randomly choosing
+whether to include each variable or its negation in a linear sum. The
+resulting expression is then reduced modulo 2.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Number of variables.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -288,13 +349,18 @@ The resulting expression is then reduced modulo 2.</p>
 <dt class="sig sig-object py" id="boolforge.generate.random_non_degenerated_function">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_non_degenerated_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_non_degenerated_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_non_degenerated_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random non-degenerated Boolean function in n variables.</p>
-<p>A non-degenerated Boolean function is one in which every variable is essential (i.e. the output depends on every input).
-The function is repeatedly generated with the specified bias until a non-degenerated function is found.</p>
+<p>A non-degenerated Boolean function is one in which every variable is
+essential (i.e. the output depends on every input). The function is
+repeatedly generated with the specified bias until a non-degenerated
+function is found.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Number of variables.</p></li>
-<li><p>bias (float, optional): Bias of the Boolean function (probability of a 1; default is 0.5).</p></li>
+<li><p>bias (float, optional): Bias of the Boolean function (probability
+of a 1; default is 0.5).</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -306,7 +372,9 @@ The function is repeatedly generated with the specified bias until a non-degener
 <p><strong>References:</strong></p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.</p></li>
+<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence
+of canalization on the robustness of Boolean networks. Physica D:
+Nonlinear Phenomena, 353, 39-47.</p></li>
 </ol>
 </div></blockquote>
 </dd></dl>
@@ -315,25 +383,32 @@ The function is repeatedly generated with the specified bias until a non-degener
 <dt class="sig sig-object py" id="boolforge.generate.random_degenerated_function">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_degenerated_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_degenerated_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_degenerated_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random degenerated Boolean function in n variables.</p>
-<p>A degenerated Boolean function is one in which at least one variable is non‐essential (its value never affects the output).
-The function is generated repeatedly until a degenerated function is found.</p>
+<p>A degenerated Boolean function is one in which at least one variable is
+non‐essential (its value never affects the output). The function is
+generated repeatedly until a degenerated function is found.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Number of variables.</p></li>
-<li><p>bias (float, optional): Bias of the Boolean function (default is 0.5, i.e., unbiased).</p></li>
+<li><p>bias (float, optional): Bias of the Boolean function (default is
+0.5, i.e., unbiased).</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>BooleanFunction: Boolean function object that is degenerated in the first input (and possibly others).</p></li>
+<li><p>BooleanFunction: Boolean function object that is degenerated in
+the first input (and possibly others).</p></li>
 </ul>
 </div></blockquote>
 <p><strong>References:</strong></p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.</p></li>
+<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence
+of canalization on the robustness of Boolean networks. Physica D:
+Nonlinear Phenomena, 353, 39-47.</p></li>
 </ol>
 </div></blockquote>
 </dd></dl>
@@ -342,13 +417,17 @@ The function is generated repeatedly until a degenerated function is found.</p>
 <dt class="sig sig-object py" id="boolforge.generate.random_non_canalizing_function">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_non_canalizing_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_non_canalizing_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_non_canalizing_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random non-canalizing Boolean function in n (&gt;1) variables.</p>
-<p>A Boolean function is canalizing if there exists at least one variable whose fixed value forces the output.
-This function returns one that is not canalizing.</p>
+<p>A Boolean function is canalizing if there exists at least one variable
+whose fixed value forces the output. This function returns one that is
+not canalizing.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Number of variables (n &gt; 1).</p></li>
-<li><p>bias (float, optional): Bias of the Boolean function (default is 0.5, i.e., unbiased).</p></li>
+<li><p>bias (float, optional): Bias of the Boolean function (default is
+0.5, i.e., unbiased).</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -360,7 +439,9 @@ This function returns one that is not canalizing.</p>
 <p><strong>References:</strong></p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.</p></li>
+<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence
+of canalization on the robustness of Boolean networks. Physica D:
+Nonlinear Phenomena, 353, 39-47.</p></li>
 </ol>
 </div></blockquote>
 </dd></dl>
@@ -368,13 +449,17 @@ This function returns one that is not canalizing.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_non_canalizing_non_degenerated_function">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_non_canalizing_non_degenerated_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_non_canalizing_non_degenerated_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_non_canalizing_non_degenerated_function" title="Link to this definition"></a></dt>
-<dd><p>Generate a random Boolean function in n (&gt;1) variables that is both non-canalizing and non-degenerated.</p>
+<dd><p>Generate a random Boolean function in n (&gt;1) variables that is both
+non-canalizing and non-degenerated.</p>
 <p>Such a function has every variable essential and is not canalizing.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Number of variables (n &gt; 1).</p></li>
-<li><p>bias (float, optional): Bias of the Boolean function (default is 0.5, i.e., unbiased).</p></li>
+<li><p>bias (float, optional): Bias of the Boolean function (default is
+0.5, i.e., unbiased).</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -386,7 +471,9 @@ This function returns one that is not canalizing.</p>
 <p><strong>References:</strong></p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.</p></li>
+<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence
+of canalization on the robustness of Boolean networks. Physica D:
+Nonlinear Phenomena, 353, 39-47.</p></li>
 </ol>
 </div></blockquote>
 </dd></dl>
@@ -395,15 +482,23 @@ This function returns one that is not canalizing.</p>
 <dt class="sig sig-object py" id="boolforge.generate.random_k_canalizing_function">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_k_canalizing_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT_DEPTH</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ALLOW_DEGENERATED_FUNCTIONS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_k_canalizing_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_k_canalizing_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random k-canalizing Boolean function in n variables.</p>
-<p>A Boolean function is k-canalizing if it has at least k conditionally canalizing variables.
-If EXACT_DEPTH is True, the function will have exactly k canalizing variables; otherwise, its canalizing depth may exceed k.</p>
+<p>A Boolean function is k-canalizing if it has at least k conditionally
+canalizing variables. If EXACT_DEPTH is True, the function will have
+exactly k canalizing variables; otherwise, its canalizing depth may
+exceed k.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Number of variables.</p></li>
-<li><p>k (int): Number of canalizing variables. Set ‘k=n’ to generate a random nested canalizing function.</p></li>
-<li><p>EXACT_DEPTH (bool, optional): If True, enforce that the canalizing depth is exactly k (default is False).</p></li>
-<li><p>ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False) and k==0 and layer_structure is None, degenerated functions may be created as in classical NK-Kauffman networks.</p></li>
+<li><p>k (int): Number of canalizing variables. Set ‘k=n’ to generate a
+random nested canalizing function.</p></li>
+<li><p>EXACT_DEPTH (bool, optional): If True, enforce that the canalizing
+depth is exactly k (default is False).</p></li>
+<li><p>ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False)
+and k==0 and layer_structure is None, degenerated functions may be
+created as in classical NK-Kauffman networks.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -415,8 +510,12 @@ If EXACT_DEPTH is True, the function will have exactly k canalizing variables; o
 <p><strong>References:</strong></p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth. Physica D: Nonlinear Phenomena, 314, 1-8.</p></li>
-<li><p>Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D. (2022). Revealing the canalizing structure of Boolean functions: Algorithms and applications. Automatica, 146, 110630.</p></li>
+<li><p>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of
+Boolean functions by canalizing depth. Physica D: Nonlinear
+Phenomena, 314, 1-8.</p></li>
+<li><p>Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D. (2022).
+Revealing the canalizing structure of Boolean functions: Algorithms
+and applications. Automatica, 146, 110630.</p></li>
 </ol>
 </div></blockquote>
 </dd></dl>
@@ -424,16 +523,27 @@ If EXACT_DEPTH is True, the function will have exactly k canalizing variables; o
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_k_canalizing_function_with_specific_layer_structure">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_k_canalizing_function_with_specific_layer_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT_DEPTH</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ALLOW_DEGENERATED_FUNCTIONS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_k_canalizing_function_with_specific_layer_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_k_canalizing_function_with_specific_layer_structure" title="Link to this definition"></a></dt>
-<dd><p>Generate a random Boolean function in n variables with a specified canalizing layer structure.</p>
-<p>The layer structure is given as a list [k_1, …, k_r], where each k_i indicates the number of canalizing variables 
-in that layer. If the function is fully canalizing (i.e. sum(layer_structure) == n and n &gt; 1), the last layer must have at least 2 variables.</p>
+<dd><p>Generate a random Boolean function in n variables with a specified
+canalizing layer structure.</p>
+<p>The layer structure is given as a list [k_1, …, k_r], where each
+k_i indicates the number of canalizing variables in that layer. If the
+function is fully canalizing (i.e. sum(layer_structure) == n and n &gt; 1),
+the last layer must have at least 2 variables.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Total number of variables.</p></li>
-<li><p>layer_structure (list): List [k_1, …, k_r] describing the canalizing layer structure. Each k_i ≥ 1, and if sum(layer_structure) == n and n &gt; 1, then layer_structure[-1] ≥ 2. Set sum(layer_structure)==n to generate a random nested canalizing function.</p></li>
-<li><p>EXACT_DEPTH (bool, optional): If True, the canalizing depth is exactly sum(layer_structure) (default is False).</p></li>
-<li><p>ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False), the core function may be degenerated, as in NK-Kauffman networks.</p></li>
+<li><p>layer_structure (list[int]): List [k_1, …, k_r] describing the
+canalizing layer structure. Each k_i ≥ 1, and if
+sum(layer_structure) == n and n &gt; 1, then layer_structure[-1] ≥ 2.
+Set sum(layer_structure)==n to generate a random nested canalizing
+function.</p></li>
+<li><p>EXACT_DEPTH (bool, optional): If True, the canalizing depth is
+exactly sum(layer_structure) (default is False).</p></li>
+<li><p>ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False),
+the core function may be degenerated, as in NK-Kauffman networks.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -445,8 +555,12 @@ in that layer. If the function is fully canalizing (i.e. sum(layer_structure) ==
 <p><strong>References:</strong></p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth. Physica D: Nonlinear Phenomena, 314, 1-8.</p></li>
-<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.</p></li>
+<li><p>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of
+Boolean functions by canalizing depth. Physica D: Nonlinear
+Phenomena, 314, 1-8.</p></li>
+<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence
+of canalization on the robustness of Boolean networks. Physica D:
+Nonlinear Phenomena, 353, 39-47.</p></li>
 </ol>
 </div></blockquote>
 </dd></dl>
@@ -456,13 +570,21 @@ in that layer. If the function is fully canalizing (i.e. sum(layer_structure) ==
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_nested_canalizing_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_nested_canalizing_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_nested_canalizing_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random nested canalizing Boolean function in n variables 
 with a specified canalizing layer structure (if provided).</p>
-<p>The layer structure is given as a list [k_1, …, k_r], where each k_i indicates the number of canalizing variables 
-in that layer. If the function is fully canalizing (i.e. sum(layer_structure) == n and n &gt; 1), the last layer must have at least 2 variables.</p>
+<p>The layer structure is given as a list [k_1, …, k_r], where each k_i
+indicates the number of canalizing variables in that layer. If the
+function is fully canalizing (i.e. sum(layer_structure) == n and n &gt; 1),
+the last layer must have at least 2 variables.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>n (int): Total number of variables.</p></li>
-<li><p>layer_structure (list | optional): List [k_1, …, k_r] describing the canalizing layer structure. Each k_i ≥ 1, and if sum(layer_structure) == n and n &gt; 1, then layer_structure[-1] ≥ 2. Set sum(layer_structure)==n to generate a random nested canalizing function.</p></li>
+<li><p>layer_structure (list[int] | optional): List [k_1, …, k_r]
+describing the canalizing layer structure. Each k_i ≥ 1, and if
+sum(layer_structure) == n and n &gt; 1, then layer_structure[-1] ≥ 2.
+Set sum(layer_structure)==n to generate a random nested canalizing
+function.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -474,8 +596,12 @@ in that layer. If the function is fully canalizing (i.e. sum(layer_structure) ==
 <p><strong>References:</strong></p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of Boolean functions by canalizing depth. Physica D: Nonlinear Phenomena, 314, 1-8.</p></li>
-<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence of canalization on the robustness of Boolean networks. Physica D: Nonlinear Phenomena, 353, 39-47.</p></li>
+<li><p>He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of
+Boolean functions by canalizing depth. Physica D: Nonlinear
+Phenomena, 314, 1-8.</p></li>
+<li><p>Kadelka, C., Kuipers, J., &amp; Laubenbacher, R. (2017). The influence
+of canalization on the robustness of Boolean networks. Physica D:
+Nonlinear Phenomena, 353, 39-47.</p></li>
 </ol>
 </div></blockquote>
 </dd></dl>
@@ -496,24 +622,38 @@ in that layer. If the function is fully canalizing (i.e. sum(layer_structure) ==
 <blockquote>
 <div><ul>
 <li><p>N (int) :Number of nodes (&gt;= 1).</p></li>
-<li><p>n (int, float, list, np.ndarray): Meaning depends on <cite>indegree_distribution</cite>:</p>
+<li><p>n (int, float, list[int], np.ndarray[int]): Meaning depends on
+<cite>indegree_distribution</cite>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>If <cite>n</cite> is a length-N vector of integers, it is returned (after validation).</p></li>
-<li><p>If <cite>indegree_distribution</cite> in {‘constant’,’dirac’,’delta’}: the single integer <cite>n</cite> describes the in-degree of each node.</p></li>
-<li><p>If <cite>indegree_distribution</cite> == ‘uniform’: <cite>n</cite> is an integer upper bound; each node gets an integer sampled <em>uniformly</em> from {1, 2, …, n}.</p></li>
-<li><p>If <cite>indegree_distribution</cite> == ‘poisson’: <cite>n</cite> is the Poisson rate λ (&gt; 0); each node gets a Poisson(λ) draw, truncated to lie in [1, N - int(NO_SELF_REGULATION)].</p></li>
+<li><p>If <cite>n</cite> is a length-N vector of integers, it is returned
+(after validation).</p></li>
+<li><p>If <cite>indegree_distribution</cite> in {‘constant’,’dirac’,’delta’}:
+the single integer <cite>n</cite> describes the in-degree of each node.</p></li>
+<li><p>If <cite>indegree_distribution</cite> == ‘uniform’: <cite>n</cite> is an integer upper
+bound; each node gets an integer sampled <em>uniformly</em> from {1, 2,
+…, n}.</p></li>
+<li><p>If <cite>indegree_distribution</cite> == ‘poisson’: <cite>n</cite> is the Poisson
+rate λ (&gt; 0); each node gets a Poisson(λ) draw, truncated to lie
+in [1, N - int(NO_SELF_REGULATION)].</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p>indegree_distribution (str, optional): One of {‘constant’,’dirac’,’delta’,’uniform’,’poisson’}. Default ‘constant’.</p></li>
-<li><p>NO_SELF_REGULATION (bool, optional): If True, later wiring generation will disallow self-loops. This parameter is used here to cap sampled in-degrees at <cite>N-1</cite>. Default True.</p></li>
+<li><p>indegree_distribution (str, optional): One of {‘constant’, ‘dirac’,
+‘delta’, ‘uniform’, ‘poisson’}. Default ‘constant’.</p></li>
+<li><p>NO_SELF_REGULATION (bool, optional): If True, later wiring
+generation will disallow self-loops. This parameter is used here to
+cap sampled in-degrees at <cite>N-1</cite>. Default True.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>indegrees (np.ndarray (dtype=int, shape (N,))): The in-degree of each node, with values in <cite>[1, N - int(NO_SELF_REGULATION)]</cite> for sampled distributions.</p></li>
+<li><p>indegrees (np.ndarray[int] (shape (N,))): The in-degree of each node,
+with values in <cite>[1, N - int(NO_SELF_REGULATION)]</cite> for sampled
+distributions.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Raises:</strong></p>
@@ -544,22 +684,29 @@ in that layer. If the function is fully canalizing (i.e. sum(layer_structure) ==
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_edge_list">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_edge_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NO_SELF_REGULATION</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AT_LEAST_ONE_REGULATOR_PER_NODE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_edge_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_edge_list" title="Link to this definition"></a></dt>
-<dd><p>Generate a random edge list for a network of N nodes with optional constraints.</p>
+<dd><p>Generate a random edge list for a network of N nodes with optional
+constraints.</p>
 <p>Each node i receives indegrees[i] incoming edges chosen at random.
-Optionally, the function can ensure that every node regulates at least one other node.</p>
+Optionally, the function can ensure that every node regulates at least
+one other node.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>N (int): Number of nodes.</p></li>
-<li><p>indegrees (list | np.array): List of length N specifying the number of regulators for each node.</p></li>
+<li><p>indegrees (list[int] | np.array[int]): List of length N specifying
+the number of regulators for each node.</p></li>
 <li><p>NO_SELF_REGULATION (bool): If True, disallow self-regulation.</p></li>
-<li><p>AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure that each node has at least one outgoing edge (default is False).</p></li>
+<li><p>AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure
+that each node has at least one outgoing edge (default is False).</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>list: A list of tuples (source, target) representing the edges.</p></li>
+<li><p>list[tuple[int, int]]: A list of tuples (source, target)
+representing the edges.</p></li>
 </ul>
 </div></blockquote>
 </dd></dl>
@@ -575,22 +722,37 @@ and the generated network can be forced to be strongly connected.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>N (int): Number of nodes.</p></li>
-<li><p>n (int | list | np.array | float (if indegree_distribution==’poisson’)):  Determines the in-degree of each node. If an integer, each node has the same number of regulators; if a vector, each element gives the number of regulators for the corresponding node.</p></li>
-<li><p>NO_SELF_REGULATION (bool, optional): If True, self-regulation is disallowed (default is True).</p></li>
-<li><p>STRONGLY_CONNECTED (bool, optional): If True, the generated network is forced to be strongly connected (default is False).</p></li>
-<li><p>indegree_distribution (str, optional): In-degree distribution to use. Options include ‘constant’ (or ‘dirac’/’delta’), ‘uniform’, or ‘poisson’. Default is ‘constant’.</p></li>
-<li><p>AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure that each node has at least one outgoing edge (default is False).</p></li>
-<li><p>n_attempts_to_generate_strongly_connected_network (int, optional): Number of attempts to generate a strongly connected wiring diagram before raising an error and quitting.</p></li>
+<li><p>n (int | list[int] | np.array[int] | float (if
+indegree_distribution==’poisson’)):  Determines the in-degree of
+each node. If an integer, each node has the same number of
+regulators; if a vector, each element gives the number of regulators
+for the corresponding node.</p></li>
+<li><p>NO_SELF_REGULATION (bool, optional): If True, self-regulation is
+disallowed (default is True).</p></li>
+<li><p>STRONGLY_CONNECTED (bool, optional): If True, the generated network
+is forced to be strongly connected (default is False).</p></li>
+<li><p>indegree_distribution (str, optional): In-degree distribution to
+use. Options include ‘constant’ (or ‘dirac’/’delta’), ‘uniform’, or
+‘poisson’. Default is ‘constant’.</p></li>
+<li><p>AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure
+that each node has at least one outgoing edge (default is False).</p></li>
+<li><p>n_attempts_to_generate_strongly_connected_network (int, optional):
+Number of attempts to generate a strongly connected wiring diagram
+before raising an error and quitting.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul>
-<li><p>tuple: (matrix, indices) where:</p>
+<li><p>tuple[np.array[np.array[int]], list[int]]: (matrix, indices) where:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>matrix (np.array): An N x N adjacency matrix with entries 0 or 1.</p></li>
-<li><p>indices (list): A list of length N, where each element is an array of selected target indices for the corresponding node.</p></li>
+<li><p>matrix (np.array[np.array[int]]): An N x N adjacency matrix
+with entries 0 or 1.</p></li>
+<li><p>indices (list): A list of length N, where each element is an
+array of selected target indices for the corresponding node.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -601,24 +763,38 @@ and the generated network can be forced to be strongly connected.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.rewire_wiring_diagram">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">rewire_wiring_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_swaps_per_edge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DO_NOT_ADD_SELF_REGULATION</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FIX_SELF_REGULATION</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/generate.html#rewire_wiring_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.rewire_wiring_diagram" title="Link to this definition"></a></dt>
-<dd><p>Degree-preserving rewiring of a wiring diagram (directed graph) via double-edge swaps.</p>
-<p>The wiring diagram is given in the “regulators” convention: <cite>I[target]</cite> lists
-all regulators (in-neighbors) of <cite>target</cite>. The routine performs random
-double-edge swaps <cite>(u→v, x→y) → (u→y, x→v)</cite> while <strong>preserving both the
-in-degree and out-degree</strong> of every node. Parallel edges are disallowed.</p>
+<dd><p>Degree-preserving rewiring of a wiring diagram (directed graph) via
+double-edge swaps.</p>
+<p>The wiring diagram is given in the “regulators” convention: <cite>I[target]</cite>
+lists all regulators (in-neighbors) of <cite>target</cite>. The routine performs
+random double-edge swaps <cite>(u→v, x→y) → (u→y, x→v)</cite> while <strong>preserving both
+the in-degree and out-degree</strong> of every node. Parallel edges are disallowed.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>I (list[list[int]] | list[np.ndarray[int]]): Representation of the adjacency matrix / wiring diagram as a list where <cite>I[target]</cite> contains the regulators of node <cite>target</cite>. Each inner list must contain distinct integers in <cite>{0, …, len(I)-1}</cite>.</p></li>
-<li><p>average_swaps_per_edge (float, optional): Target number of <strong>successful</strong> swaps per edge. Larger values typically yield better mixing (more randomized graphs) but take longer. Default 10.</p></li>
-<li><p>DO_NOT_ADD_SELF_REGULATION (bool, optional): If True, proposed swaps that would create a self-loop <cite>u→u</cite> are rejected. Default True.</p></li>
-<li><p>FIX_SELF_REGULATION (bool, optional): If True, <em>existing</em> self-loops are kept <strong>fixed</strong> and excluded from the pool of swappable edges (they remain as-is in the output). If False, self-loops, if present, may be swapped away; if <cite>DO_NOT_ADD_SELF_REGULATION</cite> is True, no new self-loops will be created. Default True.</p></li>
+<li><p>I (list[list[int]] | list[np.ndarray[int]]): Representation of the
+adjacency matrix / wiring diagram as a list where <cite>I[target]</cite>
+contains the regulators of node <cite>target</cite>. Each inner list must
+contain distinct integers in <cite>{0, …, len(I)-1}</cite>.</p></li>
+<li><p>average_swaps_per_edge (float, optional): Target number of
+<strong>successful</strong> swaps per edge. Larger values typically yield better
+mixing (more randomized graphs) but take longer. Default 10.</p></li>
+<li><p>DO_NOT_ADD_SELF_REGULATION (bool, optional): If True, proposed swaps
+that would create a self-loop <cite>u→u</cite> are rejected. Default True.</p></li>
+<li><p>FIX_SELF_REGULATION (bool, optional): If True, <em>existing</em> self-loops
+are kept <strong>fixed</strong> and excluded from the pool of swappable edges
+(they remain as-is in the output). If False, self-loops, if present,
+may be swapped away; if <cite>DO_NOT_ADD_SELF_REGULATION</cite> is True, no new
+self-loops will be created. Default True.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>J (list[np.ndarray]): Rewired wiring diagram in the same format as <cite>I</cite>. Each <cite>J[v]</cite> is a sorted array of distinct regulators of <cite>v</cite>.</p></li>
+<li><p>J (list[np.ndarray[int]]): Rewired wiring diagram in the same format
+as <cite>I</cite>. Each <cite>J[v]</cite> is a sorted array of distinct regulators of <cite>v</cite>.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Guarantees:</strong></p>
@@ -632,7 +808,9 @@ in-degree and out-degree</strong> of every node. Parallel edges are disallowed.<
 <p><strong>Notes:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>If your input contains self-loops and you want to keep them exactly as in <cite>I</cite>, use the defaults (<cite>FIX_SELF_REGULATION</cite>, <cite>DO_NOT_ADD_SELF_REGULATION</cite>).</p></li>
+<li><p>If your input contains self-loops and you want to keep them exactly
+as in <cite>I</cite>, use the defaults (<cite>FIX_SELF_REGULATION</cite>,
+<cite>DO_NOT_ADD_SELF_REGULATION</cite>).</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Example:</strong></p>
@@ -653,23 +831,32 @@ in-degree and out-degree</strong> of every node. Parallel edges are disallowed.<
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_network">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT_DEPTH</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ALLOW_DEGENERATED_FUNCTIONS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LINEAR</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">biases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_biases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">USE_ABSOLUTE_BIAS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NO_SELF_REGULATION</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">STRONGLY_CONNECTED</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegree_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AT_LEAST_ONE_REGULATOR_PER_NODE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_attempts_to_generate_strongly_connected_network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_network" title="Link to this definition"></a></dt>
-<dd><p>Construct a random Boolean network with configurable wiring and rule properties.</p>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT_DEPTH</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ALLOW_DEGENERATED_FUNCTIONS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LINEAR</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">USE_ABSOLUTE_BIAS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NO_SELF_REGULATION</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">STRONGLY_CONNECTED</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegree_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AT_LEAST_ONE_REGULATOR_PER_NODE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_attempts_to_generate_strongly_connected_network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_network" title="Link to this definition"></a></dt>
+<dd><p>Construct a random Boolean network with configurable wiring and rule
+properties.</p>
 <p>The network is built in two stages:</p>
 <blockquote>
 <div><ol class="arabic">
 <li><p><strong>Wiring diagram</strong>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>If <cite>I</cite> is provided, use it as the wiring diagram  (each <cite>I[v]</cite> lists the regulators of node <cite>v</cite>).</p></li>
-<li><p>Otherwise, sample a wiring diagram for <cite>N</cite> nodes using <cite>random_wiring_diagram(N, n, …)</cite>, where the per-node in-degrees are determined by <cite>n</cite> and <cite>indegree_distribution</cite>. Self-loops can be disallowed and strong connectivity can be requested.</p></li>
+<li><p>If <cite>I</cite> is provided, use it as the wiring diagram  (each <cite>I[v]</cite>
+lists the regulators of node <cite>v</cite>).</p></li>
+<li><p>Otherwise, sample a wiring diagram for <cite>N</cite> nodes using
+<cite>random_wiring_diagram(N, n, …)</cite>, where the per-node
+in-degrees are determined by <cite>n</cite> and <cite>indegree_distribution</cite>.
+Self-loops can be disallowed and strong connectivity can be
+requested.</p></li>
 </ul>
 </div></blockquote>
 </li>
 <li><p><strong>Update rules</strong>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>For node <cite>i</cite>, draw a Boolean function with arity <cite>indegrees[i]</cite> using <cite>random_function(…)</cite> with the requested constraints on canalizing depth (or layer structure), linearity, bias / absolute bias, or exact Hamming weight.</p></li>
+<li><p>For node <cite>i</cite>, draw a Boolean function with arity <cite>indegrees[i]</cite>
+using <cite>random_function(…)</cite> with the requested constraints on
+canalizing depth (or layer structure), linearity, bias /
+absolute bias, or exact Hamming weight.</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -678,62 +865,134 @@ in-degree and out-degree</strong> of every node. Parallel edges are disallowed.<
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul>
-<li><p>N (int | None, optional): Number of nodes. Required when <cite>I</cite> is not provided. Ignored if <cite>I</cite> is given.</p></li>
-<li><p>n (int | float | list | np.ndarray | None, optional): Controls the <strong>in-degree</strong> distribution when generating a wiring diagram (ignored if <cite>I</cite> is given). Interpretation depends on <cite>indegree_distribution</cite>:</p>
+<li><p>N (int | None, optional): Number of nodes. Required when <cite>I</cite> is not
+provided. Ignored if <cite>I</cite> is given.</p></li>
+<li><p>n (int | float | list[int] | np.ndarray[int] | None, optional):
+Controls the <strong>in-degree</strong> distribution when generating a wiring
+diagram (ignored if <cite>I</cite> is given). Interpretation depends on
+<cite>indegree_distribution</cite>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>‘constant’ / ‘dirac’ / ‘delta’: every node has constant in-degree <cite>n</cite>.</p></li>
-<li><p>‘uniform’: <cite>n</cite> is an integer upper bound; each node’s in-degree is sampled uniformly from {1, …, n}.</p></li>
-<li><p>‘poisson’: <cite>n</cite> is a positive rate lambda; in-degrees are Poisson (lambda) draws, truncated into [1, N - int(NO_SELF_REGULATION)].</p></li>
-<li><p>If <cite>n</cite> is an N-length vector of integers, it is taken as the exact in-degrees.</p></li>
+<li><p>‘constant’ / ‘dirac’ / ‘delta’: every node has constant
+in-degree <cite>n</cite>.</p></li>
+<li><p>‘uniform’: <cite>n</cite> is an integer upper bound; each node’s in-degree
+is sampled uniformly from {1, …, n}.</p></li>
+<li><p>‘poisson’: <cite>n</cite> is a positive rate lambda; in-degrees are Poisson
+(lambda) draws, truncated into [1, N - int(NO_SELF_REGULATION)].</p></li>
+<li><p>If <cite>n</cite> is an N-length vector of integers, it is taken as the
+exact in-degrees.</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p>depths (int | list | np.ndarray, optional): Requested canalizing depth per node for rule generation. If an integer, it is broadcast to all nodes and clipped at each node’s in-degree. If a vector, it must have length N. Interpreted as <strong>minimum</strong> depth unless <cite>EXACT_DEPTH</cite>. Default 0.</p></li>
-<li><p>EXACT_DEPTH (bool, optional): If True, each function is generated with <strong>exactly</strong> the requested depth (or the sum of the corresponding <cite>layer_structures[i]</cite> if provided). If False, depth is <strong>at least</strong> as large as requested. Default False.</p></li>
-<li><p>layer_structures (list | list[list[int]] | None, optional): Canalizing <strong>layer structure</strong> specifications.</p>
+<li><p>depth (int | list[int] | np.ndarray[int], optional): Requested
+canalizing depth per node for rule generation. If an integer, it
+is broadcast to all nodes and clipped at each node’s in-degree. If a
+vector, it must have length N. Interpreted as <strong>minimum</strong> depth
+unless <cite>EXACT_DEPTH</cite>. Default 0.</p></li>
+<li><p>EXACT_DEPTH (bool, optional): If True, each function is generated
+with <strong>exactly</strong> the requested depth (or the sum of the
+corresponding <cite>layer_structure[i]</cite> if provided). If False, depth
+is <strong>at least</strong> as large as requested. Default False.</p></li>
+<li><p>layer_structure (list | list[list[int]] | None, optional):
+Canalizing <strong>layer structure</strong> specifications.</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>If <cite>None</cite> (default), generation is controlled by <cite>depths</cite> / <cite>EXACT_DEPTH</cite>.</p></li>
-<li><p>If a single list like <cite>[k1, …, kr]</cite>, the same structure is used for all nodes.</p></li>
-<li><p>If a list of lists of length N, <cite>layer_structures[i]</cite> is used for node i.</p></li>
-<li><p>In all cases, <cite>sum(layer_structure[i])</cite> must be &lt;= the node’s in-degree. When provided, <cite>layer_structures</cite> takes precedence over <cite>depths</cite>.</p></li>
+<li><p>If <cite>None</cite> (default), generation is controlled by <cite>depth</cite> /
+<cite>EXACT_DEPTH</cite>.</p></li>
+<li><p>If a single list like <cite>[k1, …, kr]</cite>, the same structure is
+used for all nodes.</p></li>
+<li><p>If a list of lists of length N, <cite>layer_structure[i]</cite> is used
+for node i.</p></li>
+<li><p>In all cases, <cite>sum(layer_structure[i])</cite> must be &lt;= the node’s
+in-degree. When provided, <cite>layer_structure</cite> takes precedence
+over <cite>depth</cite>.</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p>ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True and <cite>depths==0</cite> and <cite>layer_structures is None</cite>, degenerated functions (with non-essential inputs) may be generated (classical NK-Kauffman models). If False, generated functions are essential in all variables. Default False.</p></li>
-<li><p>LINEAR (bool, optional): If True, generate linear Boolean functions for all nodes; other rule parameters (bias, canalization, etc.) are ignored. Default False.</p></li>
-<li><p>biases (float | list | np.ndarray, optional): Probability of output 1 when generating random (nonlinear) functions, used only if <cite>depths==0</cite>, <cite>layer_structures is None</cite>, and <cite>not LINEAR</cite> and <cite>not USE_ABSOLUTE_BIAS</cite>. If a scalar, broadcast to length N. Must lie in [0, 1]. Default 0.5.</p></li>
-<li><p>absolute_biases (float | list | np.ndarray, optional): Absolute deviation from 0.5 (i.e., <cite>|bias-0.5|*2</cite>), used only if <cite>depths==0</cite>, <cite>layer_structures is None</cite>, <cite>not LINEAR</cite>, and <cite>USE_ABSOLUTE_BIAS</cite>. If a scalar, broadcast to length N. Must lie in [0, 1]. Default 0.0.</p></li>
-<li><p>USE_ABSOLUTE_BIAS (bool, optional): If True, <cite>absolute_biases</cite> is used to set the bias per rule to either <cite>0.5*(1 - abs_bias)</cite> or <cite>0.5*(1 + abs_bias)</cite> at random. If False, <cite>biases</cite> is used. Only relevant when <cite>depths==0</cite>, <cite>layer_structures is None</cite>, and <cite>not LINEAR</cite>. Default True.</p></li>
-<li><p>hamming_weights (int | list | np.ndarray | None, optional): Exact Hamming weights (number of ones in each truth table). If None, no exact constraint is enforced. If a scalar, broadcast to N. If a vector, must have length N. Values must be in {0, …, 2^k} for a k-input rule. Additional constraints apply when requesting exact depth zero (see Notes).</p></li>
-<li><p>NO_SELF_REGULATION (bool, optional): If True, forbids self-loops in <strong>generated</strong> wiring diagrams. Has no effect when <cite>I</cite> is provided. Default True.</p></li>
-<li><p>STRONGLY_CONNECTED (bool, optional): If True, the wiring generation retries until a strongly connected directed graph is found (up to a maximum number of attempts) (ignored if <cite>I</cite> is provided). Default False.</p></li>
-<li><p>indegree_distribution (str:{‘constant’,’dirac’,’delta’,’uniform’,’poisson’}, optional): Distribution used when sampling in-degrees (ignored if <cite>I</cite> is provided). Default ‘constant’.</p></li>
-<li><p>AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure that each node has at least one outgoing edge (default is False).</p></li>
-<li><p>n_attempts_to_generate_strongly_connected_network (int, optional): Max attempts for strong connectivity before raising. Default 1000.</p></li>
-<li><p>I (list[list[int]] | list[np.ndarray] | None, optional): Existing wiring diagram. If provided, <cite>N</cite> and <cite>n</cite> are ignored and <cite>indegrees</cite> are computed from <cite>I</cite>.</p></li>
+<li><p>ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True and
+<cite>depth==0</cite> and <cite>layer_structure is None</cite>, degenerated functions
+(with non-essential inputs) may be generated (classical NK-Kauffman
+models). If False, generated functions are essential in all
+variables. Default False.</p></li>
+<li><p>LINEAR (bool, optional): If True, generate linear Boolean functions
+for all nodes; other rule parameters (bias, canalization, etc.) are
+ignored. Default False.</p></li>
+<li><p>bias (float | list[float] | np.ndarray[float], optional):
+Probability of output 1 when generating random (nonlinear)
+functions, used only if <cite>depth==0</cite>, <cite>layer_structure is None</cite>,
+and <cite>not LINEAR</cite> and <cite>not USE_ABSOLUTE_BIAS</cite>. If a scalar, broadcast
+to length N. Must lie in [0, 1]. Default 0.5.</p></li>
+<li><p>absolute_bias (float | list[float] | np.ndarray[float], optional):
+Absolute deviation from 0.5 (i.e., <cite>|bias-0.5|*2</cite>), used only if
+<cite>depth==0</cite>, <cite>layer_structure is None</cite>, <cite>not LINEAR</cite>, and
+<cite>USE_ABSOLUTE_BIAS</cite>. If a scalar, broadcast to length N. Must lie
+in [0, 1]. Default 0.0.</p></li>
+<li><p>USE_ABSOLUTE_BIAS (bool, optional): If True, <cite>absolute_bias</cite>
+is used to set the bias per rule to either <cite>0.5*(1 - abs_bias)</cite> or
+<cite>0.5*(1 + abs_bias)</cite> at random. If False, <cite>bias</cite> is used. Only
+relevant when <cite>depth==0</cite>, <cite>layer_structure is None</cite>, and
+<cite>not LINEAR</cite>. Default True.</p></li>
+<li><p>hamming_weight (int | list[int] | np.ndarray[int] | None,
+optional): Exact Hamming weights (number of ones in each truth
+table). If None, no exact constraint is enforced. If a scalar,
+broadcast to N. If a vector, must have length N. Values must be
+in {0, …, 2^k} for a k-input rule. Additional constraints apply
+when requesting exact depth zero (see Notes).</p></li>
+<li><p>NO_SELF_REGULATION (bool, optional): If True, forbids self-loops
+in <strong>generated</strong> wiring diagrams. Has no effect when <cite>I</cite> is
+provided. Default True.</p></li>
+<li><p>STRONGLY_CONNECTED (bool, optional): If True, the wiring generation
+retries until a strongly connected directed graph is found (up to a
+maximum number of attempts) (ignored if <cite>I</cite> is provided). Default
+False.</p></li>
+<li><p>indegree_distribution (str:{‘constant’, ‘dirac’, ‘delta’, ‘uniform’,
+‘poisson’}, optional): Distribution used when sampling in-degrees
+(ignored if <cite>I</cite> is provided). Default ‘constant’.</p></li>
+<li><p>AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure
+that each node has at least one outgoing edge (default is False).</p></li>
+<li><p>n_attempts_to_generate_strongly_connected_network (int, optional):
+Max attempts for strong connectivity before raising. Default 1000.</p></li>
+<li><p>I (list[list[int]] | list[np.ndarray[int]] | None, optional):
+Existing wiring diagram. If provided, <cite>N</cite> and <cite>n</cite> are ignored and
+<cite>indegrees</cite> are computed from <cite>I</cite>.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>BooleanNetwork: A new Boolean network with wiring <cite>I</cite> (given or generated) and a list of node functions <cite>F</cite> generated according to the specified constraints.</p></li>
+<li><p>BooleanNetwork: A new Boolean network with wiring <cite>I</cite> (given or
+generated) and a list of node functions <cite>F</cite> generated according to
+the specified constraints.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Raises:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>AssertionError: If input shapes/types are invalid or constraints are violated (e.g., requested depth &gt; in-degree, malformed layer structures, invalid bias vectors, etc.).</p></li>
-<li><p>RuntimeError: If <cite>STRONGLY_CONNECTED</cite> and a strongly connected wiring diagram cannot be generated within <cite>n_attempts_to_generate_strongly_connected_network</cite> tries.</p></li>
+<li><p>AssertionError: If input shapes/types are invalid or constraints
+are violated (e.g., requested depth &gt; in-degree, malformed layer
+structures, invalid bias vectors, etc.).</p></li>
+<li><p>RuntimeError: If <cite>STRONGLY_CONNECTED</cite> and a strongly connected
+wiring diagram cannot be generated within
+<cite>n_attempts_to_generate_strongly_connected_network</cite> tries.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Notes:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p><strong>Precedence</strong> for rule constraints: <cite>LINEAR</cite> → <cite>layer_structures</cite> (if provided) → <cite>depths</cite> (+ <cite>EXACT_DEPTH</cite>) and bias settings only apply when no canalization constraints are requested.</p></li>
-<li><p><strong>Bias controls</strong>: Use <cite>USE_ABSOLUTE_BIAS</cite> with <cite>absolute_biases</cite> to enforce a fixed distance from 0.5 while allowing either high or low bias with equal chance. Otherwise, set <cite>USE_ABSOLUTE_BIAS=False</cite> and provide <cite>biases</cite> directly.</p></li>
-<li><p><strong>Hamming weights &amp; canalization</strong>: When <cite>EXACT_DEPTH</cite> and the target depth is 0, Hamming weights {0, 1, 2^k - 1, 2^k} correspond to canalizing functions and are therefore disallowed if forcing non-canalizing functions through <cite>EXACT_DEPTH</cite> (the implementation enforces this).</p></li>
+<li><p><strong>Precedence</strong> for rule constraints: <cite>LINEAR</cite> → <cite>layer_structure</cite>
+(if provided) → <cite>depth</cite> (+ <cite>EXACT_DEPTH</cite>) and bias settings only
+apply when no canalization constraints are requested.</p></li>
+<li><p><strong>Bias controls</strong>: Use <cite>USE_ABSOLUTE_BIAS</cite> with <cite>absolute_bias</cite>
+to enforce a fixed distance from 0.5 while allowing either high or
+low bias with equal chance. Otherwise, set <cite>USE_ABSOLUTE_BIAS=False</cite>
+and provide <cite>bias</cite> directly.</p></li>
+<li><p><strong>Hamming weights &amp; canalization</strong>: When <cite>EXACT_DEPTH</cite> and the
+target depth is 0, Hamming weights {0, 1, 2^k - 1, 2^k} correspond
+to canalizing functions and are therefore disallowed if forcing
+non-canalizing functions through <cite>EXACT_DEPTH</cite> (the implementation
+enforces this).</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Examples:</strong></p>
@@ -751,11 +1010,11 @@ in-degree and out-degree</strong> of every node. Parallel edges are disallowed.<
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Exact canalizing depth k for all nodes</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">depths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Nested canalizing update rules with specific layer structure (broadcast)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layer_structures</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># same for all nodes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layer_structure</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># same for all nodes</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Linear rules</span>
@@ -768,10 +1027,11 @@ in-degree and out-degree</strong> of every node. Parallel edges are disallowed.<
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Exact Hamming weights (broadcast)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">hamming_weights</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># To ensure strong connectivity, set ALLOW_DEGENERATED_FUNCTIONS=False and STRONGLY_CONNECTED=True</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># To ensure strong connectivity, set ALLOW_DEGENERATED_FUNCTIONS=False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># and STRONGLY_CONNECTED=True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">STRONGLY_CONNECTED</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
 </pre></div>
 </div>
@@ -780,13 +1040,17 @@ in-degree and out-degree</strong> of every node. Parallel edges are disallowed.<
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_null_model">
 <span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_null_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">wiring_diagram</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fixed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRESERVE_BIAS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRESERVE_CANALIZING_DEPTH</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_null_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_null_model" title="Link to this definition"></a></dt>
-<dd><p>Generate a randomized Boolean network (null model) from an existing network, preserving selected properties of the wiring diagram and update rules.</p>
+<dd><p>Generate a randomized Boolean network (null model) from an existing
+network, preserving selected properties of the wiring diagram and update
+rules.</p>
 <p>The output network has the same number of nodes as <cite>bn</cite>. You can choose to:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>keep the wiring diagram fixed,</p></li>
-<li><p>re-sample a wiring diagram that preserves each node’s <strong>in-degree</strong> only, or</p></li>
-<li><p>rewire the original diagram via degree-preserving swaps to keep <strong>both in-degrees and out-degrees</strong> unchanged.</p></li>
+<li><p>re-sample a wiring diagram that preserves each node’s <strong>in-degree</strong>
+only, or</p></li>
+<li><p>rewire the original diagram via degree-preserving swaps to keep
+<strong>both in-degrees and out-degrees</strong> unchanged.</p></li>
 </ul>
 </div></blockquote>
 <p>Independently, the node update rules can be randomized while preserving:</p>
@@ -802,22 +1066,37 @@ in-degree and out-degree</strong> of every node. Parallel edges are disallowed.<
 <blockquote>
 <div><ul>
 <li><p>bn (BooleanNetwork): The source network.</p></li>
-<li><p>wiring_diagram (str:{‘fixed’, ‘fixed_indegree’, ‘fixed_in_and_outdegree’}, optional): How to handle the wiring diagram:</p>
+<li><p>wiring_diagram (str:{‘fixed’, ‘fixed_indegree’,
+‘fixed_in_and_outdegree’}, optional): How to handle the wiring
+diagram:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>‘fixed’ (default) : Use <cite>bn.I</cite> unchanged.</p></li>
-<li><p>‘fixed_indegree’ : Sample a fresh wiring diagram with the <strong>same in-degree</strong> per node as <cite>bn</cite> (calls <cite>random_wiring_diagram</cite> with <cite>N=bn.N</cite> and <cite>n=bn.indegrees</cite>).</p></li>
-<li><p>‘fixed_in_and_outdegree’ : Randomize the original wiring by <strong>double-edge swaps</strong> (calls <cite>rewire_wiring_diagram</cite>), preserving both in-degree and out-degree for every node.</p></li>
+<li><p>‘fixed_indegree’ : Sample a fresh wiring diagram with the
+<strong>same in-degree</strong> per node as <cite>bn</cite> (calls
+<cite>random_wiring_diagram</cite> with <cite>N=bn.N</cite> and <cite>n=bn.indegrees</cite>).</p></li>
+<li><p>‘fixed_in_and_outdegree’ : Randomize the original wiring by
+<strong>double-edge swaps</strong> (calls <cite>rewire_wiring_diagram</cite>),
+preserving both in-degree and out-degree for every node.</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p>PRESERVE_BIAS (bool, optional): If True, each node’s new function keeps the same Hamming weight (number of ones) as the original. Default True.</p></li>
-<li><p>PRESERVE_CANALIZING_DEPTH (bool, optional): If True, each node’s new function has the same canalizing depth as the original. Default True.</p></li>
+<li><p>PRESERVE_BIAS (bool, optional): If True, each node’s new function
+keeps the same Hamming weight (number of ones) as the original.
+Default True.</p></li>
+<li><p>PRESERVE_CANALIZING_DEPTH (bool, optional): If True, each node’s new
+function has the same canalizing depth as the original. Default True.</p></li>
+<li><p>rng (None, optional): Argument for the random number generator,
+implemented in ‘utils._coerce_rng’.</p></li>
 <li><p><cite>**kwargs</cite>: Forwarded to the wiring-diagram routine selected above:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>If <cite>wiring_diagram == ‘fixed_indegree’</cite>: passed to <cite>random_wiring_diagram</cite> (e.g., <cite>NO_SELF_REGULATION</cite>, <cite>STRONGLY_CONNECTED</cite>, etc.).</p></li>
-<li><p>If <cite>wiring_diagram == ‘fixed_in_and_outdegree’</cite>: passed to <cite>rewire_wiring_diagram</cite> (e.g., <cite>average_swaps_per_edge</cite>, <cite>DO_NOT_ADD_SELF_REGULATION</cite>, <cite>FIX_SELF_REGULATION</cite>).</p></li>
+<li><p>If <cite>wiring_diagram == ‘fixed_indegree’</cite>: passed to
+<cite>random_wiring_diagram</cite> (e.g., <cite>NO_SELF_REGULATION</cite>,
+<cite>STRONGLY_CONNECTED</cite>, etc.).</p></li>
+<li><p>If <cite>wiring_diagram == ‘fixed_in_and_outdegree’</cite>: passed to
+<cite>rewire_wiring_diagram</cite> (e.g., <cite>average_swaps_per_edge</cite>,
+<cite>DO_NOT_ADD_SELF_REGULATION</cite>, <cite>FIX_SELF_REGULATION</cite>).</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -826,33 +1105,44 @@ in-degree and out-degree</strong> of every node. Parallel edges are disallowed.<
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>BooleanNetwork: A new network with randomized components according to the selected constraints.</p></li>
+<li><p>BooleanNetwork: A new network with randomized components according
+to the selected constraints.</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Rule Randomization Details:</strong></p>
 <blockquote>
-<div><p>Let <cite>f</cite> be an original node rule with in-degree <cite>n</cite> and canalizing depth <cite>k</cite>:</p>
+<div><p>Let <cite>f</cite> be an original node rule with in-degree <cite>n</cite> and canalizing
+depth <cite>k</cite>:</p>
 <blockquote>
 <div><ul>
-<li><p>If <cite>PRESERVE_BIAS and PRESERVE_CANALIZING_DEPTH</cite>: A new rule is assembled with:</p>
+<li><p>If <cite>PRESERVE_BIAS and PRESERVE_CANALIZING_DEPTH</cite>: A new rule
+is assembled with:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>the <strong>same canalized outputs</strong> sequence as <cite>f</cite>,</p></li>
-<li><p>a <strong>random canalizing order</strong> and <strong>random canalizing inputs</strong>,</p></li>
-<li><p>a <strong>core</strong> function with the <strong>same Hamming weight</strong> as <cite>f</cite>’s core and that is <strong>non-canalizing</strong> and <strong>non-degenerated</strong>.</p></li>
+<li><p>a <strong>random canalizing order</strong> and <strong>random canalizing
+inputs</strong>,</p></li>
+<li><p>a <strong>core</strong> function with the <strong>same Hamming weight</strong> as
+<cite>f</cite>’s core and that is <strong>non-canalizing</strong> and
+<strong>non-degenerated</strong>.</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p>If <cite>PRESERVE_BIAS and not PRESERVE_CANALIZING_DEPTH</cite>: A new rule with the same Hamming weight is drawn uniformly at random.</p></li>
-<li><p>If <cite>PRESERVE_CANALIZING_DEPTH and not PRESERVE_BIAS</cite>: A random function with <strong>exact</strong> canalizing depth <cite>d</cite> is generated.</p></li>
-<li><p>Else: A random <strong>non-degenerated</strong> function of the same in-degree is generated.</p></li>
+<li><p>If <cite>PRESERVE_BIAS and not PRESERVE_CANALIZING_DEPTH</cite>: A new
+rule with the same Hamming weight is drawn uniformly at random.</p></li>
+<li><p>If <cite>PRESERVE_CANALIZING_DEPTH and not PRESERVE_BIAS</cite>: A random
+function with <strong>exact</strong> canalizing depth <cite>d</cite> is generated.</p></li>
+<li><p>Else: A random <strong>non-degenerated</strong> function of the same
+in-degree is generated.</p></li>
 </ul>
 </div></blockquote>
 </div></blockquote>
 <p><strong>References:</strong></p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Kadelka, C., &amp; Murrugarra, D. (2024). <em>Canalization reduces the nonlinearity of regulation in biological networks.</em> npj Systems Biology &amp; Applications, 10(1), 67.</p></li>
+<li><p>Kadelka, C., &amp; Murrugarra, D. (2024). <em>Canalization reduces the
+nonlinearity of regulation in biological networks.</em> npj Systems
+Biology &amp; Applications, 10(1), 67.</p></li>
 </ol>
 </div></blockquote>
 <p><strong>Examples:</strong></p>
