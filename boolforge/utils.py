@@ -50,6 +50,13 @@ def _coerce_rng(rng : Union[int, _NPGen, _NPRandomState, _py_random.Random, None
         return default_rng(SeedSequence(entropy))
     raise TypeError(f"Unsupported rng type: {type(rng)!r}")
 
+def is_float(element: any) -> bool:
+    try:
+        float(element)
+        return True
+    except ValueError:
+        return False
+
 def bin2dec(binary_vector : list) -> int:
     """
     Convert a binary vector to an integer.
@@ -261,12 +268,7 @@ def f_from_expression(expr : str, max_degree : int = 16) -> tuple:
         >>> f_from_expression('(x1 + x2 + x3) % 2 == 0') % linear (XOR) function
         ([1, 0, 0, 1, 0, 1, 1, 0], ['x1', 'x2', 'x3'])
     """
-    def is_float(element: any) -> bool:
-        try:
-            float(element)
-            return True
-        except ValueError:
-            return False
+
     expr_mod = expr.replace('(', ' ( ').replace(')', ' ) ').replace('!','not ').replace('~','not ')
     expr_split = expr_mod.split(' ')
     variables = []

@@ -577,7 +577,7 @@ class BooleanNetwork(WiringDiagram):
         for line in tvec:
             linesplit = line.split(' ')
             for el in linesplit:
-                if el not in ['(',')','+','*','1',separator,original_not,original_and,original_or,'',' '] and not is_float(el):
+                if el not in ['(',')','+','*','1',separator,original_not,original_and,original_or,'',' '] and not utils.is_float(el):
                     constants_and_variables.append(el)
         constants = list(set(constants_and_variables)-set(var))
         
@@ -590,7 +590,7 @@ class BooleanNetwork(WiringDiagram):
         for i,line in enumerate(tvec):
             linesplit = line.split(' ')
             for ii,el in enumerate(linesplit):
-                if el not in ['(',')','+','*','1',separator,new_not.strip(' '),new_and.strip(' '),new_or.strip(' '), '',' '] and not is_float(el):
+                if el not in ['(',')','+','*','1',separator,new_not.strip(' '),new_and.strip(' '),new_or.strip(' '), '',' '] and not utils.is_float(el):
                     linesplit[ii] = dict_variables_and_constants[el]
             tvec[i] = ' '.join(linesplit)
         #       
