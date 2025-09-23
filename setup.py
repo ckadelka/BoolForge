@@ -26,7 +26,6 @@ setup(
       install_requires = [
           "numpy",
           "networkx",
-          "scipy",
-          "quine-mccluskey"
+          "scipy"
       ]
 )
