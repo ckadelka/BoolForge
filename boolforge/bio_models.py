@@ -44,8 +44,10 @@ def fetch_file_bytes(download_url):
     r.raise_for_status()
     return r.content  # return bytes, not str
 
-def load_model(download_url, max_degree=24, possible_separators=['* =','*=','=',','],original_not = 'NOT', original_and  = 'AND', original_or = 'OR'):
+def load_model(download_url, max_degree=24, possible_separators=['* =','*=','=',','],original_not = 'NOT', original_and  = 'AND', original_or = 'OR', IGNORE_FIRST_LINE=False):
     string = fetch_file(download_url)
+    if IGNORE_FIRST_LINE:
+        string = string[string.index('\n')+1:]
     for separator in possible_separators:
         for (original_not,original_and,original_or) in [('not','and','or'),('NOT','AND','OR'),('!','&','|')]:
             try:
@@ -59,11 +61,34 @@ def load_model(download_url, max_degree=24, possible_separators=['* =','*=','=',
                 pass 
     
 
+repositories = ['expert-curated (ckadelka)','pystablemotifs (jcrozum)','biodivine (sybila)']
+if repository =='expert-curated (ckadelka)':
+    url = 'https://api.github.com/repos/ckadelka/DesignPrinciplesGeneNetworks/contents/update_rules_122_models_Kadelka_SciAdv/'
+elif repository =='pystablemotifs (jcrozum)':
+    url = "https://api.github.com/repos/jcrozum/pystablemotifs/contents/models"
+elif repository == 'biodivine (sybila)':
+    download_url_base = 'https://raw.githubusercontent.com/sybila/biodivine-boolean-models/main/models/'
+    download_url = download_url_base + 'summary.csv'
+    csv = fetch_file(download_url)
+    bns = []
+    for line in csv.splitlines():
+        try:
+            ID, name, variables, inputs, regulations = line.split(', ')
+            download_url = download_url_base + ('[id-%s]__[var-%s]__[in-%s]__[%s]/model.bnet' % (ID, variables, inputs, name))
+            bn = load_model(download_url,IGNORE_FIRST_LINE=True)
+            print(ID,bn.N)
+            bns.append(bn)
+        except:
+            print(ID,'Error')
+        
+
 url = 'https://api.github.com/repos/ckadelka/DesignPrinciplesGeneNetworks/contents/update_rules_122_models_Kadelka_SciAdv/'
 #url = "https://api.github.com/repos/jcrozum/pystablemotifs/contents/models"
+url = "https://api.github.com/repos/sybila/biodivine-boolean-models/contents/models"
+bns = []
 file_names,file_download_urls = get_content_in_remote_folder(url)
 for i,(name,download_url) in enumerate(zip(file_names,file_download_urls)):
-    if '.txt' in name:
+    if '.bnet' in name:
         if 'tabular' in name:
             [F, I, var, constants] = pickle.load(io.BytesIO(fetch_file_bytes(download_url)))
             for i in range(len(constants)):
@@ -73,10 +98,10 @@ for i,(name,download_url) in enumerate(zip(file_names,file_download_urls)):
         else:
             #print(name)
             bn = load_model(download_url)
-        if bn is not None:
-            print(i, len(bn.F),len(bn.I),len(bn.variables))
-            print()
-        else:
+        if bn is None:
             print(i,name,'Transformation Error')
             print()
-
+        else:
+            print(i, len(bn.F),len(bn.I),len(bn.variables))
+            print()
+        bns.append(bn)

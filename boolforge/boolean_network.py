@@ -553,7 +553,7 @@ class BooleanNetwork(WiringDiagram):
             tvec = tvec.replace(original_and,' '+original_and+' ')
         if original_or == '|':
             tvec = tvec.replace(original_or,' '+original_or+' ')
-        if original_not == '~':
+        if original_not in ['~','!']:
             tvec = tvec.replace(original_not,' '+original_not+' ')
         tvec = tvec.splitlines()
         
