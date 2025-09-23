@@ -7,9 +7,13 @@ Created on Fri Sep 22 11:48:48 2025
 """
 
 import requests
-import boolforge
 import pickle
 import io
+
+try:
+    from boolforge.boolean_network import BooleanNetwork
+except ModuleNotFoundError:
+    from boolean_network import BooleanNetwork
 
 def _get_content_in_remote_folder(url, file_names, file_download_urls):
     """
@@ -132,7 +136,7 @@ def load_model(download_url, max_degree=24,
             ('not', 'and', 'or'), ('NOT', 'AND', 'OR'),
             ('!', '&', '|'), ('~', '&', '|')]:
             try:
-                bn = boolforge.BooleanNetwork.from_string(
+                bn = BooleanNetwork.from_string(
                     string,
                     separator=separator,
                     max_degree=max_degree,
@@ -158,7 +162,7 @@ def get_bio_models_from_repository(repository):
 
     Returns
     -------
-    bns : list of BooleanNetwork
+    bns : list of instances of BooleanNetwork
         Successfully parsed Boolean networks.
     successful_download_urls : list of str
         URLs of models successfully loaded.
@@ -182,7 +186,7 @@ def get_bio_models_from_repository(repository):
                     for i in range(len(constants)):
                         F.append([0, 1])
                         I.append([len(var)+i])
-                    bn = boolforge.BooleanNetwork(F, I, var+constants)
+                    bn = BooleanNetwork(F, I, var+constants)
                 else:
                     bn = load_model(download_url)
                 if bn is None:
