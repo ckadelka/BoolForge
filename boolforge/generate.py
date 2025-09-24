@@ -15,7 +15,7 @@ from typing import Optional
 
 try:
     from boolforge.boolean_function import BooleanFunction
-    from boolforge.boolean_network import BooleanNetwork
+    from boolforge.boolean_network import BooleanNetwork, WiringDiagram
     import boolforge.utils as utils
 except ModuleNotFoundError:
     from boolean_function import BooleanFunction
@@ -1050,7 +1050,7 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
     indegree_distribution : str = 'constant', 
     AT_LEAST_ONE_REGULATOR_PER_NODE : bool =False,
     n_attempts_to_generate_strongly_connected_network : int = 1000, 
-    I : Union[list, np.array, None] = None, *, rng=None) -> BooleanNetwork:
+    I : Union[list, np.array, None, WiringDiagram] = None, *, rng=None) -> BooleanNetwork:
     """
     Construct a random Boolean network with configurable wiring and rule
     properties.

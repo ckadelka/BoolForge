@@ -62,11 +62,14 @@ class WiringDiagram(object):
         assert variables is None or len(I)==len(variables), "len(I)==len(variables) required if variable names are provided"
         
         self.I = [np.array(regulators,dtype=int) for regulators in I]
-        
+        self.size = len(I)
         self.indegrees = list(map(len, self.I))
         
+        if variables is None:
+            variables = ['x'+str(i) for i in range(self.size)]
+        
         self.N_constants = len(self.get_constants(False))
-        self.N = len(I) - self.N_constants
+        self.N = self.size - self.N_constants
         
         if self.N_constants > 0:
             constants_dict = self.get_constants()
@@ -78,14 +81,10 @@ class WiringDiagram(object):
                     remap[0].append(node)
             self.__CRD__ = dict(zip(range(self.N + self.N_constants), remap[0] + remap[1]))
             self.I = [ self.I[self.__CRD__[i]] for i in range(len(self.I)) ]
-            self.indegrees = list(map(len, self.I))
-            if variables is not None:
-                variables = [ variables[self.__CRD__[i]] for i in range(len(variables)) ]
+            self.indegrees = list(map(len, self.I)) #could also instead remap, both fast
+            variables = np.array([ variables[self.__CRD__[i]] for i in range(len(variables)) ])
         
-        if variables is None:
-            self.variables = np.array(['x'+str(i) for i in range(self.N + self.N_constants)])
-        else:
-            self.variables = np.array(variables)
+        self.variables = np.array(variables)
         
         self.outdegrees = self.get_outdegrees()
         if weights is not None:
@@ -107,6 +106,8 @@ class WiringDiagram(object):
             for regulator in regulators:
                 outdegrees[regulator] += 1
         return outdegrees
+
+
 
     def get_constants(self, AS_DICT : bool = True) -> Union[dict, np.array]:
         """
@@ -511,7 +512,7 @@ class BooleanNetwork(WiringDiagram):
     SIMPLIFY_FUNCTIONS : Optional[bool] = False, weights = None):
         assert isinstance(F, (list, np.ndarray)), "F must be an array"
         super().__init__(I, variables, weights)
-        assert len(F)==self.N+self.N_constants, "len(F)==len(I) required"
+        assert len(F)==self.size, "len(F)==len(I) required"
         
         self.F = []
         for ii,f in enumerate(F):
@@ -523,7 +524,7 @@ class BooleanNetwork(WiringDiagram):
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
         if self.N_constants > 0:
-            self.F = [ self.F[self.__CRD__[i]] for i in range(len(self.F)) ]
+            self.F = [ self.F[self.__CRD__[i]] for i in range(self.size) ]
 
         self.STG = None
         self.attractor_info_sync_exact = None #TODO: unused internally
@@ -719,7 +720,7 @@ class BooleanNetwork(WiringDiagram):
         """
         lines = []
         constants_indices = self.get_constants()
-        for i in range(self.N + self.N_constants):
+        for i in range(self.size):
             if constants_indices[i]:
                 function = str(self.F[i].f[0])
             elif AS_POLYNOMIAL:
@@ -731,7 +732,7 @@ class BooleanNetwork(WiringDiagram):
 
     
     def __len__(self):
-        return self.N + self.N_constants
+        return self.size
     
     
     def __str__(self):
@@ -749,6 +750,14 @@ class BooleanNetwork(WiringDiagram):
         return result
         
     
+    def get_types_of_regulation(self):
+        weights = []
+        dict_weights = {'non-essential': np.nan, 'conditional': 0, 'positive':1, 'negative':-1}
+        for f in self.f:
+            weights.append(np.array([dict_weights[el] for el in f.get_type_of_inputs()]))
+        self.I.weights = weights
+        return weights
+
     ## Transform Boolean networks
     def get_essential_network(self) -> "BooleanNetwork":
         """
