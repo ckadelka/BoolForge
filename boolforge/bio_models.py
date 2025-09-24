@@ -117,7 +117,7 @@ def load_model(download_url, max_degree=24,
     max_degree : int, optional
         Maximum in-degree allowed for nodes (default: 24).
     possible_separators : list of str, optional
-        Possible assignment separators in model files (default: ['* =','*=','=',',']).
+        Possible assignment separators in model files (default: ['\* =','\*=','=',',']).
     original_not, original_and, original_or : str, optional
         Possible logical operators in the model file.
     IGNORE_FIRST_LINE : bool, optional

@@ -729,7 +729,7 @@ class BooleanFunction(object):
             This method requires an installation of CANA (See
             `Extended Functionality`_). If CANA is not found, this method will
             return None.
-        .. _Extended Functionality: https://ckadelka.github.io/BoolForge/installation.html#extended-functionality
+        .. _Extended Functionality: https://ckadelka.github.io/BoolForge/install.html#extended-functionality
 
         Compute the input redundancy of a Boolean function.
 
@@ -763,7 +763,7 @@ class BooleanFunction(object):
             This method requires an installation of CANA (See
             `Extended Functionality`_). If CANA is not found, this method will
             return None.
-        .. _Extended Functionality: https://ckadelka.github.io/BoolForge/installation.html#extended-functionality
+        .. _Extended Functionality: https://ckadelka.github.io/BoolForge/install.html#extended-functionality
 
         Compute the edge effectiveness for each regulator of a Boolean function.
 
@@ -798,7 +798,7 @@ class BooleanFunction(object):
             This method requires an installation of CANA (See
             `Extended Functionality`_). If CANA is not found, this method will
             return None.
-        .. _Extended Functionality: https://ckadelka.github.io/BoolForge/installation.html#extended-functionality
+        .. _Extended Functionality: https://ckadelka.github.io/BoolForge/install.html#extended-functionality
         
         Compute the effective degree, i.e., the sum of the edge effectivenesses
         of each regulator, of a Boolean function.
