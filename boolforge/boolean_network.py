@@ -843,18 +843,46 @@ class BooleanNetwork(WiringDiagram):
         return BooleanNetwork(F_new, I_new, self.variables)
 
 
-    def get_external_inputs(self) -> np.array:
+    def get_source_nodes(self) -> np.array:
         """
-        Identify external inputs in a Boolean network.
+        Identify source nodes in a Boolean network.
 
-        A node is considered an external input if it has exactly one regulator
+        A node is considered a source node if it has exactly one regulator
         and that regulator is the node itself.
 
         **Returns:**
             
-            - np.array[int]: Array of node indices that are external inputs.
+            - np.array[int]: Array of node indices that are source nodes.
         """
         return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i], int)
+    
+    
+    def get_network_with_fixed_source_nodes(self,values_source_nodes : Union[list, np.array, dict]) -> "BooleanNetwork":
+        source_nodes = self.get_source_nodes()
+        assert len(values_source_nodes)==len(source_nodes),"The length of 'values_source_nodes' must equal the number of source nodes."
+        
+        # dict_values_source_nodes = {}
+        # if isinstance(values_source_nodes,dict):
+            
+            
+        for source_node,value in zip(source_nodes,values_source_nodes):
+            for i in range(n_var):
+        
+        F_new = F[:n_var]
+        I_new = I[:n_var]
+        
+        for constant,value in zip(list(range(n_var,n_var+n_const)),values_constants):
+            for i in range(n_var):
+                try:
+                    index = list(I[i]).index(constant) #check if the constant is part of regulators
+                except ValueError:
+                    continue
+                truth_table = np.array(list(map(np.array, list(itertools.product([0, 1], repeat=len(I_new[i]))))))
+                indices_to_keep = np.where(truth_table[:,index]==value)[0]
+                F_new[i] = F_new[i][indices_to_keep]
+                I_new[i] = I_new[i][I_new[i]!=constant]
+        return BooleanNetwork(F_new, I_new, self.variables)
+        
     
     def update_single_node(self, index : int,
         states_regulators : Union[list, np.array]) -> int:
@@ -1247,7 +1275,6 @@ class BooleanNetwork(WiringDiagram):
 
     def get_attractors_synchronous(self, nsim : int = 500,
         initial_sample_points : list = [], n_steps_timeout : int = 1000,
-        external_input_values = None,
         INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS : bool = True, *, rng=None) -> dict:
         """
         Compute the number of attractors in a Boolean network using an
