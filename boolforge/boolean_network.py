@@ -503,7 +503,7 @@ class BooleanNetwork(WiringDiagram):
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
-        if self.N_constants > 0:
+        if self.N_constants > 1:
             self.remove_constants()
         self.STG = None
         self.attractor_info_sync_exact = None #TODO: unused internally
@@ -520,26 +520,37 @@ class BooleanNetwork(WiringDiagram):
             dict_constants = self.get_source_nodes(AS_DICT=True)
             assert len(values_constants)==len(indices_constants),'The network contains {len(indices_constants)} source nodes but {len(values_constants)} values were provided.'
         for constant,value in zip(indices_constants,values_constants):
-            for i in range(self.N) if dict_constants[i]==False: # for all variables
+            for i in range(self.N): # for all variables
+                if dict_constants[i]:
+                    continue
                 try:
-                    index = list(I[i]).index(constant) #check if the constant is part of regulators
+                    index = list(self.I[i]).index(constant) #check if the constant is part of regulators
                 except ValueError:
                     continue
                 truth_table = utils.get_left_side_of_truth_table(self.indegrees[i])
                 indices_to_keep = np.where(truth_table[:,index]==value)[0]
-                self.F[i] = self.F[i][indices_to_keep]
-                self.weights[i] = self.weights[i][self.I[i]!=constant]
+                self.F[i].f = self.F[i].f[indices_to_keep]
+                if self.weights is not None:
+                    self.weights[i] = self.weights[i][self.I[i]!=constant]
                 self.I[i] = self.I[i][self.I[i]!=constant]
                 self.indegrees[i] -= 1
                 
-        for i in range(self.N) if dict_constants[i]==False:
+        for i in range(self.N):
+            if dict_constants[i]:
+                continue
             if self.indegrees[i] == 0:
                 self.indegrees[i] = 1
-                self.F[i] = np.array([self.F[i][0],self.F[i][0]],dtype=int)
+                self.F[i].f = np.array([self.F[i][0],self.F[i][0]],dtype=int)
                 self.I[i] = np.array([i],dtype=int)
-                self.weights[i] = np.array([np.nan],dtype=int)
+                if self.weights is not None:
+                    self.weights[i] = np.array([np.nan],dtype=int)
+        self.F = [self.F[i] for i in range(self.N) if dict_constants[i]==False]
+        self.I = [self.I[i] for i in range(self.N) if dict_constants[i]==False]
+        if self.weights is not None:
+            self.weights = [self.weights[i] for i in range(self.N) if dict_constants[i]==False]
         self.variables = [self.variables[i] for i in range(self.N) if dict_constants[i]==False]
         self.outdegrees = [self.outdegrees[i] for i in range(self.N) if dict_constants[i]==False]
+        self.indegrees = [self.indegrees[i] for i in range(self.N) if dict_constants[i]==False]
         self.N -= len(indices_constants)
         self.N_constants = 0
 

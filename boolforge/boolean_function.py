@@ -143,7 +143,10 @@ class BooleanFunction(object):
         return 2**self.n
 
     def __getitem__(self, index):
-        return int(self.f[index])
+        try:
+            return int(self.f[index])
+        except TypeError:
+            return self.f[index]
 
     def __setitem__(self, index, value):
         self.f[index] = value
