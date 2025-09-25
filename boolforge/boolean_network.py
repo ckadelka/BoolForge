@@ -18,10 +18,10 @@ from typing import Union, Optional
 
 try:
     import boolforge.utils as utils
-    from boolforge.boolean_function import BooleanFunction as BF
+    from boolforge.boolean_function import BooleanFunction
 except ModuleNotFoundError:
     import utils as utils
-    from boolean_function import BooleanFunction as BF
+    from boolean_function import BooleanFunction
     
 try:
     import cana.boolean_network
@@ -48,47 +48,47 @@ class WiringDiagram(object):
         
         - I (list[np.array[int]]): As passed by the constructor.
         - variables (np.array[str]): As passed by the constructor.
-        - N (int): The number of variables in the Boolean network.
+        - N_variables (int): The number of variables in the Boolean network.
         - N_constants (int): The number of constants in the Boolean network.
+        - N (int): The number of variables and constants in the Boolean network.
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node.
         - weights (): As passed by the constructor.
     """
     
     def __init__(self, I : Union[list, np.ndarray],
-    variables : Union[list, np.array, None] = None, weights = None):
+                 variables : Union[list, np.array, None] = None, weights = None):
         assert isinstance(I, (list, np.ndarray)), "I must be an array"
         #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
         assert variables is None or len(I)==len(variables), "len(I)==len(variables) required if variable names are provided"
         
         self.I = [np.array(regulators,dtype=int) for regulators in I]
-        self.size = len(I)
+        self.N = len(I)
         self.indegrees = list(map(len, self.I))
         
         if variables is None:
-            variables = ['x'+str(i) for i in range(self.size)]
+            variables = ['x'+str(i) for i in range(self.N)]
         
         self.N_constants = len(self.get_constants(False))
-        self.N = self.size - self.N_constants
+        self.N_variables = self.N - self.N_constants
         
-        if self.N_constants > 0:
-            constants_dict = self.get_constants()
-            remap = ([], [])
-            for node in constants_dict.keys():
-                if constants_dict[node]:
-                    remap[1].append(node)
-                else:
-                    remap[0].append(node)
-            self.__CRD__ = dict(zip(range(self.N + self.N_constants), remap[0] + remap[1]))
-            self.I = [ self.I[self.__CRD__[i]] for i in range(len(self.I)) ]
-            self.indegrees = list(map(len, self.I)) #could also instead remap, both fast
-            variables = np.array([ variables[self.__CRD__[i]] for i in range(len(variables)) ])
+        # if self.N_constants > 0:
+        #     constants_dict = self.get_constants()
+        #     remap = ([], [])
+        #     for node in constants_dict.keys():
+        #         if constants_dict[node]:
+        #             remap[1].append(node)
+        #         else:
+        #             remap[0].append(node)
+        #     self.__CRD__ = dict(zip(range(self.N), remap[0] + remap[1]))
+        #     self.I = [ self.I[self.__CRD__[i]] for i in range(len(self.I)) ]
+        #     self.indegrees = list(map(len, self.I)) #could also instead remap, both fast
+        #     variables = np.array([ variables[self.__CRD__[i]] for i in range(len(variables)) ])
         
         self.variables = np.array(variables)
         
         self.outdegrees = self.get_outdegrees()
-        if weights is not None:
-            self.weights = weights
+        self.weights = weights
 
     def __getitem__(self, index):
         return self.I[index]
@@ -101,12 +101,11 @@ class WiringDiagram(object):
             
             - np.array[int]: Outdegree of each node.
         """
-        outdegrees = np.zeros(self.N + self.N_constants, int)
+        outdegrees = np.zeros(self.N, int)
         for regulators in self.I:
             for regulator in regulators:
                 outdegrees[regulator] += 1
         return outdegrees
-
 
 
     def get_constants(self, AS_DICT : bool = True) -> Union[dict, np.array]:
@@ -135,6 +134,20 @@ class WiringDiagram(object):
         if AS_DICT:
             return dict(zip(rlI, [self.indegrees[i] == 0 for i in rlI]))
         return np.array([i for i in rlI if self.indegrees[i] == 0], int)
+
+
+    # def remove_constants(self):
+    #     self.N_constants = 0
+    #     constants_dict = self.get_constants()
+    #     remap = ([], [])
+    #     for node in constants_dict.keys():
+    #         if constants_dict[node]:
+    #             remap[1].append(node)
+    #         else:
+    #             remap[0].append(node)
+    #     self.__CRD__ = dict(zip(range(self.N), remap[0] + remap[1]))
+    #     self.I = [ self.I[self.__CRD__[i]] for i in range(len(self.I)) ]
+    #     self.indegrees = list(map(len, self.I)) #could also instead remap, both fast
 
     def get_strongly_connected_components(self) -> list:
         """
@@ -302,44 +315,7 @@ class WiringDiagram(object):
             return self.get_signed_effective_graph(type_of_each_regulation, [], IGNORE_CONSTANTS=True)
 
 
-    def get_ffls(self) -> tuple:
-        """
-        Identify feed-forward loops (FFLs) in a Boolean network and optionally
-        determine their types.
-
-        A feed-forward loop (FFL) is a three-node motif where node i regulates
-        node k both directly and indirectly via node j.
-
-        **Returns:**
-            
-            - tuple[list[int], list[int]]:
-                
-                A tuple (ffls, types), where ffls is a list of FFLs and
-                types is a list of corresponding monotonicity types.
-        """
-        ffls = []
-        types = []
-        for i in range(len(self.I)):
-            for j in range(i + 1, len(self.I)):
-                for k in range(len(self.I)):
-                    if i == k or j == k:
-                        continue
-                    # Check if there is an FFL: i regulates k and j regulates both i and k.
-                    if i in self.I[k] and i in self.I[j] and j in self.I[k]:
-                        ffls.append([i, j, k])
-                        # Compute types if F is provided.
-                        # (This example assumes a helper function is_monotonic exists and that I is ordered.)
-                        #monotonic_i = is_monotonic(F[i], True)[1]
-                        monotonic_j = self.F[j].is_monotonic(True)[1] #TODO: F does not exist here
-                        monotonic_k = self.F[k].is_monotonic(True)[1]
-                        direct = monotonic_k[self.I[k].index(i)]
-                        indirect1 = monotonic_j[self.I[j].index(i)]
-                        indirect2 = monotonic_k[self.I[k].index(j)]
-                        types.append([direct, indirect1, indirect2])
-        return (ffls, types)
-
-
-    def get_ffls_from_I(self, types_I : Optional[list] = None) -> Union[tuple, list]:
+    def get_ffls(self) -> Union[tuple, list]:
         """
         Identify feed-forward loops (FFLs) in a Boolean network based solely
         on the wiring diagram.
@@ -356,45 +332,45 @@ class WiringDiagram(object):
 
         **Returns:**
             
-            If types_I is provided:
+            If self.weights is not None:
                 
                 - tuple[list[int], list[int]]: (ffls, types) where ffls is a
-                  list of identified FFLs (each as a list [i, j, k]), and
-                  types is a list of corresponding regulation type triplets.
+                  list of identified FFLs (each as a list [master regulator,
+                  intermediate, target]), and types is a list of regulation type
+                  triplets (master -> target, master -> intermediate,
+                  intermediate -> target).
                 
             Otherwise:
                 
                 - list[list[int]]: A list of identified FFLs.
         """
-        all_tfs = list(range(len(self.I)))
-        n_tfs = len(all_tfs)
-        all_tfs_dict = dict(zip(all_tfs, list(range(n_tfs))))
-        I_inv = [[] for _ in all_tfs]
-        for target, el in enumerate(self.I):
-            for regulator in el:
-                I_inv[all_tfs_dict[regulator]].append(target)
+        I_inv = [[] for _ in self.N]
+        for target, regulators in enumerate(self.I):
+            for regulator in regulators:
+                I_inv[regulator].append(target)
         ffls = []
         types = []
-        for i in range(n_tfs):  # master regulators
-            for j in range(n_tfs):
-                if i == j or all_tfs[j] not in I_inv[i]:
+        for i in range(self.N):  # master regulators
+            for j in I_inv[i]:
+                if i == j:
                     continue
                 common_targets = list(set(I_inv[i]) & set(I_inv[j]))
                 for k in common_targets:
-                    if all_tfs[j] == k or all_tfs[i] == k:
+                    if j == k or i == k:
                         continue
                     ffls.append([i, j, k])
                     if self.weights is not None:
-                        direct = self.weights[k][self.I[k].index(all_tfs[i])]
-                        indirect1 = self.weights[all_tfs[j]][self.I[all_tfs[j]].index(all_tfs[i])]
-                        indirect2 = self.weights[k][self.I[k].index(all_tfs[j])]
+                        direct = self.weights[k][self.I[k].index(i)]
+                        indirect1 = self.weights[j][self.I[j].index(i)]
+                        indirect2 = self.weights[k][self.I[k].index(j)]
                         types.append([direct, indirect1, indirect2])
         if self.weights is not None:
             return (ffls, types)
         else:
             return ffls
 
-    def generate_networkx_graph(self, constants : list, variables : list) -> nx.DiGraph:
+
+    def generate_networkx_graph(self) -> nx.DiGraph:
         """
         Generate a NetworkX directed graph from a wiring diagram.
 
@@ -409,12 +385,11 @@ class WiringDiagram(object):
 
         **Returns:**
             
-            - networkx.DiGraph: The noderated directed graph.
+            - networkx.DiGraph: The wiring diagram as directed graph.
         """
-        names = list(variables) + list(constants)
         G = nx.DiGraph()
-        G.add_nodes_from(names)
-        G.add_edges_from([(names[self.I[i][j]], names[i]) for i in range(len(variables)) for j in range(len(self.I[i]))])
+        G.add_nodes_from(self.variables)
+        G.add_edges_from([(self.variables[self.I[i][j]], self.variables[i]) for i in range(self.N) for j in range(self.indegrees[i])])
         return G
 
 
@@ -491,8 +466,6 @@ class BooleanNetwork(WiringDiagram):
         - SIMPLIFY_FUNCTIONS (bool, optional): Constructs this Boolean Network
           to only include its essential components. Defaults to False
           
-        - weights (): #TODO
-
     **Members:**
         
         - F (list[BooleanFunction]): As passed by the constructor.
@@ -500,36 +473,75 @@ class BooleanNetwork(WiringDiagram):
         - variables (np.array[str]): As passed by the constructor.
         - N (int): The number of variables in the Boolean network.
         - N_constants (int): The number of constants in the Boolean network.
+        - size (int): The number of variables and constants in the Boolean network.
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node.
         - STG (dict): The state transition graph.
-        - weights (): Defaults to None #TODO
+        - weights (np.array[int] | None): Inherited from WiringDiagram. Default None.
         - attractor_info_sync_exact (None): Unused
     """
 
-    def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray],
-    variables : Union[list, np.array, None] = None,
-    SIMPLIFY_FUNCTIONS : Optional[bool] = False, weights = None):
-        assert isinstance(F, (list, np.ndarray)), "F must be an array"
-        super().__init__(I, variables, weights)
-        assert len(F)==self.size, "len(F)==len(I) required"
+    def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray, WiringDiagram],
+                 variables : Union[list, np.array, None] = None,
+                 SIMPLIFY_FUNCTIONS : Optional[bool] = False):
+        assert isinstance(F, (list, np.ndarray)), "F must be an array or list."
+        assert isinstance(I, (list, np.ndarray, WiringDiagram)), "I must be an array or list, or an instance of WiringDiagram."
+        if isinstance(I, (list, np.ndarray)):
+            super().__init__(I, variables)
+        else:
+            if variables is not None:
+                print('Warning: Values of provided variables ignored. Variales of WiringDiagram I used instead.')
+            super().__init__(I.I, I.variables)
+        assert len(F)==self.N, "len(F)==len(I) required"
         
         self.F = []
         for ii,f in enumerate(F):
             if isinstance(f, (list, np.ndarray, str)):
-                self.F.append(BF(f,name = self.variables[ii]))
-            elif isinstance(f, BF):
+                self.F.append(BooleanFunction(f,name = self.variables[ii]))
+            elif isinstance(f, BooleanFunction):
                 f.name = self.variables[ii]
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
         if self.N_constants > 0:
-            self.F = [ self.F[self.__CRD__[i]] for i in range(self.size) ]
-
+            self.remove_constants()
         self.STG = None
         self.attractor_info_sync_exact = None #TODO: unused internally
         if SIMPLIFY_FUNCTIONS:
-            self = self.get_essential_network()
+            self = self.get_essential_network() #TODO: modify essential network to not create constants
+
+    def remove_constants(self,values_constants=None):
+        if values_constants is None:
+            indices_constants = self.get_constants(AS_DICT=False)
+            dict_constants = self.get_constants(AS_DICT=True)
+            values_constants = [self.F[c][0] for c in indices_constants]
+        else:
+            indices_constants = self.get_source_nodes(AS_DICT=False) #TODO: modify get_source_nodes as get_constants
+            dict_constants = self.get_source_nodes(AS_DICT=True)
+            assert len(values_constants)==len(indices_constants),'The network contains {len(indices_constants)} source nodes but {len(values_constants)} values were provided.'
+        for constant,value in zip(indices_constants,values_constants):
+            for i in range(self.N) if dict_constants[i]==False: # for all variables
+                try:
+                    index = list(I[i]).index(constant) #check if the constant is part of regulators
+                except ValueError:
+                    continue
+                truth_table = utils.get_left_side_of_truth_table(self.indegrees[i])
+                indices_to_keep = np.where(truth_table[:,index]==value)[0]
+                self.F[i] = self.F[i][indices_to_keep]
+                self.weights[i] = self.weights[i][self.I[i]!=constant]
+                self.I[i] = self.I[i][self.I[i]!=constant]
+                self.indegrees[i] -= 1
+                
+        for i in range(self.N) if dict_constants[i]==False:
+            if self.indegrees[i] == 0:
+                self.indegrees[i] = 1
+                self.F[i] = np.array([self.F[i][0],self.F[i][0]],dtype=int)
+                self.I[i] = np.array([i],dtype=int)
+                self.weights[i] = np.array([np.nan],dtype=int)
+        self.variables = [self.variables[i] for i in range(self.N) if dict_constants[i]==False]
+        self.outdegrees = [self.outdegrees[i] for i in range(self.N) if dict_constants[i]==False]
+        self.N -= len(indices_constants)
+        self.N_constants = 0
 
     @classmethod
     def from_wiring_diagram(cls, wiring_diagram : WiringDiagram, F : Union[list, np.ndarray]) -> "BooleanNetwork":
@@ -551,8 +563,7 @@ class BooleanNetwork(WiringDiagram):
             - A BooleanNetwork object.
         """
         return cls(F = F, I = deepcopy(wiring_diagram.I),
-            variables = deepcopy(wiring_diagram.variables),
-            weights = deepcopy(wiring_diagram.weights))
+            variables = deepcopy(wiring_diagram.variables))
 
     @classmethod
     def from_cana(cls, cana_BooleanNetwork : "cana.boolean_network.BooleanNetwork") -> "BooleanNetwork":
@@ -696,7 +707,7 @@ class BooleanNetwork(WiringDiagram):
         logic_dicts = []
         for bf,regulators,var in zip(self.F,self.I,self.variables):
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
-        return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts)))
+        return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts))) #TODO: Check if this should be self.N or self.N_variables
 
     def to_bnet(self, separator=',\t', AS_POLYNOMIAL : bool = True) -> str:
         """
@@ -720,7 +731,7 @@ class BooleanNetwork(WiringDiagram):
         """
         lines = []
         constants_indices = self.get_constants()
-        for i in range(self.size):
+        for i in range(self.N):
             if constants_indices[i]:
                 function = str(self.F[i].f[0])
             elif AS_POLYNOMIAL:
@@ -732,7 +743,7 @@ class BooleanNetwork(WiringDiagram):
 
     
     def __len__(self):
-        return self.size
+        return self.N
     
     
     def __str__(self):
@@ -788,11 +799,11 @@ class BooleanNetwork(WiringDiagram):
                 I_essential.append(regulators) #keep all regulators (unable to determine if all are essential)
                 continue
             elif bf.get_hamming_weight() == 0: #constant zero function
-                F_essential.append(BF(np.array([0])))
+                F_essential.append(BooleanFunction(np.array([0])))
                 I_essential.append(np.array([], dtype=int))
                 continue
             elif bf.get_hamming_weight() == len(bf.f): #constant one function
-                F_essential.append(BF(np.array([1])))
+                F_essential.append(BooleanFunction(np.array([1])))
                 I_essential.append(np.array([], dtype=int))
                 continue
             essential_variables = np.array(bf.get_essential_variables())
@@ -803,7 +814,7 @@ class BooleanNetwork(WiringDiagram):
                 I_essential.append(regulators)
             else:
                 left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
-                F_essential.append(BF(bf.f[np.sum(left_side_of_truth_table[:, non_essential_variables], 1) == 0]))
+                F_essential.append(BooleanFunction(bf.f[np.sum(left_side_of_truth_table[:, non_essential_variables], 1) == 0]))
                 I_essential.append(np.array(regulators)[essential_variables])
         return BooleanNetwork(F_essential, I_essential, self.variables)
 
@@ -842,7 +853,7 @@ class BooleanNetwork(WiringDiagram):
         F_new = [bf.f for bf in self.F]
         I_new = [i for i in self.I]
 
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N) #TODO: Check if this should be self.N or self.N_variables
 
         index = list(self.I[control_target]).index(control_source)
         F_new[control_target] = F_new[control_target][left_side_of_truth_table[:, index] == type_of_edge_control]
@@ -863,7 +874,7 @@ class BooleanNetwork(WiringDiagram):
             
             - np.array[int]: Array of node indices that are source nodes.
         """
-        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i], int)
+        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i and self.F[i][0]==0 and self.F[i][1]==1], int)
     
     
     def get_network_with_fixed_source_nodes(self,values_source_nodes : Union[list, np.array, dict]) -> "BooleanNetwork":
@@ -876,7 +887,7 @@ class BooleanNetwork(WiringDiagram):
             
         for source_node,value in zip(source_nodes,values_source_nodes):
             for i in range(n_var):
-        
+                pass
         F_new = F[:n_var]
         I_new = I[:n_var]
         
@@ -1412,17 +1423,17 @@ class BooleanNetwork(WiringDiagram):
         which is of type dict[int:int]. That is, each state is represented by 
         its decimal representation.
         """  
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N_variables)
 
-        powers_of_two = np.array([2**i for i in range(self.N)])[::-1]
+        powers_of_two = np.array([2**i for i in range(self.N_variables)])[::-1]
         
-        STG_full = np.zeros((2**self.N, self.N), dtype=int)
-        for i in range(self.N):
+        STG_full = np.zeros((2**self.N_variables, self.N_variables), dtype=int)
+        for i in range(self.N_variables):
             for j, x in enumerate(itertools.product([0, 1], repeat=self.indegrees[i])):
                 if self.F[i].f[j]:
                     # For rows in left_side_of_truth_table where the columns I[i] equal x, set STG accordingly.
                     STG_full[np.all(left_side_of_truth_table[:, self.I[i]] == np.array(x), axis=1), i] = 1
-        self.STG = dict(zip(list(range(2**self.N)), np.dot(STG_full, powers_of_two).tolist()))
+        self.STG = dict(zip(list(range(2**self.N_variables)), np.dot(STG_full, powers_of_two).tolist()))
                 
 
     def get_attractors_synchronous_exact(self) -> dict:
