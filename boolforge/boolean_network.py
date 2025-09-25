@@ -131,23 +131,11 @@ class WiringDiagram(object):
                 - np.array[int]: Array of node indices that are constants.
         """
         rlI = range(len(self.I))
+        is_constant = [self.indegrees[i] == 0 for i in rlI]
         if AS_DICT:
-            return dict(zip(rlI, [self.indegrees[i] == 0 for i in rlI]))
-        return np.array([i for i in rlI if self.indegrees[i] == 0], int)
+            return dict(zip(rlI, is_constant))
+        return np.where(is_constant)[0]
 
-
-    # def remove_constants(self):
-    #     self.N_constants = 0
-    #     constants_dict = self.get_constants()
-    #     remap = ([], [])
-    #     for node in constants_dict.keys():
-    #         if constants_dict[node]:
-    #             remap[1].append(node)
-    #         else:
-    #             remap[0].append(node)
-    #     self.__CRD__ = dict(zip(range(self.N), remap[0] + remap[1]))
-    #     self.I = [ self.I[self.__CRD__[i]] for i in range(len(self.I)) ]
-    #     self.indegrees = list(map(len, self.I)) #could also instead remap, both fast
 
     def get_strongly_connected_components(self) -> list:
         """
@@ -874,45 +862,47 @@ class BooleanNetwork(WiringDiagram):
         return BooleanNetwork(F_new, I_new, self.variables)
 
 
-    def get_source_nodes(self) -> np.array:
+    def get_source_nodes(self, AS_DICT : bool = True) -> Union[dict, np.array]:
         """
         Identify source nodes in a Boolean network.
-
-        A node is considered a source node if it has exactly one regulator
-        and that regulator is the node itself.
-
+        
+        A node is considered a source node if it does not change over time. It has
+        exactly one regulator and that regulator is the node itself.        
+        
+        **Parameters:**
+        
+            - AS_DICT (bool, optional): Whether to return the indices of source nodes
+              as a dictionary or array. If true, returns as a dictionary. Defaults
+              to True.
+        
         **Returns:**
-            
-            - np.array[int]: Array of node indices that are source nodes.
+        
+            If AS_DICT is True:
+                
+                - dict[int:bool]: Dictionary determining if an index is a
+                  source nodes or not.
+                  
+            else:
+                - np.array[int]: Array of all indices of source nodes.
         """
-        return np.array([i for i in range(self.N) if self.indegrees[i] == 1 and self.I[i][0] == i and self.F[i][0]==0 and self.F[i][1]==1], int)
+
+        rlI = range(self.N)
+        is_source_node = [self.indegrees[i] == 1 and self.I[i][0] == i and self.F[i][0]==0 and self.F[i][1]==1 for i in rlI]
+        if AS_DICT:
+            return dict(zip(rlI, is_source_node))
+        return np.where(is_source_node)[0]
+
     
-    
-    def get_network_with_fixed_source_nodes(self,values_source_nodes : Union[list, np.array, dict]) -> "BooleanNetwork":
-        source_nodes = self.get_source_nodes()
-        assert len(values_source_nodes)==len(source_nodes),"The length of 'values_source_nodes' must equal the number of source nodes."
-        
-        # dict_values_source_nodes = {}
-        # if isinstance(values_source_nodes,dict):
-            
-            
+    def get_network_with_fixed_source_nodes(self,values_source_nodes : Union[list, np.array]) -> "BooleanNetwork":
+        indices_source_nodes = self.get_source_nodes(AS_DICT=False)
+        assert len(values_source_nodes)==len(indices_source_nodes),f"The length of 'values_source_nodes', which is {len(values_source_nodes)}, must equal the number of source nodes, which is {len(indices_source_nodes)}."
+        F = deepcopy(self.F)
+        I = deepcopy(self.I)
         for source_node,value in zip(source_nodes,values_source_nodes):
-            for i in range(n_var):
-                pass
-        F_new = F[:n_var]
-        I_new = I[:n_var]
+            F[source_node].f = [value]
+            I[source_node] = []
+        return BooleanNetwork(F, I, self.variables)
         
-        for constant,value in zip(list(range(n_var,n_var+n_const)),values_constants):
-            for i in range(n_var):
-                try:
-                    index = list(I[i]).index(constant) #check if the constant is part of regulators
-                except ValueError:
-                    continue
-                truth_table = np.array(list(map(np.array, list(itertools.product([0, 1], repeat=len(I_new[i]))))))
-                indices_to_keep = np.where(truth_table[:,index]==value)[0]
-                F_new[i] = F_new[i][indices_to_keep]
-                I_new[i] = I_new[i][I_new[i]!=constant]
-        return BooleanNetwork(F_new, I_new, self.variables)
         
     
     def update_single_node(self, index : int,
