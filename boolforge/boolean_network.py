@@ -491,10 +491,9 @@ class BooleanNetwork(WiringDiagram):
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
-        if self.N_constants > 1:
+        if self.N_constants > 0:
             self.remove_constants()
         self.STG = None
-        self.attractor_info_sync_exact = None #TODO: unused internally
         if SIMPLIFY_FUNCTIONS:
             self = self.get_essential_network() #TODO: modify essential network to not create constants
 
@@ -504,7 +503,7 @@ class BooleanNetwork(WiringDiagram):
             dict_constants = self.get_constants(AS_DICT=True)
             values_constants = [self.F[c][0] for c in indices_constants]
         else:
-            indices_constants = self.get_source_nodes(AS_DICT=False) #TODO: modify get_source_nodes as get_constants
+            indices_constants = self.get_source_nodes(AS_DICT=False) 
             dict_constants = self.get_source_nodes(AS_DICT=True)
             assert len(values_constants)==len(indices_constants),'The network contains {len(indices_constants)} source nodes but {len(values_constants)} values were provided.'
         for constant,value in zip(indices_constants,values_constants):
@@ -706,7 +705,7 @@ class BooleanNetwork(WiringDiagram):
         logic_dicts = []
         for bf,regulators,var in zip(self.F,self.I,self.variables):
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
-        return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts))) #TODO: Check if this should be self.N or self.N_variables
+        return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts))) 
 
     def to_bnet(self, separator=',\t', AS_POLYNOMIAL : bool = True) -> str:
         """
@@ -852,7 +851,7 @@ class BooleanNetwork(WiringDiagram):
         F_new = [bf.f for bf in self.F]
         I_new = [i for i in self.I]
 
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N) #TODO: Check if this should be self.N or self.N_variables
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N) 
 
         index = list(self.I[control_target]).index(control_source)
         F_new[control_target] = F_new[control_target][left_side_of_truth_table[:, index] == type_of_edge_control]
@@ -898,7 +897,7 @@ class BooleanNetwork(WiringDiagram):
         assert len(values_source_nodes)==len(indices_source_nodes),f"The length of 'values_source_nodes', which is {len(values_source_nodes)}, must equal the number of source nodes, which is {len(indices_source_nodes)}."
         F = deepcopy(self.F)
         I = deepcopy(self.I)
-        for source_node,value in zip(source_nodes,values_source_nodes):
+        for source_node,value in zip(indices_source_nodes,values_source_nodes):
             F[source_node].f = [value]
             I[source_node] = []
         return BooleanNetwork(F, I, self.variables)
