@@ -679,6 +679,7 @@ def random_degrees(N : int, n : Union[int, float, list, np.ndarray],
     **Parameters:**
         
         - N (int) :Number of nodes (>= 1).
+        
         - n (int, float, list[int], np.ndarray[int]): Meaning depends on
           `indegree_distribution`:
             
@@ -763,10 +764,12 @@ def random_edge_list(N : int, indegrees : Union[list, np.array],
     **Parameters:**
         
         - N (int): Number of nodes.
+        
         - indegrees (list[int] | np.array[int]): List of length N specifying
           the number of regulators for each node.
           
         - NO_SELF_REGULATION (bool): If True, disallow self-regulation.
+        
         - AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure
           that each node has at least one outgoing edge (default is False).
         
@@ -835,6 +838,7 @@ def random_wiring_diagram(N : int, n : Union[int, list, np.array, float],
     **Parameters:**
         
         - N (int): Number of nodes.
+        
         - n (int | list[int] | np.array[int] | float (if
           indegree_distribution=='poisson')):  Determines the in-degree of
           each node. If an integer, each node has the same number of
@@ -863,13 +867,7 @@ def random_wiring_diagram(N : int, n : Union[int, list, np.array, float],
  
     **Returns:**
         
-        - tuple[np.array[np.array[int]], list[int]]: (matrix, indices) where:
-            
-            - matrix (np.array[np.array[int]]): An N x N adjacency matrix
-              with entries 0 or 1.
-              
-            - indices (list): A list of length N, where each element is an
-              array of selected target indices for the corresponding node.
+        - WiringDiagram: A new wiring diagram.
     """
     rng = utils._coerce_rng(rng)
     indegrees = random_degrees(N,n,indegree_distribution=indegree_distribution,NO_SELF_REGULATION=NO_SELF_REGULATION, rng=rng)
@@ -890,10 +888,10 @@ def random_wiring_diagram(N : int, n : Union[int, list, np.array, float],
         I[edge[1]].append(edge[0])
     for i in range(N):
         I[i] = np.sort(I[i])
-    return I, indegrees
+    return WiringDiagram(I)
 
 
-def rewire_wiring_diagram(I : Union[list, np.array],
+def rewire_wiring_diagram(I : Union[list, np.array, WiringDiagram],
     average_swaps_per_edge : float = 10, DO_NOT_ADD_SELF_REGULATION : bool = True,
     FIX_SELF_REGULATION : bool = True, *, rng=None) -> list:
     """
@@ -901,7 +899,7 @@ def rewire_wiring_diagram(I : Union[list, np.array],
     double-edge swaps.
 
     The wiring diagram is given in the “regulators” convention: `I[target]`
-    lists all regulators (in-neighbors) of `target`. The routine performs
+    lists all regulators of `target`. The routine performs
     random double-edge swaps `(u→v, x→y) → (u→y, x→v)` while **preserving both
     the in-degree and out-degree** of every node. Parallel edges are disallowed.
 
@@ -930,8 +928,7 @@ def rewire_wiring_diagram(I : Union[list, np.array],
 
     **Returns:**
         
-        - J (list[np.ndarray[int]]): Rewired wiring diagram in the same format
-          as `I`. Each `J[v]` is a sorted array of distinct regulators of `v`.
+        - WiringDiagram: A new wiring diagram.
 
     **Guarantees:**
         
@@ -1021,7 +1018,7 @@ def rewire_wiring_diagram(I : Union[list, np.array],
 
     # Reconstruct J from adjacency sets
     J = [np.sort(list(Jset[target])) for target in range(N)]
-    return J
+    return WiringDiagram(J)
 
 
 #for testing:
@@ -1038,6 +1035,7 @@ def rewire_wiring_diagram(I : Union[list, np.array],
 # STRONGLY_CONNECTED=False
 # indegree_distribution='constant'
 # n_attempts_to_generate_strongly_connected_network = 1000
+# AT_LEAST_ONE_REGULATOR_PER_NODE = False
 
 def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndarray, None] = None, 
     depth : Union[int, list, np.ndarray] = 0, EXACT_DEPTH : bool = False,
@@ -1178,7 +1176,7 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
         - n_attempts_to_generate_strongly_connected_network (int, optional):
           Max attempts for strong connectivity before raising. Default 1000.
           
-        - I (list[list[int]] | list[np.ndarray[int]] | None, optional):
+        - I (list[list[int]] | list[np.ndarray[int]] | None | WiringDiagram, optional):
           Existing wiring diagram. If provided, `N` and `n` are ignored and
           `indegrees` are computed from `I`.
           
@@ -1187,7 +1185,7 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
 
     **Returns:**
         
-        - BooleanNetwork: A new Boolean network with wiring `I` (given or
+        - BooleanNetwork: A new Boolean network with wiring diagram `I` (given or
           generated) and a list of node functions `F` generated according to
           the specified constraints.
 
@@ -1252,44 +1250,47 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
     """
     rng = utils._coerce_rng(rng)
     if I is None and N is not None and n is not None: #generate wiring diagram
-        I,indegrees = random_wiring_diagram(N,n,NO_SELF_REGULATION=NO_SELF_REGULATION, 
-                                            STRONGLY_CONNECTED=STRONGLY_CONNECTED,
-                                            indegree_distribution=indegree_distribution, 
-                                            AT_LEAST_ONE_REGULATOR_PER_NODE=AT_LEAST_ONE_REGULATOR_PER_NODE,
-                                            n_attempts_to_generate_strongly_connected_network = n_attempts_to_generate_strongly_connected_network,rng=rng)
-    elif I is not None: #load wiring diagram
-        assert isinstance(I, (list, np.ndarray)), "I must be a list or np.array of lists or np.arrays. Each inner list describes the regulators of node i (indexed by 0,1,...,len(I)-1)"
-        N = len(I)
-        for regulators in I:
-            assert utils.is_list_or_array_of_ints(regulators) and min(regulators)>=0 and max(regulators)<=N-1, "Each element in I describes the regulators of a node (indexed by 0,1,...,len(I)-1)"
-        indegrees = list(map(len,I))
-    else:
-        raise AssertionError('At a minimum, the wiring diagram I must be provided or the network size N and degree parameter n.')
-       
+        I = random_wiring_diagram(N,n,NO_SELF_REGULATION=NO_SELF_REGULATION, 
+                                  STRONGLY_CONNECTED=STRONGLY_CONNECTED,
+                                  indegree_distribution=indegree_distribution, 
+                                  AT_LEAST_ONE_REGULATOR_PER_NODE=AT_LEAST_ONE_REGULATOR_PER_NODE,
+                                  n_attempts_to_generate_strongly_connected_network = n_attempts_to_generate_strongly_connected_network,rng=rng)
         
+    elif I is not None: #load wiring diagram
+        assert isinstance(I, (list, np.ndarray, WiringDiagram)), "I must be an instance of WiringDiagram or a list or np.array of lists or np.arrays. Each inner list describes the regulators of node i (indexed by 0,1,...,len(I)-1)"
+        if isinstance(I, (list, np.ndarray)):
+            N = len(I)
+            for regulators in I:
+                assert utils.is_list_or_array_of_ints(regulators) and min(regulators)>=0 and max(regulators)<=N-1, "Each element in I describes the regulators of a node (indexed by 0,1,...,len(I)-1)"
+            I = WiringDiagram(I)
+    else:
+        raise AssertionError('At a minimum, the wiring diagram I must be provided or the network size N and degree parameter n.')        
        
     # Process the inputs, turn single inputs into vectors of length N
+
+    #since layer_structure takes precedence over depth, this block needs to run before the depth block to ensure depth is a vector and not reset to a single value
+    if layer_structure == None: 
+        layer_structure = [None] * N
+    elif utils.is_list_or_array_of_ints(layer_structure):
+        depth = sum(layer_structure)
+        assert depth==0 or (min(layer_structure)>=1 and depth <= min(I.indegrees)), 'The layer structure must be [] or a vector of positive integers with 0 <= depth = sum(layer_structure) <= N.'
+        layer_structure = [layer_structure[:]] * N
+    elif np.all([utils.is_list_or_array_of_ints(el) for el in layer_structure]) and len(layer_structure) == N:
+        for i,vector in enumerate(layer_structure):
+            depth = sum(vector)
+            assert depth==0 or (min(vector)>=1 and depth <= I.indegrees[i]), 'Ensure that layer_structure is an N-dimensional vector where each element represents a layer structure and is either [] or a vector of positive integers with 0 <= depth = sum(layer_structure[i]) <= n = indegrees[i].'
+    else:
+        raise AssertionError("Wrong input format for 'layer_structure'.\nIt must be a single vector (or N-dimensional vector of layer structures) where the sum of each element is between 0 and N.")
+    
     if isinstance(depth, (int, np.integer)):
         assert depth >= 0 ,'The canalizing depth must be an integer between 0 and min(indegrees) or an N-dimensional vector of integers must be provided to use different depths per function.'
-        depth = [min(indegrees[i],depth) for i in range(N)]
+        depth = [min(I.indegrees[i],depth) for i in range(N)]
     elif utils.is_list_or_array_of_ints(depth, required_length=N):
-        depth = [min(indegrees[i],depth[i]) for i in range(N)]
+        depth = [min(I.indegrees[i],depth[i]) for i in range(N)]
         assert min(depth) >= 0,"'depth' received a vector as input.\nTo use a user-defined vector, ensure that it is an N-dimensional vector where each element is a non-negative integer."
     else:
         raise AssertionError("Wrong input format for 'depth'.\nIt must be a single integer (or N-dimensional vector of integers) between 0 and N, specifying the minimal canalizing depth or exact canalizing depth (if EXACT_DEPTH==True).")            
     
-    if layer_structure == None:
-        layer_structure = [None] * N
-    elif utils.is_list_or_array_of_ints(layer_structure):
-        depth = sum(layer_structure)
-        assert depth==0 or (min(layer_structure)>=1 and depth <= min(indegrees)), 'The layer structure must be [] or a vector of positive integers with 0 <= depth = sum(layer_structure) <= N.'
-        layer_structure = [layer_structure[:]] * N
-    elif np.all([utils.is_list_or_array_of_ints(el) for el in layer_structure]) and len(layer_structure) == N:
-        for i,layer_structure in enumerate(layer_structure):
-            depth = sum(layer_structure)
-            assert depth==0 or (min(layer_structure)>=1 and depth <= indegrees[i]), 'Ensure that layer_structure is an N-dimensional vector where each element represents a layer structure and is either [] or a vector of positive integers with 0 <= depth = sum(layer_structure[i]) <= n = indegrees[i].'
-    else:
-        raise AssertionError("Wrong input format for 'layer_structure'.\nIt must be a single vector (or N-dimensional vector of layer structures) where the sum of each element is between 0 and N.")
     
     if isinstance(bias, (float, np.floating)):
         bias = [bias] * N
@@ -1309,7 +1310,7 @@ def random_network(N : Optional[int] = None, n : Union[int, float, list, np.ndar
         raise AssertionError("Wrong input format for 'hamming_weight'.\nIf provided, it must be a single integer (or N-dimensional vector of integers) in {0,1,...,2^n}, specifying the number of 1s in the truth table of each Boolean function.\nIf EXACT_DEPTH == True and depth==0, it must be in {2,3,...,2^n-2} because all functions with Hamming weight 0,1,2^n-1,2^n are canalizing.")            
             
     #generate functions
-    F = [random_function(n=indegrees[i], depth=depth[i], EXACT_DEPTH=EXACT_DEPTH, layer_structure=layer_structure[i], 
+    F = [random_function(n=I.indegrees[i], depth=depth[i], EXACT_DEPTH=EXACT_DEPTH, layer_structure=layer_structure[i], 
                      LINEAR=LINEAR, ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,
                      bias=bias[i], absolute_bias=absolute_bias[i], USE_ABSOLUTE_BIAS=USE_ABSOLUTE_BIAS,
                      hamming_weight=hamming_weight[i],rng=rng) for i in range(N)]
@@ -1431,7 +1432,7 @@ def random_null_model(bn : BooleanNetwork, wiring_diagram : str = 'fixed',
     if wiring_diagram == 'fixed':
         I = bn.I
     elif wiring_diagram == 'fixed_indegree':
-        I,indegrees = random_wiring_diagram(N = bn.N, n = bn.indegrees,rng=rng,**kwargs)
+        I = random_wiring_diagram(N = bn.N, n = bn.indegrees,rng=rng,**kwargs)
     elif wiring_diagram == 'fixed_in_and_outdegree':
         I = rewire_wiring_diagram(I = bn.I, **kwargs)
     else:
