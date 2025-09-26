@@ -10,23 +10,22 @@ import requests
 import pickle
 import io
 
+from typing import Optional
+
 try:
     from boolforge.boolean_network import BooleanNetwork
 except ModuleNotFoundError:
     from boolean_network import BooleanNetwork
 
-def _get_content_in_remote_folder(url, file_names, file_download_urls):
+def _get_content_in_remote_folder(url : str, file_names : list, file_download_urls : list) -> None:
     """
     Recursively collect file names and download URLs from a remote GitHub folder.
 
-    Parameters
-    ----------
-    url : str
-        GitHub API URL pointing to a repository folder.
-    file_names : list
-        List to be filled with discovered file names.
-    file_download_urls : list
-        List to be filled with corresponding raw download URLs.
+    **Parameters:**
+    
+        - url (str): GitHub API URL pointing to a repository folder.
+        - file_names (list): List to be filled with discovered file names.
+        - file_download_urls (list): List to be filled with corresponding raw download URLs.
     """
     folder = requests.get(url)
     folder.raise_for_status()
@@ -43,21 +42,19 @@ def _get_content_in_remote_folder(url, file_names, file_download_urls):
                 pass
 
 
-def get_content_in_remote_folder(url):
+def get_content_in_remote_folder(url : str) -> tuple:
     """
     Retrieve file names and download URLs from a remote GitHub folder.
 
-    Parameters
-    ----------
-    url : str
-        GitHub API URL pointing to a repository folder.
+    **Parameters:**
+    
+        - url (str): GitHub API URL pointing to a repository folder.
 
-    Returns
-    -------
-    file_names : list of str
-        Names of files in the folder.
-    file_download_urls : list of str
-        Corresponding raw download URLs.
+    **Returns:**
+    
+        - tuple[list[str], list[str]]: (file_names, file_download_urls), where
+          file_names is a list of files in the folder and file_download_urls
+          is a list containing the raw download URL.
     """
     file_names = []
     file_download_urls = []  
@@ -65,68 +62,71 @@ def get_content_in_remote_folder(url):
     return file_names, file_download_urls
 
 
-def fetch_file(download_url):
+def fetch_file(download_url : str) -> str:
     """
     Download raw text content of a file.
 
-    Parameters
-    ----------
-    download_url : str
-        Direct download URL to the file.
+    **Parameters:**
+    
+        - download_url (str): Direct download URL to the file.
 
-    Returns
-    -------
-    str
-        File content as plain text.
+    **Returns:**
+    
+        - str: File content as plain text.
     """
     r = requests.get(download_url)
     r.raise_for_status()
     return r.text
 
 
-def fetch_file_bytes(download_url):
+def fetch_file_bytes(download_url : str) -> bytes:
     """
     Download raw bytes content of a file.
 
-    Parameters
-    ----------
-    download_url : str
-        Direct download URL to the file.
+    **Parameters:**
+    
+        - download_url (str): Direct download URL to the file.
 
-    Returns
-    -------
-    bytes
-        File content as raw bytes.
+    **Returns:**
+    
+        - bytes: File content as raw bytes.
     """
     r = requests.get(download_url)
     r.raise_for_status()
     return r.content
 
 
-def load_model(download_url, max_degree=24,
-               possible_separators=['* =','*=','=',','],
-               original_not='NOT', original_and='AND', original_or='OR',
-               IGNORE_FIRST_LINE=False):
+def load_model(download_url : str, max_degree : int = 24,
+    possible_separators : list = ['* =','*=','=',','], original_not : str = 'NOT',
+    original_and : str = 'AND', original_or : str= 'OR',
+    IGNORE_FIRST_LINE : bool =False) -> Optional[BooleanNetwork]:
     """
     Load a Boolean network model from a remote text file.
 
-    Parameters
-    ----------
-    download_url : str
-        Direct download URL to the model file.
-    max_degree : int, optional
-        Maximum in-degree allowed for nodes (default: 24).
-    possible_separators : list of str, optional
-        Possible assignment separators in model files (default: ['\* =','\*=','=',',']).
-    original_not, original_and, original_or : str, optional
-        Possible logical operators in the model file.
-    IGNORE_FIRST_LINE : bool, optional
-        If True, skip the first line of the file (default: False).
+    **Parameters:**
+    
+        - download_url (str): Direct download URL to the model file.
+        - max_degree (int, optional): Maximum in-degree allowed for nodes
+          (default: 24).
+          
+        - possible_separators (list[str], optional): Possible assignment
+          separators in model files (default: ['\* =','\*=','=',',']).
+          
+        - original_not (str, optional): Possible logical negation operator in
+          the model file.
+        
+        - original_and (str, optional): Possible logical AND operator in the
+          model file.
+        
+        - original_or (str, optional): Possible logical OR operator in the
+          model file.
+          
+        - IGNORE_FIRST_LINE (bool, optional): If True, skip the first line
+          of the file (default: False).
 
-    Returns
-    -------
-    BooleanNetwork or None
-        Parsed Boolean network, or None if parsing fails.
+    **Returns:**
+    
+        - BooleanNetwork: Parsed Boolean network. If parsing fails, returns None.
     """
     string = fetch_file(download_url)
     if IGNORE_FIRST_LINE:
@@ -148,26 +148,25 @@ def load_model(download_url, max_degree=24,
             except:
                 pass
 
-
 download_urls_pystablemotifs = None
 
-def get_bio_models_from_repository(repository):
+def get_bio_models_from_repository(repository : str) -> tuple:
     """
     Load Boolean network models from selected online repositories.
 
-    Parameters
-    ----------
-    repository : {'expert-curated (ckadelka)', 'pystablemotifs (jcrozum)', 'biodivine (sybila)'}
-        Source repository identifier.
+    **Parameters:**
+    
+        - repository (str:{'expert-curated (ckadelka)', 'pystablemotifs (jcrozum)',
+          'biodivine (sybila)'}): Source repository identifier.
 
-    Returns
-    -------
-    bns : list of instances of BooleanNetwork
-        Successfully parsed Boolean networks.
-    successful_download_urls : list of str
-        URLs of models successfully loaded.
-    failed_download_urls : list of str
-        URLs of models that could not be parsed.
+    **Returns:**
+    
+        - tuple[list[BooleanNetwork], list[str], list[str]]: (bns,
+          successful_download_urls, failed_download_urls) where bns is a list
+          of successfully parsed Boolean networks, successful_download_urls
+          is a list of URLs of models successfully loaded, and
+          failed_download_urls is a list of URLs where models could not be
+          parsed.
     """
     repositories = ['expert-curated (ckadelka)', 'pystablemotifs (jcrozum)', 'biodivine (sybila)']
     bns = []
