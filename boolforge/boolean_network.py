@@ -176,131 +176,55 @@ class WiringDiagram(object):
         for target,regulators in enumerate(self.I):
             for regulator in regulators:
                 edge = (scc_dict[regulator],scc_dict[target])
-                if edge[0]!=edge[1]:
+                if edge[0]!=edge[1] and (self.weights is None or not np.isnan(self.weights[target][list(self.weights[target]).index(regulator)])):
                     dag.add(edge)   
         return dag
 
-    def adjacency_matrix(self, constants : list = [],
-        IGNORE_SELFLOOPS : bool = False, IGNORE_CONSTANTS : bool = True) -> np.array:
-        """
-        Construct the (binary) adjacency matrix from the wiring diagram.
 
-        Given the wiring diagram I (a list of regulator lists for each node)
-        and a list of constants, this function builds an adjacency matrix
-        where each entry m[j, i] is 1 if node j regulates node i. Self-loops
-        can be optionally ignored, and constant nodes can be excluded.
+    # def get_signed_effective_graph(self, type_of_each_regulation : list,
+    #     constants : list = [], IGNORE_SELFLOOPS : bool = False,
+    #     IGNORE_CONSTANTS : bool = True) -> np.array:
+    #     """
+    #     Construct the signed effective graph of a Boolean network.
 
-        **Parameters:**
+    #     This function computes an effective graph in which each edge is
+    #     weighted by its effectiveness. Effectiveness is obtained via
+    #     get_edge_effectiveness on the corresponding Boolean function. Edges
+    #     are signed according to the type of regulation ('increasing' or
+    #     'decreasing').
+
+    #     **Parameters:**
             
-            - constants (list[int], optional): List of constant nodes.
-            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes are
-              excluded from the matrix.
-
-        **Returns:**
-            
-            - np.array[np.array[int]]: The binary adjacency matrix.
-        """
-        n = len(self.I)
-        n_constants = len(constants)
-        if IGNORE_CONSTANTS:
-            m = np.zeros((n - n_constants, n - n_constants), dtype=int)
-            for i in range(len(self.I)):
-                for j in self.I[i]:
-                    if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
-                        m[j, i] = 1
-            return m
-        else:
-            return self.adjacency_matrix([], IGNORE_CONSTANTS=True)
-
-
-    def get_signed_adjacency_matrix(self, type_of_each_regulation : list,
-        constants : list = [], IGNORE_SELFLOOPS : bool = False,
-        IGNORE_CONSTANTS : bool = True) -> np.array:
-        """
-        Construct the signed adjacency matrix of a Boolean network.
-
-        The signed adjacency matrix assigns +1 for increasing (activating)
-        regulations, -1 for decreasing (inhibiting) regulations, and NaN for
-        any other type.
-
-        **Parameters:**
-            
-            - type_of_each_regulation (list[str]): List of lists corresponding
-              to the type of regulation ('increasing' or 'decreasing') for
-              each edge in I.
+    #         - type_of_each_regulation (list[str]): List of lists specifying
+    #           the type of regulation for each edge.
               
-            - constants (list[int], optional): List of constant nodes.
-            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
-              are excluded.
+    #         - constants (list[int], optional): List of constant nodes.
+    #         - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
+    #         - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
+    #           are excluded.
 
-        **Returns:**
+    #     **Returns:**
             
-            - np.array[np.array[int]]: The signed adjacency matrix.
-        """
-        n = len(self.I)
-        n_constants = len(constants)
-        if IGNORE_CONSTANTS:
-            m = np.zeros((n - n_constants, n - n_constants), dtype=int)
-            for i, (regulators, type_of_regulation) in enumerate(zip(self.I, type_of_each_regulation)):
-                for j, t in zip(regulators, type_of_regulation):
-                    if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
-                        if t == 'increasing':
-                            m[j, i] = 1 
-                        elif t == 'decreasing':
-                            m[j, i] = -1 
-                        else:
-                            m[j, i] = np.nan
-            return m
-        else:
-            return self.get_signed_adjacency_matrix(type_of_each_regulation, [], IGNORE_CONSTANTS=True)
-
-
-    def get_signed_effective_graph(self, type_of_each_regulation : list,
-        constants : list = [], IGNORE_SELFLOOPS : bool = False,
-        IGNORE_CONSTANTS : bool = True) -> np.array:
-        """
-        Construct the signed effective graph of a Boolean network.
-
-        This function computes an effective graph in which each edge is
-        weighted by its effectiveness. Effectiveness is obtained via
-        get_edge_effectiveness on the corresponding Boolean function. Edges
-        are signed according to the type of regulation ('increasing' or
-        'decreasing').
-
-        **Parameters:**
-            
-            - type_of_each_regulation (list[str]): List of lists specifying
-              the type of regulation for each edge.
-              
-            - constants (list[int], optional): List of constant nodes.
-            - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-            - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
-              are excluded.
-
-        **Returns:**
-            
-            - np.array[float]: The signed effective graph as a matrix of edge
-              effectiveness values.
-        """
-        n = len(self.I)
-        n_constants = len(constants)
-        if IGNORE_CONSTANTS:
-            m = np.zeros((n - n_constants, n - n_constants), dtype=float)
-            for i, (regulators, type_of_regulation) in enumerate(zip(self.I, type_of_each_regulation)):
-                effectivenesses = self.F[i].get_edge_effectiveness() #TODO: F does not exist here
-                for j, t, e in zip(regulators, type_of_regulation, effectivenesses):
-                    if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
-                        if t == 'increasing':
-                            m[j, i] = e
-                        elif t == 'decreasing':
-                            m[j, i] = -e
-                        else:
-                            m[j, i] = np.nan
-            return m
-        else:
-            return self.get_signed_effective_graph(type_of_each_regulation, [], IGNORE_CONSTANTS=True)
+    #         - np.array[float]: The signed effective graph as a matrix of edge
+    #           effectiveness values.
+    #     """
+    #     n = len(self.I)
+    #     n_constants = len(constants)
+    #     if IGNORE_CONSTANTS:
+    #         m = np.zeros((n - n_constants, n - n_constants), dtype=float)
+    #         for i, (regulators, type_of_regulation) in enumerate(zip(self.I, type_of_each_regulation)):
+    #             effectivenesses = self.F[i].get_edge_effectiveness() #TODO: F does not exist here
+    #             for j, t, e in zip(regulators, type_of_regulation, effectivenesses):
+    #                 if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
+    #                     if t == 'increasing':
+    #                         m[j, i] = e
+    #                     elif t == 'decreasing':
+    #                         m[j, i] = -e
+    #                     else:
+    #                         m[j, i] = np.nan
+    #         return m
+    #     else:
+    #         return self.get_signed_effective_graph(type_of_each_regulation, [], IGNORE_CONSTANTS=True)
 
 
     def get_ffls(self) -> Union[tuple, list]:
@@ -902,7 +826,22 @@ class BooleanNetwork(WiringDiagram):
             F[source_node].f = [value]
             I[source_node] = []
         return BooleanNetwork(F, I, self.variables)
-        
+
+
+    def get_network_with_node_controls(self,indices_controlled_nodes : Union[list, np.array], 
+                                       values_controlled_nodes : Union[list, np.array],
+                                       KEEP_CONTROLLED_NODES : bool = False) -> "BooleanNetwork":
+        assert len(values_controlled_nodes)==len(indices_controlled_nodes),f"The length of 'values_controlled_nodes', which is {len(values_controlled_nodes)}, must equal the length of 'indices_controlled_nodes', which is {len(indices_controlled_nodes)}."
+        F = deepcopy(self.F)
+        I = deepcopy(self.I)
+        for node,value in zip(indices_controlled_nodes,values_controlled_nodes):
+            if KEEP_CONTROLLED_NODES:
+                F[node].f = [value,value]
+                I[node] = [node]        
+            else:
+                F[node].f = [value]
+                I[node] = []
+        return BooleanNetwork(F, I, self.variables)        
         
     
     def update_single_node(self, index : int,

@@ -68,6 +68,9 @@ for w in range(1,2**(n-1),2):
     assert test,"boolforge.random_NCF failed for n = {n} and layer_structure = {layer_structure}"
 
 
+
+
+
 ## Testing random network generation
 
 #create a random NK-Kauffman network. The constant degree is specified by n.
@@ -76,25 +79,25 @@ assert min(bn.indegrees)==max(bn.indegrees)==n, "failed to create a BN with cons
 
 
 #create a BN where all functions have degree n and at least canalizing depth k.
-bn = boolforge.random_network(N,n,depths=k)
-depths = [bf.get_layer_structure()['CanalizingDepth'] for bf in bn]
-assert min(depths)>=k, "failed to create a BN with minimal canalizing depth "+str(k)
+bn = boolforge.random_network(N,n,depth=k)
+depth = [bf.get_layer_structure()['CanalizingDepth'] for bf in bn]
+assert min(depth)>=k, "failed to create a BN with minimal canalizing depth "+str(k)
 
 
 #create a BN where all functions have degree n and exact canalizing depth k.
-bn = boolforge.random_network(N,n,depths=k, EXACT_DEPTH=True)
-depths = [bf.get_layer_structure()['CanalizingDepth'] for bf in bn]
-assert min(depths)==k, "failed to create a BN with exact canalizing depth "+str(k)
+bn = boolforge.random_network(N,n,depth=k, EXACT_DEPTH=True)
+depth = [bf.get_layer_structure()['CanalizingDepth'] for bf in bn]
+assert min(depth)==k, "failed to create a BN with exact canalizing depth "+str(k)
 
 
 #create a BN where all functions are n-input NCFs of arbitrary layer structure.
-bn = boolforge.random_network(N,n,depths=n)
-depths = [bf.get_layer_structure()['CanalizingDepth'] for bf in bn]
-assert min(depths)==n, "failed to create a nested canalizing BN"
+bn = boolforge.random_network(N,n,depth=n)
+depth = [bf.get_layer_structure()['CanalizingDepth'] for bf in bn]
+assert min(depth)==n, "failed to create a nested canalizing BN"
 
 
 #create a BN where all functions are n-input NCFs with exactly one layer.
-bn = boolforge.random_network(N,n,layer_structures=[n])
+bn = boolforge.random_network(N,n,layer_structure=[n])
 checks_per_function = [bf.get_layer_structure()['CanalizingDepth']==n and bf.get_layer_structure()['NumberOfLayers']==1 for bf in bn]
 assert np.all(checks_per_function), "failed to create a BN with only single-layer NCFs"
 
