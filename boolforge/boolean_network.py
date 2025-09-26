@@ -42,7 +42,7 @@ class WiringDiagram(object):
         - variables (list[str] | np.array[str], optional): A list of N strings
           representing the names of each variable, default = None.
           
-        - weights (): #TODO
+        - weights (list[list[int | np.nan]]): #TODO
 
     **Members:**
         
@@ -53,7 +53,7 @@ class WiringDiagram(object):
         - N (int): The number of variables and constants in the Boolean network.
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node.
-        - weights (): As passed by the constructor.
+        - weights (list[list[int | np.nan]]): As passed by the constructor.
     """
     
     def __init__(self, I : Union[list, np.ndarray],
@@ -61,6 +61,7 @@ class WiringDiagram(object):
         assert isinstance(I, (list, np.ndarray)), "I must be an array"
         #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
         assert variables is None or len(I)==len(variables), "len(I)==len(variables) required if variable names are provided"
+        assert weights is None or True, "weights assertion" # TODO: if weights are given, they must be valid
         
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.N = len(I)
@@ -561,7 +562,6 @@ class BooleanNetwork(WiringDiagram):
                 if el not in ['(',')','+','*','1',separator,original_not,original_and,original_or,'',' '] and not utils.is_float(el):
                     constants_and_variables.append(el)
         constants = list(set(constants_and_variables)-set(var))
-        
         
         dict_variables_and_constants = dict({original_not:new_not,original_and:new_and,original_or:new_or})
         dict_variables_and_constants.update(dict(list(zip(var,["x%iy" % i for i in range(len(var))]))))

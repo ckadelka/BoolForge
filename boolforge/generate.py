@@ -19,7 +19,7 @@ try:
     import boolforge.utils as utils
 except ModuleNotFoundError:
     from boolean_function import BooleanFunction
-    from boolean_network import BooleanNetwork
+    from boolean_network import BooleanNetwork, WiringDiagram
     import utils
 
 
