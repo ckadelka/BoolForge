@@ -495,7 +495,7 @@ class BooleanNetwork(WiringDiagram):
             self.remove_constants()
         self.STG = None
         if SIMPLIFY_FUNCTIONS:
-            self = self.get_essential_network() #TODO: modify essential network to not create constants
+            self.simplify_functions() 
 
     def remove_constants(self,values_constants=None):
         if values_constants is None:
@@ -761,16 +761,16 @@ class BooleanNetwork(WiringDiagram):
     
     def get_types_of_regulation(self):
         weights = []
-        dict_weights = {'non-essential': np.nan, 'conditional': 0, 'positive':1, 'negative':-1}
-        for f in self.f:
-            weights.append(np.array([dict_weights[el] for el in f.get_type_of_inputs()]))
-        self.I.weights = weights
+        dict_weights = {'non-essential' : np.nan, 'conditional' : 0, 'positive' : 1, 'negative' : -1}
+        for bf in self.F:
+            weights.append(np.array([dict_weights[el] for el in bf.get_type_of_inputs()]))
+        self.weights = weights
         return weights
 
     ## Transform Boolean networks
-    def get_essential_network(self) -> "BooleanNetwork":
+    def simplify_functions(self) -> None:
         """
-        Determine the essential components of a Boolean network.
+        Remove all non-essential inputs, i.e., inoperative edges from the Boolean network.
 
         For each node in a Boolean network, represented by its Boolean function
         and its regulators, this function extracts the “essential” part of the
@@ -789,32 +789,33 @@ class BooleanNetwork(WiringDiagram):
                 - I is a list of N lists containing the indices of the
                   essential regulators for each node.
         """
-        F_essential = []
-        I_essential = []
-        for bf, regulators in zip(self.F, self.I):
-            if len(bf.f) == 0:  # happens for biological networks if the actual indegree of f was too large for it to be loaded
-                F_essential.append(bf)
-                I_essential.append(regulators) #keep all regulators (unable to determine if all are essential)
+        self.get_types_of_regulation() #ensuring that self.weights is updated
+        for i in range(self.N):
+            regulator_is_non_essential = np.isnan(self.weights[i])
+            if sum(regulator_is_non_essential)==0: #all variables are essential, nothing to change
                 continue
-            elif bf.get_hamming_weight() == 0: #constant zero function
-                F_essential.append(BooleanFunction(np.array([0])))
-                I_essential.append(np.array([], dtype=int))
+            
+            non_essential_variables = np.where(regulator_is_non_essential)[0]
+            essential_variables = np.where(~regulator_is_non_essential)[0]
+            self.outdegrees[non_essential_variables] -= 1
+            if len(essential_variables)==0: #no variables are essential, introduce ``fake" auto-regulation to keep this variable and do not delete it as a constant
+                self.indegrees[i] = 1
+                self.F[i].f = np.array([self.F[i][0],self.F[i][0]],dtype=int)
+                self.F[i].n = 1
+                self.F[i].variables = self.variables[i]
+                self.I[i] = np.array([i],dtype=int)
+                self.weights[i] = np.array([np.nan],dtype=int)
+                self.outdegrees[i] += 1 #add this, even though it's a fake regulation to keep sum(self.outdegrees)==sum(self.indegrees)
                 continue
-            elif bf.get_hamming_weight() == len(bf.f): #constant one function
-                F_essential.append(BooleanFunction(np.array([1])))
-                I_essential.append(np.array([], dtype=int))
-                continue
-            essential_variables = np.array(bf.get_essential_variables())
-            n = len(regulators)
-            non_essential_variables = np.array(list(set(list(range(n))) - set(essential_variables)))
-            if len(non_essential_variables) == 0:
-                F_essential.append(bf)
-                I_essential.append(regulators)
-            else:
-                left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=n)))
-                F_essential.append(BooleanFunction(bf.f[np.sum(left_side_of_truth_table[:, non_essential_variables], 1) == 0]))
-                I_essential.append(np.array(regulators)[essential_variables])
-        return BooleanNetwork(F_essential, I_essential, self.variables)
+            
+            left_side_of_truth_table = utils.get_left_side_of_truth_table(self.indegrees[i])
+            self.F[i].f = self.F[i][np.sum(left_side_of_truth_table[:, non_essential_variables], 1) == 0]
+            self.F[i].n = len(essential_variables)
+            self.F[i].variables = self.F[i].variables[~regulator_is_non_essential]
+            self.I[i] = self.I[i][essential_variables]
+            self.weights[i] = self.weights[i][essential_variables]
+            self.indegrees[i] = len(essential_variables)
+
 
 
     def get_edge_controlled_network(self, control_target : int,
