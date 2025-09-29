@@ -467,28 +467,6 @@ class BooleanNetwork(WiringDiagram):
         self.N_constants = 0
 
     @classmethod
-    def from_wiring_diagram(cls, wiring_diagram : WiringDiagram, F : Union[list, np.ndarray]) -> "BooleanNetwork":
-        """
-        Creates a BooleanNetwork object out of a WiringDiagram object. Uses
-        deep copying.
-        
-        **Parameters:**
-        
-            - wiring_diagram (WiringDiagram): The wiring diagram to use for the
-              Boolean network.
-              
-            - F (list[BooleanFunction | list[int]] | np.ndarray[BooleanFunction |
-              list[int]]): A list of N Boolean functions, or of N lists of length
-              2^n representing the outputs of a Boolean function with n inputs.
-        
-        **Returns:**
-        
-            - A BooleanNetwork object.
-        """
-        return cls(F = F, I = deepcopy(wiring_diagram.I),
-            variables = deepcopy(wiring_diagram.variables))
-
-    @classmethod
     def from_cana(cls, cana_BooleanNetwork : "cana.boolean_network.BooleanNetwork") -> "BooleanNetwork":
         """
         **Compatability Method:**
@@ -523,7 +501,7 @@ class BooleanNetwork(WiringDiagram):
             Converts a bnet string from the pyboolnet module into a Boolforge
             BooleanNetwork object.
             
-            Parses word-wise, so variables and operators cannot contain spaces.
+            Variables and operators cannot contain spaces.
         
         **Returns**:
             
