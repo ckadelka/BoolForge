@@ -11,7 +11,6 @@ Created on Tue Jul 29 09:25:40 2025
 ##Imports
 from __future__ import annotations
 import numpy as np
-import itertools
 import random as _py_random
 from numpy.random import Generator as _NPGen, RandomState as _NPRandomState, SeedSequence, default_rng
 
@@ -225,7 +224,7 @@ def bool_to_poly(f : list, variables : Optional[list] = None,
     text = []
     for i in range(num_values):
         if f[i] == True:
-            monomial = ' * '.join([('%s' % (v)) if entry == 1 else ('(1-%s)' % (v)) 
+            monomial = ' * '.join([('%s' % (v)) if entry == 1 else ('(1- %s)' % (v)) 
                                   for v, entry in zip(variables, left_side_of_truth_table[i])])
             text.append(monomial)
     if text != []:

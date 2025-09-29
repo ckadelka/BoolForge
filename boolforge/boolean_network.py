@@ -522,6 +522,8 @@ class BooleanNetwork(WiringDiagram):
         
             Converts a bnet string from the pyboolnet module into a Boolforge
             BooleanNetwork object.
+            
+            Parses word-wise, so variables and operators cannot contain spaces.
         
         **Returns**:
             
