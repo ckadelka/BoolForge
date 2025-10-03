@@ -390,7 +390,7 @@ class BooleanNetwork(WiringDiagram):
         - indegrees (list[int]): The indegrees for each node.
         - outdegrees (list[int]): The outdegrees of each node.
         - STG (dict): The state transition graph.
-        - weights (np.array[int] | None): Inherited from WiringDiagram. Default None.
+        - weights (np.array[float] | None): Inherited from WiringDiagram. Default None.
     """
 
     def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray, WiringDiagram],
@@ -711,7 +711,7 @@ class BooleanNetwork(WiringDiagram):
                 self.F[i].n = 1
                 self.F[i].variables = self.variables[i]
                 self.I[i] = np.array([i],dtype=int)
-                self.weights[i] = np.array([np.nan],dtype=int)
+                self.weights[i] = np.array([np.nan],dtype=float)
                 self.outdegrees[i] += 1 #add this, even though it's a fake regulation to keep sum(self.outdegrees)==sum(self.indegrees)
                 continue
             
