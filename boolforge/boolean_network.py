@@ -391,7 +391,6 @@ class BooleanNetwork(WiringDiagram):
         - outdegrees (list[int]): The outdegrees of each node.
         - STG (dict): The state transition graph.
         - weights (np.array[int] | None): Inherited from WiringDiagram. Default None.
-        - attractor_info_sync_exact (None): Unused
     """
 
     def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray, WiringDiagram],
@@ -418,6 +417,8 @@ class BooleanNetwork(WiringDiagram):
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
         if self.N_constants > 0:
             self.remove_constants()
+        else:
+            self.constants = {}
         self.STG = None
         if SIMPLIFY_FUNCTIONS:
             self.simplify_functions() 
@@ -431,6 +432,7 @@ class BooleanNetwork(WiringDiagram):
             indices_constants = self.get_source_nodes(AS_DICT=False) 
             dict_constants = self.get_source_nodes(AS_DICT=True)
             assert len(values_constants)==len(indices_constants),'The network contains {len(indices_constants)} source nodes but {len(values_constants)} values were provided.'
+        self.constants = dict(zip(self.variables[indices_constants],values_constants))
         for constant,value in zip(indices_constants,values_constants):
             for i in range(self.N): # for all variables
                 if dict_constants[i]:
@@ -457,7 +459,8 @@ class BooleanNetwork(WiringDiagram):
                 if self.weights is not None:
                     self.weights[i] = np.array([np.nan],dtype=int)
         self.F = [self.F[i] for i in range(self.N) if dict_constants[i]==False]
-        self.I = [self.I[i] for i in range(self.N) if dict_constants[i]==False]
+        adjustment_for_I = np.cumsum([dict_constants[i] for i in range(self.N)])
+        self.I = [self.I[i]-adjustment_for_I[self.I[i]] for i in range(self.N) if dict_constants[i]==False]
         if self.weights is not None:
             self.weights = [self.weights[i] for i in range(self.N) if dict_constants[i]==False]
         self.variables = [self.variables[i] for i in range(self.N) if dict_constants[i]==False]
