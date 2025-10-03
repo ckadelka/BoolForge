@@ -448,12 +448,15 @@ class BooleanNetwork(WiringDiagram):
                     self.weights[i] = self.weights[i][self.I[i]!=constant]
                 self.I[i] = self.I[i][self.I[i]!=constant]
                 self.indegrees[i] -= 1
+                self.F[i].n -= 1
+                
                 
         for i in range(self.N):
             if dict_constants[i]:
                 continue
             if self.indegrees[i] == 0:
                 self.indegrees[i] = 1
+                self.F[i].n = 1
                 self.F[i].f = np.array([self.F[i][0],self.F[i][0]],dtype=int)
                 self.I[i] = np.array([i],dtype=int)
                 if self.weights is not None:
