@@ -415,10 +415,10 @@ class BooleanNetwork(WiringDiagram):
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
+        if not hasattr(self, 'constants'): #keeps track of all constants and nodes set to constants
+            self.constants = {}
         if self.N_constants > 0:
             self.remove_constants()
-        else:
-            self.constants = {}
         self.STG = None
         if SIMPLIFY_FUNCTIONS:
             self.simplify_functions() 
@@ -432,24 +432,26 @@ class BooleanNetwork(WiringDiagram):
             indices_constants = self.get_source_nodes(AS_DICT=False) 
             dict_constants = self.get_source_nodes(AS_DICT=True)
             assert len(values_constants)==len(indices_constants),'The network contains {len(indices_constants)} source nodes but {len(values_constants)} values were provided.'
-        self.constants = dict(zip(self.variables[indices_constants],values_constants))
-        for constant,value in zip(indices_constants,values_constants):
+        #self.constants = dict(zip(self.variables[indices_constants],values_constants))
+        for id_constant,value in zip(indices_constants,values_constants):
+            regulated_nodes = []
             for i in range(self.N): # for all variables
                 if dict_constants[i]:
                     continue
                 try:
-                    index = list(self.I[i]).index(constant) #check if the constant is part of regulators
+                    index = list(self.I[i]).index(id_constant) #check if the constant is part of regulators
                 except ValueError:
                     continue
                 truth_table = utils.get_left_side_of_truth_table(self.indegrees[i])
                 indices_to_keep = np.where(truth_table[:,index]==value)[0]
                 self.F[i].f = self.F[i].f[indices_to_keep]
                 if self.weights is not None:
-                    self.weights[i] = self.weights[i][self.I[i]!=constant]
-                self.I[i] = self.I[i][self.I[i]!=constant]
+                    self.weights[i] = self.weights[i][self.I[i]!=id_constant]
+                self.I[i] = self.I[i][self.I[i]!=id_constant]
                 self.indegrees[i] -= 1
                 self.F[i].n -= 1
-                
+                regulated_nodes.append(self.variables[i])
+            self.constants[self.variables[id_constant]] = {'value' : value, 'regulatedNodes': regulated_nodes}
                 
         for i in range(self.N):
             if dict_constants[i]:
