@@ -8,6 +8,8 @@ Created on Tue Aug 12 11:03:49 2025
 
 import numpy as np
 import itertools
+from pyeda.inter import exprvar, Or, And, Not, espresso_exprs
+from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
 
 from typing import Union
 from typing import Optional
@@ -167,10 +169,10 @@ class BooleanFunction(object):
         print('The method \'to_cana_BooleanNode\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
     
-    def to_expression(self, AND : str = '&', OR : str = '|', NOT : str = '!') -> str:
+    def to_expression(self, AND : str = '&', OR : str = '|', NOT : str = '!',
+        MINIMIZE_EXPRESSION : bool = True) -> str:
         """
-        Transform a Boolean function from truth table format to logical expression
-        format using the Quine-McCluskey algorithm.
+        Transform a Boolean function from truth table format to logical expression format.
 
         **Parameters:**
             
@@ -182,12 +184,35 @@ class BooleanFunction(object):
             
             - NOT (str, optional): Character(s) to use for the Not operator.
               Defaults to '!'.
+            
+            - MINIMIZE_EXPRESSION (bool, optional): Whether or not to minimize
+              the expression using Espresso. If true, minimizes the expression.
+              If false, keeps the expression in DNF form. Defaults to true.
 
         **Returns:**
             
             - str: A string representing the Boolean function.
         """
-        return utils.bool_to_poly(self.f, self.variables).replace(' * ', AND).replace(' + ', OR).replace('1 - ', NOT)
+        variables = [ exprvar(str(var)) for var in self.variables ]
+        minterms = [ i for i in range(2**self.n) if self.f[i] ]
+        terms = []
+        for m in minterms:
+            bits = [(variables[i] if (m >> (self.n - 1 - i)) & 1 else ~variables[i]) for i in range(self.n)]
+            terms.append(And(*bits))
+        func_expr = Or(*terms).to_dnf()
+        if MINIMIZE_EXPRESSION:
+            func_expr, = espresso_exprs(func_expr)
+        def __pyeda_to_string__(e):
+            if isinstance(e, OrOp):
+                return '('+(")%s("%OR).join(__pyeda_to_string__(arg) for arg in e.xs)+')'
+            elif isinstance(e, AndOp):
+                return AND.join(__pyeda_to_string__(arg) for arg in e.xs)
+            elif isinstance(e, (NotOp)):
+                return "%s(%s)"%(NOT, __pyeda_to_string__(e.x))
+            elif isinstance(e, Complement):
+                return "(%s%s)"%(NOT, str(e)[1::])
+            return str(e)
+        return __pyeda_to_string__(Not(func_expr))
     
     def get_hamming_weight(self) -> int:
         """
