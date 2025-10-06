@@ -814,7 +814,7 @@ class BooleanNetwork(WiringDiagram):
             F[source_node].f = [value]
             I[source_node] = []
         bn = BooleanNetwork(F, I, self.variables)
-        bn.constants = self.constants
+        bn.constants.update(self.constants)
         return bn
 
     def get_network_with_node_controls(self,indices_controlled_nodes : Union[list, np.array], 
@@ -831,7 +831,7 @@ class BooleanNetwork(WiringDiagram):
                 F[node].f = [value]
                 I[node] = []
         bn = BooleanNetwork(F, I, self.variables)
-        bn.constants = self.constants
+        bn.constants.update(self.constants)
         return bn
         
     
