@@ -278,7 +278,7 @@ class BooleanFunction(object):
         return len(self.get_essential_variables())
     
     
-    def get_type_of_inputs_old(self) -> np.ndarray:
+    def get_type_of_inputs(self) -> np.ndarray:
         """
         Determine for each input of the Boolean function whether it is
         positive, negative, conditional or non-essential.
