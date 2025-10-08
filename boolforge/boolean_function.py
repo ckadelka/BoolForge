@@ -209,7 +209,7 @@ class BooleanFunction(object):
             - bool: True if f is constant (all outputs are 0 or all are 1),
               False otherwise.
         """
-        return self.get_hamming_weight() in [0, 2**self.n]
+        return np.all(self.f == self.f[0])
     
     def is_degenerated(self) -> bool:
         """
@@ -374,6 +374,7 @@ class BooleanFunction(object):
         """
         return abs(self.get_hamming_weight() * 1.0 / 2**(self.n - 1) - 1)
     
+    
     def get_average_sensitivity(self, nsim : int = 10000, EXACT : bool = False,
         NORMALIZED : bool = True, *, rng = None) -> float:
         """
@@ -407,12 +408,14 @@ class BooleanFunction(object):
         size_state_space = 2**self.n
         s = 0
         if EXACT:
-            for ii, X in enumerate(utils.get_left_side_of_truth_table(self.n)):
-                for i in range(self.n):
-                    Y = X.copy()
-                    Y[i] = 1 - X[i]
-                    Ydec = utils.bin2dec(Y)
-                    s += int(self.f[ii] != self.f[Ydec])
+            # Compute all integer representations of inputs (0 .. 2^n - 1)
+            X = np.arange(size_state_space, dtype=np.uint32)
+        
+            # For each bit position i, flipping that bit corresponds to XOR with (1 << i)
+            for i in range(self.n):
+                flipped = X ^ (1 << i) #really this should be 1 << self.n-1-i but it's symmetric and faster as is
+                s += np.count_nonzero(self.f != self.f[flipped])
+        
             if NORMALIZED:
                 return s / (size_state_space * self.n)
             else:
@@ -433,7 +436,31 @@ class BooleanFunction(object):
                 return self.n * s / nsim
     
     
-    def is_canalizing(self) -> bool:
+    # def is_canalizing(self) -> bool:
+    #     """
+    #     Determine if a Boolean function is canalizing.
+
+    #     A Boolean function f(x_1, ..., x_n) is canalizing if there exists at
+    #     least one variable x_i and a value a ∈ {0, 1} such that f(x_1, ...,
+    #     x_i = a, ..., x_n) is constant.
+
+    #     **Returns:**
+            
+    #         - bool: True if f is canalizing, False otherwise.
+    #     """
+    #     desired_value = 2**(self.n - 1)
+    #     T = np.array(list(itertools.product([0, 1], repeat=self.n))).T
+    #     A = np.r_[T, 1 - T]
+    #     Atimesf = np.dot(A, self.f)
+    #     if np.any(Atimesf == desired_value):
+    #         return True
+    #     elif np.any(Atimesf == 0):
+    #         return True
+    #     else:
+    #         return False
+        
+    
+    def is_canalizing(self):
         """
         Determine if a Boolean function is canalizing.
 
@@ -445,16 +472,23 @@ class BooleanFunction(object):
             
             - bool: True if f is canalizing, False otherwise.
         """
-        desired_value = 2**(self.n - 1)
-        T = np.array(list(itertools.product([0, 1], repeat=self.n))).T
-        A = np.r_[T, 1 - T]
-        Atimesf = np.dot(A, self.f)
-        if np.any(Atimesf == desired_value):
-            return True
-        elif np.any(Atimesf == 0):
-            return True
-        else:
-            return False
+        indices = np.arange(2**self.n, dtype=np.uint32)
+    
+        # Iterate over each variable
+        for i in range(self.n):
+            mask = 1 << i #really this should be 1 << self.n-1-i but it's symmetric and faster as is
+            bit_is_0 = (indices & mask) == 0
+            bit_is_1 = ~bit_is_0
+    
+            # Restrict outputs where x_i = 0 or x_i = 1
+            f0 = self.f[bit_is_0]
+            f1 = self.f[bit_is_1]
+    
+            # If any restriction is constant, function is canalizing
+            if np.all(f0 == f0[0]) or np.all(f1 == f1[0]):
+                return True
+    
+        return False
     
     def is_k_canalizing(self, k : int) -> bool:
         """
@@ -485,77 +519,110 @@ class BooleanFunction(object):
                (2022). Revealing the canalizing structure of Boolean functions:
                Algorithms and applications. Automatica, 146, 110630.
         """
+
+        # Base cases
         if k > self.n:
             return False
         if k == 0:
             return True
-
-        w = self.get_hamming_weight()  # Hamming weight of f
-        if w == 0 or w == 2**self.n:  # constant function
+        if np.all(self.f == self.f[0]):  # constant function is by definition not canalizing
             return False
-        desired_value = 2**(self.n - 1)
-        T = np.array(list(itertools.product([0, 1], repeat=self.n))).T
-        A = np.r_[T, 1 - T]
-        try:  # check for canalizing output 1
-            index = list(np.dot(A, self.f)).index(desired_value)
-            new_bf = BooleanFunction(self.f[np.where(A[index] == 0)[0]])
-            return new_bf.is_k_canalizing(k - 1)
-        except ValueError:
-            try:  # check for canalizing output 0
-                index = list(np.dot(A, 1 - self.f)).index(desired_value)
-                new_bf = BooleanFunction(self.f[np.where(A[index] == 0)[0]])
-                return new_bf.is_k_canalizing(k - 1)
-            except ValueError:
-                return False
+    
+        # Precompute input indices for masking
+        indices = np.arange(2**self.n, dtype=np.uint32)
+    
+        # Try each variable to see if it is canalizing
+        for i in range(self.n):
+            mask = 1 << i #really this should be 1 << self.n-1-i but it's symmetric and faster as is
+            bit_is_0 = (indices & mask) == 0
+            bit_is_1 = ~bit_is_0
+    
+            f0, f1 = self.f[bit_is_0], self.f[bit_is_1]
+    
+            # Case 1: x_i = 0 is canalizing
+            if np.all(f0 == f0[0]):
+                if k == 1:
+                    return True
+                # recurse on subfunction with x_i fixed to 0 → drop that variable
+                return BooleanFunction(f1).is_k_canalizing(k - 1)
+    
+            # Case 2: x_i = 1 is canalizing
+            elif np.all(f1 == f1[0]):
+                if k == 1:
+                    return True
+                return BooleanFunction(f0).is_k_canalizing(k - 1)
+        return False
+
 
     def _get_layer_structure(self, can_inputs, can_outputs, can_order,
                              variables, depth, number_layers):
         """
-        Only for internal use by recursively defined get_layer_structure.
+        Faster internal version of _get_layer_structure using bitwise operations.
         """
-        n = self.n
-        w = self.get_hamming_weight()
-        if w == 0 or w == 2**n:  #eventually the recursion will end here (if self.f is a constant function)
-            return (depth, number_layers, can_inputs, can_outputs, self, can_order)
-        if type(variables) == np.ndarray:
-            variables = list(variables)
-        if variables == []:
-            variables = list(range(n))
-        desired_value = 2**(n - 1)
-        T = np.array(list(itertools.product([0, 1], repeat=n))).T
-        A = np.r_[T, 1 - T]
 
-        indices1 = np.where(np.dot(A, self.f) == desired_value)[0]
-        indices0 = np.where(np.dot(A, 1 - self.f) == desired_value)[0]
-        if len(indices1) > 0:
-            sorted_order = sorted(range(len(indices1)), key=lambda x: (indices1 % n)[x])
-            inputs = (1 - indices1 // n)[np.array(sorted_order)]
-            outputs = np.ones(len(indices1), dtype=int)
-            new_canalizing_variables = []
-            for index in np.sort(indices1 % n)[::-1]:
-                new_canalizing_variables.append(variables.pop(index))
-            new_canalizing_variables.reverse()
-            new_f = self.f[np.sort(list(set.intersection(*[] + [set(np.where(A[index] == 0)[0]) for index, INPUT in zip(indices1, inputs)])))]
-            new_bf = BooleanFunction(list(new_f))
-            return new_bf._get_layer_structure(np.append(can_inputs, inputs), np.append(can_outputs, outputs),
-                               np.append(can_order, new_canalizing_variables), variables, depth + len(new_canalizing_variables),
-                               number_layers + 1)
-        elif len(indices0):
-            sorted_order = sorted(range(len(indices0)), key=lambda x: (indices0 % n)[x])
-            inputs = (1 - indices0 // n)[np.array(sorted_order)]
-            outputs = np.zeros(len(indices0), dtype=int)
-            new_canalizing_variables = []
-            for index in np.sort(indices0 % n)[::-1]:
-                new_canalizing_variables.append(variables.pop(index))
-            new_canalizing_variables.reverse()
-            new_f = self.f[np.sort(list(set.intersection(*[] + [set(np.where(A[index] == 0)[0]) for index, INPUT in zip(indices0, inputs)])))]
-            new_bf = BooleanFunction(list(new_f))
-            return new_bf._get_layer_structure(np.append(can_inputs, inputs), np.append(can_outputs, outputs),
-                               np.append(can_order, new_canalizing_variables), variables, depth + len(new_canalizing_variables),
-                               number_layers + 1)
-        else:  #or the recursion will end here (if self.f is non-canalizing)
-        
-            return (depth, number_layers, can_inputs, can_outputs, self, can_order)        
+        # base cases
+        if np.all(self.f == self.f[0]):
+            # recursion ends when function becomes constant
+            return depth, number_layers, can_inputs, can_outputs, self, can_order
+    
+        if not variables:
+            variables = list(range(self.n))
+        elif isinstance(variables, np.ndarray):
+            variables = variables.tolist()
+    
+        indices = np.arange(2**self.n, dtype=np.uint32)
+    
+        # candidate canalizing variables (x_i, a)
+        new_canalizing_vars = []
+        new_can_inputs = []
+        new_can_outputs = []
+        new_f = None
+    
+        for i in range(self.n):
+            mask = 1 << (self.n-1-i)
+            bit0 = (indices & mask) == 0
+            bit1 = ~bit0
+            f0, f1 = self.f[bit0], self.f[bit1]
+    
+            # check both possible canalizing directions
+            if np.all(f0 == f0[0]):
+                new_canalizing_vars.append(variables[i])
+                new_can_inputs.append(0)
+                new_can_outputs.append(int(f0[0]))
+            elif np.all(f1 == f1[0]):
+                new_canalizing_vars.append(variables[i])
+                new_can_inputs.append(1)
+                new_can_outputs.append(int(f1[0]))
+    
+        if not new_canalizing_vars:
+            # non-canalizing core function
+            return depth, number_layers, can_inputs, can_outputs, self, can_order
+    
+        # reduce variable list (remove canalizing ones)
+        indices_new_canalizing_vars = [i for i,v in enumerate(variables) if v in new_canalizing_vars]
+        remaining_vars = [v for v in variables if v not in new_canalizing_vars]
+    
+        # build the restricted subfunction (“core function”)
+        # start with all indices, then keep those where none of the canalizing
+        # variables take their canalizing inputs
+        mask_keep = np.ones(2**self.n, dtype=bool)
+        for var, val in zip(indices_new_canalizing_vars, new_can_inputs):
+            bitmask = (indices >> (self.n-1-var)) & 1
+            mask_keep &= (bitmask != val)
+        new_f = self.f[mask_keep]
+    
+
+        # recurse on reduced function
+        new_bf = self.__class__(list(new_f))
+        return new_bf._get_layer_structure(
+            np.append(can_inputs, new_can_inputs),
+            np.append(can_outputs, new_can_outputs),
+            np.append(can_order, new_canalizing_vars),
+            remaining_vars,
+            depth + len(new_canalizing_vars),
+            number_layers + 1,
+        )
+
 
     def get_layer_structure(self) -> dict:
         """
@@ -652,22 +719,35 @@ class BooleanFunction(object):
         """
         assert type(k)==int and 0<=k<=self.n, "k must be an integer and satisfy 0 <= k <= degree n"
         
+        # trivial case
         if k == 0:
             return float(self.is_constant())
-        desired_value = 2**(self.n - k)
-        T = utils.get_left_side_of_truth_table(self.n).T
-        Tk = list(itertools.product([0, 1], repeat=k))
-        A = np.r_[T, 1 - T]
-        Ak = []
-        for indices in itertools.combinations(range(self.n), k):
-            for canalizing_inputs in Tk:
-                indices_values = np.array(indices) + self.n * np.array(canalizing_inputs)
-                dummy = np.sum(A[indices_values, :], 0) == k
-                if sum(dummy) == desired_value:
-                    Ak.append(dummy)
-        Ak = np.array(Ak)
-        is_there_canalization = np.isin(np.dot(Ak, self.f), [0, desired_value])
-        return sum(is_there_canalization) / len(is_there_canalization)
+    
+        # all input indices (0..2^n - 1)
+        indices = np.arange(2**self.n, dtype=np.uint32)
+    
+        # precompute binary representation of all inputs
+        bits = ((indices[:, None] >> np.arange(self.n)) & 1).astype(np.uint8)  # shape (2**n, n)
+        #left_side_of_truth_table = utils.get_left_side_of_truth_table(self.n)
+        
+        total_tests = 0
+        canalizing_hits = 0
+    
+        # iterate over variable subsets of size k
+        for subset in itertools.combinations(range(self.n), k):
+            Xsub = bits[:, subset]  # shape (2**n, k)
+            # For each possible assignment to this subset
+            for assignment in itertools.product([0, 1], repeat=k):
+                mask = np.all(Xsub == assignment, axis=1)
+                if not np.any(mask):
+                    continue
+                # If all outputs equal when these vars are fixed → canalizing
+                f_sub = self.f[mask]
+                if np.all(f_sub == f_sub[0]):
+                    canalizing_hits += 1
+                total_tests += 1
+    
+        return canalizing_hits / total_tests if total_tests > 0 else 0.0
 
     def is_kset_canalizing(self, k : int) -> bool:
         """
@@ -830,3 +910,6 @@ class BooleanFunction(object):
         print('The method \'get_effective_degree\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
     
+
+
+
