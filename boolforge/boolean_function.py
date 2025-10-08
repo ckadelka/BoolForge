@@ -278,7 +278,7 @@ class BooleanFunction(object):
         return len(self.get_essential_variables())
     
     
-    def get_type_of_inputs(self) -> np.ndarray:
+    def get_type_of_inputs_old(self) -> np.ndarray:
         """
         Determine for each input of the Boolean function whether it is
         positive, negative, conditional or non-essential.
@@ -287,29 +287,36 @@ class BooleanFunction(object):
             
             - np.ndarray[str]: The type of each input of the Boolean function.
         """
-        
+
         if 'InputTypes' in self.properties:
             return self.properties['InputTypes']
-        else:
-            types = []
-            for i in range(self.n):
-                dummy_add=(2**(self.n-1-i))
-                dummy=np.arange(2**self.n)%(2**(self.n-i))//dummy_add
-                diff = self.f[dummy==1]-self.f[dummy==0]
-                min_diff = min(diff)
-                max_diff = max(diff)
-                if min_diff==0 and max_diff==0:
-                    types.append('non-essential')
-                elif min_diff==-1 and max_diff==1:
-                    types.append('conditional')
-                elif min_diff>=0 and max_diff==1:
-                    types.append('positive')            
-                elif min_diff==-1 and max_diff<=0:
-                    types.append('negative')
-            types = np.array(types)
-            self.properties.update({'InputTypes':types})
-            return types
-
+    
+        f = np.asarray(self.f, dtype=np.int8)
+        n = self.n
+        types = np.empty(n, dtype=object)
+    
+        # Compute all pairwise differences for each bit position simultaneously
+        # Each variable toggles every 2**i entries in the truth table.
+        for i in range(n):
+            period = 2 ** (i + 1)
+            half = period // 2
+            # Vectorized reshape pattern: consecutive blocks of 0...1 transitions
+            f_reshaped = f.reshape(-1, period)
+            diff = f_reshaped[:, half:] - f_reshaped[:, :half]
+            min_diff = diff.min()
+            max_diff = diff.max()
+            if min_diff == 0 and max_diff == 0:
+                types[i] = 'non-essential'
+            elif min_diff == -1 and max_diff == 1:
+                types[i] = 'conditional'
+            elif min_diff >= 0 and max_diff == 1:
+                types[i] = 'positive'
+            elif min_diff == -1 and max_diff <= 0:
+                types[i] = 'negative'
+    
+        types = np.array(types, dtype=str)
+        self.properties['InputTypes'] = types
+        return types
 
     def is_monotonic(self) -> bool:
         """
@@ -722,20 +729,18 @@ class BooleanFunction(object):
         # trivial case
         if k == 0:
             return float(self.is_constant())
-    
-        # all input indices (0..2^n - 1)
-        indices = np.arange(2**self.n, dtype=np.uint32)
-    
+        
         # precompute binary representation of all inputs
-        bits = ((indices[:, None] >> np.arange(self.n)) & 1).astype(np.uint8)  # shape (2**n, n)
-        #left_side_of_truth_table = utils.get_left_side_of_truth_table(self.n)
+        #indices = np.arange(2**self.n, dtype=np.uint32)
+        #bits = ((indices[:, None] >> np.arange(self.n)) & 1).astype(np.uint8)  # shape (2**n, n)
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.n)
         
         total_tests = 0
         canalizing_hits = 0
     
         # iterate over variable subsets of size k
         for subset in itertools.combinations(range(self.n), k):
-            Xsub = bits[:, subset]  # shape (2**n, k)
+            Xsub = left_side_of_truth_table[:, subset]  # shape (2**n, k)
             # For each possible assignment to this subset
             for assignment in itertools.product([0, 1], repeat=k):
                 mask = np.all(Xsub == assignment, axis=1)
