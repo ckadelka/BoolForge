@@ -547,7 +547,7 @@ class BooleanNetwork(WiringDiagram):
         for line in tvec:
             linesplit = line.split(' ')
             for el in linesplit:
-                if el not in ['(',')','+','*','1',separator,original_not,original_and,original_or,'',' '] and not utils.is_float(el):
+                if el not in ['(',')','+','*',separator,original_not,original_and,original_or,'',' '] and not utils.is_float(el):
                     constants_and_variables.append(el)
         constants = list(set(constants_and_variables)-set(var))
         
@@ -729,51 +729,6 @@ class BooleanNetwork(WiringDiagram):
             self.indegrees[i] = len(essential_variables)
 
 
-
-    def get_edge_controlled_network(self, control_target : int,
-        control_source : int, type_of_edge_control : int = 0) -> "BooleanNetwork":
-        """
-        Generate a perturbed Boolean network by removing the influence of a
-        specified regulator on a specified target.
-
-        The function modifies the Boolean function for a target node by
-        restricting it to those entries in its truth table where the input
-        from a given regulator equals the specified type_of_control. The
-        regulator is then removed from the wiring diagram for that node.
-
-        **Parameters:**
-            
-            - control_target (int): Index of the target node to be perturbed.
-            - control_source (int): Index of the regulator whose influence is
-              to be removed.
-              
-            - type_of_edge_control (int, optional): Source value in regulation
-              after control. Default is 0.
-
-        **Returns:**
-            
-            - BooleanNetwork object where:
-                
-                - F is the updated list of Boolean functions after perturbation.
-                - I is the updated wiring diagram after removing the control
-                  regulator from the target node.
-        """
-        assert type_of_edge_control in [0,1], "type_of_edge_control must be 0 or 1."
-        assert control_source in self.I[control_target], "control_source=%i does not regulate control_target=%i." % (control_source,control_target)
-        
-        F_new = [bf.f for bf in self.F]
-        I_new = [i for i in self.I]
-
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N) 
-
-        index = list(self.I[control_target]).index(control_source)
-        F_new[control_target] = F_new[control_target][left_side_of_truth_table[:, index] == type_of_edge_control]
-        dummy = list(I_new[control_target])
-        dummy.remove(control_source)
-        I_new[control_target] = np.array(dummy)
-        return BooleanNetwork(F_new, I_new, self.variables)
-
-
     def get_source_nodes(self, AS_DICT : bool = True) -> Union[dict, np.array]:
         """
         Identify source nodes in a Boolean network.
@@ -808,12 +763,13 @@ class BooleanNetwork(WiringDiagram):
     def get_network_with_fixed_source_nodes(self,values_source_nodes : Union[list, np.array]) -> "BooleanNetwork":
         indices_source_nodes = self.get_source_nodes(AS_DICT=False)
         assert len(values_source_nodes)==len(indices_source_nodes),f"The length of 'values_source_nodes', which is {len(values_source_nodes)}, must equal the number of source nodes, which is {len(indices_source_nodes)}."
+        assert set(values_source_nodes) in set([0,1]),"Controlled node values must be 0 or 1."
         F = deepcopy(self.F)
         I = deepcopy(self.I)
         for source_node,value in zip(indices_source_nodes,values_source_nodes):
             F[source_node].f = [value]
             I[source_node] = []
-        bn = BooleanNetwork(F, I, self.variables)
+        bn = self.__class__(F, I, self.variables)
         bn.constants.update(self.constants)
         return bn
 
@@ -821,6 +777,7 @@ class BooleanNetwork(WiringDiagram):
                                        values_controlled_nodes : Union[list, np.array],
                                        KEEP_CONTROLLED_NODES : bool = False) -> "BooleanNetwork":
         assert len(values_controlled_nodes)==len(indices_controlled_nodes),f"The length of 'values_controlled_nodes', which is {len(values_controlled_nodes)}, must equal the length of 'indices_controlled_nodes', which is {len(indices_controlled_nodes)}."
+        assert set(values_controlled_nodes) in set([0,1]),"Controlled node values must be 0 or 1."
         F = deepcopy(self.F)
         I = deepcopy(self.I)
         for node,value in zip(indices_controlled_nodes,values_controlled_nodes):
@@ -830,10 +787,79 @@ class BooleanNetwork(WiringDiagram):
             else:
                 F[node].f = [value]
                 I[node] = []
-        bn = BooleanNetwork(F, I, self.variables)
-        bn.constants.update(self.constants)
+        bn = self.__class__(F, I, self.variables)
+        if not KEEP_CONTROLLED_NODES:
+            bn.constants.update(self.constants)
         return bn
+
+
+    def get_network_with_edge_controls(self, 
+                                      control_targets : Union[int,list,np.array],
+                                      control_sources : Union[int,list,np.array], 
+                                      type_of_edge_controls : Union[int,list,np.array,None] = None) -> "BooleanNetwork":
+        """
+        Generate a perturbed Boolean network by removing the influence of
+        specified regulators on specified targets.
+
+        The function modifies the Boolean function for target nodes by
+        restricting it to those entries in its truth table where the input
+        from given regulators equals the specified type_of_control. The
+        regulators are then removed from the wiring diagram for that node.
+
+        **Parameters:**
+            
+            - control_targets (int | list[int] | np.array[int]): 
+                Index of the target node(s) to be perturbed.
+                
+            - control_sources (int | list[int] | np.array[int]): 
+                Index of the regulator(s) whose influence is to be fixed.
+              
+            - type_of_edge_controls (int | list[int] | np.array[int]) | None): 
+                Source value in regulation of target after control. 
+                Default is None (which is interpreted as 0).
+
+        **Returns:**
+            
+            - BooleanNetwork object where:
+                
+                - F is the updated list of Boolean functions after perturbation.
+                - I is the updated wiring diagram after removing the control
+                  regulator from the target node.
+        """
+
+        # Normalize arguments to lists
+        if np.isscalar(control_targets):
+            control_targets = [control_targets]
+            control_sources = [control_sources]
+            type_of_edge_controls = [0 if type_of_edge_controls is None else type_of_edge_controls]
+        elif type_of_edge_controls is None:
+            type_of_edge_controls = [0] * len(control_targets)
+    
+        assert len(control_targets) == len(control_sources) == len(type_of_edge_controls), \
+            "control_targets, control_sources, and type_of_edge_controls must have equal length."
+
+        F_new = deepcopy(self.F)
+        I_new = deepcopy(self.I)
+        indegrees = np.copy(self.indegrees)
+
+        for target, source, fixed_value in zip(control_targets, control_sources, type_of_edge_controls):
+            assert fixed_value in [0, 1], f"type_of_edge_control must be 0 or 1 (got {fixed_value})."
+            assert source in I_new[target], f"control_source={source} not in regulators of target={target}"
+            idx_reg = list(I_new[target]).index(source)
+            n_inputs = indegrees[target]
+    
+            # Compute bitmask indices efficiently
+            indices = np.arange(2 ** n_inputs, dtype=np.uint32)
+            mask = ((indices >> (n_inputs - 1 - idx_reg)) & 1) == fixed_value
+            F_new[target] = F_new[target][mask]
+    
+            # Remove the regulator
+            I_new[target] = np.delete(I_new[target], idx_reg)
+            indegrees[target] -= 1
         
+        return self.__class__(F_new, I_new, self.variables)
+
+            
     
     def update_single_node(self, index : int,
         states_regulators : Union[list, np.array]) -> int:
@@ -1354,17 +1380,36 @@ class BooleanNetwork(WiringDiagram):
         which is of type dict[int:int]. That is, each state is represented by 
         its decimal representation.
         """  
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N_variables)
-
-        powers_of_two = np.array([2**i for i in range(self.N_variables)])[::-1]
+    
+        # 1. Represent all possible network states as binary matrix
+        #    shape = (2**n, n), each row = one state
+        states = utils.get_left_side_of_truth_table(self.N_variables)
         
-        STG_full = np.zeros((2**self.N_variables, self.N_variables), dtype=int)
-        for i in range(self.N_variables):
-            for j, x in enumerate(itertools.product([0, 1], repeat=self.indegrees[i])):
-                if self.F[i].f[j]:
-                    # For rows in left_side_of_truth_table where the columns I[i] equal x, set STG accordingly.
-                    STG_full[np.all(left_side_of_truth_table[:, self.I[i]] == np.array(x), axis=1), i] = 1
-        self.STG = dict(zip(list(range(2**self.N_variables)), np.dot(STG_full, powers_of_two).tolist()))
+        # 2. Preallocate array for next states
+        next_states = np.zeros_like(states)
+        powers_of_two = 2 ** np.arange(self.N_variables)[::-1]
+    
+        # 3. Compute next value for each node in vectorized form
+        for j, bf in enumerate(self.F):
+            regulators = self.I[j]
+            if len(regulators) == 0:
+                # constant node
+                next_states[:, j] = bf.f[0]
+                continue
+    
+            # Extract substate of regulators for all states
+            subspace = states[:, regulators]
+    
+            # Convert each substate to integer index (row of truth table)
+            idx = np.dot(subspace, powers_of_two[-len(regulators):])
+    
+            # Lookup next-state value from Boolean function truth table
+            next_states[:, j] = bf.f[idx]
+    
+        # 4. Convert each next-state binary vector to integer index
+        next_indices = np.dot(next_states, powers_of_two)
+    
+        self.STG = dict(zip(list(range(2**self.N_variables)), next_indices.tolist()))
                 
 
     def get_attractors_synchronous_exact(self) -> dict:
@@ -1423,6 +1468,8 @@ class BooleanNetwork(WiringDiagram):
                 xdec = fxdec
         return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "STG"],
                         (attractors, len(attractors), basin_sizes, attractor_dict, self.STG)))  
+
+
 
 
 
@@ -1945,3 +1992,12 @@ class BooleanNetwork(WiringDiagram):
                              "AttractorCoherence", "AttractorFragility"],
                             tuple(results + [attractor_coherence,attractor_fragility])))
         
+# n = 14
+# k=4
+# bn = boolforge.random_network(N=10,n=4)
+# bn_new = BooleanNetwork(bn.F,bn.I)
+# bn_new.compute_synchronous_state_transition_graph_old()
+# STG_old = bn_new.STG
+# bn_new.compute_synchronous_state_transition_graph()
+# STG = bn_new.STG
+# print(STG_old == STG)
