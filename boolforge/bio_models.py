@@ -131,22 +131,14 @@ def load_model(download_url : str, max_degree : int = 24,
     string = fetch_file(download_url)
     if IGNORE_FIRST_LINE:
         string = string[string.index('\n')+1:]
-    for separator in possible_separators:
-        for (original_not, original_and, original_or) in [
-            ('not', 'and', 'or'), ('NOT', 'AND', 'OR'),
-            ('!', '&', '|'), ('~', '&', '|')]:
-            try:
-                bn = BooleanNetwork.from_string(
-                    string,
-                    separator=separator,
-                    max_degree=max_degree,
-                    original_not=original_not,
-                    original_and=original_and,
-                    original_or=original_or
-                )
-                return bn
-            except:
-                pass
+    try:
+        bn = BooleanNetwork.from_string(string, possible_separators, max_degree,
+        ["not ", " not", "NOT ", " NOT", '!', '~', original_not],
+        ["and ", " and", "AND ", " AND", '&', original_and],
+        ["or ", " or", "OR ", " OR", '|', original_or])
+        return bn
+    except Exception as e:
+        print(str(e))
 
 download_urls_pystablemotifs = None
 

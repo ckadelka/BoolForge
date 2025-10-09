@@ -502,14 +502,14 @@ class BooleanNetwork(WiringDiagram):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_string(cls, network_string : str, separator : str = ',', max_degree : int = 24, original_not : str = 'NOT', original_and : str = 'AND', original_or : str = 'OR') -> "BooleanNetwork":
+    def from_string(cls, network_string : str, separator : Union[str, list, np.array] = ',',
+        max_degree : int = 24, original_not : Union[str, list, np.array] = 'NOT',
+        original_and : Union[str, list, np.array] = 'AND',
+        original_or : Union[str, list, np.array] = 'OR') -> "BooleanNetwork":
         """
         **Compatability Method:**
         
-            Converts a bnet string from the pyboolnet module into a Boolforge
-            BooleanNetwork object.
-            
-            Variables and operators cannot contain spaces.
+            Converts a string into a Boolforge BooleanNetwork object.
         
         **Returns**:
             
@@ -517,13 +517,15 @@ class BooleanNetwork(WiringDiagram):
         """
         sepstr, andop, orop, notop = "*,", "*&", "*|", "*!"
         
+        get_dummy_var = lambda i: "x%sy"%str(int(i))
+        
         # reformat network string
         lines = network_string.replace('\t', ' ',).replace('(', ' ( ').replace(')', ' ) ')
-        get_dummy_var = lambda i: "x%sy"%str(int(i))
         def replace(string, original, replacement):
+            print(type(string), type(original), type(replacement))
             if isinstance(original, (list, np.ndarray)):
                 for s in original:
-                    string = string.replace(original, " %s " % replacement)
+                    string = string.replace(s, " %s " % replacement)
             elif isinstance(original, str):
                 string = string.replace(original, " %s " % replacement)
             return string
