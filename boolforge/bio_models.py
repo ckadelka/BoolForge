@@ -131,14 +131,9 @@ def load_model(download_url : str, max_degree : int = 24,
     string = fetch_file(download_url)
     if IGNORE_FIRST_LINE:
         string = string[string.index('\n')+1:]
-    try:
-        bn = BooleanNetwork.from_string(string, possible_separators, max_degree,
-        ["not ", " not", "NOT ", " NOT", '!', '~', original_not],
-        ["and ", " and", "AND ", " AND", '&', original_and],
-        ["or ", " or", "OR ", " OR", '|', original_or])
-        return bn
-    except Exception as e:
-        print(str(e))
+    bn = BooleanNetwork.from_string(string, possible_separators, max_degree,
+                                    original_not, original_and, original_or)
+    return bn
 
 download_urls_pystablemotifs = None
 
@@ -179,7 +174,7 @@ def get_bio_models_from_repository(repository : str) -> tuple:
                         I.append([len(var)+i])
                     bn = BooleanNetwork(F, I, var+constants)
                 else:
-                    bn = load_model(download_url)
+                    bn = load_model(download_url, original_and = " AND ", original_or = " OR ", original_not = " NOT ")
                 if bn is None:
                     failed_download_urls.append(download_url)
                 else:

@@ -515,19 +515,18 @@ class BooleanNetwork(WiringDiagram):
             
                 - A BooleanNetwork object.
         """
-        sepstr, andop, orop, notop = "*,", "*&", "*|", "*!"
+        sepstr, andop, orop, notop = "@", "∧", "∨", "¬"
         
         get_dummy_var = lambda i: "x%sy"%str(int(i))
         
         # reformat network string
         lines = network_string.replace('\t', ' ',).replace('(', ' ( ').replace(')', ' ) ')
         def replace(string, original, replacement):
-            print(type(string), type(original), type(replacement))
             if isinstance(original, (list, np.ndarray)):
                 for s in original:
-                    string = string.replace(s, " %s " % replacement)
+                    string = string.replace(s, " %s "%replacement)
             elif isinstance(original, str):
-                string = string.replace(original, " %s " % replacement)
+                string = string.replace(original, " %s "%replacement)
             return string
         lines = replace(lines, separator, sepstr)
         lines = replace(lines, original_not, notop)
@@ -559,7 +558,7 @@ class BooleanNetwork(WiringDiagram):
                     consts_and_vars.append(word)
         consts = list(set(consts_and_vars)-set(var))
         dict_var_const = dict(list(zip(var, [get_dummy_var(i) for i in range(len(var))])))
-        dict_var_const.update(dict(list(zip(consts, [get_dummy_var(i) for i in range(len(var), len(set(consts_and_vars)))]))))
+        dict_var_const.update(dict(list(zip(consts, [get_dummy_var(i+len(var)) for i in range(len(consts))]))))
         
         # replace all variables and constants with dummy names
         for i, line in enumerate(lines):
@@ -571,7 +570,7 @@ class BooleanNetwork(WiringDiagram):
         
         # update line to only be function
         for i in range(n):
-            lines[i] = lines[i].split(sepstr)[1].replace(' ', '')
+            lines[i] = lines[i].split(sepstr)[1]
         
         # generate wiring diagram I
         I = []
@@ -594,7 +593,7 @@ class BooleanNetwork(WiringDiagram):
             elif deg[i] <= max_degree:
                 tt = utils.get_left_side_of_truth_table(deg[i])
                 ldict = { get_dummy_var(I[i][j]) : tt[:, j].astype(bool) for j in range(deg[i]) }
-                f = eval(lines[i].replace(andop, '&').replace(orop, '|').replace(notop, '!'), {"__builtins__" : None}, ldict)
+                f = eval(lines[i].replace(andop, '&').replace(orop, '|').replace(notop, '~').replace(' ', ''), {"__builtins__" : None}, ldict)
             else:
                 f = np.array([], int)
             F.append(f.astype(int))
