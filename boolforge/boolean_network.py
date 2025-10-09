@@ -502,7 +502,7 @@ class BooleanNetwork(WiringDiagram):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_string(cls, string : str, separator : str = ',', max_degree : int = 24, original_not : str = 'NOT', original_and : str = 'AND', original_or : str = 'OR') -> "BooleanNetwork":
+    def from_string(cls, network_string : str, separator : str = ',', max_degree : int = 24, original_not : str = 'NOT', original_and : str = 'AND', original_or : str = 'OR') -> "BooleanNetwork":
         """
         **Compatability Method:**
         
@@ -515,92 +515,92 @@ class BooleanNetwork(WiringDiagram):
             
                 - A BooleanNetwork object.
         """
-        get_dummy_variable = lambda i: 'x'+str(int(i))+'y'
-        new_and, new_or, new_not = '&', '|', '~'
+        sepstr, andop, orop, notop = "*,", "*&", "*|", "*!"
         
-        tvec = string.replace('\t',' ').replace('(',' ( ').replace(')',' ) ').replace(separator,' '+separator+' ')
-        if original_and == '&':
-            tvec = tvec.replace(original_and,' '+original_and+' ')
-        if original_or == '|':
-            tvec = tvec.replace(original_or,' '+original_or+' ')
-        if original_not in ['~','!']:
-            tvec = tvec.replace(original_not,' '+original_not+' ')
-        tvec = tvec.splitlines()
+        # reformat network string
+        lines = network_string.replace('\t', ' ',).replace('(', ' ( ').replace(')', ' ) ')
+        get_dummy_var = lambda i: "x%sy"%str(int(i))
+        def replace(string, original, replacement):
+            if isinstance(original, (list, np.ndarray)):
+                for s in original:
+                    string = string.replace(original, " %s " % replacement)
+            elif isinstance(original, str):
+                string = string.replace(original, " %s " % replacement)
+            return string
+        lines = replace(lines, separator, sepstr)
+        lines = replace(lines, original_not, notop)
+        lines = replace(lines, original_and, andop)
+        lines = replace(lines, original_or, orop)
         
-        #Deleting empty lines
-        while '' in tvec:
-            tvec.remove('')
+        lines = lines.splitlines()
         
-        for i in range(len(tvec)-1,-1,-1):
-            if tvec[i][0]=='#':
-                tvec.pop(i)
-            
-        n=len(tvec)
-        var=["" for i in range(n)]
+        # remove empty lines
+        while '' in lines:
+            lines.remove('')
         
+        # remove comments
+        for i in range(len(lines)-1, -1, -1):
+            if lines[i][0] == '#':
+                lines.pop(i)
         
-        #Determining Variables, var contains the order of variables (may differ from original order)
+        n = len(lines)
+        
+        # find variables and constants
+        var = ["" for i in range(n)]
         for i in range(n):
-            var[i]=tvec[i][0:tvec[i].find(separator)].replace(' ','')
-
-        constants_and_variables = []
-        for line in tvec:
-            linesplit = line.split(' ')
-            for el in linesplit:
-                if el not in ['(',')','+','*',separator,original_not,original_and,original_or,'',' '] and not utils.is_float(el):
-                    constants_and_variables.append(el)
-        constants = list(set(constants_and_variables)-set(var))
+            var[i] = lines[i].split(sepstr)[0].replace(' ', '')
+        consts_and_vars = []
+        for line in lines:
+            words = line.split(' ')
+            for word in words:
+                if word not in ['(', ')', sepstr, andop, orop, notop, ''] and not utils.is_float(word):
+                    consts_and_vars.append(word)
+        consts = list(set(consts_and_vars)-set(var))
+        dict_var_const = dict(list(zip(var, [get_dummy_var(i) for i in range(len(var))])))
+        dict_var_const.update(dict(list(zip(consts, [get_dummy_var(i) for i in range(len(var), len(set(consts_and_vars)))]))))
         
-        dict_variables_and_constants = dict({original_not:new_not,original_and:new_and,original_or:new_or})
-        dict_variables_and_constants.update(dict(list(zip(var,["x%iy" % i for i in range(len(var))]))))
-        dict_variables_and_constants.update(list(zip(constants,["x%iy" % i for i in range(len(var),len(set(constants_and_variables)))]))) #constants at end
-
-
-        for i,line in enumerate(tvec):
-            linesplit = line.split(' ')
-            for ii,el in enumerate(linesplit):
-                if el not in ['(',')','+','*','1',separator,new_not.strip(' '),new_and.strip(' '),new_or.strip(' '), '',' '] and not utils.is_float(el):
-                    linesplit[ii] = dict_variables_and_constants[el]
-            tvec[i] = ' '.join(linesplit)
-        #       
-        for ind in range(n):
-            tvec[ind]=tvec[ind][tvec[ind].find(separator)+len(separator):]
-            #tvec[ind]="("+tvec[ind]+")"
-
+        # replace all variables and constants with dummy names
+        for i, line in enumerate(lines):
+            words = line.split(' ')
+            for j, word in enumerate(words):
+                if word not in ['(', ')', sepstr, andop, orop, notop, ''] and not utils.is_float(word):
+                    words[j] = dict_var_const[word]
+            lines[i] = ' '.join(words)
+        
+        # update line to only be function
+        for i in range(n):
+            lines[i] = lines[i].split(sepstr)[1].replace(' ', '')
+        
+        # generate wiring diagram I
         I = []
         for i in range(n):
             try:
-                indices_open = utils.find_all_indices(tvec[i],'x')
-                indices_end = utils.find_all_indices(tvec[i],'y')
-                dummy = np.sort(np.array(list(map(int,list(set([tvec[i][(begin+1):end] for begin,end in zip(indices_open,indices_end)]))))))
-                I.append( dummy )
+                idcs_open = utils.find_all_indices(lines[i], 'x')
+                idcs_end = utils.find_all_indices(lines[i], 'y')
+                regs = np.sort(np.array(list(map(int,list(set([lines[i][(begin+1):end] for begin,end in zip(idcs_open,idcs_end)]))))))
+                I.append(regs)
             except ValueError:
-                I.append( np.array([],dtype=int))
-            # dict_dummy = dict(list(zip(dummy,list(range(len(dummy))))))
-            # tvec_dummy = tvec[i][:]
-            # for el in dummy:
-            #     tvec_dummy = tvec_dummy.replace('x%iy' % el,'x%iy' % dict_dummy[el]) #needs to be done with an ascending order in dummy
-            # tvec_mod.append(tvec_dummy)        
+                I.append(np.array([], int))
         
-        degree = list(map(len,I))
+        deg = list(map(len, I))
         
+        # generate functions F
         F = []
         for i in range(n):
-            if degree[i]==0:
-                f = np.array([int(tvec[i])],dtype=int)
-            elif degree[i]<=max_degree:
-                truth_table = utils.get_left_side_of_truth_table(degree[i])
-                local_dict = {get_dummy_variable(I[i][j]): truth_table[:, j].astype(bool) for j in range(degree[i])}
-                f = eval(tvec[i], {"__builtins__": None}, local_dict)
+            if deg[i] == 0:
+                f = np.array([int(lines[i])], int)
+            elif deg[i] <= max_degree:
+                tt = utils.get_left_side_of_truth_table(deg[i])
+                ldict = { get_dummy_var(I[i][j]) : tt[:, j].astype(bool) for j in range(deg[i]) }
+                f = eval(lines[i].replace(andop, '&').replace(orop, '|').replace(notop, '!'), {"__builtins__" : None}, ldict)
             else:
-                f = np.array([],dtype=int)
+                f = np.array([], int)
             F.append(f.astype(int))
+        for i in range(len(consts)):
+            F.append(np.array([0, 1], int))
+            I.append(np.array([len(var) + i]))
         
-        for i in range(len(constants)):
-            F.append(np.array([0,1]))
-            I.append(np.array([len(var)+i]))
-        
-        return cls(F = F, I = I, variables=var+constants)
+        return cls(F, I, var+consts)
 
 
     def to_cana(self) -> "cana.boolean_network.BooleanNetwork":
