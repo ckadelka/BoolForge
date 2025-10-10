@@ -559,6 +559,7 @@ class BooleanNetwork(WiringDiagram):
         consts = list(set(consts_and_vars)-set(var))
         dict_var_const = dict(list(zip(var, [get_dummy_var(i) for i in range(len(var))])))
         dict_var_const.update(dict(list(zip(consts, [get_dummy_var(i+len(var)) for i in range(len(consts))]))))
+        
         # replace all variables and constants with dummy names
         for i, line in enumerate(lines):
             words = line.split(' ')
