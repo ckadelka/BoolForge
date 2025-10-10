@@ -81,6 +81,50 @@ if __LOADED_NUMBA__:
     
         return next_indices
 
+    @njit    
+    def _compute_synchronous_stg_numba_low_memory(F_array_list, I_array_list, N_variables):
+        """
+        Compute synchronous state transition graph (STG) without storing all states.
+    
+        For each integer state i in [0, 2^N):
+          - decode i into its binary vector
+          - compute its next state vector
+          - encode back to integer
+        """
+        nstates = 2 ** N_variables
+        next_indices = np.zeros(nstates, dtype=np.int64)
+        powers_of_two = 2 ** np.arange(N_variables - 1, -1, -1)
+    
+        state = np.zeros(N_variables, dtype=np.uint8)
+        next_state = np.zeros(N_variables, dtype=np.uint8)
+    
+        for i in range(nstates):
+            # --- Decode i into binary vector (most-significant bit first)
+            tmp = i
+            for j in range(N_variables):
+                state[N_variables - 1 - j] = tmp & 1
+                tmp >>= 1
+    
+            # --- Compute next-state values
+            for j in range(N_variables):
+                regulators = I_array_list[j]
+                if regulators.shape[0] == 0:
+                    next_state[j] = F_array_list[j][0]
+                else:
+                    n_reg = regulators.shape[0]
+                    idx = 0
+                    for k in range(n_reg):
+                        idx = (idx << 1) | state[regulators[k]]
+                    next_state[j] = F_array_list[j][idx]
+    
+            # --- Encode next_state back to integer
+            val = 0
+            for j in range(N_variables):
+                val += next_state[j] * powers_of_two[j]
+            next_indices[i] = val
+    
+        return next_indices
+
 class WiringDiagram(object):
     """
     A class representing a Wiring Diagram
@@ -1526,9 +1570,12 @@ class BooleanNetwork(WiringDiagram):
             # Preprocess data into Numba-friendly types
             F_list = [np.array(bf.f, dtype=np.uint8) for bf in self.F]
             I_list = [np.array(regs, dtype=np.int64) for regs in self.I]
-        
-            next_indices = _compute_synchronous_stg_numba(F_list, I_list, self.N_variables)
-        
+            
+            if self.N_variables <= 22:
+                next_indices = _compute_synchronous_stg_numba(F_list, I_list, self.N_variables)
+            else:
+                next_indices = _compute_synchronous_stg_numba_low_memory(F_list, I_list, self.N_variables)
+                
             # Build the dictionary {current_state: next_state}
             self.STG = dict(zip(range(2 ** self.N_variables), next_indices.tolist()))
             return self.STG
