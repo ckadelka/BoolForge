@@ -110,7 +110,7 @@ def load_model(download_url : str, max_degree : int = 24,
           (default: 24).
           
         - possible_separators (list[str], optional): Possible assignment
-          separators in model files (default: ['\\* =','\\*=','=',',']).
+          separators in model files (default: ['\\* =', '\\*=', '=', ',']).
           
         - original_not (str, optional): Possible logical negation operator in
           the model file.
