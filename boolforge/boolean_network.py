@@ -521,17 +521,17 @@ class BooleanNetwork(WiringDiagram):
         
         # reformat network string
         lines = network_string.replace('\t', ' ',).replace('(', ' ( ').replace(')', ' ) ')
-        def replace(string, original, replacement):
+        def __replace__(string, original, replacement):
             if isinstance(original, (list, np.ndarray)):
                 for s in original:
                     string = string.replace(s, " %s "%replacement)
             elif isinstance(original, str):
                 string = string.replace(original, " %s "%replacement)
             return string
-        lines = replace(lines, separator, sepstr)
-        lines = replace(lines, original_not, notop)
-        lines = replace(lines, original_and, andop)
-        lines = replace(lines, original_or, orop)
+        lines = __replace__(lines, separator, sepstr)
+        lines = __replace__(lines, original_not, notop)
+        lines = __replace__(lines, original_and, andop)
+        lines = __replace__(lines, original_or, orop)
         
         lines = lines.splitlines()
         
