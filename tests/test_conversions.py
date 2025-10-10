@@ -35,7 +35,7 @@ N = np.random.randint(3,20)
 n = np.random.randint(1,min(N,8))
 bn = boolforge.random_network(N,n)
 bnet = bn.to_bnet()
-bn_reconverted = boolforge.BooleanNetwork.from_string(bnet, original_not = "1-")
+bn_reconverted = boolforge.BooleanNetwork.from_string(bnet, original_not = "1 - ", original_and = " * ", original_or = " + ")
 assert (np.all([np.all(bn.F[i].f == bn_reconverted.F[i].f) for i in range(N)]) and
         np.all([np.all(bn.I[i] == bn_reconverted.I[i]) for i in range(N)]) and 
         np.all(bn.variables == bn_reconverted.variables)), 'failed BooleanNetwork.to_bnet or BooleanNetwork.from_bnet'
