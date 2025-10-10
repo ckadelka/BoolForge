@@ -134,9 +134,9 @@ def load_model(download_url : str, max_degree : int = 24,
     try:
         bn = BooleanNetwork.from_string(string, possible_separators, max_degree,
                                         original_not, original_and, original_or)
-        return bn
     except:
-    
+        pass
+    return bn
 
 download_urls_pystablemotifs = None
 
