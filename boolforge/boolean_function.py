@@ -33,28 +33,28 @@ except ModuleNotFoundError:
     print('The module numba cannot be found. Ensure it is installed to increase the run time of critical code in this toolbox.')
     __LOADED_NUMBA__=False
 
-@njit
-def _is_degenerated_numba(f: np.ndarray, n: int) -> bool:
-    """
-    Numba-accelerated check for non-essential variables in a Boolean function.
-    """
-    N = 1 << n  # 2**n
-    for i in range(n):
-        stride = 1 << (n - 1 - i)
-        step = stride << 1  # 2 * stride
-        depends_on_i = False
-        # Iterate in blocks that differ only in bit i
-        for base in range(0, N, step):
-            for offset in range(stride):
-                if f[base + offset] != f[base + offset + stride]:
-                    depends_on_i = True
+if __LOADED_NUMBA__:
+    @njit
+    def _is_degenerated_numba(f: np.ndarray, n: int) -> bool:
+        """
+        Numba-accelerated check for non-essential variables in a Boolean function.
+        """
+        N = 1 << n  # 2**n
+        for i in range(n):
+            stride = 1 << (n - 1 - i)
+            step = stride << 1  # 2 * stride
+            depends_on_i = False
+            # Iterate in blocks that differ only in bit i
+            for base in range(0, N, step):
+                for offset in range(stride):
+                    if f[base + offset] != f[base + offset + stride]:
+                        depends_on_i = True
+                        break
+                if depends_on_i:
                     break
-            if depends_on_i:
-                break
-        if not depends_on_i:
-            return True  # found non-essential variable
-    return False
-
+            if not depends_on_i:
+                return True  # found non-essential variable
+        return False
 
 def display_truth_table(*functions: "BooleanFunction", labels = None):
     """
@@ -64,11 +64,13 @@ def display_truth_table(*functions: "BooleanFunction", labels = None):
     and the corresponding output(s) f(x).
 
     **Parameters:**
-        \\*functions (BooleanFunction): One or more BooleanFunction objects.
-        labels (list[str], optional): Column labels for each function
-        (defaults to f1, f2, ...).
+    
+        - \\*functions (BooleanFunction): One or more BooleanFunction objects.
+        - labels (list[str], optional): Column labels for each function
+          (defaults to f1, f2, ...).
 
     **Example:**
+    
         >>> f = BooleanFunction("(x1 & ~x2) | x3")
         >>> display_truth_table(f)
     """
@@ -98,9 +100,6 @@ def display_truth_table(*functions: "BooleanFunction", labels = None):
         inputs_str = "\t".join(map(str, inputs))
         outputs_str = "\t".join(map(str, outputs))
         print(f"{inputs_str}\t|\t{outputs_str}")
-        
-        
-
 
 def get_layer_structure_from_canalized_outputs(can_outputs : list) -> list:
     """
@@ -199,7 +198,7 @@ class BooleanFunction(object):
         return f"{self.f}"
         #return f"{self.f.tolist()}"
         
-    def str_expr(self) -> str:
+    def to_polynomial(self) -> str:
         """
         Returns the Boolean function converted into polynomial format in
         non-reduced DNF.
@@ -244,7 +243,7 @@ class BooleanFunction(object):
         print('The method \'to_cana_BooleanNode\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
     
-    def to_expression(self, AND : str = '&', OR : str = '|', NOT : str = '!',
+    def to_logical(self, AND : str = '&', OR : str = '|', NOT : str = '!',
         MINIMIZE_EXPRESSION : bool = True) -> str:
         """
         Transform a Boolean function from truth table format to logical expression format.
@@ -338,13 +337,18 @@ class BooleanFunction(object):
                 return True
         return False
     
-    def is_degenerated_numba(self) -> bool:
-        """
-        Determine if a Boolean function contains non-essential variables.
-        Numba-accelerated version.
-        """
-        f = np.asarray(self.f, dtype=np.uint8)
-        return _is_degenerated_numba(f, self.n)
+    if __LOADED_NUMBA__:
+        def is_degenerated_numba(self) -> bool:
+            """
+            Determine if a Boolean function contains non-essential variables.
+            Numba-accelerated version.
+            
+            **Returns:**
+            
+                - bool: Whether or not this Boolean function is degenerated
+            """
+            f = np.asarray(self.f, dtype=np.uint8)
+            return _is_degenerated_numba(f, self.n)
 
     def get_essential_variables(self) -> list:
         """

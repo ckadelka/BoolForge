@@ -39,7 +39,7 @@ except ModuleNotFoundError:
     __LOADED_NUMBA__=False
 
 
-def get_entropy_of_basin_size_distribution(basin_sizes):
+def get_entropy_of_basin_size_distribution(basin_sizes : Union[list, np.array]) -> float:
     """
     Compute the Shannon entropy of the basin size distribution.
 
@@ -47,12 +47,15 @@ def get_entropy_of_basin_size_distribution(basin_sizes):
     First, the basin sizes are normalized to form a probability distribution, and then the entropy is computed
     using the formula: H = - sum(p_i * log(p_i)), where p_i is the proportion of the basin size i.
 
-    Parameters:
-        basin_sizes (list or array-like): A list where each element represents the size of a basin,
-                                           i.e., the number of initial conditions that converge to a particular attractor.
+    **Parameters:**
+    
+        - basin_sizes (list | np.array): A list where each element
+          represents the size of a basin, i.e., the number of initial
+          conditions that converge to a particular attractor.
 
-    Returns:
-        float: The Shannon entropy of the basin size distribution.
+    **Returns:**
+    
+        - float: The Shannon entropy of the basin size distribution.
     """
     total = sum(basin_sizes)
     probabilities = [size * 1.0 / total for size in basin_sizes]
@@ -586,7 +589,16 @@ class BooleanNetwork(WiringDiagram):
         if SIMPLIFY_FUNCTIONS:
             self.simplify_functions() 
 
-    def remove_constants(self,values_constants=None):
+    def remove_constants(self, values_constants : Optional[list] = None) -> None:
+        """
+        Removes constants from this Boolean network.
+
+        **Parameters:**
+        
+            - values_constants (list, optional): The values to fix for each constant
+              node in the network. If None, takes the value provided by the constant
+              function.
+        """
         if values_constants is None:
             indices_constants = self.get_constants(AS_DICT=False)
             dict_constants = self.get_constants(AS_DICT=True)
@@ -834,7 +846,15 @@ class BooleanNetwork(WiringDiagram):
         return result
         
     
-    def get_types_of_regulation(self):
+    def get_types_of_regulation(self) -> np.array:
+        """
+        Computes the weights of this Boolean network and assigns them to the
+        weights member variable.
+        
+        **Returns:**
+        
+            - weights (np.array): The weights of this network.
+        """
         weights = []
         dict_weights = {'non-essential' : np.nan, 'conditional' : 0, 'positive' : 1, 'negative' : -1}
         for bf in self.F:
@@ -924,6 +944,20 @@ class BooleanNetwork(WiringDiagram):
 
     
     def get_network_with_fixed_source_nodes(self,values_source_nodes : Union[list, np.array]) -> "BooleanNetwork":
+        """
+        Fix the values of source nodes within this Boolean Network.
+
+        **Parameters:**
+        
+            - values_source_nodes (list | np.array): The values to fix for each
+              source node within this network. Must be of length equivalent to
+              the number of source nodes in the network, and each element must
+              be either 0 or 1.
+
+        **Returns:**
+        
+            - BooleanNetwork: A BooleanNetwork object with fixed source nodes.
+        """
         indices_source_nodes = self.get_source_nodes(AS_DICT=False)
         assert len(values_source_nodes)==len(indices_source_nodes),f"The length of 'values_source_nodes', which is {len(values_source_nodes)}, must equal the number of source nodes, which is {len(indices_source_nodes)}."
         assert set(values_source_nodes) in set([0,1]),"Controlled node values must be 0 or 1."
@@ -939,6 +973,26 @@ class BooleanNetwork(WiringDiagram):
     def get_network_with_node_controls(self,indices_controlled_nodes : Union[list, np.array], 
                                        values_controlled_nodes : Union[list, np.array],
                                        KEEP_CONTROLLED_NODES : bool = False) -> "BooleanNetwork":
+        """
+        Fix the values of nodes within this BooleanNetwork.
+        
+        **Parameters:**
+        
+            - indices_controlled_nodes (list | np.array): The indices of the nodes
+              to fix the value of.
+              
+            - values_controlled_nodes : (list | np.array): The values to fix for
+              each specified node in the network.
+            
+            - KEEP_CONTROLLED_NODES : (bool, optional): Whether to turn controlled
+              nodes into constants or not. If true, controlled nodes become constants
+              and will be baked into the network. If false, they will not be considered
+              as constants. Defaults to false.
+        
+        **Returns:**
+        
+            - BooleanNetwork: A BooleanNetwork object with specified nodes controlled.
+        """
         assert len(values_controlled_nodes)==len(indices_controlled_nodes),f"The length of 'values_controlled_nodes', which is {len(values_controlled_nodes)}, must equal the length of 'indices_controlled_nodes', which is {len(indices_controlled_nodes)}."
         assert set(values_controlled_nodes) in set([0,1]),"Controlled node values must be 0 or 1."
         F = deepcopy(self.F)
@@ -1735,7 +1789,12 @@ class BooleanNetwork(WiringDiagram):
             """
             Compute the entire synchronous state transition graph (STG)
             using Numba for high performance.
-            Returns a dict[int:int] mapping current -> next state.
+            
+            **Returns:**
+            
+                - dict[int:int]: A dictionary representing the state transition
+                  graph of the network, where each key represents the current state
+                  and its corresponding value the next state.
             """
         
             # Preprocess data into Numba-friendly types
@@ -1753,9 +1812,13 @@ class BooleanNetwork(WiringDiagram):
     else:
         def compute_synchronous_state_transition_graph(self) -> dict:
             """
-            Compute the entire synchronous state transition graph for all 2^N states,
-            which is of type dict[int:int]. That is, each state is represented by 
-            its decimal representation.
+            Compute the entire synchronous state transition graph for all 2^N states.
+            
+            **Returns:**
+            
+                - dict[int:int]: A dictionary representing the state transition
+                  graph of the network, where each key represents the current state
+                  and its corresponding value the next state.
             """  
         
             # 1. Represent all possible network states as binary matrix
