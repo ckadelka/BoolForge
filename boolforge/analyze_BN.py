@@ -16,9 +16,9 @@ import random
 import math
 from collections import defaultdict
 
-import utils
-import analyze_BF
-from boolean_network import BooleanNetwork
+import boolforge.utils
+import boolforge.analyze_BF
+from boolforge.boolean_network import BooleanNetwork
 
 ##Key functions: compute/simulate network dynamics
 def update_single_node(f, states_regulators):

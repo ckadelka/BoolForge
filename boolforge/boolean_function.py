@@ -26,6 +26,81 @@ except ModuleNotFoundError:
     print("The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.")
     __LOADED_CANA__=False
     
+try:
+    from numba import njit
+    __LOADED_NUMBA__=True
+except ModuleNotFoundError:
+    print('The module numba cannot be found. Ensure it is installed to increase the run time of critical code in this toolbox.')
+    __LOADED_NUMBA__=False
+
+@njit
+def _is_degenerated_numba(f: np.ndarray, n: int) -> bool:
+    """
+    Numba-accelerated check for non-essential variables in a Boolean function.
+    """
+    N = 1 << n  # 2**n
+    for i in range(n):
+        stride = 1 << (n - 1 - i)
+        step = stride << 1  # 2 * stride
+        depends_on_i = False
+        # Iterate in blocks that differ only in bit i
+        for base in range(0, N, step):
+            for offset in range(stride):
+                if f[base + offset] != f[base + offset + stride]:
+                    depends_on_i = True
+                    break
+            if depends_on_i:
+                break
+        if not depends_on_i:
+            return True  # found non-essential variable
+    return False
+
+
+def display_truth_table(*functions: "BooleanFunction", labels = None):
+    """
+    Display the full truth table of a BooleanFunction in a formatted way.
+
+    Each row shows the input combination (x1, x2, ..., xn)
+    and the corresponding output(s) f(x).
+
+    **Parameters:**
+        \\*functions (BooleanFunction): One or more BooleanFunction objects.
+        labels (list[str], optional): Column labels for each function
+        (defaults to f1, f2, ...).
+
+    **Example:**
+        >>> f = BooleanFunction("(x1 & ~x2) | x3")
+        >>> display_truth_table(f)
+    """
+    if not functions:
+        raise ValueError("Please provide at least one BooleanFunction.")
+    n = functions[0].n
+    if any(f.n != n for f in functions):
+        raise ValueError("All BooleanFunction objects must have the same number of variables.")
+    f = functions[0]
+    if isinstance(labels,str):
+        labels = [labels]
+    if labels is not None and len(labels)!=len(functions):
+        raise ValueError("The number of labels (if provided) must equal the number of functions.")
+        
+    if np.all([np.all(f.variables == g.variables) for g in functions]):
+        header = "\t".join([f.variables[i] for i in range(f.n)]) 
+    else:
+        header = "\t".join([f'x{i+1}' for i in range(f.n)]) 
+    if labels is None:
+        labels = [f"f{i}" for i in range(len(functions))]
+    header += '\t|\t' + '\t'.join(labels)
+    
+    print(header)
+    print("-" * len(header.expandtabs()))
+
+    for inputs, outputs in zip(utils.get_left_side_of_truth_table(f.n), np.c_[*[f.f for f in functions]]):
+        inputs_str = "\t".join(map(str, inputs))
+        outputs_str = "\t".join(map(str, outputs))
+        print(f"{inputs_str}\t|\t{outputs_str}")
+        
+        
+
 
 def get_layer_structure_from_canalized_outputs(can_outputs : list) -> list:
     """
@@ -262,6 +337,14 @@ class BooleanFunction(object):
             if depends_on_i == False:
                 return True
         return False
+    
+    def is_degenerated_numba(self) -> bool:
+        """
+        Determine if a Boolean function contains non-essential variables.
+        Numba-accelerated version.
+        """
+        f = np.asarray(self.f, dtype=np.uint8)
+        return _is_degenerated_numba(f, self.n)
 
     def get_essential_variables(self) -> list:
         """
@@ -405,6 +488,54 @@ class BooleanFunction(object):
             - float: The absolute bias of the Boolean function.
         """
         return abs(self.get_hamming_weight() * 1.0 / 2**(self.n - 1) - 1)
+
+
+    def get_activities(self, 
+                       nsim : int = 10000, 
+                       EXACT : bool = False, 
+                       *, 
+                       rng = None) -> np.array:
+        """
+        Compute the activities of all variables of a Boolean function.
+
+        This function can compute the activities  by exhaustively iterating
+        over all inputs (if EXACT is True) or estimate it via Monte Carlo sampling 
+        (if EXACT is False).
+
+        **Parameters:**
+            
+            - nsim (int, optional): Number of random samples (default is 10000,
+              used when EXACT is False).
+            
+            - EXACT (bool, optional): If True, compute the exact sensitivity by
+              iterating over all inputs; otherwise, use sampling (default).
+              
+            - rng (None, optional): Argument for the random number generator,
+              implemented in 'utils._coerce_rng'.
+
+        **Returns:**
+            
+            - np.array(float): The activities of the variables of the Boolean function.
+        """        
+        size_state_space = 2**self.n
+        activities = np.zeros(self.n,dtype=np.float64)
+        if EXACT:
+            # Compute all integer representations of inputs (0 .. 2^n - 1)
+            X = np.arange(size_state_space, dtype=np.uint32)
+        
+            # For each bit position i, flipping that bit corresponds to XOR with (1 << self.n-1-i)
+            for i in range(self.n):
+                flipped = X ^ (1 << self.n-1-i) 
+                activities[i] = np.count_nonzero(self.f != self.f[flipped])
+            return activities / size_state_space
+        else:
+            rng = utils._coerce_rng(rng)
+
+            random_states = rng.integers(0,size_state_space,nsim) #
+            for i in range(self.n):
+                flipped_random_states = random_states ^ (1 << self.n-1-i) 
+                activities[i] = np.count_nonzero(self.f[random_states] != self.f[flipped_random_states])
+            return activities / nsim
     
     
     def get_average_sensitivity(self, nsim : int = 10000, EXACT : bool = False,
@@ -437,62 +568,15 @@ class BooleanFunction(object):
             
             - float: The (normalized) average sensitivity of the Boolean function.
         """        
-        size_state_space = 2**self.n
-        s = 0
-        if EXACT:
-            # Compute all integer representations of inputs (0 .. 2^n - 1)
-            X = np.arange(size_state_space, dtype=np.uint32)
-        
-            # For each bit position i, flipping that bit corresponds to XOR with (1 << i)
-            for i in range(self.n):
-                flipped = X ^ (1 << i) #really this should be 1 << self.n-1-i but it's symmetric and faster as is
-                s += np.count_nonzero(self.f != self.f[flipped])
-        
-            if NORMALIZED:
-                return s / (size_state_space * self.n)
-            else:
-                return s / size_state_space
+        activities = self.get_activities(nsim,EXACT,rng=rng)
+        s = sum(activities)
+        if NORMALIZED:
+            return s / self.n
         else:
-            rng = utils._coerce_rng(rng)
-
-            for i in range(nsim):
-                xdec = rng.integers(size_state_space)
-                Y = utils.dec2bin(xdec, self.n)
-                index = rng.integers(self.n)
-                Y[index] = 1 - Y[index]
-                Ybin = utils.bin2dec(Y)
-                s += int(self.f[xdec] != self.f[Ybin])
-            if NORMALIZED:
-                return s / nsim
-            else:
-                return self.n * s / nsim
+            return s
     
-    
-    # def is_canalizing(self) -> bool:
-    #     """
-    #     Determine if a Boolean function is canalizing.
 
-    #     A Boolean function f(x_1, ..., x_n) is canalizing if there exists at
-    #     least one variable x_i and a value a ∈ {0, 1} such that f(x_1, ...,
-    #     x_i = a, ..., x_n) is constant.
-
-    #     **Returns:**
-            
-    #         - bool: True if f is canalizing, False otherwise.
-    #     """
-    #     desired_value = 2**(self.n - 1)
-    #     T = np.array(list(itertools.product([0, 1], repeat=self.n))).T
-    #     A = np.r_[T, 1 - T]
-    #     Atimesf = np.dot(A, self.f)
-    #     if np.any(Atimesf == desired_value):
-    #         return True
-    #     elif np.any(Atimesf == 0):
-    #         return True
-    #     else:
-    #         return False
-        
-    
-    def is_canalizing(self):
+    def is_canalizing(self) -> bool:
         """
         Determine if a Boolean function is canalizing.
 
