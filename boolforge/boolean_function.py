@@ -26,6 +26,83 @@ except ModuleNotFoundError:
     print("The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.")
     __LOADED_CANA__=False
     
+try:
+    from numba import njit
+    __LOADED_NUMBA__=True
+except ModuleNotFoundError:
+    print('The module numba cannot be found. Ensure it is installed to increase the run time of critical code in this toolbox.')
+    __LOADED_NUMBA__=False
+
+@njit
+def _is_degenerated_numba(f: np.ndarray, n: int) -> bool:
+    """
+    Numba-accelerated check for non-essential variables in a Boolean function.
+    """
+    N = 1 << n  # 2**n
+    for i in range(n):
+        stride = 1 << (n - 1 - i)
+        step = stride << 1  # 2 * stride
+        depends_on_i = False
+        # Iterate in blocks that differ only in bit i
+        for base in range(0, N, step):
+            for offset in range(stride):
+                if f[base + offset] != f[base + offset + stride]:
+                    depends_on_i = True
+                    break
+            if depends_on_i:
+                break
+        if not depends_on_i:
+            return True  # found non-essential variable
+    return False
+
+
+def display_truth_table(*functions: "BooleanFunction", labels = None):
+    """
+    Display the full truth table of a BooleanFunction in a formatted way.
+
+    Each row shows the input combination (x1, x2, ..., xn)
+    and the corresponding output(s) f(x).
+
+    Parameters
+    ----------
+    *funcs : BooleanFunction
+        One or more BooleanFunction objects.
+    labels : list[str], optional
+        Column labels for each function (defaults to f1, f2, ...).
+
+    Example:
+        >>> f = BooleanFunction("(x1 & ~x2) | x3")
+        >>> display_truth_table(f)
+    """
+    if not functions:
+        raise ValueError("Please provide at least one BooleanFunction.")
+    n = functions[0].n
+    if any(f.n != n for f in functions):
+        raise ValueError("All BooleanFunction objects must have the same number of variables.")
+    f = functions[0]
+    if isinstance(labels,str):
+        labels = [labels]
+    if labels is not None and len(labels)!=len(functions):
+        raise ValueError("The number of labels (if provided) must equal the number of functions.")
+        
+    if np.all([np.all(f.variables == g.variables) for g in functions]):
+        header = "\t".join([f.variables[i] for i in range(f.n)]) 
+    else:
+        header = "\t".join([f'x{i+1}' for i in range(f.n)]) 
+    if labels is None:
+        labels = [f"f{i}" for i in range(len(functions))]
+    header += '\t|\t' + '\t'.join(labels)
+    
+    print(header)
+    print("-" * len(header))
+
+    for inputs, outputs in zip(utils.get_left_side_of_truth_table(f.n), np.c_[*[f.f for f in functions]]):
+        inputs_str = "\t".join(map(str, inputs))
+        outputs_str = "\t".join(map(str, outputs))
+        print(f"{inputs_str}\t|\t{outputs_str}")
+        
+        
+
 
 def get_layer_structure_from_canalized_outputs(can_outputs : list) -> list:
     """
@@ -262,6 +339,14 @@ class BooleanFunction(object):
             if depends_on_i == False:
                 return True
         return False
+    
+    def is_degenerated_numba(self) -> bool:
+        """
+        Determine if a Boolean function contains non-essential variables.
+        Numba-accelerated version.
+        """
+        f = np.asarray(self.f, dtype=np.uint8)
+        return _is_degenerated_numba(f, self.n)
 
     def get_essential_variables(self) -> list:
         """

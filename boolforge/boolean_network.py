@@ -32,13 +32,53 @@ except ModuleNotFoundError:
 
 try:
     from numba import njit
+    from numba.typed import List
     __LOADED_NUMBA__=True
 except ModuleNotFoundError:
     print('The module numba cannot be found. Ensure it is installed to increase the run time of critical code in this toolbox.')
     __LOADED_NUMBA__=False
 
 
+def get_entropy_of_basin_size_distribution(basin_sizes):
+    """
+    Compute the Shannon entropy of the basin size distribution.
+
+    This function calculates the Shannon entropy of a probability distribution derived from the basin sizes.
+    First, the basin sizes are normalized to form a probability distribution, and then the entropy is computed
+    using the formula: H = - sum(p_i * log(p_i)), where p_i is the proportion of the basin size i.
+
+    Parameters:
+        basin_sizes (list or array-like): A list where each element represents the size of a basin,
+                                           i.e., the number of initial conditions that converge to a particular attractor.
+
+    Returns:
+        float: The Shannon entropy of the basin size distribution.
+    """
+    total = sum(basin_sizes)
+    probabilities = [size * 1.0 / total for size in basin_sizes]
+    return sum([-np.log(p) * p for p in probabilities])
+
 if __LOADED_NUMBA__:
+    @njit(fastmath=True) #can safely use fastmath because computations are integers only
+    def _update_network_synchronously_numba(x, F_array_list, I_array_list, N):
+        """
+        Compute one synchronous network update for a given binary state vector x.
+        Returns a new binary vector (uint8).
+        """
+        fx = np.empty(N, dtype=np.uint8)
+        for j in range(N):
+            regulators = I_array_list[j]
+            if regulators.shape[0] == 0:
+                fx[j] = F_array_list[j][0]
+            else:
+                n_reg = regulators.shape[0]
+                idx = 0
+                # convert substate bits → integer index
+                for k in range(n_reg):
+                    idx = (idx << 1) | x[regulators[k]]
+                fx[j] = F_array_list[j][idx]
+        return fx
+    
     @njit
     def _compute_synchronous_stg_numba(F_list, I_list, N_variables):
         """
@@ -124,6 +164,47 @@ if __LOADED_NUMBA__:
             next_indices[i] = val
     
         return next_indices
+
+    @njit(fastmath=True) #can safely use fastmath because computations are integers only
+    def _hamming_distance(a, b):
+        """Fast Hamming distance for uint8 arrays."""
+        dist = 0
+        for i in range(a.size):
+            dist += a[i] != b[i]
+        return dist
+    
+    
+    @njit(fastmath=True) #can safely use fastmath because computations are integers only
+    def _derrida_simulation(F_array_list, I_array_list, N, nsim, seed):
+        """
+        Monte Carlo loop for Derrida value, using Numba-compatible RNG.
+        """
+        # Numba RNG: seed once
+        np.random.seed(seed)
+        total_dist = 0.0
+    
+        X = np.empty(N, dtype=np.uint8)
+        Y = np.empty(N, dtype=np.uint8)
+    
+        for _ in range(nsim):
+            # Random initial state
+            for i in range(N):
+                X[i] = np.random.randint(0, 2)
+            Y[:] = X
+    
+            # Flip one random bit
+            idx = np.random.randint(0, N)
+            Y[idx] = 1 - Y[idx]
+    
+            # Synchronous updates
+            FX = _update_network_synchronously_numba(X, F_array_list, I_array_list, N)
+            FY = _update_network_synchronously_numba(Y, F_array_list, I_array_list, N)
+    
+            total_dist += _hamming_distance(FX, FY)
+    
+        return total_dist / nsim
+    
+    
 
 class WiringDiagram(object):
     """
@@ -811,7 +892,7 @@ class BooleanNetwork(WiringDiagram):
             self.indegrees[i] = len(essential_variables)
 
 
-    def get_source_nodes(self, AS_DICT : bool = True) -> Union[dict, np.array]:
+    def get_source_nodes(self, AS_DICT : bool = False) -> Union[dict, np.array]:
         """
         Identify source nodes in a Boolean network.
         
@@ -822,7 +903,7 @@ class BooleanNetwork(WiringDiagram):
         
             - AS_DICT (bool, optional): Whether to return the indices of source nodes
               as a dictionary or array. If true, returns as a dictionary. Defaults
-              to True.
+              to False.
         
         **Returns:**
         
@@ -1332,231 +1413,321 @@ class BooleanNetwork(WiringDiagram):
                         (steady_states, len(steady_states), basin_sizes, transient_times, STG_async, queues)))
 
 
-
-    def get_attractors_synchronous(
-        self,
-        nsim: int = 500,
-        initial_sample_points: list = [],
-        n_steps_timeout: int = 1000,
-        INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS: bool = True,
-        *,
-        rng=None
-    ) -> dict:
-        """
-        Vectorized and optimized computation of synchronous attractors.
-        Identical outputs but runs 10–100× faster for large networks.
-        """
-        rng = utils._coerce_rng(rng)
-        dictF = {}               # memorized transitions
-        attractors = []          # list of attractor cycles
-        basin_sizes = []         # basin counts
-        attr_dict = {}           # map: state -> attractor index
-        STG = {}                 # sampled state transitions
-        n_timeout = 0
-        sampled_points = []
+    if __LOADED_NUMBA__:
+        def get_attractors_synchronous(self,
+            nsim: int = 500,
+            initial_sample_points: list = [],
+            n_steps_timeout: int = 1000,
+            INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS: bool = False,
+            *,
+            rng=None
+        ) -> dict:
+            """
+            Compute the number of attractors in a Boolean network.
     
-        INITIAL_SAMPLE_POINTS_EMPTY = utils.check_if_empty(initial_sample_points)
-        if not INITIAL_SAMPLE_POINTS_EMPTY:
-            nsim = len(initial_sample_points)
-    
-        # Main simulation loop
-        for sim_idx in range(nsim):
-            # --- Initial state setup
-            if INITIAL_SAMPLE_POINTS_EMPTY:
-                x = rng.integers(2, size=self.N, dtype=np.uint8)
-                xdec = utils.bin2dec(x)
-                sampled_points.append(xdec)
-            else:
-                if INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS:
-                    x = np.asarray(initial_sample_points[sim_idx], dtype=np.uint8)
-                    xdec = utils.bin2dec(x)
-                else:
-                    xdec = int(initial_sample_points[sim_idx])
-                    x = np.array(utils.dec2bin(xdec, self.N), dtype=np.uint8)
-    
-            visited = {xdec: 0}  # maps state→position in trajectory
-            trajectory = [xdec]
-            count = 0
-    
-            # --- Iterate until attractor or timeout
-            while count < n_steps_timeout:
-                if xdec in dictF:
-                    fxdec = dictF[xdec]
-                else:
-                    # use vectorized network update
-                    fx = self.update_network_synchronously(x)
-                    fxdec = utils.bin2dec(fx)
-                    dictF[xdec] = fxdec
-                    x = fx
-    
-                if count == 0:
-                    STG[xdec] = fxdec
-    
-                # already mapped to attractor?
-                if fxdec in attr_dict:
-                    idx_attr = attr_dict[fxdec]
-                    basin_sizes[idx_attr] += 1
-                    for s in trajectory:
-                        attr_dict[s] = idx_attr
-                    break
-    
-                # cycle found in trajectory → new attractor
-                if fxdec in visited:
-                    cycle_start = visited[fxdec]
-                    attractor_states = trajectory[cycle_start:]
-                    attractors.append(attractor_states)
-                    basin_sizes.append(1)
-                    idx_attr = len(attractors) - 1
-                    for s in attractor_states:
-                        attr_dict[s] = idx_attr
-                    break
-    
-                # continue traversal
-                visited[fxdec] = len(trajectory)
-                trajectory.append(fxdec)
-                xdec = fxdec
-                count += 1
-    
-                if count == n_steps_timeout:
-                    n_timeout += 1
-                    break
-    
-        return {
-            "Attractors": attractors,
-            "NumberOfAttractors": len(attractors),
-            "BasinSizes": basin_sizes,
-            "AttractorDict": attr_dict,
-            "InitialSamplePoints": sampled_points if INITIAL_SAMPLE_POINTS_EMPTY else initial_sample_points,
-            "STG": STG,
-            "NumberOfTimeouts": n_timeout,
-        }
-
-    def get_attractors_synchronous_old(self, nsim : int = 500,
-        initial_sample_points : list = [], n_steps_timeout : int = 1000,
-        INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS : bool = True, *, rng=None) -> dict:
-        """
-        Compute the number of attractors in a Boolean network using an
-        alternative (v2) approach.
-
-        This version is optimized for networks with longer average path
-        lengths. For each of nb initial conditions, the network is updated
-        synchronously until an attractor is reached or until n_steps_timeout
-        is exceeded. The function returns the attractors found, their basin
-        sizes, a mapping of states to attractors, the set of initial sample
-        points used, the explored state space, and the number of simulations
-        that timed out.
-
-        **Parameters:**
+            This version is optimized for networks with longer average path
+            lengths. For each of nb initial conditions, the network is updated
+            synchronously until an attractor is reached or until n_steps_timeout
+            is exceeded. The function returns the attractors found, their basin
+            sizes, a mapping of states to attractors, the set of initial sample
+            points used, the explored state space, and the number of simulations
+            that timed out.
             
-            - nsim (int, optional): Number of initial conditions to simulate
-              (default is 500). Ignored if 'initial_sample_points' are provided.
-              
-            - initial_sample_points (list[int | list[int]], optional): List of
-              initial states (in decimal) to use.
-              
-            - n_steps_timeout (int, optional): Maximum number of update steps
-              allowed per simulation (default 1000).
-              
-            - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If
-              True, initial_sample_points are provided as binary vectors; if
-              False, they are given as decimal numbers. Default is True.
-              
-            - rng (None, optional): Argument for the random number generator,
-              implemented in 'utils._coerce_rng'.
-
-        **Returns:**
-            
-            - dict[str:Variant]: A dictionary containing:
+            Hybrid Numba-accelerated version:
+            - Python logic for bookkeeping (dicts, cycles, basins)
+            - Compiled numeric kernel for Boolean updates
+    
+            **Parameters:**
                 
-                - Attractors (list[list[int]]): List of attractors (each as a
-                  list of states in the attractor cycle).
+                - nsim (int, optional): Number of initial conditions to simulate
+                  (default is 500). Ignored if 'initial_sample_points' are provided.
+                  
+                - initial_sample_points (list[int | list[int]], optional): List of
+                  initial states to use. 'INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS'
+                  specifies whether these points are given as vectors or decimals.
+                  
+                - n_steps_timeout (int, optional): Maximum number of update steps
+                  allowed per simulation (default 1000).
+                  
+                - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If
+                  True, initial_sample_points are provided as binary vectors; if
+                  False, they are given as decimal numbers. Default is False.
+                  
+                - rng (None, optional): Argument for the random number generator,
+                  implemented in 'utils._coerce_rng'.
+    
+            **Returns:**
                 
-                - NumberOfAttractors (int): Total number of unique attractors
-                  found. This is a lower bound.
-                  
-                - BasinSizes (list[int]): List of counts for each attractor.
-                  This is an unbiased estimator.
-                  
-                - AttractorDict (dict[int:int]): Dictionary mapping states
-                  (in decimal) to the index of their attractor.
-                  
-                - InitialSamplePoints (list[int]): The initial sample points
-                  used (if provided, they are returned; otherwise, the 'nsim'
-                  generated points are returned).
-                  
-                - STG (dict[int:int]):
-                  A sample of the state transition graph as dictionary, with 
-                  each state represented by its decimal representation.
-                  
-                - NumberOfTimeouts (int): Number of simulations that timed out
-                  before reaching an attractor. Increase 'n_steps_timeout' to 
-                  reduce this number.
-        """
-        rng = utils._coerce_rng(rng)
-        dictF = {}
-        attractors = []
-        basin_sizes = []
-        attr_dict = {}
-        STG = {}
-        n_timeout = 0
+                - dict[str:Variant]: A dictionary containing:
+                    
+                    - Attractors (list[list[int]]): List of attractors (each as a
+                      list of states in the attractor cycle).
+                    
+                    - NumberOfAttractors (int): Total number of unique attractors
+                      found. This is a lower bound.
+                      
+                    - BasinSizes (list[int]): List of counts for each attractor.
+                      This is an unbiased estimator.
+                      
+                    - AttractorDict (dict[int:int]): Dictionary mapping states
+                      (in decimal) to the index of their attractor.
+                      
+                    - InitialSamplePoints (list[int]): The initial sample points
+                      used (if provided, they are returned; otherwise, the 'nsim'
+                      generated points are returned).
+                      
+                    - STG (dict[int:int]):
+                      A sample of the state transition graph as dictionary, with 
+                      each state represented by its decimal representation.
+                      
+                    - NumberOfTimeouts (int): Number of simulations that timed out
+                      before reaching an attractor. Increase 'n_steps_timeout' to 
+                      reduce this number.
+            """
+            rng = utils._coerce_rng(rng)
+            dictF = {}
+            attractors = []
+            basin_sizes = []
+            attr_dict = {}
+            STG = {}
+            n_timeout = 0
+            sampled_points = []
         
-        sampled_points = []        
-        INITIAL_SAMPLE_POINTS_EMPTY = utils.check_if_empty(initial_sample_points)
-        if not INITIAL_SAMPLE_POINTS_EMPTY:
-            nsim = len(initial_sample_points)
+            INITIAL_SAMPLE_POINTS_EMPTY = utils.check_if_empty(initial_sample_points)
+            if not INITIAL_SAMPLE_POINTS_EMPTY:
+                nsim = len(initial_sample_points)
         
-        for i in range(nsim):
-            if INITIAL_SAMPLE_POINTS_EMPTY:
-                x = rng.integers(2, size=self.N, dtype=np.uint8)
-                xdec = utils.bin2dec(x)
-                sampled_points.append(xdec)
-            else:
-                if INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS:
-                    x = np.asarray(initial_sample_points[i], dtype=np.uint8)
+            # --- Prepare numba-friendly lookup tables
+            F_array_list = List([np.array(bf.f, dtype=np.uint8) for bf in self.F])
+            I_array_list = List([np.array(regs, dtype=np.int64) for regs in self.I])
+            N = self.N_variables
+        
+            # --- Simulation loop
+            for sim_idx in range(nsim):
+                # Initialize state
+                if INITIAL_SAMPLE_POINTS_EMPTY:
+                    x = rng.integers(2, size=N, dtype=np.uint8)
                     xdec = utils.bin2dec(x)
+                    sampled_points.append(xdec)
                 else:
-                    xdec = initial_sample_points[i]
-                    x = np.array(utils.dec2bin(xdec, self.N), dtype=np.uint8)
-            queue = [xdec]
-            visited = {xdec: 0}  # maps state→position in trajectory
-            
-            count = 0
-            while count < n_steps_timeout:
-                if xdec in dictF:
-                    fxdec = dictF[xdec]
+                    if INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS:
+                        x = np.asarray(initial_sample_points[sim_idx], dtype=np.uint8)
+                        xdec = utils.bin2dec(x)
+                    else:
+                        xdec = int(initial_sample_points[sim_idx])
+                        x = np.array(utils.dec2bin(xdec, N), dtype=np.uint8)
+        
+                visited = {xdec: 0}
+                trajectory = [xdec]
+                count = 0
+        
+                # Iterate until attractor or timeout
+                while count < n_steps_timeout:
+                    if xdec in dictF:
+                        fxdec = dictF[xdec]
+                    else:
+                        fx = _update_network_synchronously_numba(x, F_array_list, I_array_list, N)
+                        fxdec = utils.bin2dec(fx)
+                        dictF[xdec] = fxdec
+                        x = fx
+        
+                    if count == 0:
+                        STG[xdec] = fxdec
+        
+                    # Already mapped to attractor
+                    if fxdec in attr_dict:
+                        idx_attr = attr_dict[fxdec]
+                        basin_sizes[idx_attr] += 1
+                        for s in trajectory:
+                            attr_dict[s] = idx_attr
+                        break
+        
+                    # New attractor detected
+                    if fxdec in visited:
+                        cycle_start = visited[fxdec]
+                        attractor_states = trajectory[cycle_start:]
+                        attractors.append(attractor_states)
+                        basin_sizes.append(1)
+                        idx_attr = len(attractors) - 1
+                        for s in attractor_states:
+                            attr_dict[s] = idx_attr
+                        break
+        
+                    # Continue traversal
+                    visited[fxdec] = len(trajectory)
+                    trajectory.append(fxdec)
+                    xdec = fxdec
+                    count += 1
+        
+                    if count == n_steps_timeout:
+                        n_timeout += 1
+                        break
+        
+            return {
+                "Attractors": attractors,
+                "NumberOfAttractors": len(attractors),
+                "BasinSizes": basin_sizes,
+                "AttractorDict": attr_dict,
+                "InitialSamplePoints": (
+                    sampled_points if INITIAL_SAMPLE_POINTS_EMPTY else initial_sample_points
+                ),
+                "STG": STG,
+                "NumberOfTimeouts": n_timeout,
+            }
+    
+    else:
+        def get_attractors_synchronous(
+            self,
+            nsim: int = 500,
+            initial_sample_points: list = [],
+            n_steps_timeout: int = 1000,
+            INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS: bool = False,
+            *,
+            rng=None
+        ) -> dict:
+            """
+            Compute the number of attractors in a Boolean network.
+    
+            This version is optimized for networks with longer average path
+            lengths. For each of nb initial conditions, the network is updated
+            synchronously until an attractor is reached or until n_steps_timeout
+            is exceeded. The function returns the attractors found, their basin
+            sizes, a mapping of states to attractors, the set of initial sample
+            points used, the explored state space, and the number of simulations
+            that timed out.
+    
+            **Parameters:**
+                
+                - nsim (int, optional): Number of initial conditions to simulate
+                  (default is 500). Ignored if 'initial_sample_points' are provided.
+                  
+                - initial_sample_points (list[int | list[int]], optional): List of
+                  initial states to use. 'INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS'
+                  specifies whether these points are given as vectors or decimals.
+                  
+                - n_steps_timeout (int, optional): Maximum number of update steps
+                  allowed per simulation (default 1000).
+                  
+                - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If
+                  True, initial_sample_points are provided as binary vectors; if
+                  False, they are given as decimal numbers. Default is False.
+                  
+                - rng (None, optional): Argument for the random number generator,
+                  implemented in 'utils._coerce_rng'.
+    
+            **Returns:**
+                
+                - dict[str:Variant]: A dictionary containing:
+                    
+                    - Attractors (list[list[int]]): List of attractors (each as a
+                      list of states in the attractor cycle).
+                    
+                    - NumberOfAttractors (int): Total number of unique attractors
+                      found. This is a lower bound.
+                      
+                    - BasinSizes (list[int]): List of counts for each attractor.
+                      This is an unbiased estimator.
+                      
+                    - AttractorDict (dict[int:int]): Dictionary mapping states
+                      (in decimal) to the index of their attractor.
+                      
+                    - InitialSamplePoints (list[int]): The initial sample points
+                      used (if provided, they are returned; otherwise, the 'nsim'
+                      generated points are returned).
+                      
+                    - STG (dict[int:int]):
+                      A sample of the state transition graph as dictionary, with 
+                      each state represented by its decimal representation.
+                      
+                    - NumberOfTimeouts (int): Number of simulations that timed out
+                      before reaching an attractor. Increase 'n_steps_timeout' to 
+                      reduce this number.
+            """
+            rng = utils._coerce_rng(rng)
+            dictF = {}               # memorized transitions
+            attractors = []          # list of attractor cycles
+            basin_sizes = []         # basin counts
+            attr_dict = {}           # map: state -> attractor index
+            STG = {}                 # sampled state transitions
+            n_timeout = 0
+            sampled_points = []
+        
+            INITIAL_SAMPLE_POINTS_EMPTY = utils.check_if_empty(initial_sample_points)
+            if not INITIAL_SAMPLE_POINTS_EMPTY:
+                nsim = len(initial_sample_points)
+        
+            # Main simulation loop
+            for sim_idx in range(nsim):
+                # --- Initial state setup
+                if INITIAL_SAMPLE_POINTS_EMPTY:
+                    x = rng.integers(2, size=self.N, dtype=np.uint8)
+                    xdec = utils.bin2dec(x)
+                    sampled_points.append(xdec)
                 else:
-                    fx = self.update_network_synchronously(x)
-                    fxdec = utils.bin2dec(fx)
-                    dictF[xdec] = fxdec
-                    x = fx
-                if count == 0:
-                    STG[xdec] = fxdec
-                if fxdec in attr_dict: # already mapped to attractor?
-                    index_attr = attr_dict[fxdec]
-                    basin_sizes[index_attr] += 1
-                    for state in queue:
-                        attr_dict[state] = index_attr
-                    break
-                if fxdec in visited: # cycle found in trajectory → new attractor
-                    cycle_start = visited[fxdec]
-                    attractor_states = queue[cycle_start:]
-                    basin_sizes.append(1)
-                    index_attr = len(attractors)
-                    attractors.append(attractor_states)
-                    for state in queue:
-                        attr_dict[state] = index_attr
-                    break
-                queue.append(fxdec)
-                visited[fxdec] = len(queue)
-                xdec = fxdec
-                count += 1
-                if count == n_steps_timeout:
-                    n_timeout += 1
-                    break
-        return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "InitialSamplePoints", "STG", "NumberOfTimeouts"],
-                        (attractors, len(attractors), basin_sizes, attr_dict,
-                sampled_points if INITIAL_SAMPLE_POINTS_EMPTY else initial_sample_points,
-                STG, n_timeout)))
+                    if INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS:
+                        x = np.asarray(initial_sample_points[sim_idx], dtype=np.uint8)
+                        xdec = utils.bin2dec(x)
+                    else:
+                        xdec = int(initial_sample_points[sim_idx])
+                        x = np.array(utils.dec2bin(xdec, self.N), dtype=np.uint8)
+        
+                visited = {xdec: 0}  # maps state→position in trajectory
+                trajectory = [xdec]
+                count = 0
+        
+                # --- Iterate until attractor or timeout
+                while count < n_steps_timeout:
+                    if xdec in dictF:
+                        fxdec = dictF[xdec]
+                    else:
+                        # use vectorized network update
+                        fx = self.update_network_synchronously(x)
+                        fxdec = utils.bin2dec(fx)
+                        dictF[xdec] = fxdec
+                        x = fx
+        
+                    if count == 0:
+                        STG[xdec] = fxdec
+        
+                    # already mapped to attractor?
+                    if fxdec in attr_dict:
+                        idx_attr = attr_dict[fxdec]
+                        basin_sizes[idx_attr] += 1
+                        for s in trajectory:
+                            attr_dict[s] = idx_attr
+                        break
+        
+                    # cycle found in trajectory → new attractor
+                    if fxdec in visited:
+                        cycle_start = visited[fxdec]
+                        attractor_states = trajectory[cycle_start:]
+                        attractors.append(attractor_states)
+                        basin_sizes.append(1)
+                        idx_attr = len(attractors) - 1
+                        for s in attractor_states:
+                            attr_dict[s] = idx_attr
+                        break
+        
+                    # continue traversal
+                    visited[fxdec] = len(trajectory)
+                    trajectory.append(fxdec)
+                    xdec = fxdec
+                    count += 1
+        
+                    if count == n_steps_timeout:
+                        n_timeout += 1
+                        break
+        
+            return {
+                "Attractors": attractors,
+                "NumberOfAttractors": len(attractors),
+                "BasinSizes": basin_sizes,
+                "AttractorDict": attr_dict,
+                "InitialSamplePoints": sampled_points if INITIAL_SAMPLE_POINTS_EMPTY else initial_sample_points,
+                "STG": STG,
+                "NumberOfTimeouts": n_timeout,
+            }
+
 
 
     if __LOADED_NUMBA__:
@@ -1681,8 +1852,7 @@ class BooleanNetwork(WiringDiagram):
 
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
-    def get_derrida_value(self, nsim : int = 1000, EXACT : bool = False,
-        *, rng = None) -> float:
+    def get_derrida_value(self, nsim : int = 1000, EXACT : bool = False,*, rng = None) -> float:
         """
         Estimate the Derrida value for a Boolean network.
 
@@ -1713,19 +1883,21 @@ class BooleanNetwork(WiringDiagram):
                a simple annealed approximation. Europhysics letters, 1(2), 45.
         """
         if EXACT:
-            return np.mean([bf.get_average_sensitivity(EXACT=True,NORMALIZED=False) for bf in self.F])
+            return np.mean([
+                bf.get_average_sensitivity(EXACT=True, NORMALIZED=False) for bf in self.F
+            ])
         else:
+            
+            # --- Numba-friendly preparation
+            F_array_list = List([np.array(bf.f, dtype=np.uint8) for bf in self.F])
+            I_array_list = List([np.array(regs, dtype=np.int64) for regs in self.I])
+            N = self.N_variables if hasattr(self, "N_variables") else self.N
+        
+            # Derive reproducible seed from rng
             rng = utils._coerce_rng(rng)
-            hamming_distances = []
-            for i in range(nsim):
-                X = rng.integers(2, size = self.N)
-                Y = X.copy()
-                index = rng.integers(self.N)
-                Y[index] = 1 - Y[index]
-                FX = self.update_network_synchronously(X)
-                FY = self.update_network_synchronously(Y)
-                hamming_distances.append(sum(FX != FY))
-            return np.mean(hamming_distances)
+            seed = int(rng.integers(19891989))
+        
+            return _derrida_simulation(F_array_list, I_array_list, N, nsim, seed)
 
 
     def get_attractors_and_robustness_measures_synchronous_exact(self) -> dict:
@@ -1772,99 +1944,109 @@ class BooleanNetwork(WiringDiagram):
                arXiv preprint arXiv:xxx.xxx.
         """
         left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
-
+    
         result = self.get_attractors_synchronous_exact()
-        attractors, n_attractors, basin_sizes, attractor_dict = result["Attractors"], result["NumberOfAttractors"], result["BasinSizes"], result["AttractorDict"]
-        len_attractors = list(map(len,attractors))
-        
+        attractors = result["Attractors"]
+        n_attractors = result["NumberOfAttractors"]
+        basin_sizes = np.array(result["BasinSizes"], dtype=np.int64)
+        attractor_dict = result["AttractorDict"]
+    
+        len_attractors = np.array([len(a) for a in attractors], dtype=np.int64)
+    
+        # --- Single-attractor shortcut
         if n_attractors == 1:
-            return dict(zip(["Attractors", "ExactNumberOfAttractors", "BasinSizes",
-                             "AttractorDict", "BasinCoherence", "BasinFragility",
-                             "AttractorCoherence", "AttractorFragility", "Coherence", "Fragility"],
-                (attractors, n_attractors, np.array(basin_sizes)/2**self.N,
-                 attractor_dict, np.ones(1), np.zeros(1), np.ones(1), np.zeros(1), 1, 0)))
-        
+            return dict(zip(
+                ["Attractors", "ExactNumberOfAttractors", "BasinSizes",
+                 "AttractorDict", "BasinCoherence", "BasinFragility",
+                 "AttractorCoherence", "AttractorFragility", "Coherence", "Fragility"],
+                (attractors, n_attractors, basin_sizes / 2 ** self.N,
+                 attractor_dict, np.ones(1), np.zeros(1),
+                 np.ones(1), np.zeros(1), 1.0, 0.0)
+            ))
+    
+        # -------------------------------------------------------------------------
+        # 1. Convert attractor_dict -> numeric array for O(1) lookup
+        # -------------------------------------------------------------------------
+        attractor_idx = np.full(2 ** self.N, -1, dtype=np.int32)
+        for k, v in attractor_dict.items():
+            attractor_idx[k] = v
+    
+        # 2. Compute mean binary vector for each attractor (needed for fragility computation)
         mean_states_attractors = []
-        is_attr_dict = dict()
-        for i in range(n_attractors):
-            if len_attractors[i] == 1:
-                mean_states_attractors.append(np.array(utils.dec2bin(attractors[i][0], self.N)))
+        is_attr_mask = np.zeros(2 ** self.N, dtype=bool)
+        for i, states in enumerate(attractors):
+            if len(states) == 1:
+                mean_states_attractors.append(np.array(utils.dec2bin(states[0], self.N), dtype=float))
             else:
-                states_attractors = np.array([utils.dec2bin(state, self.N) for state in attractors[i]])
-                mean_states_attractors.append(states_attractors.mean(0))
-            for state in attractors[i]:
-                is_attr_dict.update({state:i})
-            
-        distance_between_attractors = np.zeros((n_attractors,n_attractors),dtype=int)
-        for i in range(n_attractors):
-            for j in range(i+1,n_attractors):
-                distance_between_attractors[i,j] = np.sum(np.abs(mean_states_attractors[i] - mean_states_attractors[j]))
-                distance_between_attractors[j,i] = distance_between_attractors[i,j]
-        distance_between_attractors = distance_between_attractors/self.N
-        
+                arr = np.array([utils.dec2bin(s, self.N) for s in states], dtype=float)
+                mean_states_attractors.append(arr.mean(axis=0))
+            is_attr_mask[states] = True
+        mean_states_attractors = np.stack(mean_states_attractors)
+    
+        # 3. Distance matrix between attractors (vectorized)
+        diff = mean_states_attractors[:, None, :] - mean_states_attractors[None, :, :]
+        distance_between_attractors = np.sum(np.abs(diff), axis=2) / self.N
+    
+        # -------------------------------------------------------------------------
+        # 4. Edge traversal (same logic, now with array lookups)
+        # -------------------------------------------------------------------------
+        n_attractors = len(attractors)
         basin_coherences = np.zeros(n_attractors)
         basin_fragilities = np.zeros(n_attractors)
         attractor_coherences = np.zeros(n_attractors)
         attractor_fragilities = np.zeros(n_attractors)
-        
-        powers_of_2 = np.array([2**i for i in range(self.N)])[::-1]
-        for xdec, x in enumerate(left_side_of_truth_table): #iterate over each edge of the n-dim Hypercube once
+    
+        powers_of_2 = (2 ** np.arange(self.N))[::-1]
+    
+        for xdec, x in enumerate(left_side_of_truth_table):
             for i in range(self.N):
-                if x[i] == 0:
-                    ydec = xdec + powers_of_2[i]
-                else: #to ensure we are not double-counting each edge
-                    continue
-                index_attr_x = attractor_dict[xdec]
-                index_attr_y = attractor_dict[ydec]
-                if index_attr_x == index_attr_y:
-                    basin_coherences[index_attr_x] += 1
-                    basin_coherences[index_attr_y] += 1
-                    try:
-                        is_attr_dict[xdec]
-                        attractor_coherences[index_attr_x] += 1
-                    except KeyError:
-                        pass
-                    try:
-                        is_attr_dict[ydec]
-                        attractor_coherences[index_attr_y] += 1
-                    except KeyError:
-                        pass
+                if x[i] == 1:
+                    continue  # skip to avoid double-counting
+                ydec = xdec + powers_of_2[i]
+    
+                idx_x = attractor_idx[xdec]
+                idx_y = attractor_idx[ydec]
+    
+                if idx_x == idx_y:
+                    basin_coherences[idx_x] += 2  # count both directions
+                    if is_attr_mask[xdec]:
+                        attractor_coherences[idx_x] += 1
+                    if is_attr_mask[ydec]:
+                        attractor_coherences[idx_y] += 1
                 else:
-                    normalized_Hamming_distance = distance_between_attractors[index_attr_x,index_attr_y]
-                    basin_fragilities[index_attr_x] += normalized_Hamming_distance
-                    basin_fragilities[index_attr_y] += normalized_Hamming_distance
-                    try:
-                        is_attr_dict[xdec]
-                        attractor_fragilities[index_attr_x] += normalized_Hamming_distance
-                    except KeyError:
-                        pass
-                    try:
-                        is_attr_dict[ydec]
-                        attractor_fragilities[index_attr_y] += normalized_Hamming_distance
-                    except KeyError:
-                        pass
-                    
-        #normalizations
-        for i,(basin_size,length_attractor) in enumerate(zip(basin_sizes,len_attractors)):
-            basin_coherences[i] = basin_coherences[i] / basin_size / self.N
-            basin_fragilities[i] = basin_fragilities[i] / basin_size / self.N
-            attractor_coherences[i] = attractor_coherences[i] / length_attractor / self.N
-            attractor_fragilities[i] = attractor_fragilities[i] / length_attractor / self.N
-        basin_sizes = np.array(basin_sizes)/2**self.N
-        
-        coherence = np.dot(basin_sizes,basin_coherences)
-        fragility = np.dot(basin_sizes,basin_fragilities)
-        
-        return dict(zip(["Attractors", "ExactNumberOfAttractors", 
-                         "BasinSizes","AttractorDict",
-                         "Coherence", "Fragility",
-                         "BasinCoherence", "BasinFragility",
-                         "AttractorCoherence", "AttractorFragility"],
-                    (attractors, n_attractors, 
-                     basin_sizes, attractor_dict,
-                     coherence,fragility,
-                     basin_coherences, basin_fragilities,
-                     attractor_coherences, attractor_fragilities)))
+                    dxy = distance_between_attractors[idx_x, idx_y]
+                    basin_fragilities[idx_x] += dxy
+                    basin_fragilities[idx_y] += dxy
+                    if is_attr_mask[xdec]:
+                        attractor_fragilities[idx_x] += dxy
+                    if is_attr_mask[ydec]:
+                        attractor_fragilities[idx_y] += dxy
+    
+        # -------------------------------------------------------------------------
+        # 5. Normalize
+        # -------------------------------------------------------------------------
+        for i, (basin_size, length_attractor) in enumerate(zip(basin_sizes, len_attractors)):
+            basin_coherences[i] /= basin_size * self.N
+            basin_fragilities[i] /= basin_size * self.N
+            attractor_coherences[i] /= length_attractor * self.N
+            attractor_fragilities[i] /= length_attractor * self.N
+    
+        basin_sizes_norm = basin_sizes / (2 ** self.N)
+        coherence = np.dot(basin_sizes_norm, basin_coherences)
+        fragility = np.dot(basin_sizes_norm, basin_fragilities)
+    
+        return dict(zip(
+            ["Attractors", "ExactNumberOfAttractors",
+             "BasinSizes", "AttractorDict",
+             "Coherence", "Fragility",
+             "BasinCoherence", "BasinFragility",
+             "AttractorCoherence", "AttractorFragility"],
+            (attractors, n_attractors,
+             basin_sizes_norm, attractor_dict,
+             coherence, fragility,
+             basin_coherences, basin_fragilities,
+             attractor_coherences, attractor_fragilities)
+        ))
 
 
     def get_attractors_and_robustness_measures_synchronous(self, number_different_IC : int = 500,
@@ -2197,7 +2379,100 @@ class BooleanNetwork(WiringDiagram):
                              "BasinCoherenceApproximation", "BasinFragilityApproximation",
                              "AttractorCoherence", "AttractorFragility"],
                             tuple(results + [attractor_coherence,attractor_fragility])))
-        
+
+    # def get_attractors_and_robustness_measures_synchronous_vectorized(
+    #     self, number_different_IC: int = 500,
+    #     RETURN_ATTRACTOR_COHERENCE: bool = True,
+    #     *, rng=None
+    # ) -> dict:
+    #     """
+    #     Vectorized approximation of attractors, coherence, and fragility.
+    #     10–30× faster than the dict-based version, identical outputs statistically.
+    #     """
+    #     rng = utils._coerce_rng(rng)
+    #     N = self.N
+    #     powers_of_2 = 2 ** np.arange(N)[::-1]
+    
+    #     # --- 1. Sample random initial conditions and their one-bit flips
+    #     X0 = rng.integers(0, 2, size=(number_different_IC, N), dtype=np.uint8)
+    #     flip_indices = rng.integers(0, N, size=number_different_IC)
+    #     X1 = X0.copy()
+    #     X1[np.arange(number_different_IC), flip_indices] ^= 1  # bit-flip
+    
+    #     # --- 2. Compute next states for all X0 and X1 in vectorized batches
+    #     FX0 = np.zeros_like(X0)
+    #     FX1 = np.zeros_like(X1)
+    #     powers_cache = {deg: 2 ** np.arange(deg)[::-1] for deg in range(max(self.indegrees) + 1)}
+    
+    #     for j, bf in enumerate(self.F):
+    #         regs = self.I[j]
+    #         deg = len(regs)
+    #         if deg == 0:
+    #             FX0[:, j] = bf.f[0]
+    #             FX1[:, j] = bf.f[0]
+    #         else:
+    #             idx0 = np.dot(X0[:, regs], powers_cache[deg])
+    #             idx1 = np.dot(X1[:, regs], powers_cache[deg])
+    #             FX0[:, j] = bf.f[idx0]
+    #             FX1[:, j] = bf.f[idx1]
+    
+    #     # --- 3. Compute Hamming distances between updated pairs
+    #     diff = np.abs(FX0 != FX1)
+    #     hamming = diff.sum(axis=1)
+    #     mean_hamming = hamming.mean() / N
+    
+    #     # --- 4. Estimate coherence and fragility
+    #     coherence_approx = np.mean(hamming == 0)
+    #     fragility_approx = np.mean(hamming > 0) * mean_hamming
+    
+    #     # --- 5. Optionally estimate attractor coherence/fragility (via FX0 only)
+    #     if RETURN_ATTRACTOR_COHERENCE:
+    #         # Treat each unique FX0 state as an attractor representative
+    #         uniq, inv = np.unique(FX0, axis=0, return_inverse=True)
+    #         n_attr = len(uniq)
+    #         basin_sizes = np.bincount(inv) / number_different_IC
+    
+    #         # Compute average internal coherence within each basin
+    #         basin_coherence = np.zeros(n_attr)
+    #         basin_fragility = np.zeros(n_attr)
+    #         for k in range(n_attr):
+    #             members = FX0[inv == k]
+    #             if len(members) > 1:
+    #                 dmat = np.sum(np.abs(members[:, None, :] - members[None, :, :]), axis=2) / N
+    #                 basin_fragility[k] = dmat.mean()
+    #                 basin_coherence[k] = np.mean(dmat == 0)
+    #             else:
+    #                 basin_coherence[k] = 1.0
+    #                 basin_fragility[k] = 0.0
+    
+    #         attractor_coherence = basin_coherence.copy()
+    #         attractor_fragility = basin_fragility.copy()
+    
+    #         return dict(
+    #             Attractors=[np.dot(a, powers_of_2).astype(int).tolist() for a in uniq],
+    #             LowerBoundOfNumberOfAttractors=n_attr,
+    #             BasinSizesApproximation=basin_sizes,
+    #             CoherenceApproximation=coherence_approx,
+    #             FragilityApproximation=fragility_approx,
+    #             FinalHammingDistanceApproximation=mean_hamming,
+    #             BasinCoherenceApproximation=basin_coherence,
+    #             BasinFragilityApproximation=basin_fragility,
+    #             AttractorCoherence=attractor_coherence,
+    #             AttractorFragility=attractor_fragility,
+    #         )
+    
+    #     else:
+    #         uniq, inv = np.unique(FX0, axis=0, return_inverse=True)
+    #         n_attr = len(uniq)
+    #         basin_sizes = np.bincount(inv) / number_different_IC
+    #         return dict(
+    #             Attractors=[np.dot(a, powers_of_2).astype(int).tolist() for a in uniq],
+    #             LowerBoundOfNumberOfAttractors=n_attr,
+    #             BasinSizesApproximation=basin_sizes,
+    #             CoherenceApproximation=coherence_approx,
+    #             FragilityApproximation=fragility_approx,
+    #             FinalHammingDistanceApproximation=mean_hamming,
+    #         )
 # n = 14
 # k=4
 # bn = boolforge.random_network(N=10,n=4)
