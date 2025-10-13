@@ -9,7 +9,7 @@ Last Edited on Thu Aug 14 2025
 
 ##Imports
 import numpy as np
-import utils
+import boolforge.utils
 from scipy.special import binom
 
 from boolean_function import __LOADED_CANA__
