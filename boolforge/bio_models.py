@@ -136,7 +136,7 @@ def load_model(download_url : str, max_degree : int = 24,
         bn = BooleanNetwork.from_string(string, possible_separators, max_degree,
                                         original_not, original_and, original_or)
     except:
-        pass
+        bn = None
     return bn
 
 download_urls_pystablemotifs = None
@@ -194,8 +194,10 @@ def get_bio_models_from_repository(repository : str) -> tuple:
             download_urls = download_urls_pystablemotifs
         for download_url in download_urls:
             if '.txt' in download_url:
-                bn = load_model(download_url, original_and = [" and ", " & "],
-                                original_or = [" or ", " | "], original_not = [" not ", " !"])
+                bn = load_model(download_url,
+                    possible_separators=['*    =','*   =', '*  =', '* =', '*='],
+                    original_and = [" and ", "&"],
+                    original_or = [" or ", "|"], original_not = [" not ", " !"])
                 if bn is None:
                     failed_download_urls.append(download_url)
                 else:
