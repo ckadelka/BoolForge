@@ -12,7 +12,7 @@ import numpy as np
 import boolforge.utils
 from scipy.special import binom
 
-from boolean_function import __LOADED_CANA__
+from boolforge.boolean_function import __LOADED_CANA__
 
 ## constant functions
 def is_constant(bf):
