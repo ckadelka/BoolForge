@@ -24,6 +24,12 @@ except ModuleNotFoundError:
     print("The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.")
     __LOADED_CANA__=False
     
+try:
+    from numba import njit
+    __LOADED_NUMBA__=True
+except ModuleNotFoundError:
+    print('The module numba cannot be found. Ensure it is installed to increase the run time of critical code in this toolbox.')
+    __LOADED_NUMBA__=False
 
 @njit
 def _is_degenerated_numba(f: np.ndarray, n: int) -> bool:
