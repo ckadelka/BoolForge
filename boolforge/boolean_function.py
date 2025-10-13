@@ -63,14 +63,12 @@ def display_truth_table(*functions: "BooleanFunction", labels = None):
     Each row shows the input combination (x1, x2, ..., xn)
     and the corresponding output(s) f(x).
 
-    Parameters
-    ----------
-    *funcs : BooleanFunction
-        One or more BooleanFunction objects.
-    labels : list[str], optional
-        Column labels for each function (defaults to f1, f2, ...).
+    **Parameters:**
+        \\*functions (BooleanFunction): One or more BooleanFunction objects.
+        labels (list[str], optional): Column labels for each function
+        (defaults to f1, f2, ...).
 
-    Example:
+    **Example:**
         >>> f = BooleanFunction("(x1 & ~x2) | x3")
         >>> display_truth_table(f)
     """
