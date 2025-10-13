@@ -131,6 +131,7 @@ def load_model(download_url : str, max_degree : int = 24,
     string = fetch_file(download_url)
     if IGNORE_FIRST_LINE:
         string = string[string.index('\n')+1:]
+    
     try:
         bn = BooleanNetwork.from_string(string, possible_separators, max_degree,
                                         original_not, original_and, original_or)
@@ -211,8 +212,8 @@ def get_bio_models_from_repository(repository : str) -> tuple:
                 download_url = download_url_base + (
                     '[id-%s]__[var-%s]__[in-%s]__[%s]/model.bnet'
                     % (ID, variables, inputs, name))
-                bn = load_model(download_url, original_and = "&",
-                                original_or = "|", original_not = "!",
+                bn = load_model(download_url, original_and = " & ",
+                                original_or = " | ", original_not = "!",
                                 IGNORE_FIRST_LINE=True)
                 bns.append(bn)
                 successful_download_urls.append(download_url)
@@ -223,5 +224,3 @@ def get_bio_models_from_repository(repository : str) -> tuple:
         print('Error: repositories must be one of the following:\n - ' + '\n - '.join(repositories))
 
     return bns, successful_download_urls, failed_download_urls
-
-
