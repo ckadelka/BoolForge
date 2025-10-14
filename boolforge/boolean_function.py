@@ -288,40 +288,44 @@ class BooleanFunction(object):
         """
         return np.all(self.f == self.f[0])
     
-    def is_degenerated(self) -> bool:
-        """
-        Determine if a Boolean function contains non-essential variables.
-
-        A variable is non-essential if the function's output does not depend
-        on it.
-
-        **Returns:**
-            
-            - bool: True if f contains at least one non-essential variable,
-              False if all variables are essential.
-        """
-        for i in range(self.n):
-            dummy_add = (2**(self.n-1-i))
-            dummy = np.arange(2**self.n) % (2**(self.n-i)) // dummy_add
-            depends_on_i = False
-            for j in range(2**self.n):
-                if dummy[j] == 1:
-                    continue
-                else:
-                    if self.f[j] != self.f[j + dummy_add]:
-                        depends_on_i = True
-                        break
-            if depends_on_i == False:
-                return True
-        return False
+    if __LOADED_NUMBA__:
+        def is_degenerated_numba(self) -> bool:
+            """
+            Determine if a Boolean function contains non-essential variables.
+            Numba-accelerated version.
+            """
+            f = np.asarray(self.f, dtype=np.uint8)
+            return _is_degenerated_numba(f, self.n)
     
-    def is_degenerated_numba(self) -> bool:
-        """
-        Determine if a Boolean function contains non-essential variables.
-        Numba-accelerated version.
-        """
-        f = np.asarray(self.f, dtype=np.uint8)
-        return _is_degenerated_numba(f, self.n)
+    else:
+        def is_degenerated(self) -> bool:
+            """
+            Determine if a Boolean function contains non-essential variables.
+    
+            A variable is non-essential if the function's output does not depend
+            on it.
+    
+            **Returns:**
+                
+                - bool: True if f contains at least one non-essential variable,
+                  False if all variables are essential.
+            """
+            for i in range(self.n):
+                dummy_add = (2**(self.n-1-i))
+                dummy = np.arange(2**self.n) % (2**(self.n-i)) // dummy_add
+                depends_on_i = False
+                for j in range(2**self.n):
+                    if dummy[j] == 1:
+                        continue
+                    else:
+                        if self.f[j] != self.f[j + dummy_add]:
+                            depends_on_i = True
+                            break
+                if depends_on_i == False:
+                    return True
+            return False
+    
+
 
     def get_essential_variables(self) -> list:
         """
@@ -590,7 +594,7 @@ class BooleanFunction(object):
         A Boolean function is k-canalizing if it has at least k conditionally
         canalizing variables. This is checked recursively: after fixing a
         canalizing variable (with a fixed canalizing input that forces the
-        output), the subfunction (core function) must itself be canalizing for
+        output), the subfunction must itself be canalizing for
         the next variable, and so on.
 
         **Parameters:**
