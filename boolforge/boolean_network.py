@@ -39,7 +39,7 @@ except ModuleNotFoundError:
     __LOADED_NUMBA__=False
 
 
-def get_entropy_of_basin_size_distribution(basin_sizes):
+def get_entropy_of_basin_size_distribution(basin_sizes : Union[list, np.array]) -> float:
     """
     Compute the Shannon entropy of the basin size distribution.
 
@@ -47,12 +47,15 @@ def get_entropy_of_basin_size_distribution(basin_sizes):
     First, the basin sizes are normalized to form a probability distribution, and then the entropy is computed
     using the formula: H = - sum(p_i * log(p_i)), where p_i is the proportion of the basin size i.
 
-    Parameters:
-        basin_sizes (list or array-like): A list where each element represents the size of a basin,
-                                           i.e., the number of initial conditions that converge to a particular attractor.
+    **Parameters:**
+    
+        - basin_sizes (list | np.array): A list where each element
+          represents the size of a basin, i.e., the number of initial
+          conditions that converge to a particular attractor.
 
-    Returns:
-        float: The Shannon entropy of the basin size distribution.
+    **Returns:**
+    
+        - float: The Shannon entropy of the basin size distribution.
     """
     total = sum(basin_sizes)
     probabilities = [size * 1.0 / total for size in basin_sizes]
@@ -586,7 +589,16 @@ class BooleanNetwork(WiringDiagram):
         if SIMPLIFY_FUNCTIONS:
             self.simplify_functions() 
 
-    def remove_constants(self,values_constants=None):
+    def remove_constants(self, values_constants : Optional[list] = None) -> None:
+        """
+        Removes constants from this Boolean network.
+
+        **Parameters:**
+        
+            - values_constants (list, optional): The values to fix for each constant
+              node in the network. If None, takes the value provided by the constant
+              function.
+        """
         if values_constants is None:
             indices_constants = self.get_constants(AS_DICT=False)
             dict_constants = self.get_constants(AS_DICT=True)
@@ -665,105 +677,106 @@ class BooleanNetwork(WiringDiagram):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_string(cls, string : str, separator : str = ',', max_degree : int = 24, original_not : str = 'NOT', original_and : str = 'AND', original_or : str = 'OR') -> "BooleanNetwork":
+    def from_string(cls, network_string : str, separator : Union[str, list, np.array] = ',',
+        max_degree : int = 24, original_not : Union[str, list, np.array] = 'NOT',
+        original_and : Union[str, list, np.array] = 'AND',
+        original_or : Union[str, list, np.array] = 'OR') -> "BooleanNetwork":
         """
         **Compatability Method:**
         
-            Converts a bnet string from the pyboolnet module into a Boolforge
-            BooleanNetwork object.
-            
-            Variables and operators cannot contain spaces.
+            Converts a string into a Boolforge BooleanNetwork object.
         
         **Returns**:
             
                 - A BooleanNetwork object.
         """
-        get_dummy_variable = lambda i: 'x'+str(int(i))+'y'
-        new_and, new_or, new_not = '&', '|', '~'
+        sepstr, andop, orop, notop = "@", "∧", "∨", "¬"
         
-        tvec = string.replace('\t',' ').replace('(',' ( ').replace(')',' ) ').replace(separator,' '+separator+' ')
-        if original_and == '&':
-            tvec = tvec.replace(original_and,' '+original_and+' ')
-        if original_or == '|':
-            tvec = tvec.replace(original_or,' '+original_or+' ')
-        if original_not in ['~','!']:
-            tvec = tvec.replace(original_not,' '+original_not+' ')
-        tvec = tvec.splitlines()
+        get_dummy_var = lambda i: "x%sy"%str(int(i))
         
-        #Deleting empty lines
-        while '' in tvec:
-            tvec.remove('')
+        # reformat network string
+        lines = network_string.replace('\t', ' ',).replace('(', ' ( ').replace(')', ' ) ')
+        def __replace__(string, original, replacement):
+            if isinstance(original, (list, np.ndarray)):
+                for s in original:
+                    string = string.replace(s, " %s "%replacement)
+            elif isinstance(original, str):
+                string = string.replace(original, " %s "%replacement)
+            return string
+        lines = __replace__(lines, separator, sepstr)
+        lines = __replace__(lines, original_not, notop)
+        lines = __replace__(lines, original_and, andop)
+        lines = __replace__(lines, original_or, orop)
         
-        for i in range(len(tvec)-1,-1,-1):
-            if tvec[i][0]=='#':
-                tvec.pop(i)
-            
-        n=len(tvec)
-        var=["" for i in range(n)]
+        lines = lines.splitlines()
         
+        # remove empty lines
+        while '' in lines:
+            lines.remove('')
         
-        #Determining Variables, var contains the order of variables (may differ from original order)
+        # remove comments
+        for i in range(len(lines)-1, -1, -1):
+            if lines[i][0] == '#':
+                lines.pop(i)
+        
+        n = len(lines)
+        
+        # find variables and constants
+        var = ["" for i in range(n)]
         for i in range(n):
-            var[i]=tvec[i][0:tvec[i].find(separator)].replace(' ','')
-
-        constants_and_variables = []
-        for line in tvec:
-            linesplit = line.split(' ')
-            for el in linesplit:
-                if el not in ['(',')','+','*',separator,original_not,original_and,original_or,'',' '] and not utils.is_float(el):
-                    constants_and_variables.append(el)
-        constants = list(set(constants_and_variables)-set(var))
+            var[i] = lines[i].split(sepstr)[0].replace(' ', '')
+        consts_and_vars = []
+        for line in lines:
+            words = line.split(' ')
+            for word in words:
+                if word not in ['(', ')', sepstr, andop, orop, notop, ''] and not utils.is_float(word):
+                    consts_and_vars.append(word)
+        consts = list(set(consts_and_vars)-set(var))
+        dict_var_const = dict(list(zip(var, [get_dummy_var(i) for i in range(len(var))])))
+        dict_var_const.update(dict(list(zip(consts, [get_dummy_var(i+len(var)) for i in range(len(consts))]))))
         
-        dict_variables_and_constants = dict({original_not:new_not,original_and:new_and,original_or:new_or})
-        dict_variables_and_constants.update(dict(list(zip(var,["x%iy" % i for i in range(len(var))]))))
-        dict_variables_and_constants.update(list(zip(constants,["x%iy" % i for i in range(len(var),len(set(constants_and_variables)))]))) #constants at end
-
-
-        for i,line in enumerate(tvec):
-            linesplit = line.split(' ')
-            for ii,el in enumerate(linesplit):
-                if el not in ['(',')','+','*','1',separator,new_not.strip(' '),new_and.strip(' '),new_or.strip(' '), '',' '] and not utils.is_float(el):
-                    linesplit[ii] = dict_variables_and_constants[el]
-            tvec[i] = ' '.join(linesplit)
-        #       
-        for ind in range(n):
-            tvec[ind]=tvec[ind][tvec[ind].find(separator)+len(separator):]
-            #tvec[ind]="("+tvec[ind]+")"
-
+        # replace all variables and constants with dummy names
+        for i, line in enumerate(lines):
+            words = line.split(' ')
+            for j, word in enumerate(words):
+                if word not in ['(', ')', sepstr, andop, orop, notop, ''] and not utils.is_float(word):
+                    words[j] = dict_var_const[word]
+            lines[i] = ' '.join(words)
+        
+        # update line to only be function
+        for i in range(n):
+            lines[i] = lines[i].split(sepstr)[1]
+        
+        # generate wiring diagram I
         I = []
         for i in range(n):
             try:
-                indices_open = utils.find_all_indices(tvec[i],'x')
-                indices_end = utils.find_all_indices(tvec[i],'y')
-                dummy = np.sort(np.array(list(map(int,list(set([tvec[i][(begin+1):end] for begin,end in zip(indices_open,indices_end)]))))))
-                I.append( dummy )
+                idcs_open = utils.find_all_indices(lines[i], 'x')
+                idcs_end = utils.find_all_indices(lines[i], 'y')
+                regs = np.sort(np.array(list(map(int,list(set([lines[i][(begin+1):end] for begin,end in zip(idcs_open,idcs_end)]))))))
+                I.append(regs)
             except ValueError:
-                I.append( np.array([],dtype=int))
-            # dict_dummy = dict(list(zip(dummy,list(range(len(dummy))))))
-            # tvec_dummy = tvec[i][:]
-            # for el in dummy:
-            #     tvec_dummy = tvec_dummy.replace('x%iy' % el,'x%iy' % dict_dummy[el]) #needs to be done with an ascending order in dummy
-            # tvec_mod.append(tvec_dummy)        
+                I.append(np.array([], int))
         
-        degree = list(map(len,I))
+        deg = list(map(len, I))
         
+        # generate functions F
         F = []
         for i in range(n):
-            if degree[i]==0:
-                f = np.array([int(tvec[i])],dtype=int)
-            elif degree[i]<=max_degree:
-                truth_table = utils.get_left_side_of_truth_table(degree[i])
-                local_dict = {get_dummy_variable(I[i][j]): truth_table[:, j].astype(bool) for j in range(degree[i])}
-                f = eval(tvec[i], {"__builtins__": None}, local_dict)
+            if deg[i] == 0:
+                f = np.array([int(lines[i])], int)
+            elif deg[i] <= max_degree:
+                tt = utils.get_left_side_of_truth_table(deg[i])
+                ldict = { get_dummy_var(I[i][j]) : tt[:, j].astype(bool) for j in range(deg[i]) }
+                f = eval(lines[i].replace(andop, '&').replace(orop, '|').replace(notop, '~').replace(' ', ''), {"__builtins__" : None}, ldict)
             else:
-                f = np.array([],dtype=int)
+                f = np.array([], int)
             F.append(f.astype(int))
+        for i in range(len(consts)):
+            F.append(np.array([0, 1], int))
+            I.append(np.array([len(var) + i]))
         
-        for i in range(len(constants)):
-            F.append(np.array([0,1]))
-            I.append(np.array([len(var)+i]))
-        
-        return cls(F = F, I = I, variables=var+constants)
+        return cls(F, I, var+consts)
 
 
     def to_cana(self) -> "cana.boolean_network.BooleanNetwork":
@@ -834,7 +847,15 @@ class BooleanNetwork(WiringDiagram):
         return result
         
     
-    def get_types_of_regulation(self):
+    def get_types_of_regulation(self) -> np.array:
+        """
+        Computes the weights of this Boolean network and assigns them to the
+        weights member variable.
+        
+        **Returns:**
+        
+            - weights (np.array): The weights of this network.
+        """
         weights = []
         dict_weights = {'non-essential' : np.nan, 'conditional' : 0, 'positive' : 1, 'negative' : -1}
         for bf in self.F:
@@ -924,6 +945,20 @@ class BooleanNetwork(WiringDiagram):
 
     
     def get_network_with_fixed_source_nodes(self,values_source_nodes : Union[list, np.array]) -> "BooleanNetwork":
+        """
+        Fix the values of source nodes within this Boolean Network.
+
+        **Parameters:**
+        
+            - values_source_nodes (list | np.array): The values to fix for each
+              source node within this network. Must be of length equivalent to
+              the number of source nodes in the network, and each element must
+              be either 0 or 1.
+
+        **Returns:**
+        
+            - BooleanNetwork: A BooleanNetwork object with fixed source nodes.
+        """
         indices_source_nodes = self.get_source_nodes(AS_DICT=False)
         assert len(values_source_nodes)==len(indices_source_nodes),f"The length of 'values_source_nodes', which is {len(values_source_nodes)}, must equal the number of source nodes, which is {len(indices_source_nodes)}."
         assert set(values_source_nodes) in set([0,1]),"Controlled node values must be 0 or 1."
@@ -939,6 +974,26 @@ class BooleanNetwork(WiringDiagram):
     def get_network_with_node_controls(self,indices_controlled_nodes : Union[list, np.array], 
                                        values_controlled_nodes : Union[list, np.array],
                                        KEEP_CONTROLLED_NODES : bool = False) -> "BooleanNetwork":
+        """
+        Fix the values of nodes within this BooleanNetwork.
+        
+        **Parameters:**
+        
+            - indices_controlled_nodes (list | np.array): The indices of the nodes
+              to fix the value of.
+              
+            - values_controlled_nodes : (list | np.array): The values to fix for
+              each specified node in the network.
+            
+            - KEEP_CONTROLLED_NODES : (bool, optional): Whether to turn controlled
+              nodes into constants or not. If true, controlled nodes become constants
+              and will be baked into the network. If false, they will not be considered
+              as constants. Defaults to false.
+        
+        **Returns:**
+        
+            - BooleanNetwork: A BooleanNetwork object with specified nodes controlled.
+        """
         assert len(values_controlled_nodes)==len(indices_controlled_nodes),f"The length of 'values_controlled_nodes', which is {len(values_controlled_nodes)}, must equal the length of 'indices_controlled_nodes', which is {len(indices_controlled_nodes)}."
         assert set(values_controlled_nodes) in set([0,1]),"Controlled node values must be 0 or 1."
         F = deepcopy(self.F)
@@ -1735,7 +1790,12 @@ class BooleanNetwork(WiringDiagram):
             """
             Compute the entire synchronous state transition graph (STG)
             using Numba for high performance.
-            Returns a dict[int:int] mapping current -> next state.
+            
+            **Returns:**
+            
+                - dict[int:int]: A dictionary representing the state transition
+                  graph of the network, where each key represents the current state
+                  and its corresponding value the next state.
             """
         
             # Preprocess data into Numba-friendly types
@@ -1753,9 +1813,13 @@ class BooleanNetwork(WiringDiagram):
     else:
         def compute_synchronous_state_transition_graph(self) -> dict:
             """
-            Compute the entire synchronous state transition graph for all 2^N states,
-            which is of type dict[int:int]. That is, each state is represented by 
-            its decimal representation.
+            Compute the entire synchronous state transition graph for all 2^N states.
+            
+            **Returns:**
+            
+                - dict[int:int]: A dictionary representing the state transition
+                  graph of the network, where each key represents the current state
+                  and its corresponding value the next state.
             """  
         
             # 1. Represent all possible network states as binary matrix

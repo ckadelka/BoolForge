@@ -8,4 +8,5 @@ Home
 
    install
    docs
+   tutorial
    genindex

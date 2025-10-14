@@ -8,6 +8,8 @@ Created on Tue Aug 12 11:03:49 2025
 
 import numpy as np
 import itertools
+from pyeda.inter import exprvar, Or, And, Not, espresso_exprs
+from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
 
 from typing import Union
 from typing import Optional
@@ -31,28 +33,28 @@ except ModuleNotFoundError:
     print('The module numba cannot be found. Ensure it is installed to increase the run time of critical code in this toolbox.')
     __LOADED_NUMBA__=False
 
-@njit
-def _is_degenerated_numba(f: np.ndarray, n: int) -> bool:
-    """
-    Numba-accelerated check for non-essential variables in a Boolean function.
-    """
-    N = 1 << n  # 2**n
-    for i in range(n):
-        stride = 1 << (n - 1 - i)
-        step = stride << 1  # 2 * stride
-        depends_on_i = False
-        # Iterate in blocks that differ only in bit i
-        for base in range(0, N, step):
-            for offset in range(stride):
-                if f[base + offset] != f[base + offset + stride]:
-                    depends_on_i = True
+if __LOADED_NUMBA__:
+    @njit
+    def _is_degenerated_numba(f: np.ndarray, n: int) -> bool:
+        """
+        Numba-accelerated check for non-essential variables in a Boolean function.
+        """
+        N = 1 << n  # 2**n
+        for i in range(n):
+            stride = 1 << (n - 1 - i)
+            step = stride << 1  # 2 * stride
+            depends_on_i = False
+            # Iterate in blocks that differ only in bit i
+            for base in range(0, N, step):
+                for offset in range(stride):
+                    if f[base + offset] != f[base + offset + stride]:
+                        depends_on_i = True
+                        break
+                if depends_on_i:
                     break
-            if depends_on_i:
-                break
-        if not depends_on_i:
-            return True  # found non-essential variable
-    return False
-
+            if not depends_on_i:
+                return True  # found non-essential variable
+        return False
 
 def display_truth_table(*functions: "BooleanFunction", labels = None):
     """
@@ -61,14 +63,14 @@ def display_truth_table(*functions: "BooleanFunction", labels = None):
     Each row shows the input combination (x1, x2, ..., xn)
     and the corresponding output(s) f(x).
 
-    Parameters
-    ----------
-    *funcs : BooleanFunction
-        One or more BooleanFunction objects.
-    labels : list[str], optional
-        Column labels for each function (defaults to f1, f2, ...).
+    **Parameters:**
+    
+        - \\*functions (BooleanFunction): One or more BooleanFunction objects.
+        - labels (list[str], optional): Column labels for each function
+          (defaults to f1, f2, ...).
 
-    Example:
+    **Example:**
+    
         >>> f = BooleanFunction("(x1 & ~x2) | x3")
         >>> display_truth_table(f)
     """
@@ -98,9 +100,6 @@ def display_truth_table(*functions: "BooleanFunction", labels = None):
         inputs_str = "\t".join(map(str, inputs))
         outputs_str = "\t".join(map(str, outputs))
         print(f"{inputs_str}\t|\t{outputs_str}")
-        
-        
-
 
 def get_layer_structure_from_canalized_outputs(can_outputs : list) -> list:
     """
@@ -199,7 +198,7 @@ class BooleanFunction(object):
         return f"{self.f}"
         #return f"{self.f.tolist()}"
         
-    def str_expr(self) -> str:
+    def to_polynomial(self) -> str:
         """
         Returns the Boolean function converted into polynomial format in
         non-reduced DNF.
@@ -244,10 +243,10 @@ class BooleanFunction(object):
         print('The method \'to_cana_BooleanNode\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
         return None
     
-    def to_expression(self, AND : str = '&', OR : str = '|', NOT : str = '!') -> str:
+    def to_logical(self, AND : str = '&', OR : str = '|', NOT : str = '!',
+        MINIMIZE_EXPRESSION : bool = True) -> str:
         """
-        Transform a Boolean function from truth table format to logical expression
-        format using the Quine-McCluskey algorithm.
+        Transform a Boolean function from truth table format to logical expression format.
 
         **Parameters:**
             
@@ -259,12 +258,35 @@ class BooleanFunction(object):
             
             - NOT (str, optional): Character(s) to use for the Not operator.
               Defaults to '!'.
+            
+            - MINIMIZE_EXPRESSION (bool, optional): Whether or not to minimize
+              the expression using Espresso. If true, minimizes the expression.
+              If false, keeps the expression in DNF form. Defaults to true.
 
         **Returns:**
             
             - str: A string representing the Boolean function.
         """
-        return utils.bool_to_poly(self.f, self.variables).replace(' * ', AND).replace(' + ', OR).replace('1 - ', NOT)
+        variables = [ exprvar(str(var)) for var in self.variables ]
+        minterms = [ i for i in range(2**self.n) if self.f[i] ]
+        terms = []
+        for m in minterms:
+            bits = [(variables[i] if (m >> (self.n - 1 - i)) & 1 else ~variables[i]) for i in range(self.n)]
+            terms.append(And(*bits))
+        func_expr = Or(*terms).to_dnf()
+        if MINIMIZE_EXPRESSION:
+            func_expr, = espresso_exprs(func_expr)
+        def __pyeda_to_string__(e):
+            if isinstance(e, OrOp):
+                return '('+(")%s("%OR).join(__pyeda_to_string__(arg) for arg in e.xs)+')'
+            elif isinstance(e, AndOp):
+                return AND.join(__pyeda_to_string__(arg) for arg in e.xs)
+            elif isinstance(e, (NotOp)):
+                return "%s(%s)"%(NOT, __pyeda_to_string__(e.x))
+            elif isinstance(e, Complement):
+                return "(%s%s)"%(NOT, str(e)[1::])
+            return str(e)
+        return __pyeda_to_string__(Not(func_expr))
     
     def get_hamming_weight(self) -> int:
         """
@@ -289,7 +311,7 @@ class BooleanFunction(object):
         return np.all(self.f == self.f[0])
     
     if __LOADED_NUMBA__:
-        def is_degenerated_numba(self) -> bool:
+        def is_degenerated(self) -> bool:
             """
             Determine if a Boolean function contains non-essential variables.
             Numba-accelerated version.
@@ -325,8 +347,6 @@ class BooleanFunction(object):
                     return True
             return False
     
-
-
     def get_essential_variables(self) -> list:
         """
         Determine the indices of essential variables in a Boolean function.

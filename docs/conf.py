@@ -20,9 +20,28 @@ release = open("../boolforge/_version.py", "rt").read().split('\'')[1]
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc"]
+extensions = [
+    "sphinx.ext.todo",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autodoc",
+    "nbsphinx",
+    "sphinxcontrib.collections"
+]
+
+collections = {
+    "tutorials": {
+        "driver": "copy_folder",
+        "source": "../tutorials",
+        "target": "tutorials/",
+        "ignore": ["*.py", "*.sh"],
+    }
+}
 
 autodoc_member_order = 'bysource'
+
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
