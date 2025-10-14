@@ -15,6 +15,7 @@
       <script src="_static/documentation_options.js?v=8d563738"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -42,6 +43,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Index</a></li>
 </ul>
 
@@ -72,8 +74,7 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#A"><strong>A</strong></a>
- | <a href="#B"><strong>B</strong></a>
+ <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
@@ -88,14 +89,6 @@
  | <a href="#W"><strong>W</strong></a>
  
 </div>
-<h2 id="A">A</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.adjacency_matrix">adjacency_matrix() (boolforge.boolean_network.WiringDiagram method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -165,6 +158,10 @@
       <li><a href="utils.html#boolforge.utils.dec2bin">dec2bin() (in module boolforge.utils)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="boolean_function.html#boolforge.boolean_function.display_truth_table">display_truth_table() (in module boolforge.boolean_function)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="F">F</h2>
@@ -190,8 +187,6 @@
       </ul></li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.from_string">from_string() (boolforge.boolean_network.BooleanNetwork class method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.from_wiring_diagram">from_wiring_diagram() (boolforge.boolean_network.BooleanNetwork class method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -203,6 +198,8 @@
       <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.generate_networkx_graph_from_edges">generate_networkx_graph_from_edges() (boolforge.boolean_network.WiringDiagram method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_absolute_bias">get_absolute_bias() (boolforge.boolean_function.BooleanFunction method)</a>
+</li>
+      <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_activities">get_activities() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous">get_attractors_and_robustness_measures_synchronous() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
@@ -226,24 +223,18 @@
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_derrida_value">get_derrida_value() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_edge_controlled_network">get_edge_controlled_network() (boolforge.boolean_network.BooleanNetwork method)</a>
-</li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_edge_effectiveness">get_edge_effectiveness() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_effective_degree">get_effective_degree() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_essential_network">get_essential_network() (boolforge.boolean_network.BooleanNetwork method)</a>
+      <li><a href="boolean_network.html#boolforge.boolean_network.get_entropy_of_basin_size_distribution">get_entropy_of_basin_size_distribution() (in module boolforge.boolean_network)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_essential_variables">get_essential_variables() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_external_inputs">get_external_inputs() (boolforge.boolean_network.BooleanNetwork method)</a>
-</li>
       <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_ffls">get_ffls() (boolforge.boolean_network.WiringDiagram method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_ffls_from_I">get_ffls_from_I() (boolforge.boolean_network.WiringDiagram method)</a>
-</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_hamming_weight">get_hamming_weight() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_input_redundancy">get_input_redundancy() (boolforge.boolean_function.BooleanFunction method)</a>
@@ -258,13 +249,17 @@
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_modular_structure">get_modular_structure() (boolforge.boolean_network.WiringDiagram method)</a>
 </li>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_network_with_edge_controls">get_network_with_edge_controls() (boolforge.boolean_network.BooleanNetwork method)</a>
+</li>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_network_with_fixed_source_nodes">get_network_with_fixed_source_nodes() (boolforge.boolean_network.BooleanNetwork method)</a>
+</li>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_network_with_node_controls">get_network_with_node_controls() (boolforge.boolean_network.BooleanNetwork method)</a>
+</li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables">get_number_of_essential_variables() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_outdegrees">get_outdegrees() (boolforge.boolean_network.WiringDiagram method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_signed_adjacency_matrix">get_signed_adjacency_matrix() (boolforge.boolean_network.WiringDiagram method)</a>
-</li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_signed_effective_graph">get_signed_effective_graph() (boolforge.boolean_network.WiringDiagram method)</a>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_source_nodes">get_source_nodes() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous">get_steady_states_asynchronous() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
@@ -277,6 +272,8 @@
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_type_of_inputs">get_type_of_inputs() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_type_of_loop">get_type_of_loop() (boolforge.boolean_network.WiringDiagram method)</a>
+</li>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_types_of_regulation">get_types_of_regulation() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -373,6 +370,8 @@
 </li>
       <li><a href="generate.html#boolforge.generate.random_wiring_diagram">random_wiring_diagram() (in module boolforge.generate)</a>
 </li>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.remove_constants">remove_constants() (boolforge.boolean_network.BooleanNetwork method)</a>
+</li>
       <li><a href="generate.html#boolforge.generate.rewire_wiring_diagram">rewire_wiring_diagram() (in module boolforge.generate)</a>
 </li>
   </ul></td>
@@ -381,7 +380,7 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.str_expr">str_expr() (boolforge.boolean_function.BooleanFunction method)</a>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.simplify_functions">simplify_functions() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -399,7 +398,9 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.to_expression">to_expression() (boolforge.boolean_function.BooleanFunction method)</a>
+      <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.to_logical">to_logical() (boolforge.boolean_function.BooleanFunction method)</a>
+</li>
+      <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.to_polynomial">to_polynomial() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
   </ul></td>
 </tr></table>

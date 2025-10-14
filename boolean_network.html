@@ -16,6 +16,7 @@
       <script src="_static/documentation_options.js?v=8d563738"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -47,30 +48,30 @@
 <li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="boolean_function.html">Boolean Function</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Boolean Network</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.boolean_network.get_entropy_of_basin_size_distribution"><code class="docutils literal notranslate"><span class="pre">get_entropy_of_basin_size_distribution()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram"><code class="docutils literal notranslate"><span class="pre">WiringDiagram</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.get_outdegrees"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.get_outdegrees()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.get_constants"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.get_constants()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.get_strongly_connected_components"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.get_strongly_connected_components()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.get_modular_structure"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.get_modular_structure()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.adjacency_matrix"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.adjacency_matrix()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.get_signed_adjacency_matrix"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.get_signed_adjacency_matrix()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.get_signed_effective_graph"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.get_signed_effective_graph()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.get_ffls"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.get_ffls()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.get_ffls_from_I"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.get_ffls_from_I()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.generate_networkx_graph"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.generate_networkx_graph()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.generate_networkx_graph_from_edges"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.generate_networkx_graph_from_edges()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram.get_type_of_loop"><code class="docutils literal notranslate"><span class="pre">WiringDiagram.get_type_of_loop()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.from_wiring_diagram"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.from_wiring_diagram()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.remove_constants"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.remove_constants()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.from_cana"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.from_cana()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.from_string"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.from_string()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.to_cana"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.to_cana()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.to_bnet"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.to_bnet()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_essential_network"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_essential_network()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_edge_controlled_network"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_edge_controlled_network()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_external_inputs"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_external_inputs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_types_of_regulation"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_types_of_regulation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.simplify_functions"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.simplify_functions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_source_nodes"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_source_nodes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_network_with_fixed_source_nodes"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_network_with_fixed_source_nodes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_network_with_node_controls"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_network_with_node_controls()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_network_with_edge_controls"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_network_with_edge_controls()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.update_single_node"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.update_single_node()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.update_network_synchronously"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.update_network_synchronously()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.update_network_synchronously_many_times"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.update_network_synchronously_many_times()</span></code></a></li>
@@ -92,6 +93,7 @@
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
 </ul>
 
@@ -126,9 +128,32 @@
 </div>
 <p id="module-boolforge.boolean_network">Created on Wed Aug 13 11:08:44 2025</p>
 <p>&#64;author: Benjamin Coberly, Claus Kadelka</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.boolean_network.get_entropy_of_basin_size_distribution">
+<span class="sig-prename descclassname"><span class="pre">boolforge.boolean_network.</span></span><span class="sig-name descname"><span class="pre">get_entropy_of_basin_size_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basin_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#get_entropy_of_basin_size_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.get_entropy_of_basin_size_distribution" title="Link to this definition"></a></dt>
+<dd><p>Compute the Shannon entropy of the basin size distribution.</p>
+<p>This function calculates the Shannon entropy of a probability distribution derived from the basin sizes.
+First, the basin sizes are normalized to form a probability distribution, and then the entropy is computed
+using the formula: H = - sum(p_i * log(p_i)), where p_i is the proportion of the basin size i.</p>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>basin_sizes (list | np.array): A list where each element
+represents the size of a basin, i.e., the number of initial
+conditions that converge to a particular attractor.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>float: The Shannon entropy of the basin size distribution.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="boolforge.boolean_network.WiringDiagram">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">boolforge.boolean_network.</span></span><span class="sig-name descname"><span class="pre">WiringDiagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">boolforge.boolean_network.</span></span><span class="sig-name descname"><span class="pre">WiringDiagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class representing a Wiring Diagram</p>
 <p><strong>Constructor Parameters:</strong></p>
@@ -138,7 +163,7 @@
 representing the regulators (or inputs) for each Boolean function.</p></li>
 <li><p>variables (list[str] | np.array[str], optional): A list of N strings
 representing the names of each variable, default = None.</p></li>
-<li><p>weights (): #TODO</p></li>
+<li><p>weights (list[list[int | np.nan]]): #TODO</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Members:</strong></p>
@@ -146,11 +171,12 @@ representing the names of each variable, default = None.</p></li>
 <div><ul class="simple">
 <li><p>I (list[np.array[int]]): As passed by the constructor.</p></li>
 <li><p>variables (np.array[str]): As passed by the constructor.</p></li>
-<li><p>N (int): The number of variables in the Boolean network.</p></li>
+<li><p>N_variables (int): The number of variables in the Boolean network.</p></li>
 <li><p>N_constants (int): The number of constants in the Boolean network.</p></li>
+<li><p>N (int): The number of variables and constants in the Boolean network.</p></li>
 <li><p>indegrees (list[int]): The indegrees for each node.</p></li>
 <li><p>outdegrees (list[int]): The outdegrees of each node.</p></li>
-<li><p>weights (): As passed by the constructor.</p></li>
+<li><p>weights (list[list[int | np.nan]]): As passed by the constructor.</p></li>
 </ul>
 </div></blockquote>
 <dl class="py method">
@@ -227,109 +253,8 @@ components of the underlying wiring diagram).</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.WiringDiagram.adjacency_matrix">
-<span class="sig-name descname"><span class="pre">adjacency_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IGNORE_SELFLOOPS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IGNORE_CONSTANTS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram.adjacency_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram.adjacency_matrix" title="Link to this definition"></a></dt>
-<dd><p>Construct the (binary) adjacency matrix from the wiring diagram.</p>
-<p>Given the wiring diagram I (a list of regulator lists for each node)
-and a list of constants, this function builds an adjacency matrix
-where each entry m[j, i] is 1 if node j regulates node i. Self-loops
-can be optionally ignored, and constant nodes can be excluded.</p>
-<p><strong>Parameters:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>constants (list[int], optional): List of constant nodes.</p></li>
-<li><p>IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.</p></li>
-<li><p>IGNORE_CONSTANTS (bool, optional): If True, constant nodes are
-excluded from the matrix.</p></li>
-</ul>
-</div></blockquote>
-<p><strong>Returns:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>np.array[np.array[int]]: The binary adjacency matrix.</p></li>
-</ul>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.WiringDiagram.get_signed_adjacency_matrix">
-<span class="sig-name descname"><span class="pre">get_signed_adjacency_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type_of_each_regulation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IGNORE_SELFLOOPS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IGNORE_CONSTANTS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram.get_signed_adjacency_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram.get_signed_adjacency_matrix" title="Link to this definition"></a></dt>
-<dd><p>Construct the signed adjacency matrix of a Boolean network.</p>
-<p>The signed adjacency matrix assigns +1 for increasing (activating)
-regulations, -1 for decreasing (inhibiting) regulations, and NaN for
-any other type.</p>
-<p><strong>Parameters:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>type_of_each_regulation (list[str]): List of lists corresponding
-to the type of regulation (‘increasing’ or ‘decreasing’) for
-each edge in I.</p></li>
-<li><p>constants (list[int], optional): List of constant nodes.</p></li>
-<li><p>IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.</p></li>
-<li><p>IGNORE_CONSTANTS (bool, optional): If True, constant nodes
-are excluded.</p></li>
-</ul>
-</div></blockquote>
-<p><strong>Returns:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>np.array[np.array[int]]: The signed adjacency matrix.</p></li>
-</ul>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.WiringDiagram.get_signed_effective_graph">
-<span class="sig-name descname"><span class="pre">get_signed_effective_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type_of_each_regulation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IGNORE_SELFLOOPS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IGNORE_CONSTANTS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram.get_signed_effective_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram.get_signed_effective_graph" title="Link to this definition"></a></dt>
-<dd><p>Construct the signed effective graph of a Boolean network.</p>
-<p>This function computes an effective graph in which each edge is
-weighted by its effectiveness. Effectiveness is obtained via
-get_edge_effectiveness on the corresponding Boolean function. Edges
-are signed according to the type of regulation (‘increasing’ or
-‘decreasing’).</p>
-<p><strong>Parameters:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>type_of_each_regulation (list[str]): List of lists specifying
-the type of regulation for each edge.</p></li>
-<li><p>constants (list[int], optional): List of constant nodes.</p></li>
-<li><p>IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.</p></li>
-<li><p>IGNORE_CONSTANTS (bool, optional): If True, constant nodes
-are excluded.</p></li>
-</ul>
-</div></blockquote>
-<p><strong>Returns:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>np.array[float]: The signed effective graph as a matrix of edge
-effectiveness values.</p></li>
-</ul>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.WiringDiagram.get_ffls">
-<span class="sig-name descname"><span class="pre">get_ffls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram.get_ffls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram.get_ffls" title="Link to this definition"></a></dt>
-<dd><p>Identify feed-forward loops (FFLs) in a Boolean network and optionally
-determine their types.</p>
-<p>A feed-forward loop (FFL) is a three-node motif where node i regulates
-node k both directly and indirectly via node j.</p>
-<p><strong>Returns:</strong></p>
-<blockquote>
-<div><ul>
-<li><p>tuple[list[int], list[int]]:</p>
-<blockquote>
-<div><p>A tuple (ffls, types), where ffls is a list of FFLs and
-types is a list of corresponding monotonicity types.</p>
-</div></blockquote>
-</li>
-</ul>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.WiringDiagram.get_ffls_from_I">
-<span class="sig-name descname"><span class="pre">get_ffls_from_I</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">types_I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram.get_ffls_from_I"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram.get_ffls_from_I" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_ffls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram.get_ffls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram.get_ffls" title="Link to this definition"></a></dt>
 <dd><p>Identify feed-forward loops (FFLs) in a Boolean network based solely
 on the wiring diagram.</p>
 <p>The function uses the inverted wiring diagram to identify common
@@ -345,12 +270,14 @@ the type (e.g., ‘increasing’ or ‘decreasing’) for each regulation.</p></
 </div></blockquote>
 <p><strong>Returns:</strong></p>
 <blockquote>
-<div><p>If types_I is provided:</p>
+<div><p>If self.weights is not None:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>tuple[list[int], list[int]]: (ffls, types) where ffls is a
-list of identified FFLs (each as a list [i, j, k]), and
-types is a list of corresponding regulation type triplets.</p></li>
+list of identified FFLs (each as a list [master regulator,
+intermediate, target]), and types is a list of regulation type
+triplets (master -&gt; target, master -&gt; intermediate,
+intermediate -&gt; target).</p></li>
 </ul>
 </div></blockquote>
 <p>Otherwise:</p>
@@ -364,7 +291,7 @@ types is a list of corresponding regulation type triplets.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.WiringDiagram.generate_networkx_graph">
-<span class="sig-name descname"><span class="pre">generate_networkx_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DiGraph</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram.generate_networkx_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram.generate_networkx_graph" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_networkx_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DiGraph</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#WiringDiagram.generate_networkx_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.WiringDiagram.generate_networkx_graph" title="Link to this definition"></a></dt>
 <dd><p>Generate a NetworkX directed graph from a wiring diagram.</p>
 <p>Nodes are labeled with variable names (from variables) and constant
 names (from constants). Edges are added from each regulator to its
@@ -379,7 +306,7 @@ target based on the wiring diagram I.</p>
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>networkx.DiGraph: The noderated directed graph.</p></li>
+<li><p>networkx.DiGraph: The wiring diagram as directed graph.</p></li>
 </ul>
 </div></blockquote>
 </dd></dl>
@@ -433,7 +360,7 @@ in the loop.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">boolforge.boolean_network.</span></span><span class="sig-name descname"><span class="pre">BooleanNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">F</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SIMPLIFY_FUNCTIONS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">boolforge.boolean_network.</span></span><span class="sig-name descname"><span class="pre">BooleanNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">F</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram" title="boolforge.boolean_network.WiringDiagram"><span class="pre">WiringDiagram</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SIMPLIFY_FUNCTIONS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#boolforge.boolean_network.WiringDiagram" title="boolforge.boolean_network.WiringDiagram"><code class="xref py py-class docutils literal notranslate"><span class="pre">WiringDiagram</span></code></a></p>
 <p>A class representing a Boolean network with N variables.</p>
 <p><strong>Constructor Parameters:</strong></p>
@@ -448,7 +375,6 @@ representing the regulators (or inputs) for each Boolean function.</p></li>
 representing the names of each variable, default = None.</p></li>
 <li><p>SIMPLIFY_FUNCTIONS (bool, optional): Constructs this Boolean Network
 to only include its essential components. Defaults to False</p></li>
-<li><p>weights (): #TODO</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Members:</strong></p>
@@ -459,39 +385,30 @@ to only include its essential components. Defaults to False</p></li>
 <li><p>variables (np.array[str]): As passed by the constructor.</p></li>
 <li><p>N (int): The number of variables in the Boolean network.</p></li>
 <li><p>N_constants (int): The number of constants in the Boolean network.</p></li>
+<li><p>size (int): The number of variables and constants in the Boolean network.</p></li>
 <li><p>indegrees (list[int]): The indegrees for each node.</p></li>
 <li><p>outdegrees (list[int]): The outdegrees of each node.</p></li>
 <li><p>STG (dict): The state transition graph.</p></li>
-<li><p>weights (): Defaults to None #TODO</p></li>
-<li><p>attractor_info_sync_exact (None): Unused</p></li>
+<li><p>weights (np.array[float] | None): Inherited from WiringDiagram. Default None.</p></li>
 </ul>
 </div></blockquote>
 <dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.from_wiring_diagram">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_wiring_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wiring_diagram</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#boolforge.boolean_network.WiringDiagram" title="boolforge.boolean_network.WiringDiagram"><span class="pre">WiringDiagram</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">F</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.from_wiring_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.from_wiring_diagram" title="Link to this definition"></a></dt>
-<dd><p>Creates a BooleanNetwork object out of a WiringDiagram object. Uses
-deep copying.</p>
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.remove_constants">
+<span class="sig-name descname"><span class="pre">remove_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values_constants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.remove_constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.remove_constants" title="Link to this definition"></a></dt>
+<dd><p>Removes constants from this Boolean network.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>wiring_diagram (WiringDiagram): The wiring diagram to use for the
-Boolean network.</p></li>
-<li><p>F (list[BooleanFunction | list[int]] | np.ndarray[BooleanFunction |
-list[int]]): A list of N Boolean functions, or of N lists of length
-2^n representing the outputs of a Boolean function with n inputs.</p></li>
-</ul>
-</div></blockquote>
-<p><strong>Returns:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>A BooleanNetwork object.</p></li>
+<li><p>values_constants (list, optional): The values to fix for each constant
+node in the network. If None, takes the value provided by the constant
+function.</p></li>
 </ul>
 </div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.from_cana">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cana</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cana_BooleanNetwork</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cana.boolean_network.BooleanNetwork</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.from_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.from_cana" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cana</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cana_BooleanNetwork</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cana.boolean_network.BooleanNetwork</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.from_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.from_cana" title="Link to this definition"></a></dt>
 <dd><p><strong>Compatability Method:</strong></p>
 <blockquote>
 <div><p>Converts an instance of cana.boolean_network.BooleanNetwork from
@@ -507,11 +424,10 @@ the cana module into a Boolforge BooleanNetwork object.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.from_string">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_not</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'NOT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_and</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AND'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_or</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'OR'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.from_string" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_not</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'NOT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_and</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AND'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_or</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'OR'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.from_string" title="Link to this definition"></a></dt>
 <dd><p><strong>Compatability Method:</strong></p>
 <blockquote>
-<div><p>Converts a bnet string from the pyboolnet module into a Boolforge
-BooleanNetwork object.</p>
+<div><p>Converts a string into a Boolforge BooleanNetwork object.</p>
 </div></blockquote>
 <p><strong>Returns</strong>:</p>
 <blockquote>
@@ -564,9 +480,22 @@ expression. Defaults to true.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_essential_network">
-<span class="sig-name descname"><span class="pre">get_essential_network</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_essential_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_essential_network" title="Link to this definition"></a></dt>
-<dd><p>Determine the essential components of a Boolean network.</p>
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_types_of_regulation">
+<span class="sig-name descname"><span class="pre">get_types_of_regulation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_types_of_regulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_types_of_regulation" title="Link to this definition"></a></dt>
+<dd><p>Computes the weights of this Boolean network and assigns them to the
+weights member variable.</p>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>weights (np.array): The weights of this network.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.simplify_functions">
+<span class="sig-name descname"><span class="pre">simplify_functions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.simplify_functions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.simplify_functions" title="Link to this definition"></a></dt>
+<dd><p>Remove all non-essential inputs, i.e., inoperative edges from the Boolean network.</p>
 <p>For each node in a Boolean network, represented by its Boolean function
 and its regulators, this function extracts the “essential” part of the
 function by removing non-essential regulators. The resulting network
@@ -591,22 +520,111 @@ essential regulators for each node.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_edge_controlled_network">
-<span class="sig-name descname"><span class="pre">get_edge_controlled_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">control_target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_of_edge_control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_edge_controlled_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_edge_controlled_network" title="Link to this definition"></a></dt>
-<dd><p>Generate a perturbed Boolean network by removing the influence of a
-specified regulator on a specified target.</p>
-<p>The function modifies the Boolean function for a target node by
-restricting it to those entries in its truth table where the input
-from a given regulator equals the specified type_of_control. The
-regulator is then removed from the wiring diagram for that node.</p>
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_source_nodes">
+<span class="sig-name descname"><span class="pre">get_source_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">AS_DICT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_source_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_source_nodes" title="Link to this definition"></a></dt>
+<dd><p>Identify source nodes in a Boolean network.</p>
+<p>A node is considered a source node if it does not change over time. It has
+exactly one regulator and that regulator is the node itself.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><p>control_target (int): Index of the target node to be perturbed.</p></li>
-<li><p>control_source (int): Index of the regulator whose influence is
-to be removed.</p></li>
-<li><p>type_of_edge_control (int, optional): Source value in regulation
-after control. Default is 0.</p></li>
+<li><p>AS_DICT (bool, optional): Whether to return the indices of source nodes
+as a dictionary or array. If true, returns as a dictionary. Defaults
+to False.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><p>If AS_DICT is True:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>dict[int:bool]: Dictionary determining if an index is a
+source nodes or not.</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>else:</dt><dd><ul class="simple">
+<li><p>np.array[int]: Array of all indices of source nodes.</p></li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_network_with_fixed_source_nodes">
+<span class="sig-name descname"><span class="pre">get_network_with_fixed_source_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values_source_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_network_with_fixed_source_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_network_with_fixed_source_nodes" title="Link to this definition"></a></dt>
+<dd><p>Fix the values of source nodes within this Boolean Network.</p>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>values_source_nodes (list | np.array): The values to fix for each
+source node within this network. Must be of length equivalent to
+the number of source nodes in the network, and each element must
+be either 0 or 1.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>BooleanNetwork: A BooleanNetwork object with fixed source nodes.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_network_with_node_controls">
+<span class="sig-name descname"><span class="pre">get_network_with_node_controls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices_controlled_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_controlled_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">KEEP_CONTROLLED_NODES</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_network_with_node_controls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_network_with_node_controls" title="Link to this definition"></a></dt>
+<dd><p>Fix the values of nodes within this BooleanNetwork.</p>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>indices_controlled_nodes (list | np.array): The indices of the nodes
+to fix the value of.</p></li>
+<li><p>values_controlled_nodes : (list | np.array): The values to fix for
+each specified node in the network.</p></li>
+<li><p>KEEP_CONTROLLED_NODES : (bool, optional): Whether to turn controlled
+nodes into constants or not. If true, controlled nodes become constants
+and will be baked into the network. If false, they will not be considered
+as constants. Defaults to false.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>BooleanNetwork: A BooleanNetwork object with specified nodes controlled.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_network_with_edge_controls">
+<span class="sig-name descname"><span class="pre">get_network_with_edge_controls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">control_targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_of_edge_controls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_network_with_edge_controls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_network_with_edge_controls" title="Link to this definition"></a></dt>
+<dd><p>Generate a perturbed Boolean network by removing the influence of
+specified regulators on specified targets.</p>
+<p>The function modifies the Boolean function for target nodes by
+restricting it to those entries in its truth table where the input
+from given regulators equals the specified type_of_control. The
+regulators are then removed from the wiring diagram for that node.</p>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>control_targets (int | list[int] | np.array[int]): </dt><dd><p>Index of the target node(s) to be perturbed.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>control_sources (int | list[int] | np.array[int]): </dt><dd><p>Index of the regulator(s) whose influence is to be fixed.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>type_of_edge_controls (int | list[int] | np.array[int]) | None): </dt><dd><p>Source value in regulation of target after control. 
+Default is None (which is interpreted as 0).</p>
+</dd>
+</dl>
+</li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
@@ -621,20 +639,6 @@ regulator from the target node.</p></li>
 </ul>
 </div></blockquote>
 </li>
-</ul>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_external_inputs">
-<span class="sig-name descname"><span class="pre">get_external_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_external_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_external_inputs" title="Link to this definition"></a></dt>
-<dd><p>Identify external inputs in a Boolean network.</p>
-<p>A node is considered an external input if it has exactly one regulator
-and that regulator is the node itself.</p>
-<p><strong>Returns:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>np.array[int]: Array of node indices that are external inputs.</p></li>
 </ul>
 </div></blockquote>
 </dd></dl>
@@ -705,7 +709,7 @@ n_steps times using the update_network_synchronously function.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.update_network_SDDS">
-<span class="sig-name descname"><span class="pre">update_network_SDDS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.update_network_SDDS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.update_network_SDDS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_network_SDDS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.update_network_SDDS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.update_network_SDDS" title="Link to this definition"></a></dt>
 <dd><p>Perform a stochastic update (SDDS) on a Boolean network.</p>
 <p>For each node, the next state is computed as nextstep = F[i] evaluated
 on the current states of its regulators. If nextstep &gt; X[i], the node
@@ -733,7 +737,7 @@ stochastic update.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous">
-<span class="sig-name descname"><span class="pre">get_steady_states_asynchronous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_sample_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DEBUG</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_steady_states_asynchronous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_steady_states_asynchronous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_sample_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DEBUG</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_steady_states_asynchronous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous" title="Link to this definition"></a></dt>
 <dd><p>Compute the steady states of a Boolean network under asynchronous updates.</p>
 <p>This function simulates asynchronous updates of a Boolean network
 (with N nodes) for a given number of initial conditions (nsim). For
@@ -790,7 +794,7 @@ points used (if provided) or those generated during simulation.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition">
-<span class="sig-name descname"><span class="pre">get_steady_states_asynchronous_given_one_initial_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stochastic_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DEBUG</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_steady_states_asynchronous_given_one_initial_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stochastic_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DEBUG</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition" title="Link to this definition"></a></dt>
 <dd><p>Determine the steady states reachable from one initial condition using
 weighted asynchronous updates.</p>
 <p>This function is similar to steady_states_asynchronous_given_one_IC but
@@ -846,9 +850,8 @@ are decimal representations of the state and i is in {0, 1,
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous">
-<span class="sig-name descname"><span class="pre">get_attractors_synchronous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_sample_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_input_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_attractors_synchronous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous" title="Link to this definition"></a></dt>
-<dd><p>Compute the number of attractors in a Boolean network using an
-alternative (v2) approach.</p>
+<span class="sig-name descname"><span class="pre">get_attractors_synchronous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_sample_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_attractors_synchronous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous" title="Link to this definition"></a></dt>
+<dd><p>Compute the number of attractors in a Boolean network.</p>
 <p>This version is optimized for networks with longer average path
 lengths. For each of nb initial conditions, the network is updated
 synchronously until an attractor is reached or until n_steps_timeout
@@ -856,18 +859,22 @@ is exceeded. The function returns the attractors found, their basin
 sizes, a mapping of states to attractors, the set of initial sample
 points used, the explored state space, and the number of simulations
 that timed out.</p>
+<p>Hybrid Numba-accelerated version:
+- Python logic for bookkeeping (dicts, cycles, basins)
+- Compiled numeric kernel for Boolean updates</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
 <li><p>nsim (int, optional): Number of initial conditions to simulate
 (default is 500). Ignored if ‘initial_sample_points’ are provided.</p></li>
 <li><p>initial_sample_points (list[int | list[int]], optional): List of
-initial states (in decimal) to use.</p></li>
+initial states to use. ‘INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS’
+specifies whether these points are given as vectors or decimals.</p></li>
 <li><p>n_steps_timeout (int, optional): Maximum number of update steps
 allowed per simulation (default 1000).</p></li>
 <li><p>INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If
 True, initial_sample_points are provided as binary vectors; if
-False, they are given as decimal numbers. Default is True.</p></li>
+False, they are given as decimal numbers. Default is False.</p></li>
 <li><p>rng (None, optional): Argument for the random number generator,
 implemented in ‘utils._coerce_rng’.</p></li>
 </ul>
@@ -905,9 +912,16 @@ reduce this number.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.compute_synchronous_state_transition_graph">
 <span class="sig-name descname"><span class="pre">compute_synchronous_state_transition_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.compute_synchronous_state_transition_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.compute_synchronous_state_transition_graph" title="Link to this definition"></a></dt>
-<dd><p>Compute the entire synchronous state transition graph for all 2^N states,
-which is of type dict[int:int]. That is, each state is represented by 
-its decimal representation.</p>
+<dd><p>Compute the entire synchronous state transition graph (STG)
+using Numba for high performance.</p>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>dict[int:int]: A dictionary representing the state transition
+graph of the network, where each key represents the current state
+and its corresponding value the next state.</p></li>
+</ul>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -942,7 +956,7 @@ represented by its decimal representation.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_derrida_value">
-<span class="sig-name descname"><span class="pre">get_derrida_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_derrida_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_derrida_value" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_derrida_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_derrida_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_derrida_value" title="Link to this definition"></a></dt>
 <dd><p>Estimate the Derrida value for a Boolean network.</p>
 <p>The Derrida value is computed by perturbing a single node in a randomly
 chosen state and measuring the average Hamming distance between the
@@ -1023,7 +1037,7 @@ arXiv preprint arXiv:xxx.xxx.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous">
-<span class="sig-name descname"><span class="pre">get_attractors_and_robustness_measures_synchronous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_different_IC</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RETURN_ATTRACTOR_COHERENCE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_attractors_and_robustness_measures_synchronous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_attractors_and_robustness_measures_synchronous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_different_IC</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RETURN_ATTRACTOR_COHERENCE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_attractors_and_robustness_measures_synchronous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous" title="Link to this definition"></a></dt>
 <dd><p>Approximate global robustness measures and attractors.</p>
 <p>This function samples the attractor landscape by simulating the network
 from a number of different initial conditions. It computes:</p>

@@ -1,0 +1,522 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GRN-Focused Tutorial: Toggle Switch, Repressilator, and a T-cell Differentiation Toy &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">GRN-Focused Tutorial: Toggle Switch, Repressilator, and a T-cell Differentiation Toy</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/_collections/tutorials/04_grn_tutorial.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="GRN-Focused-Tutorial:-Toggle-Switch,-Repressilator,-and-a-T-cell-Differentiation-Toy">
+<h1>GRN-Focused Tutorial: Toggle Switch, Repressilator, and a T-cell Differentiation Toy<a class="headerlink" href="#GRN-Focused-Tutorial:-Toggle-Switch,-Repressilator,-and-a-T-cell-Differentiation-Toy" title="Link to this heading"></a></h1>
+<p>This notebook shows how to build small <strong>gene regulatory network (GRN)</strong> motifs using your Boolean toolbox, explore their dynamics, and visualize results.</p>
+<p><strong>Motifs covered</strong></p>
+<ul class="simple">
+<li><p>Toggle switch (mutual repression)</p></li>
+<li><p>Repressilator (3-node cyclic inhibition)</p></li>
+<li><p>T-cell differentiation toy network (small decision circuit)</p></li>
+</ul>
+<blockquote>
+<div><p>Plots use only <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> and keep one chart per figure, as requested.</p>
+</div></blockquote>
+<section id="0.-Setup-&amp;-Imports">
+<h2>0. Setup &amp; Imports<a class="headerlink" href="#0.-Setup-&-Imports" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">itertools</span><span class="o">,</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">Counter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="c1"># Use the uploaded toolbox</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;/mnt/data&#39;</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boolforge.analyze_BF</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">BF</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boolforge.analyze_BN</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">BN</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boolforge.generate</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">GEN</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boolforge.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">successor_naive</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute synchronous successor without depending on BN helpers (fallback).&quot;&quot;&quot;</span>
+    <span class="n">nxt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">fi</span><span class="p">,</span> <span class="n">Ii</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)):</span>
+        <span class="c1"># Build local input index</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Ii</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="n">Ii</span><span class="p">]:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">nxt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fi</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">nxt</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">all_states</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">binary_repr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">N</span><span class="p">))))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">N</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">state_to_int</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="n">val</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">val</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">enumerate_state_graph</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">all_states</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">succ</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">S</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">nxt</span> <span class="o">=</span> <span class="n">BN</span><span class="o">.</span><span class="n">successor_state</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">nxt</span> <span class="o">=</span> <span class="n">successor_naive</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">succ</span><span class="p">[</span><span class="n">state_to_int</span><span class="p">(</span><span class="n">s</span><span class="p">)]</span> <span class="o">=</span> <span class="n">state_to_int</span><span class="p">(</span><span class="n">nxt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">succ</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">find_attractors</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">):</span>
+    <span class="c1"># Try toolbox exact finder first</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">attr</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">BN</span><span class="o">.</span><span class="n">get_attractors_synchronous_exact</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">attr</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="c1"># Fallback via cycle detection</span>
+    <span class="n">succ</span> <span class="o">=</span> <span class="n">enumerate_state_graph</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">attractors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">succ</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">trail</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="k">while</span> <span class="n">cur</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="n">seen</span><span class="p">[</span><span class="n">cur</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">trail</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">succ</span><span class="p">[</span><span class="n">cur</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">cur</span> <span class="ow">in</span> <span class="n">trail</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">trail</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+            <span class="n">cyc</span> <span class="o">=</span> <span class="n">trail</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
+            <span class="n">attractors</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">binary_repr</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">I</span><span class="p">)))),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">cyc</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">attractors</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">basin_sizes</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">attractors</span><span class="p">):</span>
+    <span class="n">succ</span> <span class="o">=</span> <span class="n">enumerate_state_graph</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+    <span class="c1"># map an arbitrary state to an attractor index</span>
+    <span class="n">rep_to_idx</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cyc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">attractors</span><span class="p">):</span>
+        <span class="n">rep_to_idx</span><span class="p">[</span><span class="n">state_to_int</span><span class="p">(</span><span class="n">cyc</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="c1"># Assign every state to a cycle it reaches</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">cur</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rep_to_idx</span> <span class="ow">and</span> <span class="n">cur</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+            <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">succ</span><span class="p">[</span><span class="n">cur</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">cur</span> <span class="ow">in</span> <span class="n">rep_to_idx</span><span class="p">:</span>
+            <span class="n">counts</span><span class="p">[</span><span class="n">rep_to_idx</span><span class="p">[</span><span class="n">cur</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attractors</span><span class="p">))]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_trajectory</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">x0</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">BN</span><span class="o">.</span><span class="n">successor_state</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">successor_naive</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_basin_bar</span><span class="p">(</span><span class="n">basin_counts</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">basin_counts</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">basin_counts</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Attractor index&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Basin size (states)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_timeseries</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">T</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">),</span> <span class="n">path</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.2</span><span class="o">*</span><span class="n">i</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">labels</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;x</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time step&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.
+The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.
+</pre></div></div>
+</div>
+</section>
+<section id="1.-Toggle-Switch-(Mutual-Repression)">
+<h2>1. Toggle Switch (Mutual Repression)<a class="headerlink" href="#1.-Toggle-Switch-(Mutual-Repression)" title="Link to this heading"></a></h2>
+<p>A 2-gene toggle: each gene represses the other. Deterministic Boolean version:</p>
+<ul class="simple">
+<li><p><strong>x1’ = NOT x2</strong></p></li>
+<li><p><strong>x2’ = NOT x1</strong></p></li>
+</ul>
+<p>Expected behavior: two fixed points (1,0) and (0,1), each with sizable basins (bistability).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define toggle switch</span>
+<span class="c1"># Gene 1 depends only on x2: NOT</span>
+<span class="n">f1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># input order: x2</span>
+<span class="c1"># Gene 2 depends only on x1: NOT</span>
+<span class="n">f2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># input order: x1</span>
+
+<span class="n">F</span> <span class="o">=</span> <span class="p">[</span><span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">]</span>
+<span class="n">I</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">]]</span>  <span class="c1"># regulators</span>
+
+<span class="c1"># Find attractors and basins</span>
+<span class="n">attrs</span> <span class="o">=</span> <span class="n">find_attractors</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Attractors (states in cycle):&#39;</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+
+<span class="n">basins</span> <span class="o">=</span> <span class="n">basin_sizes</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Basin sizes:&#39;</span><span class="p">,</span> <span class="n">basins</span><span class="p">)</span>
+
+<span class="n">plot_basin_bar</span><span class="p">(</span><span class="n">basins</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Toggle Switch: Basin Sizes&quot;</span><span class="p">)</span>
+
+<span class="c1"># Example trajectory from [1,1]</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">simulate_trajectory</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">T</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plot_timeseries</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;Toggle Switch: Trajectory from [1,1]&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x1&#39;</span><span class="p">,</span><span class="s1">&#39;x2&#39;</span><span class="p">])</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Attractors (states in cycle): [[array([0, 0]), array([1, 1])], [array([0, 1])], [array([1, 0])]]
+Basin sizes: [2, 1, 1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_collections_tutorials_04_grn_tutorial_5_1.svg" src="../../_images/_collections_tutorials_04_grn_tutorial_5_1.svg" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_collections_tutorials_04_grn_tutorial_5_2.svg" src="../../_images/_collections_tutorials_04_grn_tutorial_5_2.svg" />
+</div>
+</div>
+</section>
+<section id="2.-Repressilator-(3-Node-Ring-of-Inhibitions)">
+<h2>2. Repressilator (3-Node Ring of Inhibitions)<a class="headerlink" href="#2.-Repressilator-(3-Node-Ring-of-Inhibitions)" title="Link to this heading"></a></h2>
+<p>A 3-gene ring of inhibitions:</p>
+<ul class="simple">
+<li><p><strong>x1’ = NOT x2</strong></p></li>
+<li><p><strong>x2’ = NOT x3</strong></p></li>
+<li><p><strong>x3’ = NOT x1</strong></p></li>
+</ul>
+<p>Expected behavior (synchronous update): typically a 2-cycle (oscillation).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define repressilator</span>
+<span class="n">f_not</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="n">F</span> <span class="o">=</span> <span class="p">[</span><span class="n">f_not</span><span class="p">,</span> <span class="n">f_not</span><span class="p">,</span> <span class="n">f_not</span><span class="p">]</span>
+<span class="n">I</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">]]</span>  <span class="c1"># x1&lt;-x2, x2&lt;-x3, x3&lt;-x1</span>
+
+<span class="n">attrs</span> <span class="o">=</span> <span class="n">find_attractors</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Attractors:&#39;</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+
+<span class="n">basins</span> <span class="o">=</span> <span class="n">basin_sizes</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Basin sizes:&#39;</span><span class="p">,</span> <span class="n">basins</span><span class="p">)</span>
+<span class="n">plot_basin_bar</span><span class="p">(</span><span class="n">basins</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Repressilator: Basin Sizes&quot;</span><span class="p">)</span>
+
+<span class="c1"># Show a trajectory from a random initial condition</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">simulate_trajectory</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plot_timeseries</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;Repressilator: Trajectory from [1,0,0]&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x1&#39;</span><span class="p">,</span><span class="s1">&#39;x2&#39;</span><span class="p">,</span><span class="s1">&#39;x3&#39;</span><span class="p">])</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Attractors: [[array([0, 0, 0]), array([1, 1, 1])], [array([0, 0, 1]), array([1, 0, 1]), array([1, 0, 0]), array([1, 1, 0]), array([0, 1, 0]), array([0, 1, 1])]]
+Basin sizes: [2, 6]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_collections_tutorials_04_grn_tutorial_8_1.svg" src="../../_images/_collections_tutorials_04_grn_tutorial_8_1.svg" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_collections_tutorials_04_grn_tutorial_8_2.svg" src="../../_images/_collections_tutorials_04_grn_tutorial_8_2.svg" />
+</div>
+</div>
+</section>
+<section id="3.-T-cell-Differentiation-(Toy-Circuit)">
+<h2>3. T-cell Differentiation (Toy Circuit)<a class="headerlink" href="#3.-T-cell-Differentiation-(Toy-Circuit)" title="Link to this heading"></a></h2>
+<p>This is a minimalist toy capturing a <strong>binary fate decision</strong> flavor (not a faithful biological model).</p>
+<p>Nodes:</p>
+<ul class="simple">
+<li><p><strong>T-bet (T)</strong> promotes Th1; <strong>GATA3 (G)</strong> promotes Th2.</p></li>
+<li><p>Mutual inhibition T ⊣ G and G ⊣ T.</p></li>
+<li><p>A cytokine input <strong>S</strong> (signal) biases toward T-bet.</p></li>
+</ul>
+<p>Update rules (Boolean caricature):</p>
+<ul class="simple">
+<li><p><strong>T’ = (S OR T) AND NOT G</strong></p></li>
+<li><p><strong>G’ = (NOT T) AND (NOT S)</strong></p></li>
+<li><p><strong>S’ = S</strong> (external condition held constant; we treat S as self-copy for simplicity)</p></li>
+</ul>
+<p>We’ll examine how <strong>S=0</strong> (no bias) vs <strong>S=1</strong> (bias toward Th1) changes attractors and basins.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build truth tables for the toy T-cell circuit</span>
+<span class="c1"># Variable order: [T, G, S]</span>
+<span class="c1"># T&#39; = (S OR T) AND NOT G</span>
+<span class="c1"># G&#39; = (NOT T) AND (NOT S)</span>
+<span class="c1"># S&#39; = S  (identity / held constant)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">truth_table_T</span><span class="p">():</span>
+    <span class="c1"># Inputs to T are (T,G,S) but T&#39; only depends on (T,G,S) as defined</span>
+    <span class="n">tb</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">T_val</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">G_val</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">S_val</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">Tb</span> <span class="o">=</span> <span class="p">(</span><span class="n">S_val</span> <span class="ow">or</span> <span class="n">T_val</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">G_val</span><span class="p">)</span>
+                <span class="n">tb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">Tb</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">truth_table_G</span><span class="p">():</span>
+    <span class="n">tb</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">T_val</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">G_val</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">S_val</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">Gb</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="n">T_val</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">S_val</span><span class="p">)</span>
+                <span class="n">tb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">Gb</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">truth_table_S</span><span class="p">():</span>
+    <span class="c1"># identity on S alone: inputs: [S]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="n">fT</span> <span class="o">=</span> <span class="n">truth_table_T</span><span class="p">()</span>   <span class="c1"># length 8</span>
+<span class="n">fG</span> <span class="o">=</span> <span class="n">truth_table_G</span><span class="p">()</span>   <span class="c1"># length 8</span>
+<span class="n">fS</span> <span class="o">=</span> <span class="n">truth_table_S</span><span class="p">()</span>   <span class="c1"># length 2</span>
+
+<span class="n">F</span> <span class="o">=</span> <span class="p">[</span><span class="n">fT</span><span class="p">,</span> <span class="n">fG</span><span class="p">,</span> <span class="n">fS</span><span class="p">]</span>
+<span class="n">I</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">]]</span>  <span class="c1"># regulators: T depends on (T,G,S); G on (T,G,S); S on (S)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Truth tables lengths:&#39;</span><span class="p">,</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="p">])</span>
+
+<span class="n">attrs</span> <span class="o">=</span> <span class="n">find_attractors</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Attractors (unrestricted S):&#39;</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+
+<span class="c1"># Compare basins restricting to S=0 and S=1 initial states</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">restricted_basin</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">S_fixed</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">succ</span> <span class="o">=</span> <span class="n">enumerate_state_graph</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+    <span class="c1"># Only consider states with S = S_fixed</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">N</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">s</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">S_fixed</span><span class="p">]</span>  <span class="c1"># with ordering [T,G,S], S is least significant bit</span>
+    <span class="c1"># Identify attractor indices</span>
+    <span class="n">atts</span> <span class="o">=</span> <span class="n">find_attractors</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+    <span class="n">rep_to_idx</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span> <span class="mi">2</span><span class="p">):</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atts</span><span class="p">)}</span> <span class="k">if</span> <span class="n">atts</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="c1"># Map each state to an attractor index</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">cur</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rep_to_idx</span> <span class="ow">and</span> <span class="n">cur</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+            <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">succ</span><span class="p">[</span><span class="n">cur</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">cur</span> <span class="ow">in</span> <span class="n">rep_to_idx</span><span class="p">:</span>
+            <span class="n">counts</span><span class="p">[</span><span class="n">rep_to_idx</span><span class="p">[</span><span class="n">cur</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">atts</span><span class="p">,</span> <span class="p">[</span><span class="n">counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atts</span><span class="p">))]</span>
+
+<span class="n">atts0</span><span class="p">,</span> <span class="n">bas0</span> <span class="o">=</span> <span class="n">restricted_basin</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">S_fixed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">atts1</span><span class="p">,</span> <span class="n">bas1</span> <span class="o">=</span> <span class="n">restricted_basin</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">S_fixed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Attractors (S unrestricted):&#39;</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Basin sizes with S=0 init:&#39;</span><span class="p">,</span> <span class="n">bas0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Basin sizes with S=1 init:&#39;</span><span class="p">,</span> <span class="n">bas1</span><span class="p">)</span>
+
+<span class="n">plot_basin_bar</span><span class="p">(</span><span class="n">bas0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;T-cell toy: Basins with S=0 (no bias)&quot;</span><span class="p">)</span>
+<span class="n">plot_basin_bar</span><span class="p">(</span><span class="n">bas1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;T-cell toy: Basins with S=1 (bias toward T)&quot;</span><span class="p">)</span>
+
+<span class="c1"># Example trajectories under S=0 and S=1 from same T,G but different S</span>
+<span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># start G=1,T=0, S=0</span>
+<span class="n">path0</span> <span class="o">=</span> <span class="n">simulate_trajectory</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plot_timeseries</span><span class="p">(</span><span class="n">path0</span><span class="p">,</span> <span class="s2">&quot;T-cell toy trajectory (S=0)&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">,</span><span class="s1">&#39;G&#39;</span><span class="p">,</span><span class="s1">&#39;S&#39;</span><span class="p">])</span>
+
+<span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># same T,G but S=1</span>
+<span class="n">path1</span> <span class="o">=</span> <span class="n">simulate_trajectory</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plot_timeseries</span><span class="p">(</span><span class="n">path1</span><span class="p">,</span> <span class="s2">&quot;T-cell toy trajectory (S=1)&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">,</span><span class="s1">&#39;G&#39;</span><span class="p">,</span><span class="s1">&#39;S&#39;</span><span class="p">])</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Truth tables lengths: [8, 8, 2]
+Attractors (unrestricted S): [[array([0, 1, 0])], [array([1, 0, 1])], [array([1, 0, 0])]]
+Attractors (S unrestricted): [[array([0, 1, 0])], [array([1, 0, 1])], [array([1, 0, 0])]]
+Basin sizes with S=0 init: [3, 0, 1]
+Basin sizes with S=1 init: [0, 4, 0]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_collections_tutorials_04_grn_tutorial_11_1.svg" src="../../_images/_collections_tutorials_04_grn_tutorial_11_1.svg" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_collections_tutorials_04_grn_tutorial_11_2.svg" src="../../_images/_collections_tutorials_04_grn_tutorial_11_2.svg" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_collections_tutorials_04_grn_tutorial_11_3.svg" src="../../_images/_collections_tutorials_04_grn_tutorial_11_3.svg" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_collections_tutorials_04_grn_tutorial_11_4.svg" src="../../_images/_collections_tutorials_04_grn_tutorial_11_4.svg" />
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

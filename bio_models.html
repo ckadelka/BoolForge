@@ -16,6 +16,7 @@
       <script src="_static/documentation_options.js?v=8d563738"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -59,6 +60,7 @@
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
 </ul>
 
@@ -95,116 +97,112 @@
 <p>&#64;author: ckadelka</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.bio_models.get_content_in_remote_folder">
-<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">get_content_in_remote_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/bio_models.html#get_content_in_remote_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.get_content_in_remote_folder" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">get_content_in_remote_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/bio_models.html#get_content_in_remote_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.get_content_in_remote_folder" title="Link to this definition"></a></dt>
 <dd><p>Retrieve file names and download URLs from a remote GitHub folder.</p>
-<section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>url<span class="classifier">str</span></dt><dd><p>GitHub API URL pointing to a repository folder.</p>
-</dd>
-</dl>
-</section>
-<section id="returns">
-<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>file_names<span class="classifier">list of str</span></dt><dd><p>Names of files in the folder.</p>
-</dd>
-<dt>file_download_urls<span class="classifier">list of str</span></dt><dd><p>Corresponding raw download URLs.</p>
-</dd>
-</dl>
-</section>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>url (str): GitHub API URL pointing to a repository folder.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>tuple[list[str], list[str]]: (file_names, file_download_urls), where
+file_names is a list of files in the folder and file_download_urls
+is a list containing the raw download URL.</p></li>
+</ul>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.bio_models.fetch_file">
-<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">fetch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">download_url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/bio_models.html#fetch_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.fetch_file" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">fetch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">download_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/boolforge/bio_models.html#fetch_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.fetch_file" title="Link to this definition"></a></dt>
 <dd><p>Download raw text content of a file.</p>
-<section id="id1">
-<h2>Parameters<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>download_url<span class="classifier">str</span></dt><dd><p>Direct download URL to the file.</p>
-</dd>
-</dl>
-</section>
-<section id="id2">
-<h2>Returns<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>str</dt><dd><p>File content as plain text.</p>
-</dd>
-</dl>
-</section>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>download_url (str): Direct download URL to the file.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>str: File content as plain text.</p></li>
+</ul>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.bio_models.fetch_file_bytes">
-<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">fetch_file_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">download_url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/bio_models.html#fetch_file_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.fetch_file_bytes" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">fetch_file_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">download_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/boolforge/bio_models.html#fetch_file_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.fetch_file_bytes" title="Link to this definition"></a></dt>
 <dd><p>Download raw bytes content of a file.</p>
-<section id="id3">
-<h2>Parameters<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>download_url<span class="classifier">str</span></dt><dd><p>Direct download URL to the file.</p>
-</dd>
-</dl>
-</section>
-<section id="id4">
-<h2>Returns<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>bytes</dt><dd><p>File content as raw bytes.</p>
-</dd>
-</dl>
-</section>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>download_url (str): Direct download URL to the file.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>bytes: File content as raw bytes.</p></li>
+</ul>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.bio_models.load_model">
-<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">download_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">possible_separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['*</span> <span class="pre">=',</span> <span class="pre">'*=',</span> <span class="pre">'=',</span> <span class="pre">',']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_not</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NOT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_and</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AND'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_or</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'OR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IGNORE_FIRST_LINE</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/bio_models.html#load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.load_model" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">download_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">possible_separators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['*</span> <span class="pre">=',</span> <span class="pre">'*=',</span> <span class="pre">'=',</span> <span class="pre">',']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_not</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'NOT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_and</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AND'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_or</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'OR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IGNORE_FIRST_LINE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/boolforge/bio_models.html#load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.load_model" title="Link to this definition"></a></dt>
 <dd><p>Load a Boolean network model from a remote text file.</p>
-<section id="id5">
-<h2>Parameters<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>download_url<span class="classifier">str</span></dt><dd><p>Direct download URL to the model file.</p>
-</dd>
-<dt>max_degree<span class="classifier">int, optional</span></dt><dd><p>Maximum in-degree allowed for nodes (default: 24).</p>
-</dd>
-<dt>possible_separators<span class="classifier">list of str, optional</span></dt><dd><p>Possible assignment separators in model files (default: [’* =’,’*=’,’=’,’,’]).</p>
-</dd>
-<dt>original_not, original_and, original_or<span class="classifier">str, optional</span></dt><dd><p>Possible logical operators in the model file.</p>
-</dd>
-<dt>IGNORE_FIRST_LINE<span class="classifier">bool, optional</span></dt><dd><p>If True, skip the first line of the file (default: False).</p>
-</dd>
-</dl>
-</section>
-<section id="id6">
-<h2>Returns<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>BooleanNetwork or None</dt><dd><p>Parsed Boolean network, or None if parsing fails.</p>
-</dd>
-</dl>
-</section>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>download_url (str): Direct download URL to the model file.</p></li>
+<li><p>max_degree (int, optional): Maximum in-degree allowed for nodes
+(default: 24).</p></li>
+<li><p>possible_separators (list[str], optional): Possible assignment
+separators in model files (default: [’* =’, ‘*=’, ‘=’, ‘,’]).</p></li>
+<li><p>original_not (str, optional): Possible logical negation operator in
+the model file.</p></li>
+<li><p>original_and (str, optional): Possible logical AND operator in the
+model file.</p></li>
+<li><p>original_or (str, optional): Possible logical OR operator in the
+model file.</p></li>
+<li><p>IGNORE_FIRST_LINE (bool, optional): If True, skip the first line
+of the file (default: False).</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>BooleanNetwork: Parsed Boolean network. If parsing fails, returns None.</p></li>
+</ul>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.bio_models.get_bio_models_from_repository">
-<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">get_bio_models_from_repository</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repository</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/bio_models.html#get_bio_models_from_repository"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.get_bio_models_from_repository" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">get_bio_models_from_repository</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repository</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/bio_models.html#get_bio_models_from_repository"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.get_bio_models_from_repository" title="Link to this definition"></a></dt>
 <dd><p>Load Boolean network models from selected online repositories.</p>
-<section id="id7">
-<h2>Parameters<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>repository<span class="classifier">{‘expert-curated (ckadelka)’, ‘pystablemotifs (jcrozum)’, ‘biodivine (sybila)’}</span></dt><dd><p>Source repository identifier.</p>
-</dd>
-</dl>
-</section>
-<section id="id8">
-<h2>Returns<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>bns<span class="classifier">list of instances of BooleanNetwork</span></dt><dd><p>Successfully parsed Boolean networks.</p>
-</dd>
-<dt>successful_download_urls<span class="classifier">list of str</span></dt><dd><p>URLs of models successfully loaded.</p>
-</dd>
-<dt>failed_download_urls<span class="classifier">list of str</span></dt><dd><p>URLs of models that could not be parsed.</p>
-</dd>
-</dl>
-</section>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>repository (str:{‘expert-curated (ckadelka)’, ‘pystablemotifs (jcrozum)’,
+‘biodivine (sybila)’}): Source repository identifier.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>tuple[list[BooleanNetwork], list[str], list[str]]: (bns,
+successful_download_urls, failed_download_urls) where bns is a list
+of successfully parsed Boolean networks, successful_download_urls
+is a list of URLs of models successfully loaded, and
+failed_download_urls is a list of URLs where models could not be
+parsed.</p></li>
+</ul>
+</div></blockquote>
 </dd></dl>
 
 </section>
