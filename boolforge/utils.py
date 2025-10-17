@@ -333,10 +333,7 @@ def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n : int, w : int) -> 
 
     **Returns:**
         
-        - tuple[int, list[int]]: A tuple (r, layer_structure_NCF), where:
-            
-            - r (int): The number of canalizing layers.
-            - layer_structure_NCF (list[int]): A list [k_1, ..., k_r]
+        - layer_structure_NCF (list[int]): A list [k_1, ..., k_r]
               describing the number of variables in each layer.
 
     **References:**
@@ -346,7 +343,6 @@ def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n : int, w : int) -> 
            Nonlinear Phenomena, 353, 39-47.
     """
     if w == 1:
-        r = 1
         layer_structure_NCF = [n]
     else:
         assert type(w) == int or type(w) == np.int64, 'Hamming weight must be an integer'
@@ -362,6 +358,5 @@ def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n : int, w : int) -> 
                 layer_structure_NCF.append(1)
                 current_el = el
         layer_structure_NCF[-1] += 1
-        r = len(layer_structure_NCF)
-    return (r, layer_structure_NCF)
+    return layer_structure_NCF
 
