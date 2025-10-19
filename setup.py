@@ -26,6 +26,7 @@ setup(
       install_requires = [
           "numpy",
           "networkx",
+          "pandas",
           "scipy",
           "pyeda"
       ]

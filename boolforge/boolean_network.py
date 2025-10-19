@@ -13,6 +13,7 @@ from copy import deepcopy
 
 import numpy as np
 import networkx as nx
+import pandas as pd
 
 from typing import Union, Optional
 
@@ -244,7 +245,7 @@ class WiringDiagram(object):
         
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.N = len(I)
-        self.indegrees = list(map(len, self.I))
+        self.indegrees = np.array(list(map(len, self.I)))
         
         if variables is None:
             variables = ['x'+str(i) for i in range(self.N)]
@@ -316,7 +317,7 @@ class WiringDiagram(object):
         edges_wiring_diagram = []
         for target, regulators in enumerate(self.I):
             for regulator in regulators:
-                edges_wiring_diagram.append((regulator, target))
+                edges_wiring_diagram.append((int(regulator), target))
         subG = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
         return [scc for scc in nx.strongly_connected_components(subG)]
 
@@ -536,8 +537,9 @@ class BooleanNetwork(WiringDiagram):
           list[int]]): A list of N Boolean functions, or of N lists of length
           2^n representing the outputs of a Boolean function with n inputs.
 
-        - I (list[list[int]] | np.ndarray[list[int]]): A list of N lists
-          representing the regulators (or inputs) for each Boolean function.
+        - I (list[list[int]] | np.ndarray[list[int]] | WiringDiagram):
+          A list of N lists representing the regulators (or inputs) for each 
+          Boolean function.
 
         - variables (list[str] | np.array[str], optional): A list of N strings
           representing the names of each variable, default = None.
@@ -826,6 +828,29 @@ class BooleanNetwork(WiringDiagram):
                 function = self.F[i].to_expression(" & ", " | ")
             lines.append(f'{self.variables[i]}{separator}{function}')
         return '\n'.join(lines)
+    
+    def to_truth_table(self):
+        """
+        Determines the full truth table of the Boolean network as pandas DataFrame.
+
+        Each row shows the input combination (x1, x2, ..., xn)
+        and the corresponding output(s) f(x).
+
+        **Returns:**
+            
+            - pd.DataFrame: The full truth table.
+        """
+        
+        columns = [name + '(t)' for name in self.variables]
+        columns += [name + '(t+1)' for name in self.variables]
+        if self.STG is None:
+            self.compute_synchronous_state_transition_graph()
+        data = np.zeros((2**self.N,2*self.N),dtype=int)
+        data[:,:self.N] = utils.get_left_side_of_truth_table(self.N)
+        for i in range(2**self.N):
+            data[i,self.N:] = utils.dec2bin(self.STG[i],self.N)
+        truth_table = pd.DataFrame(data,columns=columns)
+        return truth_table
 
     
     def __len__(self):
@@ -837,7 +862,6 @@ class BooleanNetwork(WiringDiagram):
     
     
     def __getitem__(self, index):
-        #return (self.F[index],self.I[index],self.variables[index])
         return self.F[index]
     
     def __copy__(self):
@@ -845,7 +869,23 @@ class BooleanNetwork(WiringDiagram):
         result = cls.__new__(cls)
         result.__dict__.update(self.__dict__)
         return result
-        
+    
+    def __call__(self, state):
+        """
+        Perform a synchronous update of a Boolean network.
+
+        Each node's new state is determined by applying its Boolean function
+        to the current states of its regulators.
+
+        **Parameters:**
+            
+            - X (list[int] | np.array[int]): Current state vector of the network.
+
+        **Returns:**
+            
+            - np.array[int]: New state vector after the update.
+        """
+        return self.update_network_synchronously(state)
     
     def get_types_of_regulation(self) -> np.array:
         """
@@ -862,6 +902,9 @@ class BooleanNetwork(WiringDiagram):
             weights.append(np.array([dict_weights[el] for el in bf.get_type_of_inputs()]))
         self.weights = weights
         return weights
+    
+
+
 
     ## Transform Boolean networks
     def simplify_functions(self) -> None:
@@ -1809,7 +1852,6 @@ class BooleanNetwork(WiringDiagram):
                 
             # Build the dictionary {current_state: next_state}
             self.STG = dict(zip(range(2 ** self.N_variables), next_indices.tolist()))
-            return self.STG
     else:
         def compute_synchronous_state_transition_graph(self) -> dict:
             """
