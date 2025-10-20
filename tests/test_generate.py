@@ -62,7 +62,7 @@ assert bf.is_k_canalizing(n),"boolforge.random_NCF failed"
 
 #Generate all possible layer structures of n-input NCFs and test if the correct layer structure is recovered
 for w in range(1,2**(n-1),2):
-    layer_structure = boolforge.get_layer_structure_of_an_NCF_given_its_Hamming_weight(n,w)[-1]
+    layer_structure = boolforge.get_layer_structure_of_an_NCF_given_its_Hamming_weight(n,w)
     bf = boolforge.random_NCF(n,layer_structure=layer_structure)
     test = np.all(np.array(boolforge.get_layer_structure_from_canalized_outputs(bf.get_layer_structure()['CanalizedOutputs'])) == np.array(layer_structure))
     assert test,"boolforge.random_NCF failed for n = {n} and layer_structure = {layer_structure}"
