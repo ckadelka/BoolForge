@@ -8,6 +8,7 @@ Created on Tue Aug 12 11:03:49 2025
 
 import numpy as np
 import itertools
+import math
 from pyeda.inter import exprvar, Or, And, Not, espresso_exprs
 from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
 
@@ -864,6 +865,59 @@ class BooleanFunction(object):
     
         return canalizing_hits / total_tests if total_tests > 0 else 0.0
 
+
+    def get_kset_canalizing_proportion_of_variables(self, k : int) -> float:
+        """
+        Compute the proportion of k-set canalizing input sets that contain a specific variable.
+
+        For a given k, this function calculates the probability that a randomly
+        chosen set of k inputs (including a specific variable) canalizes the function,
+        i.e., forces the output regardless of the remaining variables.
+
+        **Parameters:**
+            
+            - k (int): The size of the variable set (0 ≤ k ≤ n).
+
+        **Returns:**
+            
+            - float: The proportion of k-set canalizing input sets.
+
+        **References:**
+            
+            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively
+               canalizing Boolean functions. Advances in Applied Mathematics,
+               145, 102475.
+        """
+        assert type(k)==int and 0<=k<=self.n, "k must be an integer and satisfy 0 <= k <= degree n"
+        
+        # trivial case
+        if k == 0:
+            return float(self.is_constant())
+        
+        # precompute binary representation of all inputs
+        #indices = np.arange(2**self.n, dtype=np.uint32)
+        #bits = ((indices[:, None] >> np.arange(self.n)) & 1).astype(np.uint8)  # shape (2**n, n)
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.n)
+        
+        canalizing_hits = np.zeros(self.n,dtype=np.float64)
+        
+        # iterate over variable subsets of size k
+        for subset in itertools.combinations(range(self.n), k):
+            Xsub = left_side_of_truth_table[:, subset]  # shape (2**n, k)
+            subset = np.array(subset)
+            # For each possible assignment to this subset
+            for assignment in itertools.product([0, 1], repeat=k):
+                mask = np.all(Xsub == assignment, axis=1)
+                if not np.any(mask):
+                    continue
+                # If all outputs equal when these vars are fixed → canalizing
+                f_sub = self.f[mask]
+                if np.all(f_sub == f_sub[0]):
+                    canalizing_hits[subset] += 1
+    
+        return canalizing_hits / (k/self.n * math.comb(self.n,k) * 2**k)
+
+
     def is_kset_canalizing(self, k : int) -> bool:
         """
         Determine if a Boolean function is k-set canalizing.
@@ -901,11 +955,7 @@ class BooleanFunction(object):
 
         **Returns:**
             
-            - tuple:
-                
-                - float: The canalizing strength of f.
-                - list[float]: A list of the k-set canalizing proportions
-                  for k = 1, 2, ..., n-1.
+            - The canalizing strength of f.
 
         **References:**
             
@@ -919,7 +969,35 @@ class BooleanFunction(object):
         res = []
         for k in range(1, self.n):
             res.append(self.get_kset_canalizing_proportion(k))
-        return np.mean(np.multiply(res, 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1))), res
+        return np.mean(np.multiply(res, 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1)))
+
+
+    def get_canalizing_strength_of_variables(self) -> tuple:
+        """
+        Compute the canalizing strength of each variable in a Boolean function 
+        via exhaustive enumeration.
+
+        The canalizing strength is defined as a weighted average of the
+        proportions of k-set canalizing inputs for k = 1 to n-1. It is 0 for
+        minimally canalizing functions (e.g., Boolean parity functions) and 1
+        for maximally canalizing functions (e.g., nested canalizing functions
+        with one layer).
+
+        **Returns:**
+            
+            - np.array(float): The canalizing strength of each variable of f.
+
+        """
+        if self.n==1:
+            print("Warning:\nCanalizing strength is only properly defined for Boolean functions with n > 1 inputs. Returned 1 for n==1.")
+            return np.ones(1,dtype=np.float64)
+        res = np.zeros((self.n-1,self.n))
+        for k in range(1, self.n):
+            res[k-1] = self.get_kset_canalizing_proportion_of_variables(k)
+        multipliers = 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1)
+        return np.mean(res * multipliers[:, np.newaxis],0)
+    
+    
     
     def get_input_redundancy(self) -> Optional[float]:
         """
