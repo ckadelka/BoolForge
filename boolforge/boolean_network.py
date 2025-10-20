@@ -829,16 +829,39 @@ class BooleanNetwork(WiringDiagram):
             lines.append(f'{self.variables[i]}{separator}{function}')
         return '\n'.join(lines)
     
-    def to_truth_table(self):
+    def to_truth_table(self,RETURN=True,filename=None):
         """
         Determines the full truth table of the Boolean network as pandas DataFrame.
 
-        Each row shows the input combination (x1, x2, ..., xn)
+        Each row shows the input combination (x1, x2, ..., xN)
         and the corresponding output(s) f(x).
+        
+        The output is returned as a pandas DataFrame and can optionally be
+        exported to a file in CSV or Excel format.
+
+        **Parameters:**
+            - RETURN (bool, optional):
+                Whether to return the truth table as a pandas DataFrame.
+                Defaults to True.
+            
+            - filename (str, optional):
+                If provided, the truth table is written to a file. The file
+                extension determines the format and must be one of:
+                `'csv'`, `'xls'`, or `'xlsx'`.
+                Example: `"truth_table.csv"` or `"truth_table.xlsx"`.
+                If `None` (default), no file is created.
 
         **Returns:**
             
-            - pd.DataFrame: The full truth table.
+            - pd.DataFrame: The full truth table with shape (2^N, 2N).
+              Returned only if `RETURN=True`.
+              
+        **Notes:**
+            - The function automatically computes the synchronous
+              state transition graph (`STG`) if it has not been computed yet.
+            - Each output row represents a deterministic transition from the
+              current state to its next state under synchronous updating.
+            - Exporting to Excel requires the `openpyxl` package to be installed.
         """
         
         columns = [name + '(t)' for name in self.variables]
@@ -850,8 +873,16 @@ class BooleanNetwork(WiringDiagram):
         for i in range(2**self.N):
             data[i,self.N:] = utils.dec2bin(self.STG[i],self.N)
         truth_table = pd.DataFrame(data,columns=columns)
-        return truth_table
-
+        
+        if filename is not None:
+            ending = filename.split('.')[-1]
+            assert ending in ['csv','xls','xlsx'],"filename must end in 'csv','xls', or 'xlsx'"
+            if ending == 'csv':
+                truth_table.to_csv(filename)
+            else:
+                truth_table.to_excel(filename)
+        if RETURN:
+            return truth_table
     
     def __len__(self):
         return self.N

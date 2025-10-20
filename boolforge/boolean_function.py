@@ -7,6 +7,7 @@ Created on Tue Aug 12 11:03:49 2025
 """
 
 import numpy as np
+import pandas as pd
 import itertools
 import math
 from pyeda.inter import exprvar, Or, And, Not, espresso_exprs
@@ -209,6 +210,55 @@ class BooleanFunction(object):
             - str: Polynomial format in non-reduced DNF of the Boolean function.
         """
         return utils.bool_to_poly(self.f,variables=self.variables)
+
+    def to_truth_table(self,RETURN=True,filename=None):
+        """
+        Returns or saves the full truth table of the Boolean function as a pandas DataFrame.
+    
+        Each row shows the input combination (x1, x2, ..., xn)
+        and the corresponding output f(x).
+    
+        **Parameters**
+            - RETURN (bool, optional): Whether to return the DataFrame (default: True).
+              If False, the function only writes the table to file when `filename` is provided.
+            - filename (str, optional): File name (including extension) to which the truth table
+              should be saved. Supported formats are 'csv', 'xls', and 'xlsx'.
+              If provided, the truth table is automatically saved in the specified format.
+    
+        **Returns**
+            - pd.DataFrame: The full truth table, if `RETURN=True`.
+              Otherwise, nothing is returned.
+    
+        **Example**
+            >>> f = BooleanFunction("(x1 & ~x2) | x3")
+            >>> f.to_truth_table()
+                x1  x2  x3  f
+            0    0   0   0  0
+            1    0   0   1  1
+            2    0   1   0  0
+            3    0   1   1  1
+            4    1   0   0  1
+            5    1   0   1  1
+            6    1   1   0  0
+            7    1   1   1  1
+    
+        **Notes**
+            - The column names correspond to the function's variables followed by its name.
+            - When saving to a file, the file extension determines the format.
+        """
+        
+        columns = np.append(self.variables,self.name if self.name != '' else 'f')
+        truth_table = pd.DataFrame(np.c_[utils.get_left_side_of_truth_table(self.n),self.f],
+                                   columns=columns)
+        if filename is not None:
+            ending = filename.split('.')[-1]
+            assert ending in ['csv','xls','xlsx'],"filename must end in 'csv','xls', or 'xlsx'"
+            if ending == 'csv':
+                truth_table.to_csv(filename)
+            else:
+                truth_table.to_excel(filename)
+        if RETURN:
+            return truth_table
     
     def __repr__(self):
         if self.n < 6:
