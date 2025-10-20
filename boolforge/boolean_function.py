@@ -200,6 +200,12 @@ class BooleanFunction(object):
         return f"{self.f}"
         #return f"{self.f.tolist()}"
         
+    def __add__(self,value):
+        if isinstance(value, int):
+            return self.__class__((self.f + value) % 2)
+        elif isinstance(value, BooleanFunction):
+            return self.__class__((self.f + value.f) % 2)
+        
     def to_polynomial(self) -> str:
         """
         Returns the Boolean function converted into polynomial format in
@@ -325,6 +331,8 @@ class BooleanFunction(object):
             bits = [(variables[i] if (m >> (self.n - 1 - i)) & 1 else ~variables[i]) for i in range(self.n)]
             terms.append(And(*bits))
         func_expr = Or(*terms).to_dnf()
+        if func_expr == ZERO: #TODO
+            return '0'
         if MINIMIZE_EXPRESSION:
             func_expr, = espresso_exprs(func_expr)
         def __pyeda_to_string__(e):
@@ -337,7 +345,7 @@ class BooleanFunction(object):
             elif isinstance(e, Complement):
                 return "(%s%s)"%(NOT, str(e)[1::])
             return str(e)
-        return __pyeda_to_string__(Not(func_expr))
+        return __pyeda_to_string__(func_expr)
     
     def get_hamming_weight(self) -> int:
         """

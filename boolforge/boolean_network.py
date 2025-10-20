@@ -258,6 +258,76 @@ class WiringDiagram(object):
         self.outdegrees = self.get_outdegrees()
         self.weights = weights
 
+    @classmethod
+    def from_DiGraph(cls, nx_DiGraph : "nx.DiGraph") -> "WiringDiagram":
+        """
+        **Compatibility Method:**
+        
+        Converts a `networkx.DiGraph` instance into a `WiringDiagram` object.
+        Each node in the DiGraph represents a Boolean variable, and each
+        directed edge (u → v) indicates that variable `u` regulates variable `v`.
+        
+        **Parameters:**
+            - nx_DiGraph (nx.DiGraph): A directed graph where edges represent
+              regulatory influences (u → v).
+              
+              Node attributes (optional):
+              - `'name'`: a string name of the variable (defaults to node label).
+              - `'weight'`: numerical edge weights (stored in `weights` matrix, optional).
+        
+        **Returns:**
+            - WiringDiagram: An instance constructed from the graph structure.
+            
+        **Example:**
+            >>> import networkx as nx
+            >>> G = nx.DiGraph()
+            >>> G.add_edges_from([(0, 1), (1, 2), (2, 0)])
+            >>> WD = WiringDiagram.from_DiGraph(G)
+            >>> WD.I
+            [array([2]), array([0]), array([1])]
+            >>> WD.variables
+            array(['x0', 'x1', 'x2'], dtype='<U2')
+        """
+        
+        #BEN: TODO
+        
+        # Ensure input is a DiGraph
+        assert isinstance(nx_DiGraph, nx.DiGraph), "Input must be a networkx.DiGraph instance."
+    
+        # Sort nodes to ensure deterministic ordering
+        nodes = list(nx_DiGraph.nodes)
+        N = len(nodes)
+        
+        # Extract variable names, defaulting to "x0", "x1", ...
+        variables = []
+        for node in nodes:
+            if isinstance(node, str):
+                variables.append(node)
+            elif 'name' in nx_DiGraph.nodes[node]:
+                variables.append(nx_DiGraph.nodes[node]['name'])
+    
+        # Build regulator list I: for each node i, collect its predecessors (inputs)
+        I = []
+        for node in nodes:
+            regulators = list(nx_DiGraph.predecessors(node))
+            # Convert regulators to integer indices if nodes are not already 0..N-1
+            if not all(isinstance(r, int) for r in regulators):
+                regulators = [nodes.index(r) for r in regulators]
+            I.append(regulators)
+    
+        # Optional: extract weights if available
+        weights = None
+        has_weights = all('weight' in nx_DiGraph[u][v] for u, v in nx_DiGraph.edges)
+        if has_weights:
+            weights = []
+            for node in nodes:
+                regs = list(nx_DiGraph.predecessors(node))
+                w = [nx_DiGraph[u][node]['weight'] for u in regs]
+                weights.append(w)
+    
+        # Instantiate WiringDiagram
+        return cls(I=I, variables=variables, weights=weights)
+
     def __getitem__(self, index):
         return self.I[index]
 

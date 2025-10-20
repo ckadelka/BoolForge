@@ -176,13 +176,13 @@ def random_function(
         >>> # Unbiased, non-degenerated random function
         >>> f = random_function(n=3)
 
-        >>> # Function with minimal canalizing depth 2
+        >>> # Non-degenerated function with minimal canalizing depth 2
         >>> f = random_function(n=5, depth=2)
 
-        >>> # Function with exact canalizing depth 2
+        >>> # Non-degenerated function with exact canalizing depth 2
         >>> f = random_function(n=5, depth=2, EXACT_DEPTH=True)
 
-        >>> # With a specific layer structure (takes precedence over `depth`)
+        >>> # Non-degenerated function with a specific layer structure (takes precedence over `depth`)
         >>> f = random_function(n=6, layer_structure=[2, 1], EXACT_DEPTH=False)
 
         >>> # Linear function
@@ -191,6 +191,9 @@ def random_function(
         >>> # Fixed Hamming weight under non-canalizing + non-degenerated constraints
         >>> f = random_function(n=5, hamming_weight=10, EXACT_DEPTH=True,
         ...                     ALLOW_DEGENERATED_FUNCTIONS=False)
+        
+        >>> # Completely random (possibly degenerated) function
+        >>> f = random_function(n=3, ALLOW_DEGENERATED_FUNCTIONS=True)
     """
     rng = utils._coerce_rng(rng)
 
@@ -1227,7 +1230,7 @@ def random_network(
     indegree_distribution: str = "constant",
     AT_LEAST_ONE_REGULATOR_PER_NODE: bool = False,
     n_attempts_to_generate_strongly_connected_network: int = 1000,
-    I: Union[list, np.array, None, WiringDiagram] = None,
+    I: Union[list, np.array, None, WiringDiagram, nx.DiGraph] = None,
     *,
     rng=None,
 ) -> BooleanNetwork:
@@ -1358,7 +1361,7 @@ def random_network(
         - n_attempts_to_generate_strongly_connected_network (int, optional):
           Max attempts for strong connectivity before raising. Default 1000.
 
-        - I (list[list[int]] | list[np.ndarray[int]] | None | WiringDiagram, optional):
+        - I (list[list[int]] | list[np.ndarray[int]] | None | WiringDiagram | nx.DiGraph, optional):
           Existing wiring diagram. If provided, `N` and `n` are ignored and
           `indegrees` are computed from `I`.
 
@@ -1444,7 +1447,7 @@ def random_network(
         )
 
     elif I is not None:  # load wiring diagram
-        assert isinstance(I, (list, np.ndarray, WiringDiagram)), (
+        assert isinstance(I, (list, np.ndarray, WiringDiagram, nx.DiGraph)), (
             "I must be an instance of WiringDiagram or a list or np.array of lists or np.arrays. Each inner list describes the regulators of node i (indexed by 0,1,...,len(I)-1)"
         )
         if isinstance(I, (list, np.ndarray)):
@@ -1458,6 +1461,8 @@ def random_network(
                     "Each element in I describes the regulators of a node (indexed by 0,1,...,len(I)-1)"
                 )
             I = WiringDiagram(I)
+        elif isinstance(I, nx.DiGraph):
+            I = WiringDiagram.from_DiGraph()
     else:
         raise AssertionError(
             "At a minimum, the wiring diagram I must be provided or the network size N and degree parameter n."
