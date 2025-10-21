@@ -392,7 +392,8 @@ class BooleanFunction(object):
             - pd.DataFrame: The full truth table, if `RETURN=True`.
               Otherwise, nothing is returned.
     
-        **Example**
+        **Example:**
+        
             >>> f = BooleanFunction("(x1 & ~x2) | x3")
             >>> f.to_truth_table()
                 x1  x2  x3  f
