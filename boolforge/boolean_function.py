@@ -196,9 +196,29 @@ class BooleanFunction(object):
         """
         return cls(np.array(cana_BooleanNode.outputs,dtype=int))
 
+    ## Magic methods:
+    
     def __str__(self):
         return f"{self.f}"
         #return f"{self.f.tolist()}"
+    
+    def __repr__(self):
+        if self.n < 6:
+            return f"{type(self).__name__}(f={self.f.tolist()})"
+        else:
+            return f"{type(self).__name__}(f={self.f})"
+    
+    def __len__(self):
+        return 2**self.n
+
+    def __getitem__(self, index):
+        try:
+            return int(self.f[index])
+        except TypeError:
+            return self.f[index]
+
+    def __setitem__(self, index, value):
+        self.f[index] = value
         
     def __add__(self,value):
         """
@@ -321,24 +341,8 @@ class BooleanFunction(object):
         assert len(values)==self.n, f"The argument must be of length {self.n}."
         assert set(values) <= {0, 1}, "Binary values required."
         return self.f[utils.bin2dec(values)].item()
-
-    def __repr__(self):
-        if self.n < 6:
-            return f"{type(self).__name__}(f={self.f.tolist()})"
-        else:
-            return f"{type(self).__name__}(f={self.f})"
-    
-    def __len__(self):
-        return 2**self.n
-
-    def __getitem__(self, index):
-        try:
-            return int(self.f[index])
-        except TypeError:
-            return self.f[index]
-
-    def __setitem__(self, index, value):
-        self.f[index] = value
+        
+    ## Conversions:
         
     def to_polynomial(self) -> str:
         """
@@ -463,16 +467,8 @@ class BooleanFunction(object):
             return str(e)
         return __pyeda_to_string__(func_expr)
     
-    def get_hamming_weight(self) -> int:
-        """
-        Calculate the number of non-zero bits in the bit vector representing
-        a Boolean function.
-        
-        **Returns:**
-        
-            - int: The number of non-zero bits in the bit vector.
-        """
-        return int(self.f.sum())
+    
+    ## Methods with binary output: self.is_xxx(*args)
     
     def is_constant(self) -> bool:
         """
@@ -521,6 +517,157 @@ class BooleanFunction(object):
                 if depends_on_i == False:
                     return True
             return False
+
+    def is_monotonic(self) -> bool:
+        """
+        Determine if a Boolean function is monotonic.
+
+        A Boolean function is monotonic if it is monotonic in each variable. 
+        That is, if for all i=1,...,n: f(x_1, ..., x_i=0, ..., x_n) >= f(x_1,
+        ..., x_i=1, ..., x_n) for all (x_1, ..., x_n) or f(x_1, ..., x_i=0,
+        ..., x_n) <= f(x_1, ..., x_i=1, ..., x_n) for all (x_1, ..., x_n).
+
+        **Returns:**
+            
+            - bool: True if f contains no conditional variables, False if at
+              least one variable is conditional.
+        """            
+        return 'conditional' not in self.get_type_of_inputs()
+
+
+    def is_canalizing(self) -> bool:
+        """
+        Determine if a Boolean function is canalizing.
+
+        A Boolean function f(x_1, ..., x_n) is canalizing if there exists at
+        least one variable x_i and a value a ∈ {0, 1} such that f(x_1, ...,
+        x_i = a, ..., x_n) is constant.
+
+        **Returns:**
+            
+            - bool: True if f is canalizing, False otherwise.
+        """
+        indices = np.arange(2**self.n, dtype=np.uint32)
+    
+        # Iterate over each variable
+        for i in range(self.n):
+            mask = 1 << i #really this should be 1 << self.n-1-i but it's symmetric and faster as is
+            bit_is_0 = (indices & mask) == 0
+            bit_is_1 = ~bit_is_0
+    
+            # Restrict outputs where x_i = 0 or x_i = 1
+            f0 = self.f[bit_is_0]
+            f1 = self.f[bit_is_1]
+    
+            # If any restriction is constant, function is canalizing
+            if np.all(f0 == f0[0]) or np.all(f1 == f1[0]):
+                return True
+    
+        return False
+    
+    
+    def is_k_canalizing(self, k : int) -> bool:
+        """
+        Determine if a Boolean function is k-canalizing.
+
+        A Boolean function is k-canalizing if it has at least k conditionally
+        canalizing variables. This is checked recursively: after fixing a
+        canalizing variable (with a fixed canalizing input that forces the
+        output), the subfunction must itself be canalizing for
+        the next variable, and so on.
+
+        **Parameters:**
+            
+            - k (int): The desired canalizing depth (0 ≤ k ≤ n).
+              Note: every function is 0-canalizing.
+
+        **Returns:**
+            
+            - bool: True if f is k-canalizing, False otherwise.
+
+        **References:**
+            
+            #. He, Q., & Macauley, M. (2016). Stratification and enumeration of
+               Boolean functions by canalizing depth. Physica D: Nonlinear
+               Phenomena, 314, 1-8.
+            
+            #. Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D.
+               (2022). Revealing the canalizing structure of Boolean functions:
+               Algorithms and applications. Automatica, 146, 110630.
+        """
+
+        # Base cases
+        if k > self.n:
+            return False
+        if k == 0:
+            return True
+        if np.all(self.f == self.f[0]):  # constant function is by definition not canalizing
+            return False
+    
+        # Precompute input indices for masking
+        indices = np.arange(2**self.n, dtype=np.uint32)
+    
+        # Try each variable to see if it is canalizing
+        for i in range(self.n):
+            mask = 1 << i #really this should be 1 << self.n-1-i but it's symmetric and faster as is
+            bit_is_0 = (indices & mask) == 0
+            bit_is_1 = ~bit_is_0
+    
+            f0, f1 = self.f[bit_is_0], self.f[bit_is_1]
+    
+            # Case 1: x_i = 0 is canalizing
+            if np.all(f0 == f0[0]):
+                if k == 1:
+                    return True
+                # recurse on subfunction with x_i fixed to 0 → drop that variable
+                return BooleanFunction(f1).is_k_canalizing(k - 1)
+    
+            # Case 2: x_i = 1 is canalizing
+            elif np.all(f1 == f1[0]):
+                if k == 1:
+                    return True
+                return BooleanFunction(f0).is_k_canalizing(k - 1)
+        return False
+
+
+    def is_kset_canalizing(self, k : int) -> bool:
+        """
+        Determine if a Boolean function is k-set canalizing.
+
+        A Boolean function is k-set canalizing if there exists a set of k
+        variables such that setting these variables to specific values forces
+        the output of the function, irrespective of the other n - k inputs.
+
+        **Parameters:**
+            
+            - k (int): The size of the variable set (with 0 ≤ k ≤ n).
+
+        **Returns:**
+            
+            - bool: True if f is k-set canalizing, False otherwise.
+
+        **References:**
+            
+            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively
+               canalizing Boolean functions. Advances in Applied Mathematics,
+               145, 102475.
+        """
+        return self.get_kset_canalizing_proportion(k)>0
+
+
+    ## Methods with non-binary output
+
+    def get_hamming_weight(self) -> int:
+        """
+        Calculate the number of non-zero bits in the bit vector representing
+        a Boolean function.
+        
+        **Returns:**
+        
+            - int: The number of non-zero bits in the bit vector.
+        """
+        return int(self.f.sum())
+        
     
     def get_essential_variables(self) -> list:
         """
@@ -602,22 +749,7 @@ class BooleanFunction(object):
         self.properties['InputTypes'] = types
         return types
 
-    def is_monotonic(self) -> bool:
-        """
-        Determine if a Boolean function is monotonic.
 
-        A Boolean function is monotonic if it is monotonic in each variable. 
-        That is, if for all i=1,...,n: f(x_1, ..., x_i=0, ..., x_n) >= f(x_1,
-        ..., x_i=1, ..., x_n) for all (x_1, ..., x_n) or f(x_1, ..., x_i=0,
-        ..., x_n) <= f(x_1, ..., x_i=1, ..., x_n) for all (x_1, ..., x_n).
-
-        **Returns:**
-            
-            - bool: True if f contains no conditional variables, False if at
-              least one variable is conditional.
-        """            
-        return 'conditional' not in self.get_type_of_inputs()
-    
     
     def get_symmetry_groups(self) -> list:
         """
@@ -751,100 +883,6 @@ class BooleanFunction(object):
         else:
             return s
     
-
-    def is_canalizing(self) -> bool:
-        """
-        Determine if a Boolean function is canalizing.
-
-        A Boolean function f(x_1, ..., x_n) is canalizing if there exists at
-        least one variable x_i and a value a ∈ {0, 1} such that f(x_1, ...,
-        x_i = a, ..., x_n) is constant.
-
-        **Returns:**
-            
-            - bool: True if f is canalizing, False otherwise.
-        """
-        indices = np.arange(2**self.n, dtype=np.uint32)
-    
-        # Iterate over each variable
-        for i in range(self.n):
-            mask = 1 << i #really this should be 1 << self.n-1-i but it's symmetric and faster as is
-            bit_is_0 = (indices & mask) == 0
-            bit_is_1 = ~bit_is_0
-    
-            # Restrict outputs where x_i = 0 or x_i = 1
-            f0 = self.f[bit_is_0]
-            f1 = self.f[bit_is_1]
-    
-            # If any restriction is constant, function is canalizing
-            if np.all(f0 == f0[0]) or np.all(f1 == f1[0]):
-                return True
-    
-        return False
-    
-    def is_k_canalizing(self, k : int) -> bool:
-        """
-        Determine if a Boolean function is k-canalizing.
-
-        A Boolean function is k-canalizing if it has at least k conditionally
-        canalizing variables. This is checked recursively: after fixing a
-        canalizing variable (with a fixed canalizing input that forces the
-        output), the subfunction must itself be canalizing for
-        the next variable, and so on.
-
-        **Parameters:**
-            
-            - k (int): The desired canalizing depth (0 ≤ k ≤ n).
-              Note: every function is 0-canalizing.
-
-        **Returns:**
-            
-            - bool: True if f is k-canalizing, False otherwise.
-
-        **References:**
-            
-            #. He, Q., & Macauley, M. (2016). Stratification and enumeration of
-               Boolean functions by canalizing depth. Physica D: Nonlinear
-               Phenomena, 314, 1-8.
-            
-            #. Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D.
-               (2022). Revealing the canalizing structure of Boolean functions:
-               Algorithms and applications. Automatica, 146, 110630.
-        """
-
-        # Base cases
-        if k > self.n:
-            return False
-        if k == 0:
-            return True
-        if np.all(self.f == self.f[0]):  # constant function is by definition not canalizing
-            return False
-    
-        # Precompute input indices for masking
-        indices = np.arange(2**self.n, dtype=np.uint32)
-    
-        # Try each variable to see if it is canalizing
-        for i in range(self.n):
-            mask = 1 << i #really this should be 1 << self.n-1-i but it's symmetric and faster as is
-            bit_is_0 = (indices & mask) == 0
-            bit_is_1 = ~bit_is_0
-    
-            f0, f1 = self.f[bit_is_0], self.f[bit_is_1]
-    
-            # Case 1: x_i = 0 is canalizing
-            if np.all(f0 == f0[0]):
-                if k == 1:
-                    return True
-                # recurse on subfunction with x_i fixed to 0 → drop that variable
-                return BooleanFunction(f1).is_k_canalizing(k - 1)
-    
-            # Case 2: x_i = 1 is canalizing
-            elif np.all(f1 == f1[0]):
-                if k == 1:
-                    return True
-                return BooleanFunction(f0).is_k_canalizing(k - 1)
-        return False
-
 
     def _get_layer_structure(self, can_inputs, can_outputs, can_order,
                              variables, depth, number_layers):
@@ -1091,30 +1129,6 @@ class BooleanFunction(object):
     
         return canalizing_hits / (k/self.n * math.comb(self.n,k) * 2**k)
 
-
-    def is_kset_canalizing(self, k : int) -> bool:
-        """
-        Determine if a Boolean function is k-set canalizing.
-
-        A Boolean function is k-set canalizing if there exists a set of k
-        variables such that setting these variables to specific values forces
-        the output of the function, irrespective of the other n - k inputs.
-
-        **Parameters:**
-            
-            - k (int): The size of the variable set (with 0 ≤ k ≤ n).
-
-        **Returns:**
-            
-            - bool: True if f is k-set canalizing, False otherwise.
-
-        **References:**
-            
-            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively
-               canalizing Boolean functions. Advances in Applied Mathematics,
-               145, 102475.
-        """
-        return self.get_kset_canalizing_proportion(k)>0
 
     def get_canalizing_strength(self) -> tuple:
         """
