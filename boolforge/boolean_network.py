@@ -903,7 +903,7 @@ class BooleanNetwork(WiringDiagram):
             lines.append(f'{self.variables[i]}{separator}{function}')
         return '\n'.join(lines)
     
-    def to_truth_table(self,RETURN=True,filename=None):
+    def to_truth_table(self,RETURN : bool = True, filename : str = None) -> pd.DataFrame:
         """
         Determines the full truth table of the Boolean network as pandas DataFrame.
 
@@ -914,16 +914,17 @@ class BooleanNetwork(WiringDiagram):
         exported to a file in CSV or Excel format.
 
         **Parameters:**
+        
             - RETURN (bool, optional):
-                Whether to return the truth table as a pandas DataFrame.
-                Defaults to True.
+              Whether to return the truth table as a pandas DataFrame.
+              Defaults to True.
             
             - filename (str, optional):
-                If provided, the truth table is written to a file. The file
-                extension determines the format and must be one of:
-                `'csv'`, `'xls'`, or `'xlsx'`.
-                Example: `"truth_table.csv"` or `"truth_table.xlsx"`.
-                If `None` (default), no file is created.
+              If provided, the truth table is written to a file. The file
+              extension determines the format and must be one of:
+              `'csv'`, `'xls'`, or `'xlsx'`.
+              Example: `"truth_table.csv"` or `"truth_table.xlsx"`.
+              If `None` (default), no file is created.
 
         **Returns:**
             
@@ -931,10 +932,13 @@ class BooleanNetwork(WiringDiagram):
               Returned only if `RETURN=True`.
               
         **Notes:**
+        
             - The function automatically computes the synchronous
               state transition graph (`STG`) if it has not been computed yet.
+              
             - Each output row represents a deterministic transition from the
               current state to its next state under synchronous updating.
+              
             - Exporting to Excel requires the `openpyxl` package to be installed.
         """
         
@@ -1160,9 +1164,9 @@ class BooleanNetwork(WiringDiagram):
 
 
     def get_network_with_edge_controls(self, 
-                                      control_targets : Union[int,list,np.array],
-                                      control_sources : Union[int,list,np.array], 
-                                      type_of_edge_controls : Union[int,list,np.array,None] = None) -> "BooleanNetwork":
+        control_targets : Union[int,list,np.array],
+        control_sources : Union[int,list,np.array], 
+        type_of_edge_controls : Union[int,list,np.array,None] = None) -> "BooleanNetwork":
         """
         Generate a perturbed Boolean network by removing the influence of
         specified regulators on specified targets.
@@ -1175,14 +1179,14 @@ class BooleanNetwork(WiringDiagram):
         **Parameters:**
             
             - control_targets (int | list[int] | np.array[int]): 
-                Index of the target node(s) to be perturbed.
+              Index of the target node(s) to be perturbed.
                 
             - control_sources (int | list[int] | np.array[int]): 
-                Index of the regulator(s) whose influence is to be fixed.
+              Index of the regulator(s) whose influence is to be fixed.
               
             - type_of_edge_controls (int | list[int] | np.array[int]) | None): 
-                Source value in regulation of target after control. 
-                Default is None (which is interpreted as 0).
+              Source value in regulation of target after control. 
+              Default is None (which is interpreted as 0).
 
         **Returns:**
             

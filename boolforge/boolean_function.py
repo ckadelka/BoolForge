@@ -372,21 +372,23 @@ class BooleanFunction(object):
         """
         return utils.bool_to_poly(self.f,variables=self.variables)
 
-    def to_truth_table(self,RETURN=True,filename=None):
+    def to_truth_table(self, RETURN : bool = True,filename : str = None) -> pd.DataFrame:
         """
         Returns or saves the full truth table of the Boolean function as a pandas DataFrame.
     
         Each row shows the input combination (x1, x2, ..., xn)
         and the corresponding output f(x).
     
-        **Parameters**
+        **Parameters:**
+        
             - RETURN (bool, optional): Whether to return the DataFrame (default: True).
               If False, the function only writes the table to file when `filename` is provided.
             - filename (str, optional): File name (including extension) to which the truth table
               should be saved. Supported formats are 'csv', 'xls', and 'xlsx'.
               If provided, the truth table is automatically saved in the specified format.
     
-        **Returns**
+        **Returns:**
+        
             - pd.DataFrame: The full truth table, if `RETURN=True`.
               Otherwise, nothing is returned.
     
@@ -403,7 +405,8 @@ class BooleanFunction(object):
             6    1   1   0  0
             7    1   1   1  1
     
-        **Notes**
+        **Notes:**
+        
             - The column names correspond to the function's variables followed by its name.
             - When saving to a file, the file extension determines the format.
         """
