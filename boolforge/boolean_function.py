@@ -209,12 +209,14 @@ class BooleanFunction(object):
         """
         Element-wise Boolean addition: +.
     
-        Supports:
-            - BooleanFunction * BooleanFunction
-            - BooleanFunction * int (0 or 1)
+        **Supports:**
+            
+            - BooleanFunction \\* BooleanFunction
+            - BooleanFunction \\* int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of element-wise addition modulo 2.
+        
+            - BooleanFunction: The result of element-wise addition modulo 2.
         """
         if isinstance(value, int):
             return self.__class__((self.f + value) % 2)
@@ -226,14 +228,16 @@ class BooleanFunction(object):
     
     def __mul__(self, value):
         """
-        Element-wise Boolean multiplication (logical AND): *.
+        Element-wise Boolean multiplication (logical AND): \\*.
     
-        Supports:
-            - BooleanFunction * BooleanFunction
-            - BooleanFunction * int (0 or 1)
+        **Supports:**
+            
+            - BooleanFunction \\* BooleanFunction
+            - BooleanFunction \\* int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of element-wise multiplication.
+        
+            - BooleanFunction: The result of element-wise multiplication.
         """
         if isinstance(value, int):
             assert value in (0, 1), "Integer multiplier must be 0 or 1 for Boolean functions."
@@ -245,14 +249,16 @@ class BooleanFunction(object):
 
     def __rmul__(self, value):
         """
-        Element-wise Boolean multiplication (logical AND): *.
+        Element-wise Boolean multiplication (logical AND): \\*.
     
-        Supports:
-            - BooleanFunction * BooleanFunction
-            - int (0 or 1) * BooleanFunction
+        **Supports:**
+        
+            - BooleanFunction \\* BooleanFunction
+            - int (0 or 1) \\* BooleanFunction
     
         **Returns:**
-            BooleanFunction: The result of element-wise multiplication.
+        
+            - BooleanFunction: The result of element-wise multiplication.
         """
         return self.__mul__(value)
     
@@ -260,12 +266,14 @@ class BooleanFunction(object):
         """
         Element-wise logical AND: &.
     
-        Supports:
+        **Supports:**
+            
             - BooleanFunction & BooleanFunction
             - BooleanFunction & int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of the logical AND.
+        
+            - BooleanFunction: The result of the logical AND.
         """
         if isinstance(value, int):
             assert value in (0, 1), "Integer must be 0 or 1."
@@ -277,14 +285,16 @@ class BooleanFunction(object):
     
     def __or__(self, value):
         """
-        Element-wise logical OR: |.
+        Element-wise logical OR: \\|.
     
-        Supports:
-            - BooleanFunction | BooleanFunction
-            - BooleanFunction | int (0 or 1)
+        **Supports:**
+        
+            - BooleanFunction \\| BooleanFunction
+            - BooleanFunction \\| int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of the logical OR.
+        
+            - BooleanFunction: The result of the logical OR.
         """
         if isinstance(value, int):
             assert value in (0, 1), "Integer must be 0 or 1."
@@ -298,12 +308,13 @@ class BooleanFunction(object):
         """
         Element-wise logical XOR: ^.
     
-        Supports:
+        **Supports:**
             - BooleanFunction ^ BooleanFunction
             - BooleanFunction ^ int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of the logical XOR.
+        
+            - BooleanFunction: The result of the logical XOR.
         """
         if isinstance(value, int):
             assert value in (0, 1), "Integer must be 0 or 1."
@@ -318,7 +329,8 @@ class BooleanFunction(object):
         Element-wise negation: ~.
     
         **Returns:**
-            BooleanFunction: The result of element-wise negation.
+        
+            - BooleanFunction: The result of element-wise negation.
         """
         return self.__class__(1 - self.f)
         

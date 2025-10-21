@@ -6,4 +6,6 @@ Boolean Function
 
 .. automodule:: boolforge.boolean_function
    :members:
+   :special-members:
+   :exclude-members: __init__
    :show-inheritance:

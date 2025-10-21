@@ -263,22 +263,26 @@ class WiringDiagram(object):
         """
         **Compatibility Method:**
         
-        Converts a `networkx.DiGraph` instance into a `WiringDiagram` object.
-        Each node in the DiGraph represents a Boolean variable, and each
-        directed edge (u → v) indicates that variable `u` regulates variable `v`.
+            Converts a `networkx.DiGraph` instance into a `WiringDiagram` object.
+            Each node in the DiGraph represents a Boolean variable, and each
+            directed edge (u → v) indicates that variable `u` regulates variable `v`.
         
         **Parameters:**
+        
             - nx_DiGraph (nx.DiGraph): A directed graph where edges represent
               regulatory influences (u → v).
-              
-              Node attributes (optional):
-              - `'name'`: a string name of the variable (defaults to node label).
-              - `'weight'`: numerical edge weights (stored in `weights` matrix, optional).
+            
+            - Node attributes (optional):
+                
+                - `'name'`: a string name of the variable (defaults to node label).
+                - `'weight'`: numerical edge weights (stored in `weights` matrix, optional).
         
         **Returns:**
+        
             - WiringDiagram: An instance constructed from the graph structure.
             
         **Example:**
+        
             >>> import networkx as nx
             >>> G = nx.DiGraph()
             >>> G.add_edges_from([(0, 1), (1, 2), (2, 0)])
@@ -289,7 +293,7 @@ class WiringDiagram(object):
             array(['x0', 'x1', 'x2'], dtype='<U2')
         """
         
-        #BEN: TODO
+        #BEN: #TODO
         
         # Ensure input is a DiGraph
         assert isinstance(nx_DiGraph, nx.DiGraph), "Input must be a networkx.DiGraph instance."
