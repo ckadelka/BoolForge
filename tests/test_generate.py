@@ -20,10 +20,10 @@ bias = np.random.random() #bias: probability of ones in truth table format
 bf = boolforge.random_non_canalizing_function(n,bias=bias)
 assert bf.get_layer_structure()['CanalizingDepth']==0,"boolforge.random_non_canalizing_function failed"
 
-#Check that a non-canalizing non-degenerated function with exact canalizing depth k==0 is generated
-#All variables in non-degenerated functions have an edge effectiveness > 0
-bf = boolforge.random_non_canalizing_non_degenerated_function(n,bias=bias)
-assert bf.get_layer_structure()['CanalizingDepth']==0 and min(bf.get_edge_effectiveness())>0,"boolforge.random_non_canalizing_non_degenerated_function failed"
+#Check that a non-canalizing non-degenerate function with exact canalizing depth k==0 is generated
+#All variables in non-degenerate functions have an edge effectiveness > 0
+bf = boolforge.random_non_canalizing_non_degenerate_function(n,bias=bias)
+assert bf.get_layer_structure()['CanalizingDepth']==0 and min(bf.get_edge_effectiveness())>0,"boolforge.random_non_canalizing_non_degenerate_function failed"
 
 n=np.random.randint(1,9)
 k=np.random.randint(0,n) #canalizing depth (exact or minimal depending on EXACT_DEPTH)
@@ -35,14 +35,14 @@ bf = boolforge.random_linear_function(n)
 assert bf.get_average_sensitivity(EXACT=True)==1,"boolforge.random_linear_function or boolean_function.get_average_sensitivity(EXACT=True) failed"
 
 
-#All variables in non-degenerated functions have an edge effectiveness > 0
-bf = boolforge.random_non_degenerated_function(n,bias=bias)
-assert min(bf.get_edge_effectiveness())>0,"boolforge.random_non_degenerated_function failed"
+#All variables in non-degenerate functions have an edge effectiveness > 0
+bf = boolforge.random_non_degenerate_function(n,bias=bias)
+assert min(bf.get_edge_effectiveness())>0,"boolforge.random_non_degenerate_function failed"
 
 
-#At least one variable in a degenerated function must have an edge effectiveness == 0
-bf = boolforge.random_degenerated_function(n,bias=bias)
-assert min(bf.get_edge_effectiveness())==0,"boolforge.random_degenerated_function failed"
+#At least one variable in a degenerate function must have an edge effectiveness == 0
+bf = boolforge.random_degenerate_function(n,bias=bias)
+assert min(bf.get_edge_effectiveness())==0,"boolforge.random_degenerate_function failed"
 
 
 #Check that a function with exact canalizing depth k is generated
@@ -113,8 +113,8 @@ assert np.all([i not in regulators for i,regulators in enumerate(bn.I)]), "faile
 
 
 #creates a random NK-Kauffman network in which all inputs are essential.
-bn = boolforge.random_network(N,n,ALLOW_DEGENERATED_FUNCTIONS=False) 
-assert np.all([bf.is_degenerated()==False for bf in bn]), "failed to create a BN in which are inputs are essential"
+bn = boolforge.random_network(N,n,ALLOW_DEGENERATE_FUNCTIONS=False) 
+assert np.all([bf.is_degenerate()==False for bf in bn]), "failed to create a BN in which are inputs are essential"
 
 
 #Creates a BN with defined wiring diagram (specified by I, see BooleanNetwork.I), only randomizes the update rules.

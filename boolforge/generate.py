@@ -32,7 +32,7 @@ def random_function(
     EXACT_DEPTH: bool = False,
     layer_structure: Optional[list] = None,
     LINEAR: bool = False,
-    ALLOW_DEGENERATED_FUNCTIONS: bool = False,
+    ALLOW_DEGENERATE_FUNCTIONS: bool = False,
     bias: float = 0.5,
     absolute_bias: float = 0,
     USE_ABSOLUTE_BIAS: bool = False,
@@ -59,20 +59,20 @@ def random_function(
 
         - Else if exact `hamming_weight` is provided: sample uniformly a truth
           table with the requested number of ones, and keep resampling until
-          the additional constraints implied by `ALLOW_DEGENERATED_FUNCTIONS`
+          the additional constraints implied by `ALLOW_DEGENERATE_FUNCTIONS`
           and `EXACT_DEPTH` are satisfied:
 
-            - If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: return a
+            - If `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`: return a
               **non-canalizing** function with exact Hamming weight.
 
-            - If `ALLOW_DEGENERATED_FUNCTIONS` and not `EXACT_DEPTH`: return
+            - If `ALLOW_DEGENERATE_FUNCTIONS` and not `EXACT_DEPTH`: return
               a fully random function with exact Hamming weight.
 
-            - If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: return
-              a **non-canalizing & non-degenerated** function with exact
+            - If not `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`: return
+              a **non-canalizing & non-degenerate** function with exact
               Hamming weight.
 
-            - Else: return a **non-degenerated** function with exact Hamming
+            - Else: return a **non-degenerate** function with exact Hamming
               weight.
 
         - Else:
@@ -86,21 +86,21 @@ def random_function(
 
             - Then:
 
-                - If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: return
+                - If `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`: return
                   a **non-canalizing** function with that bias
                   (`random_non_canalizing_function`).
 
-                - If `ALLOW_DEGENERATED_FUNCTIONS` and not `EXACT_DEPTH`:
+                - If `ALLOW_DEGENERATE_FUNCTIONS` and not `EXACT_DEPTH`:
                   return a fully random function with that bias, as used in
                   classical NK-Kauffman models (`random_function_with_bias`).
 
-                - If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:
-                  return a **non-canalizing, non-degenerated** function
-                  (`random_non_canalizing_non_degenerated_function`).
+                - If not `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`:
+                  return a **non-canalizing, non-degenerate** function
+                  (`random_non_canalizing_non_degenerate_function`).
 
                 - Else (default, if only 'n' is provided): return a
-                  **non-degenerated** function with that bias
-                  (`random_non_degenerated_function`).
+                  **non-degenerate** function with that bias
+                  (`random_non_degenerate_function`).
 
 
     **Parameters:**
@@ -122,9 +122,9 @@ def random_function(
         - LINEAR (bool, optional): If True, ignore other generation options
           and return a random linear function. Default False.
 
-        - ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True, generators
+        - ALLOW_DEGENERATE_FUNCTIONS (bool, optional): If True, generators
           in the “random” branches may return functions with non-essential
-          inputs. If False, those branches insist on non-degenerated functions.
+          inputs. If False, those branches insist on non-degenerate functions.
           Default False.
 
         - bias (float, optional): Probability of 1s when sampling with bias
@@ -167,33 +167,33 @@ def random_function(
     **Notes:**
 
         - Extremely biased random functions (with bias very close to 0 or 1)
-          are often degenerated and highly canalizing; some functions force
+          are often degenerate and highly canalizing; some functions force
           bias in [0.001,0.999] to avoid RunTimeErrors.
 
 
     **Examples:**
 
-        >>> # Unbiased, non-degenerated random function
+        >>> # Unbiased, non-degenerate random function
         >>> f = random_function(n=3)
 
-        >>> # Non-degenerated function with minimal canalizing depth 2
+        >>> # Non-degenerate function with minimal canalizing depth 2
         >>> f = random_function(n=5, depth=2)
 
-        >>> # Non-degenerated function with exact canalizing depth 2
+        >>> # Non-degenerate function with exact canalizing depth 2
         >>> f = random_function(n=5, depth=2, EXACT_DEPTH=True)
 
-        >>> # Non-degenerated function with a specific layer structure (takes precedence over `depth`)
+        >>> # Non-degenerate function with a specific layer structure (takes precedence over `depth`)
         >>> f = random_function(n=6, layer_structure=[2, 1], EXACT_DEPTH=False)
 
         >>> # Linear function
         >>> f = random_function(n=4, LINEAR=True)
 
-        >>> # Fixed Hamming weight under non-canalizing + non-degenerated constraints
+        >>> # Fixed Hamming weight under non-canalizing + non-degenerate constraints
         >>> f = random_function(n=5, hamming_weight=10, EXACT_DEPTH=True,
-        ...                     ALLOW_DEGENERATED_FUNCTIONS=False)
+        ...                     ALLOW_DEGENERATE_FUNCTIONS=False)
         
-        >>> # Completely random (possibly degenerated) function
-        >>> f = random_function(n=3, ALLOW_DEGENERATED_FUNCTIONS=True)
+        >>> # Completely random (possibly degenerate) function
+        >>> f = random_function(n=3, ALLOW_DEGENERATE_FUNCTIONS=True)
     """
     rng = utils._coerce_rng(rng)
 
@@ -204,7 +204,7 @@ def random_function(
             n,
             layer_structure,
             EXACT_DEPTH=EXACT_DEPTH,
-            ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,
+            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
             rng=rng,
         )
     elif depth > 0:
@@ -212,7 +212,7 @@ def random_function(
             n,
             min(depth, n),
             EXACT_DEPTH=EXACT_DEPTH,
-            ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,
+            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
             rng=rng,
         )
     elif hamming_weight is not None:
@@ -225,16 +225,16 @@ def random_function(
         )
         f = random_function_with_exact_hamming_weight(n, hamming_weight, rng=rng)
         while True:
-            if ALLOW_DEGENERATED_FUNCTIONS and EXACT_DEPTH:
+            if ALLOW_DEGENERATE_FUNCTIONS and EXACT_DEPTH:
                 if not f.is_canalizing():
                     return f
-            elif ALLOW_DEGENERATED_FUNCTIONS:
+            elif ALLOW_DEGENERATE_FUNCTIONS:
                 return f
             elif EXACT_DEPTH:
-                if not f.is_canalizing() and not f.is_degenerated():
+                if not f.is_canalizing() and not f.is_degenerate():
                     return f
             else:
-                if not f.is_degenerated():
+                if not f.is_degenerate():
                     return f
             f = random_function_with_exact_hamming_weight(n, hamming_weight, rng=rng)
     else:
@@ -250,18 +250,18 @@ def random_function(
                 "bias must be in [0,1]. It describes the probability of a 1 in the randomly generated function."
             )
             bias_of_function = bias
-        if ALLOW_DEGENERATED_FUNCTIONS:
+        if ALLOW_DEGENERATE_FUNCTIONS:
             if EXACT_DEPTH is True:
                 return random_non_canalizing_function(n, bias_of_function, rng=rng)
             else:  # completely random function
                 return random_function_with_bias(n, bias_of_function, rng=rng)
         else:
             if EXACT_DEPTH is True:
-                return random_non_canalizing_non_degenerated_function(
+                return random_non_canalizing_non_degenerate_function(
                     n, bias_of_function, rng=rng
                 )
             else:  # generated by default
-                return random_non_degenerated_function(n, bias_of_function, rng=rng)
+                return random_non_degenerate_function(n, bias_of_function, rng=rng)
 
 
 def random_function_with_bias(
@@ -353,15 +353,15 @@ def random_linear_function(n: int, *, rng=None) -> BooleanFunction:
     return BooleanFunction(f)
 
 
-def random_non_degenerated_function(
+def random_non_degenerate_function(
     n: int, bias: float = 0.5, *, rng=None
 ) -> BooleanFunction:
     """
-    Generate a random non-degenerated Boolean function in n variables.
+    Generate a random non-degenerate Boolean function in n variables.
 
-    A non-degenerated Boolean function is one in which every variable is
+    A non-degenerate Boolean function is one in which every variable is
     essential (i.e. the output depends on every input). The function is
-    repeatedly generated with the specified bias until a non-degenerated
+    repeatedly generated with the specified bias until a non-degenerate
     function is found.
 
     **Parameters:**
@@ -386,23 +386,23 @@ def random_non_degenerated_function(
     rng = utils._coerce_rng(rng)
     assert isinstance(n, (int, np.integer)) and n > 0, "n must be a positive integer"
     assert isinstance(bias, (float, np.floating)) and 0.001 < bias < 0.999, (
-        "almost all extremely biased Boolean functions are degenerated. Choose a more balanced value for the 'bias'."
+        "almost all extremely biased Boolean functions are degenerate. Choose a more balanced value for the 'bias'."
     )
-    while True:  # works well because most Boolean functions are non-degenerated
+    while True:  # works well because most Boolean functions are non-degenerate
         f = random_function_with_bias(n, bias, rng=rng)
-        if not f.is_degenerated():
+        if not f.is_degenerate():
             return f
 
 
-def random_degenerated_function(
+def random_degenerate_function(
     n: int, bias: float = 0.5, *, rng=None
 ) -> BooleanFunction:
     """
-    Generate a random degenerated Boolean function in n variables.
+    Generate a random degenerate Boolean function in n variables.
 
-    A degenerated Boolean function is one in which at least one variable is
+    A degenerate Boolean function is one in which at least one variable is
     non‐essential (its value never affects the output). The function is
-    generated repeatedly until a degenerated function is found.
+    generated repeatedly until a degenerate function is found.
 
     **Parameters:**
 
@@ -415,7 +415,7 @@ def random_degenerated_function(
 
     **Returns:**
 
-        - BooleanFunction: Boolean function object that is degenerated in
+        - BooleanFunction: Boolean function object that is degenerate in
           the first input (and possibly others).
 
     **References:**
@@ -473,12 +473,12 @@ def random_non_canalizing_function(
             return f
 
 
-def random_non_canalizing_non_degenerated_function(
+def random_non_canalizing_non_degenerate_function(
     n: int, bias: float = 0.5, *, rng=None
 ) -> BooleanFunction:
     """
     Generate a random Boolean function in n (>1) variables that is both
-    non-canalizing and non-degenerated.
+    non-canalizing and non-degenerate.
 
     Such a function has every variable essential and is not canalizing.
 
@@ -503,9 +503,9 @@ def random_non_canalizing_non_degenerated_function(
     """
     rng = utils._coerce_rng(rng)
     assert isinstance(n, (int, np.integer)) and n > 1, "n must be an integer > 1"
-    while True:  # works because most functions are non-canalizing and non-degenerated
+    while True:  # works because most functions are non-canalizing and non-degenerate
         f = random_function_with_bias(n, bias=bias, rng=rng)
-        if not f.is_canalizing() and not f.is_degenerated():
+        if not f.is_canalizing() and not f.is_degenerate():
             return f
 
 
@@ -513,7 +513,7 @@ def random_k_canalizing_function(
     n: int,
     k: int,
     EXACT_DEPTH: bool = False,
-    ALLOW_DEGENERATED_FUNCTIONS: bool = False,
+    ALLOW_DEGENERATE_FUNCTIONS: bool = False,
     *,
     rng=None,
 ) -> BooleanFunction:
@@ -534,8 +534,8 @@ def random_k_canalizing_function(
         - EXACT_DEPTH (bool, optional): If True, enforce that the canalizing
           depth is exactly k (default is False).
 
-        - ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False)
-          and k==0 and layer_structure is None, degenerated functions may be
+        - ALLOW_DEGENERATE_FUNCTIONS(bool, optional): If True (default False)
+          and k==0 and layer_structure is None, degenerate functions may be
           created as in classical NK-Kauffman networks.
 
         - rng (None, optional): Argument for the random number generator,
@@ -576,7 +576,7 @@ def random_k_canalizing_function(
             n=n - k,
             depth=0,
             EXACT_DEPTH=EXACT_DEPTH,
-            ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,
+            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
             rng=rng,
         )
     else:
@@ -597,7 +597,7 @@ def random_k_canalizing_function_with_specific_layer_structure(
     n: int,
     layer_structure: list,
     EXACT_DEPTH: bool = False,
-    ALLOW_DEGENERATED_FUNCTIONS: bool = False,
+    ALLOW_DEGENERATE_FUNCTIONS: bool = False,
     *,
     rng=None,
 ) -> BooleanFunction:
@@ -622,8 +622,8 @@ def random_k_canalizing_function_with_specific_layer_structure(
         - EXACT_DEPTH (bool, optional): If True, the canalizing depth is
           exactly sum(layer_structure) (default is False).
 
-        - ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False),
-          the core function may be degenerated, as in NK-Kauffman networks.
+        - ALLOW_DEGENERATE_FUNCTIONS(bool, optional): If True (default False),
+          the core function may be degenerate, as in NK-Kauffman networks.
 
         - rng (None, optional): Argument for the random number generator,
           implemented in 'utils._coerce_rng'.
@@ -675,7 +675,7 @@ def random_k_canalizing_function_with_specific_layer_structure(
             n=n - depth,
             depth=0,
             EXACT_DEPTH=EXACT_DEPTH,
-            ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,
+            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
             rng=rng,
         )
     else:
@@ -1200,7 +1200,7 @@ def rewire_wiring_diagram(
 # depth=0
 # EXACT_DEPTH=False
 # layer_structure=None
-# ALLOW_DEGENERATED_FUNCTIONS=False
+# ALLOW_DEGENERATE_FUNCTIONS=False
 # LINEAR=False,
 # bias=0.5
 # absolute_bias = 0.
@@ -1219,7 +1219,7 @@ def random_network(
     depth: Union[int, list, np.ndarray] = 0,
     EXACT_DEPTH: bool = False,
     layer_structure: Optional[list] = None,
-    ALLOW_DEGENERATED_FUNCTIONS: bool = False,
+    ALLOW_DEGENERATE_FUNCTIONS: bool = False,
     LINEAR: bool = False,
     bias: Union[float, list, np.ndarray] = 0.5,
     absolute_bias: Union[float, list, np.ndarray] = 0.0,
@@ -1307,8 +1307,8 @@ def random_network(
               in-degree. When provided, `layer_structure` takes precedence
               over `depth`.
 
-        - ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True and
-          `depth==0` and `layer_structure is None`, degenerated functions
+        - ALLOW_DEGENERATE_FUNCTIONS (bool, optional): If True and
+          `depth==0` and `layer_structure is None`, degenerate functions
           (with non-essential inputs) may be generated (classical NK-Kauffman
           models). If False, generated functions are essential in all
           variables. Default False.
@@ -1404,10 +1404,10 @@ def random_network(
     **Examples:**
 
         >>> # Boolean network with only essential inputs
-        >>> bn = random_network(N=10, n=2, ALLOW_DEGENERATED_FUNCTIONS=False)
+        >>> bn = random_network(N=10, n=2, ALLOW_DEGENERATE_FUNCTIONS=False)
 
-        >>> # Classic NK-Kauffman network allowing degenerated rules
-        >>> bn = random_network(N=10, n=3, ALLOW_DEGENERATED_FUNCTIONS=True)
+        >>> # Classic NK-Kauffman network allowing degenerate rules
+        >>> bn = random_network(N=10, n=3, ALLOW_DEGENERATE_FUNCTIONS=True)
 
         >>> # Fixed wiring: reuse an existing diagram but resample rules
         >>> bn0 = random_network(N=6, n=2)
@@ -1429,9 +1429,9 @@ def random_network(
         >>> # Exact Hamming weights (broadcast)
         >>> bn = random_network(N=6, n=3, hamming_weight=4)
 
-        >>> # To ensure strong connectivity, set ALLOW_DEGENERATED_FUNCTIONS=False
+        >>> # To ensure strong connectivity, set ALLOW_DEGENERATE_FUNCTIONS=False
         >>> # and STRONGLY_CONNECTED=True
-        >>> bn = random_network(N,n,ALLOW_DEGENERATED_FUNCTIONS=False,STRONGLY_CONNECTED=True)
+        >>> bn = random_network(N,n,ALLOW_DEGENERATE_FUNCTIONS=False,STRONGLY_CONNECTED=True)
     """
     rng = utils._coerce_rng(rng)
     if I is None and N is not None and n is not None:  # generate wiring diagram
@@ -1541,7 +1541,7 @@ def random_network(
             EXACT_DEPTH=EXACT_DEPTH,
             layer_structure=layer_structure[i],
             LINEAR=LINEAR,
-            ALLOW_DEGENERATED_FUNCTIONS=ALLOW_DEGENERATED_FUNCTIONS,
+            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
             bias=bias[i],
             absolute_bias=absolute_bias[i],
             USE_ABSOLUTE_BIAS=USE_ABSOLUTE_BIAS,
@@ -1639,7 +1639,7 @@ def random_null_model(
 
                 - a **core** function with the **same Hamming weight** as
                   `f`’s core and that is **non-canalizing** and
-                  **non-degenerated**.
+                  **non-degenerate**.
 
             - If `PRESERVE_BIAS and not PRESERVE_CANALIZING_DEPTH`: A new
               rule with the same Hamming weight is drawn uniformly at random.
@@ -1647,7 +1647,7 @@ def random_null_model(
             - If `PRESERVE_CANALIZING_DEPTH and not PRESERVE_BIAS`: A random
               function with **exact** canalizing depth `d` is generated.
 
-            - Else: A random **non-degenerated** function of the same
+            - Else: A random **non-degenerate** function of the same
               in-degree is generated.
 
     **References:**
@@ -1713,7 +1713,7 @@ def random_null_model(
                         f.n - depth, hamming_weight, rng=rng
                     )
                     if not core_function.is_canalizing():
-                        if not core_function.is_degenerated():
+                        if not core_function.is_degenerate():
                             break
             newf = -np.ones(2 ** bn.indegrees[i], dtype=int)
             for j in range(depth):
@@ -1740,6 +1740,6 @@ def random_null_model(
                 n=bn.indegrees[i], k=depth, EXACT_DEPTH=True, rng=rng
             )
         else:
-            newf = random_non_degenerated_function(n=bn.indegrees[i], rng=rng)
+            newf = random_non_degenerate_function(n=bn.indegrees[i], rng=rng)
         F.append(newf)
     return BooleanNetwork(F, I)

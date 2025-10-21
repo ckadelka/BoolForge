@@ -37,7 +37,7 @@ except ModuleNotFoundError:
 
 if __LOADED_NUMBA__:
     @njit
-    def _is_degenerated_numba(f: np.ndarray, n: int) -> bool:
+    def _is_degenerate_numba(f: np.ndarray, n: int) -> bool:
         """
         Numba-accelerated check for non-essential variables in a Boolean function.
         """
@@ -201,15 +201,144 @@ class BooleanFunction(object):
         #return f"{self.f.tolist()}"
         
     def __add__(self,value):
+        """
+        Element-wise Boolean addition: +.
+    
+        Supports:
+            - BooleanFunction * BooleanFunction
+            - BooleanFunction * int (0 or 1)
+    
+        **Returns:**
+            BooleanFunction: The result of element-wise addition modulo 2.
+        """
         if isinstance(value, int):
             return self.__class__((self.f + value) % 2)
         elif isinstance(value, BooleanFunction):
             return self.__class__((self.f + value.f) % 2)
+        else:
+            raise TypeError(f"Unsupported operand type(s) for +: 'BooleanFunction' and '{type(value).__name__}'")
+         
+    
+    def __mul__(self, value):
+        """
+        Element-wise Boolean multiplication (logical AND): *.
+    
+        Supports:
+            - BooleanFunction * BooleanFunction
+            - BooleanFunction * int (0 or 1)
+    
+        **Returns:**
+            BooleanFunction: The result of element-wise multiplication.
+        """
+        if isinstance(value, int):
+            assert value in (0, 1), "Integer multiplier must be 0 or 1 for Boolean functions."
+            return self.__class__(self.f * value)
+        elif isinstance(value, BooleanFunction):
+            return self.__class__(self.f * value.f)
+        else:
+            raise TypeError(f"Unsupported operand type(s) for *: 'BooleanFunction' and '{type(value).__name__}'")
+
+    def __rmul__(self, value):
+        """
+        Element-wise Boolean multiplication (logical AND): *.
+    
+        Supports:
+            - BooleanFunction * BooleanFunction
+            - int (0 or 1) * BooleanFunction
+    
+        **Returns:**
+            BooleanFunction: The result of element-wise multiplication.
+        """
+        return self.__mul__(value)
+    
+    def __and__(self, value):
+        """
+        Element-wise logical AND: &.
+    
+        Supports:
+            - BooleanFunction & BooleanFunction
+            - BooleanFunction & int (0 or 1)
+    
+        **Returns:**
+            BooleanFunction: The result of the logical AND.
+        """
+        if isinstance(value, int):
+            assert value in (0, 1), "Integer must be 0 or 1."
+            return self.__class__(self.f & value)
+        elif isinstance(value, BooleanFunction):
+            return self.__class__(self.f & value.f)
+        else:
+            raise TypeError(f"Unsupported operand type(s) for &: 'BooleanFunction' and '{type(value).__name__}'")
+    
+    def __or__(self, value):
+        """
+        Element-wise logical OR: |.
+    
+        Supports:
+            - BooleanFunction | BooleanFunction
+            - BooleanFunction | int (0 or 1)
+    
+        **Returns:**
+            BooleanFunction: The result of the logical OR.
+        """
+        if isinstance(value, int):
+            assert value in (0, 1), "Integer must be 0 or 1."
+            return self.__class__(self.f | value)
+        elif isinstance(value, BooleanFunction):
+            return self.__class__(self.f | value.f)
+        else:
+            raise TypeError(f"Unsupported operand type(s) for |: 'BooleanFunction' and '{type(value).__name__}'")
+    
+    def __xor__(self, value):
+        """
+        Element-wise logical XOR: ^.
+    
+        Supports:
+            - BooleanFunction ^ BooleanFunction
+            - BooleanFunction ^ int (0 or 1)
+    
+        **Returns:**
+            BooleanFunction: The result of the logical XOR.
+        """
+        if isinstance(value, int):
+            assert value in (0, 1), "Integer must be 0 or 1."
+            return self.__class__(self.f ^ value)
+        elif isinstance(value, BooleanFunction):
+            return self.__class__(self.f ^ value.f)
+        else:
+            raise TypeError(f"Unsupported operand type(s) for ^: 'BooleanFunction' and '{type(value).__name__}'")
+    
+    def __invert__(self):
+        """
+        Element-wise negation: ~.
+    
+        **Returns:**
+            BooleanFunction: The result of element-wise negation.
+        """
+        return self.__class__(1 - self.f)
         
     def __call__(self,values):
         assert len(values)==self.n, f"The argument must be of length {self.n}."
         assert set(values) <= {0, 1}, "Binary values required."
         return self.f[utils.bin2dec(values)].item()
+
+    def __repr__(self):
+        if self.n < 6:
+            return f"{type(self).__name__}(f={self.f.tolist()})"
+        else:
+            return f"{type(self).__name__}(f={self.f})"
+    
+    def __len__(self):
+        return 2**self.n
+
+    def __getitem__(self, index):
+        try:
+            return int(self.f[index])
+        except TypeError:
+            return self.f[index]
+
+    def __setitem__(self, index, value):
+        self.f[index] = value
         
     def to_polynomial(self) -> str:
         """
@@ -270,24 +399,6 @@ class BooleanFunction(object):
                 truth_table.to_excel(filename)
         if RETURN:
             return truth_table
-    
-    def __repr__(self):
-        if self.n < 6:
-            return f"{type(self).__name__}(f={self.f.tolist()})"
-        else:
-            return f"{type(self).__name__}(f={self.f})"
-    
-    def __len__(self):
-        return 2**self.n
-
-    def __getitem__(self, index):
-        try:
-            return int(self.f[index])
-        except TypeError:
-            return self.f[index]
-
-    def __setitem__(self, index, value):
-        self.f[index] = value
     
     def to_cana(self) -> "cana.boolean_node.BooleanNode":
         """
@@ -375,16 +486,16 @@ class BooleanFunction(object):
         return np.all(self.f == self.f[0])
     
     if __LOADED_NUMBA__:
-        def is_degenerated(self) -> bool:
+        def is_degenerate(self) -> bool:
             """
             Determine if a Boolean function contains non-essential variables.
             Numba-accelerated version.
             """
             f = np.asarray(self.f, dtype=np.uint8)
-            return _is_degenerated_numba(f, self.n)
+            return _is_degenerate_numba(f, self.n)
     
     else:
-        def is_degenerated(self) -> bool:
+        def is_degenerate(self) -> bool:
             """
             Determine if a Boolean function contains non-essential variables.
     
