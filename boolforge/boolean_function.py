@@ -10,8 +10,13 @@ import numpy as np
 import pandas as pd
 import itertools
 import math
-from pyeda.inter import exprvar, Or, And, Not, espresso_exprs
-from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
+
+try:
+    from pyeda.inter import exprvar, Or, And, espresso_exprs
+    from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
+    __LOADED_PyEDA__ = True
+except:
+    __LOADED_PyEDA__ = False
 
 from typing import Union
 from typing import Optional
@@ -324,28 +329,32 @@ class BooleanFunction(object):
             
             - str: A string representing the Boolean function.
         """
-        variables = [ exprvar(str(var)) for var in self.variables ]
-        minterms = [ i for i in range(2**self.n) if self.f[i] ]
-        terms = []
-        for m in minterms:
-            bits = [(variables[i] if (m >> (self.n - 1 - i)) & 1 else ~variables[i]) for i in range(self.n)]
-            terms.append(And(*bits))
-        func_expr = Or(*terms).to_dnf()
-        if func_expr == ZERO: #TODO
-            return '0'
-        if MINIMIZE_EXPRESSION:
-            func_expr, = espresso_exprs(func_expr)
-        def __pyeda_to_string__(e):
-            if isinstance(e, OrOp):
-                return '('+(")%s("%OR).join(__pyeda_to_string__(arg) for arg in e.xs)+')'
-            elif isinstance(e, AndOp):
-                return AND.join(__pyeda_to_string__(arg) for arg in e.xs)
-            elif isinstance(e, (NotOp)):
-                return "%s(%s)"%(NOT, __pyeda_to_string__(e.x))
-            elif isinstance(e, Complement):
-                return "(%s%s)"%(NOT, str(e)[1::])
-            return str(e)
-        return __pyeda_to_string__(func_expr)
+        if __LOADED_PyEDA__:
+            variables = [ exprvar(str(var)) for var in self.variables ]
+            minterms = [ i for i in range(2**self.n) if self.f[i] ]
+            terms = []
+            for m in minterms:
+                bits = [(variables[i] if (m >> (self.n - 1 - i)) & 1 else ~variables[i]) for i in range(self.n)]
+                terms.append(And(*bits))
+            func_expr = Or(*terms).to_dnf()
+            if func_expr.is_zero():
+                return '0'
+            if MINIMIZE_EXPRESSION:
+                func_expr, = espresso_exprs(func_expr)
+            def __pyeda_to_string__(e):
+                if isinstance(e, OrOp):
+                    return '('+(")%s("%OR).join(__pyeda_to_string__(arg) for arg in e.xs)+')'
+                elif isinstance(e, AndOp):
+                    return AND.join(__pyeda_to_string__(arg) for arg in e.xs)
+                elif isinstance(e, (NotOp)):
+                    return "%s(%s)"%(NOT, __pyeda_to_string__(e.x))
+                elif isinstance(e, Complement):
+                    return "(%s%s)"%(NOT, str(e)[1::])
+                return str(e)
+            return __pyeda_to_string__(func_expr)
+        else:
+            # something that works
+            return self.to_polynomial().replace(" * ", AND).replace(" + ", OR).replace("1 - ", NOT)
     
     def get_hamming_weight(self) -> int:
         """
