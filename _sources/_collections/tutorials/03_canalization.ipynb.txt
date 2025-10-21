@@ -49,9 +49,9 @@
     "\n",
     "A Boolean function $f(x_1, \\ldots, x_n)$ is *canalizing* if there exists at least one *canalizing variable* $x_i$ and a *canalizing input value* $a \\in \\{0, 1\\}$ such that $f(x_1, \\ldots,x_i = a, \\ldots, x_n)=b$, where $b\\in\\{0,1\\}$ is a constant, the *canalized output*.\n",
     "\n",
-    "A Boolean function is *k-canalizing* if it has at least k conditionally canalizing variables. This is checked recursively: after fixing a canalizing variable (with a fixed canalizing input that forces the output), the subfunction must itself be canalizing for the next variable, and so on. For a given function, the maximal possible value of k is defined as its *canalizing depth*. If all variables are conditionally canalizing (i.e., if the canalizing depth is $n$), the function is called *nested canalizing*. Biological networks are heavily enriched for nested canalizing functions as we explore in a later tutorial.\n",
+    "A Boolean function is *k-canalizing* if it has at least k conditionally canalizing variables. This is checked recursively: after fixing a canalizing variable $x_i$ to its non-canalizing input value $\\bar a$, the subfunction $f(x_1,\\ldots,x_{i-1},x_{i+1},\\ldots,x_n)$ must itself contain another canalizing variable, and so on. For a given function, the maximal possible value of k is defined as its *canalizing depth*. If all variables are conditionally canalizing (i.e., if the canalizing depth is $n$), the function is called *nested canalizing*. Biological networks are heavily enriched for nested canalizing functions as we explore in a later tutorial.\n",
     "\n",
-    "Per (He and Macauley, Physica D, 2016), any Boolean function can be decomposed into a unique standard monomial form by recursively identifying and removing all conditionally canalizing variables (this set of variables is called a *canalizing layer*). Each variable of a Boolean function appears in exactly one layer, or (if it is not conditionally canalizing) it is part of the non-canalizing core function that has to be evaluated only if all conditionally canalizing variables receive their non-canalizing input value. The *canalizing layer structure* $[k_1,\\ldots,k_r]$ describes the number of variables in each canalizing layer. We thus have $r\\geq 0$, $k_i\\geq 1$ and $k_1+\\cdots+k_r$\n",
+    "Per (He and Macauley, Physica D, 2016), any Boolean function can be decomposed into a unique standard monomial form by recursively identifying and removing all conditionally canalizing variables (this set of variables is called a *canalizing layer*). Each variable of a Boolean function appears in exactly one layer, or (if it is not conditionally canalizing) it is part of the non-canalizing core function that has to be evaluated only if all conditionally canalizing variables receive their non-canalizing input value. The *canalizing layer structure* $[k_1,\\ldots,k_r]$ describes the number of variables in each canalizing layer. We thus have $r\\geq 0$, $k_i\\geq 1$ and $k_1+\\cdots+k_r$.\n",
     "\n",
     "In the following code, we define four 3-input functions with different canalizing properties."
    ]
@@ -80,7 +80,6 @@
     }
    ],
    "source": [
-    "import boolforge\n",
     "# Example: a non-canalizing XOR function.\n",
     "f = boolforge.BooleanFunction('(x0 + x1 + x2) % 2')\n",
     "\n",
@@ -253,7 +252,7 @@
     "\n",
     "For any function and a given k, we can quantify the proportion of k-sets that collectively canalize this function (i.e., suffice to determine its output). This is called the *k-set canalizing proportion* $P_k(f)$.\n",
     "It is fairly obvious that\n",
-    "- nested canalizing functions of a single layer such as `h` are the non-degenerated functions with highest k-set canalizing proportion $P_k(f) = 1-1/2^k$, and\n",
+    "- nested canalizing functions of a single layer such as `h` are the non-degenerate functions with highest k-set canalizing proportion $P_k(f) = 1-1/2^k$, and\n",
     "- $P_{k-1}(f) \\leq P_k(f)$, i.e., more knowledge about a function's inputs cannot result in less knowledge about its output,\n",
     "- the $n-1$-set canalizing proportion $P_{n-1}(f)$ is 1 minus the function's normalized average sensitivity.\n",
     "\n",
@@ -307,7 +306,7 @@
    "id": "e978926c",
    "metadata": {},
    "source": [
-    "The *canalizing strength* is a measure to quantify the degree of canalization of any Boolean function (Kadelka et al, Advances in Applied Mathematics, 2023). It is computed as a weighted average of the k-set canalizing proportions. It is 1 for the most canalizing non-degenerated functions (namely, nested canalizing functions of a single canalizing layer such as `h`) and 0 for the least canalizing functions (namely, parity / XOR functions such as `f`). For all other non-degenerated Boolen functions it is within $(0,1)$.\n",
+    "The *canalizing strength* is a measure to quantify the degree of canalization of any Boolean function (Kadelka et al, Advances in Applied Mathematics, 2023). It is computed as a weighted average of the k-set canalizing proportions. It is 1 for the most canalizing non-degenerate functions (namely, nested canalizing functions of a single canalizing layer such as `h`) and 0 for the least canalizing functions (namely, parity / XOR functions such as `f`). For all other non-degenerate Boolean functions it is within $(0,1)$.\n",
     "\n",
     "It helps to consider the canalizing strength as a probability: Given that I know a random number of function inputs (drawn uniformly at random from $1,\\ldots,n-1$), how likely am I to already know the function output?"
    ]
@@ -335,7 +334,7 @@
    ],
    "source": [
     "for func,label in zip([f,g,h,k],labels):\n",
-    "    canalizing_strength, kset_canalizing_proportions  = func.get_canalizing_strength()\n",
+    "    canalizing_strength  = func.get_canalizing_strength()\n",
     "    print(f'Canalizing strength of {label}: {canalizing_strength}')\n",
     "    print()"
    ]
@@ -345,7 +344,7 @@
    "id": "628dc116",
    "metadata": {},
    "source": [
-    "An enumeration of all non-degenerated 3-input Boolean functions reveals the distribution of the canalizing strength. Note that this brute-force code can also run (in less than a minute) for all $2^{2^4}=2^{16}=65,536$ 4-input functions but will take days for all $2^{2^5}=2^{32}=4,294,967,296$ 5-input functions."
+    "An enumeration of all non-degenerate 3-input Boolean functions reveals the distribution of the canalizing strength. Note that this brute-force code can also run (in less than a minute) for all $2^{2^4}=2^{16}=65,536$ 4-input functions but will take days for all $2^{2^5}=2^{32}=4,294,967,296$ 5-input functions."
    ]
   },
   {
@@ -382,8 +381,8 @@
     "canalizing_strengths = []\n",
     "for binary_vector in all_functions:\n",
     "    func = boolforge.BooleanFunction(f = binary_vector)\n",
-    "    if func.is_degenerated() == False:\n",
-    "        canalizing_strength, _  = func.get_canalizing_strength()\n",
+    "    if func.is_degenerate() == False:\n",
+    "        canalizing_strength  = func.get_canalizing_strength()\n",
     "        canalizing_strengths.append(canalizing_strength)\n",
     "\n",
     "fig,ax = plt.subplots()\n",

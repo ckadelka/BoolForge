@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BoolForge Tutorial #2: Advanced concepts related to Boolean Functions &mdash; BoolForge 1.0.0 documentation</title>
+  <title>BoolForge Tutorial #2: Advanced concepts related to Boolean functions &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -24,7 +24,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="BoolForge Tutorial #3: Canalization" href="03_canalization.html" />
-    <link rel="prev" title="BoolForge Tutorial #1: Working with Boolean Functions" href="01_working_with_boolean_functions.html" /> 
+    <link rel="prev" title="BoolForge Tutorial #1: Working with Boolean functions" href="01_working_with_boolean_functions.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,13 +50,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorial.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="01_working_with_boolean_functions.html">BoolForge Tutorial #1: Working with Boolean Functions</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">BoolForge Tutorial #2: Advanced concepts related to Boolean Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="01_working_with_boolean_functions.html">BoolForge Tutorial #1: Working with Boolean functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BoolForge Tutorial #2: Advanced concepts related to Boolean functions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Exploring-symmetry-groups-of-Boolean-functions">Exploring symmetry groups of Boolean functions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Activities-and-sensitivities">Activities and sensitivities</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="03_canalization.html">BoolForge Tutorial #3: Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_generate_random_boolean_functions.html">BoolForge Tutorial #4: Generating random Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_pipelines_random_function_generator.html">BoolForge Tutorial #5: Example use cases of the random function generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_working_with_Boolean_networks.html">BoolForge Tutorial #6: Working with Boolean networks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
@@ -77,7 +80,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../tutorial.html">Tutorials</a></li>
-      <li class="breadcrumb-item active">BoolForge Tutorial #2: Advanced concepts related to Boolean Functions</li>
+      <li class="breadcrumb-item active">BoolForge Tutorial #2: Advanced concepts related to Boolean functions</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/_collections/tutorials/02_advanced_concepts_boolean_functions.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -87,8 +90,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="BoolForge-Tutorial-#2:-Advanced-concepts-related-to-Boolean-Functions">
-<h1>BoolForge Tutorial #2: Advanced concepts related to Boolean Functions<a class="headerlink" href="#BoolForge-Tutorial-#2:-Advanced-concepts-related-to-Boolean-Functions" title="Link to this heading"></a></h1>
+  <section id="BoolForge-Tutorial-#2:-Advanced-concepts-related-to-Boolean-functions">
+<h1>BoolForge Tutorial #2: Advanced concepts related to Boolean functions<a class="headerlink" href="#BoolForge-Tutorial-#2:-Advanced-concepts-related-to-Boolean-functions" title="Link to this heading"></a></h1>
 <p>In this tutorial, we will further explore the <code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code> class — the foundation of BoolForge. You will learn how to compute advanced properties of Boolean functions such as:</p>
 <ul class="simple">
 <li><p>the symmetry among inputs, or</p></li>
@@ -200,11 +203,9 @@ Normalized average sensitivity of f: 1.0
 Normalized average sensitivity of g: 0.4166666666666667
 </pre></div></div>
 </div>
-<p>A single-bit change in <code class="docutils literal notranslate"><span class="pre">f</span></code> always changes its output, thus the normalized average sensitivity (normalized by default) of 1. On the other hand, only 75% of <span class="math notranslate nohighlight">\(x_1\)</span> flips and 25% of <span class="math notranslate nohighlight">\(x_2\)</span> or <span class="math notranslate nohighlight">\(x_3\)</span> flips change the output of <code class="docutils literal notranslate"><span class="pre">g</span></code>. Thus, the normalized average sensitivity of <code class="docutils literal notranslate"><span class="pre">g</span></code> is</p>
-<div class="math notranslate nohighlight">
-\[\frac 13*75\% + \frac 23*25\% = \frac{5}{12}\]</div>
-<p>For functions of many inputs, we require <code class="docutils literal notranslate"><span class="pre">EXACT=False</span></code> (the default). Also, when generating such a function it not recommended to require that all inputs are essential, as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input <span class="math notranslate nohighlight">\(x_i\)</span> is given <span class="math notranslate nohighlight">\(1/2^{n-1}\)</span>), and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus set <code class="docutils literal notranslate"><span class="pre">ALLOW_DEGENERATED_FUNCTIONS=True</span></code>. You find more on this in the
-next tutorial.</p>
+<p>A single-bit change in <code class="docutils literal notranslate"><span class="pre">f</span></code> always changes its output, thus the normalized average sensitivity (normalized by default) of 1. On the other hand, only 75% of <span class="math notranslate nohighlight">\(x_1\)</span> flips and 25% of <span class="math notranslate nohighlight">\(x_2\)</span> or <span class="math notranslate nohighlight">\(x_3\)</span> flips change the output of <code class="docutils literal notranslate"><span class="pre">g</span></code>. Thus, the normalized average sensitivity of <code class="docutils literal notranslate"><span class="pre">g</span></code> is <span class="math notranslate nohighlight">\(\frac 13*75\% + \frac 23 25\% = \frac{5}{12}\)</span>.</p>
+<p>For functions of many inputs, we require <code class="docutils literal notranslate"><span class="pre">EXACT=False</span></code> (the default). Also, when generating such a function it not recommended to require that all inputs are essential, as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input <span class="math notranslate nohighlight">\(x_i\)</span> is given <span class="math notranslate nohighlight">\(1/2^{n-1}\)</span>), and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus set <code class="docutils literal notranslate"><span class="pre">ALLOW_DEGENERATE_FUNCTIONS=True</span></code>. You find more on this in the next
+tutorial.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
@@ -213,7 +214,7 @@ next tutorial.</p>
 <span class="n">EXACT</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">nsim</span> <span class="o">=</span> <span class="mi">500</span>
 <span class="n">n</span> <span class="o">=</span> <span class="mi">25</span>
-<span class="n">h</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span><span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span><span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">activities</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">get_activities</span><span class="p">(</span><span class="n">EXACT</span><span class="o">=</span><span class="n">EXACT</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mean of all n=</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> activities of h: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Standard deviation of all n=</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> activities of h: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -239,7 +240,7 @@ Sensitivity of h: 0.501072
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="01_working_with_boolean_functions.html" class="btn btn-neutral float-left" title="BoolForge Tutorial #1: Working with Boolean Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="01_working_with_boolean_functions.html" class="btn btn-neutral float-left" title="BoolForge Tutorial #1: Working with Boolean functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="03_canalization.html" class="btn btn-neutral float-right" title="BoolForge Tutorial #3: Canalization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

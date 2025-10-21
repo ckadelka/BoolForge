@@ -81,9 +81,16 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pyeda.inter</span><span class="w"> </span><span class="kn">import</span> <span class="n">exprvar</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">Not</span><span class="p">,</span> <span class="n">espresso_exprs</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pyeda.boolalg.expr</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrOp</span><span class="p">,</span> <span class="n">AndOp</span><span class="p">,</span> <span class="n">NotOp</span><span class="p">,</span> <span class="n">Complement</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyeda.inter</span><span class="w"> </span><span class="kn">import</span> <span class="n">exprvar</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">espresso_exprs</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyeda.boolalg.expr</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrOp</span><span class="p">,</span> <span class="n">AndOp</span><span class="p">,</span> <span class="n">NotOp</span><span class="p">,</span> <span class="n">Complement</span>
+    <span class="n">__LOADED_PyEDA__</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">__LOADED_PyEDA__</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
@@ -109,7 +116,7 @@
 
 <span class="k">if</span> <span class="n">__LOADED_NUMBA__</span><span class="p">:</span>
     <span class="nd">@njit</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_is_degenerated_numba</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_degenerate_numba</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Numba-accelerated check for non-essential variables in a Boolean function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -279,9 +286,195 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cana_BooleanNode</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span></div>
 
 
+    <span class="c1">## Magic methods:</span>
+    
+<div class="viewcode-block" id="BooleanFunction.__str__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__str__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
         <span class="c1">#return f&quot;{self.f.tolist()}&quot;</span>
+    
+<div class="viewcode-block" id="BooleanFunction.__repr__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__repr__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(f=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(f=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        
+<div class="viewcode-block" id="BooleanFunction.__add__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__add__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Element-wise Boolean addition: +.</span>
+<span class="sd">    </span>
+<span class="sd">        **Supports:**</span>
+<span class="sd">            </span>
+<span class="sd">            - BooleanFunction \\* BooleanFunction</span>
+<span class="sd">            - BooleanFunction \\* int (0 or 1)</span>
+<span class="sd">    </span>
+<span class="sd">        **Returns:**</span>
+<span class="sd">        </span>
+<span class="sd">            - BooleanFunction: The result of element-wise addition modulo 2.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">+</span> <span class="n">value</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BooleanFunction</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">+</span> <span class="n">value</span><span class="o">.</span><span class="n">f</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported operand type(s) for +: &#39;BooleanFunction&#39; and &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+
+         
+    
+<div class="viewcode-block" id="BooleanFunction.__mul__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__mul__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Element-wise Boolean multiplication (logical AND): \\*.</span>
+<span class="sd">    </span>
+<span class="sd">        **Supports:**</span>
+<span class="sd">            </span>
+<span class="sd">            - BooleanFunction \\* BooleanFunction</span>
+<span class="sd">            - BooleanFunction \\* int (0 or 1)</span>
+<span class="sd">    </span>
+<span class="sd">        **Returns:**</span>
+<span class="sd">        </span>
+<span class="sd">            - BooleanFunction: The result of element-wise multiplication.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;Integer multiplier must be 0 or 1 for Boolean functions.&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">*</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BooleanFunction</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">*</span> <span class="n">value</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported operand type(s) for *: &#39;BooleanFunction&#39; and &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BooleanFunction.__rmul__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__rmul__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Element-wise Boolean multiplication (logical AND): \\*.</span>
+<span class="sd">    </span>
+<span class="sd">        **Supports:**</span>
+<span class="sd">        </span>
+<span class="sd">            - BooleanFunction \\* BooleanFunction</span>
+<span class="sd">            - int (0 or 1) \\* BooleanFunction</span>
+<span class="sd">    </span>
+<span class="sd">        **Returns:**</span>
+<span class="sd">        </span>
+<span class="sd">            - BooleanFunction: The result of element-wise multiplication.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__mul__</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="BooleanFunction.__and__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__and__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Element-wise logical AND: &amp;.</span>
+<span class="sd">    </span>
+<span class="sd">        **Supports:**</span>
+<span class="sd">            </span>
+<span class="sd">            - BooleanFunction &amp; BooleanFunction</span>
+<span class="sd">            - BooleanFunction &amp; int (0 or 1)</span>
+<span class="sd">    </span>
+<span class="sd">        **Returns:**</span>
+<span class="sd">        </span>
+<span class="sd">            - BooleanFunction: The result of the logical AND.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;Integer must be 0 or 1.&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BooleanFunction</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">&amp;</span> <span class="n">value</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported operand type(s) for &amp;: &#39;BooleanFunction&#39; and &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="BooleanFunction.__or__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__or__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Element-wise logical OR: \\|.</span>
+<span class="sd">    </span>
+<span class="sd">        **Supports:**</span>
+<span class="sd">        </span>
+<span class="sd">            - BooleanFunction \\| BooleanFunction</span>
+<span class="sd">            - BooleanFunction \\| int (0 or 1)</span>
+<span class="sd">    </span>
+<span class="sd">        **Returns:**</span>
+<span class="sd">        </span>
+<span class="sd">            - BooleanFunction: The result of the logical OR.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;Integer must be 0 or 1.&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">|</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BooleanFunction</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">|</span> <span class="n">value</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported operand type(s) for |: &#39;BooleanFunction&#39; and &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="BooleanFunction.__xor__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__xor__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Element-wise logical XOR: ^.</span>
+<span class="sd">    </span>
+<span class="sd">        **Supports:**</span>
+<span class="sd">            - BooleanFunction ^ BooleanFunction</span>
+<span class="sd">            - BooleanFunction ^ int (0 or 1)</span>
+<span class="sd">    </span>
+<span class="sd">        **Returns:**</span>
+<span class="sd">        </span>
+<span class="sd">            - BooleanFunction: The result of the logical XOR.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;Integer must be 0 or 1.&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">^</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BooleanFunction</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">^</span> <span class="n">value</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported operand type(s) for ^: &#39;BooleanFunction&#39; and &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="BooleanFunction.__invert__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__invert__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Element-wise negation: ~.</span>
+<span class="sd">    </span>
+<span class="sd">        **Returns:**</span>
+<span class="sd">        </span>
+<span class="sd">            - BooleanFunction: The result of element-wise negation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="BooleanFunction.__call__">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">values</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;The argument must be of length </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span> <span class="s2">&quot;Binary values required.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">bin2dec</span><span class="p">(</span><span class="n">values</span><span class="p">)]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
+
+        
+    <span class="c1">## Conversions:</span>
         
 <div class="viewcode-block" id="BooleanFunction.to_polynomial">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.to_polynomial">[docs]</a>
@@ -296,24 +489,58 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">bool_to_poly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span><span class="n">variables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span></div>
 
-    
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(f=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(f=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="si">}</span><span class="s2">)&quot;</span>
-    
-    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+<div class="viewcode-block" id="BooleanFunction.to_truth_table">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.to_truth_table">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_truth_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">RETURN</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns or saves the full truth table of the Boolean function as a pandas DataFrame.</span>
+<span class="sd">    </span>
+<span class="sd">        Each row shows the input combination (x1, x2, ..., xn)</span>
+<span class="sd">        and the corresponding output f(x).</span>
+<span class="sd">    </span>
+<span class="sd">        **Parameters**</span>
+<span class="sd">            - RETURN (bool, optional): Whether to return the DataFrame (default: True).</span>
+<span class="sd">              If False, the function only writes the table to file when `filename` is provided.</span>
+<span class="sd">            - filename (str, optional): File name (including extension) to which the truth table</span>
+<span class="sd">              should be saved. Supported formats are &#39;csv&#39;, &#39;xls&#39;, and &#39;xlsx&#39;.</span>
+<span class="sd">              If provided, the truth table is automatically saved in the specified format.</span>
+<span class="sd">    </span>
+<span class="sd">        **Returns**</span>
+<span class="sd">            - pd.DataFrame: The full truth table, if `RETURN=True`.</span>
+<span class="sd">              Otherwise, nothing is returned.</span>
+<span class="sd">    </span>
+<span class="sd">        **Example**</span>
+<span class="sd">            &gt;&gt;&gt; f = BooleanFunction(&quot;(x1 &amp; ~x2) | x3&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; f.to_truth_table()</span>
+<span class="sd">                x1  x2  x3  f</span>
+<span class="sd">            0    0   0   0  0</span>
+<span class="sd">            1    0   0   1  1</span>
+<span class="sd">            2    0   1   0  0</span>
+<span class="sd">            3    0   1   1  1</span>
+<span class="sd">            4    1   0   0  1</span>
+<span class="sd">            5    1   0   1  1</span>
+<span class="sd">            6    1   1   0  0</span>
+<span class="sd">            7    1   1   1  1</span>
+<span class="sd">    </span>
+<span class="sd">        **Notes**</span>
+<span class="sd">            - The column names correspond to the function&#39;s variables followed by its name.</span>
+<span class="sd">            - When saving to a file, the file extension determines the format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="n">truth_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">],</span>
+                                   <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ending</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">ending</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span><span class="s1">&#39;xls&#39;</span><span class="p">,</span><span class="s1">&#39;xlsx&#39;</span><span class="p">],</span><span class="s2">&quot;filename must end in &#39;csv&#39;,&#39;xls&#39;, or &#39;xlsx&#39;&quot;</span>
+            <span class="k">if</span> <span class="n">ending</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">:</span>
+                <span class="n">truth_table</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">truth_table</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">RETURN</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">truth_table</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
     
 <div class="viewcode-block" id="BooleanFunction.to_cana">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.to_cana">[docs]</a>
@@ -360,41 +587,36 @@
 <span class="sd">            </span>
 <span class="sd">            - str: A string representing the Boolean function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span> <span class="n">exprvar</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">))</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="p">]</span>
-        <span class="n">minterms</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">]</span>
-        <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">minterms</span><span class="p">:</span>
-            <span class="n">bits</span> <span class="o">=</span> <span class="p">[(</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">m</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mi">1</span> <span class="k">else</span> <span class="o">~</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)]</span>
-            <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">And</span><span class="p">(</span><span class="o">*</span><span class="n">bits</span><span class="p">))</span>
-        <span class="n">func_expr</span> <span class="o">=</span> <span class="n">Or</span><span class="p">(</span><span class="o">*</span><span class="n">terms</span><span class="p">)</span><span class="o">.</span><span class="n">to_dnf</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">MINIMIZE_EXPRESSION</span><span class="p">:</span>
-            <span class="n">func_expr</span><span class="p">,</span> <span class="o">=</span> <span class="n">espresso_exprs</span><span class="p">(</span><span class="n">func_expr</span><span class="p">)</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">__pyeda_to_string__</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">OrOp</span><span class="p">):</span>
-                <span class="k">return</span> <span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="p">(</span><span class="s2">&quot;)</span><span class="si">%s</span><span class="s2">(&quot;</span><span class="o">%</span><span class="n">OR</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">xs</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;)&#39;</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">AndOp</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">AND</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">xs</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="p">(</span><span class="n">NotOp</span><span class="p">)):</span>
-                <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">NOT</span><span class="p">,</span> <span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Complement</span><span class="p">):</span>
-                <span class="k">return</span> <span class="s2">&quot;(</span><span class="si">%s%s</span><span class="s2">)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">NOT</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)[</span><span class="mi">1</span><span class="p">::])</span>
-            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">Not</span><span class="p">(</span><span class="n">func_expr</span><span class="p">))</span></div>
+        <span class="k">if</span> <span class="n">__LOADED_PyEDA__</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span> <span class="n">exprvar</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">))</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="p">]</span>
+            <span class="n">minterms</span> <span class="o">=</span> <span class="p">[</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">]</span>
+            <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">minterms</span><span class="p">:</span>
+                <span class="n">bits</span> <span class="o">=</span> <span class="p">[(</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">m</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mi">1</span> <span class="k">else</span> <span class="o">~</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)]</span>
+                <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">And</span><span class="p">(</span><span class="o">*</span><span class="n">bits</span><span class="p">))</span>
+            <span class="n">func_expr</span> <span class="o">=</span> <span class="n">Or</span><span class="p">(</span><span class="o">*</span><span class="n">terms</span><span class="p">)</span><span class="o">.</span><span class="n">to_dnf</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">func_expr</span><span class="o">.</span><span class="n">is_zero</span><span class="p">():</span>
+                <span class="k">return</span> <span class="s1">&#39;0&#39;</span>
+            <span class="k">if</span> <span class="n">MINIMIZE_EXPRESSION</span><span class="p">:</span>
+                <span class="n">func_expr</span><span class="p">,</span> <span class="o">=</span> <span class="n">espresso_exprs</span><span class="p">(</span><span class="n">func_expr</span><span class="p">)</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">__pyeda_to_string__</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">OrOp</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="s1">&#39;(&#39;</span><span class="o">+</span><span class="p">(</span><span class="s2">&quot;)</span><span class="si">%s</span><span class="s2">(&quot;</span><span class="o">%</span><span class="n">OR</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">xs</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;)&#39;</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">AndOp</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">AND</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">xs</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="p">(</span><span class="n">NotOp</span><span class="p">)):</span>
+                    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">NOT</span><span class="p">,</span> <span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Complement</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="s2">&quot;(</span><span class="si">%s%s</span><span class="s2">)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">NOT</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)[</span><span class="mi">1</span><span class="p">::])</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">func_expr</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># something that works</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_polynomial</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; * &quot;</span><span class="p">,</span> <span class="n">AND</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; + &quot;</span><span class="p">,</span> <span class="n">OR</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;1 - &quot;</span><span class="p">,</span> <span class="n">NOT</span><span class="p">)</span></div>
 
     
-<div class="viewcode-block" id="BooleanFunction.get_hamming_weight">
-<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_hamming_weight">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_hamming_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the number of non-zero bits in the bit vector representing</span>
-<span class="sd">        a Boolean function.</span>
-<span class="sd">        </span>
-<span class="sd">        **Returns:**</span>
-<span class="sd">        </span>
-<span class="sd">            - int: The number of non-zero bits in the bit vector.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span></div>
-
+    
+    <span class="c1">## Methods with binary output: self.is_xxx(*args)</span>
     
 <div class="viewcode-block" id="BooleanFunction.is_constant">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_constant">[docs]</a>
@@ -411,18 +633,18 @@
 
     
     <span class="k">if</span> <span class="n">__LOADED_NUMBA__</span><span class="p">:</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">is_degenerated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">is_degenerate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Determine if a Boolean function contains non-essential variables.</span>
 <span class="sd">            Numba-accelerated version.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">_is_degenerated_numba</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_is_degenerate_numba</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
     
     <span class="k">else</span><span class="p">:</span>
-<div class="viewcode-block" id="BooleanFunction.is_degenerated">
-<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_degenerated">[docs]</a>
-        <span class="k">def</span><span class="w"> </span><span class="nf">is_degenerated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="BooleanFunction.is_degenerate">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_degenerate">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">is_degenerate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Determine if a Boolean function contains non-essential variables.</span>
 <span class="sd">    </span>
@@ -449,6 +671,172 @@
                     <span class="k">return</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="kc">False</span></div>
 
+
+<div class="viewcode-block" id="BooleanFunction.is_monotonic">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_monotonic">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_monotonic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if a Boolean function is monotonic.</span>
+
+<span class="sd">        A Boolean function is monotonic if it is monotonic in each variable. </span>
+<span class="sd">        That is, if for all i=1,...,n: f(x_1, ..., x_i=0, ..., x_n) &gt;= f(x_1,</span>
+<span class="sd">        ..., x_i=1, ..., x_n) for all (x_1, ..., x_n) or f(x_1, ..., x_i=0,</span>
+<span class="sd">        ..., x_n) &lt;= f(x_1, ..., x_i=1, ..., x_n) for all (x_1, ..., x_n).</span>
+
+<span class="sd">        **Returns:**</span>
+<span class="sd">            </span>
+<span class="sd">            - bool: True if f contains no conditional variables, False if at</span>
+<span class="sd">              least one variable is conditional.</span>
+<span class="sd">        &quot;&quot;&quot;</span>            
+        <span class="k">return</span> <span class="s1">&#39;conditional&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_of_inputs</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="BooleanFunction.is_canalizing">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_canalizing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if a Boolean function is canalizing.</span>
+
+<span class="sd">        A Boolean function f(x_1, ..., x_n) is canalizing if there exists at</span>
+<span class="sd">        least one variable x_i and a value a ∈ {0, 1} such that f(x_1, ...,</span>
+<span class="sd">        x_i = a, ..., x_n) is constant.</span>
+
+<span class="sd">        **Returns:**</span>
+<span class="sd">            </span>
+<span class="sd">            - bool: True if f is canalizing, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+    
+        <span class="c1"># Iterate over each variable</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="c1">#really this should be 1 &lt;&lt; self.n-1-i but it&#39;s symmetric and faster as is</span>
+            <span class="n">bit_is_0</span> <span class="o">=</span> <span class="p">(</span><span class="n">indices</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">bit_is_1</span> <span class="o">=</span> <span class="o">~</span><span class="n">bit_is_0</span>
+    
+            <span class="c1"># Restrict outputs where x_i = 0 or x_i = 1</span>
+            <span class="n">f0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_0</span><span class="p">]</span>
+            <span class="n">f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_1</span><span class="p">]</span>
+    
+            <span class="c1"># If any restriction is constant, function is canalizing</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f0</span> <span class="o">==</span> <span class="n">f0</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f1</span> <span class="o">==</span> <span class="n">f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    
+    
+<div class="viewcode-block" id="BooleanFunction.is_k_canalizing">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_k_canalizing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_k_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if a Boolean function is k-canalizing.</span>
+
+<span class="sd">        A Boolean function is k-canalizing if it has at least k conditionally</span>
+<span class="sd">        canalizing variables. This is checked recursively: after fixing a</span>
+<span class="sd">        canalizing variable (with a fixed canalizing input that forces the</span>
+<span class="sd">        output), the subfunction must itself be canalizing for</span>
+<span class="sd">        the next variable, and so on.</span>
+
+<span class="sd">        **Parameters:**</span>
+<span class="sd">            </span>
+<span class="sd">            - k (int): The desired canalizing depth (0 ≤ k ≤ n).</span>
+<span class="sd">              Note: every function is 0-canalizing.</span>
+
+<span class="sd">        **Returns:**</span>
+<span class="sd">            </span>
+<span class="sd">            - bool: True if f is k-canalizing, False otherwise.</span>
+
+<span class="sd">        **References:**</span>
+<span class="sd">            </span>
+<span class="sd">            #. He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of</span>
+<span class="sd">               Boolean functions by canalizing depth. Physica D: Nonlinear</span>
+<span class="sd">               Phenomena, 314, 1-8.</span>
+<span class="sd">            </span>
+<span class="sd">            #. Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D.</span>
+<span class="sd">               (2022). Revealing the canalizing structure of Boolean functions:</span>
+<span class="sd">               Algorithms and applications. Automatica, 146, 110630.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Base cases</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>  <span class="c1"># constant function is by definition not canalizing</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    
+        <span class="c1"># Precompute input indices for masking</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+    
+        <span class="c1"># Try each variable to see if it is canalizing</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="c1">#really this should be 1 &lt;&lt; self.n-1-i but it&#39;s symmetric and faster as is</span>
+            <span class="n">bit_is_0</span> <span class="o">=</span> <span class="p">(</span><span class="n">indices</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">bit_is_1</span> <span class="o">=</span> <span class="o">~</span><span class="n">bit_is_0</span>
+    
+            <span class="n">f0</span><span class="p">,</span> <span class="n">f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_1</span><span class="p">]</span>
+    
+            <span class="c1"># Case 1: x_i = 0 is canalizing</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f0</span> <span class="o">==</span> <span class="n">f0</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="c1"># recurse on subfunction with x_i fixed to 0 → drop that variable</span>
+                <span class="k">return</span> <span class="n">BooleanFunction</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span><span class="o">.</span><span class="n">is_k_canalizing</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    
+            <span class="c1"># Case 2: x_i = 1 is canalizing</span>
+            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f1</span> <span class="o">==</span> <span class="n">f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">return</span> <span class="n">BooleanFunction</span><span class="p">(</span><span class="n">f0</span><span class="p">)</span><span class="o">.</span><span class="n">is_k_canalizing</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="BooleanFunction.is_kset_canalizing">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_kset_canalizing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_kset_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if a Boolean function is k-set canalizing.</span>
+
+<span class="sd">        A Boolean function is k-set canalizing if there exists a set of k</span>
+<span class="sd">        variables such that setting these variables to specific values forces</span>
+<span class="sd">        the output of the function, irrespective of the other n - k inputs.</span>
+
+<span class="sd">        **Parameters:**</span>
+<span class="sd">            </span>
+<span class="sd">            - k (int): The size of the variable set (with 0 ≤ k ≤ n).</span>
+
+<span class="sd">        **Returns:**</span>
+<span class="sd">            </span>
+<span class="sd">            - bool: True if f is k-set canalizing, False otherwise.</span>
+
+<span class="sd">        **References:**</span>
+<span class="sd">            </span>
+<span class="sd">            #. Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023). Collectively</span>
+<span class="sd">               canalizing Boolean functions. Advances in Applied Mathematics,</span>
+<span class="sd">               145, 102475.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kset_canalizing_proportion</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span></div>
+
+
+
+    <span class="c1">## Methods with non-binary output</span>
+
+<div class="viewcode-block" id="BooleanFunction.get_hamming_weight">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_hamming_weight">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_hamming_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the number of non-zero bits in the bit vector representing</span>
+<span class="sd">        a Boolean function.</span>
+<span class="sd">        </span>
+<span class="sd">        **Returns:**</span>
+<span class="sd">        </span>
+<span class="sd">            - int: The number of non-zero bits in the bit vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span></div>
+
+        
     
 <div class="viewcode-block" id="BooleanFunction.get_essential_variables">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_essential_variables">[docs]</a>
@@ -539,25 +927,7 @@
         <span class="k">return</span> <span class="n">types</span></div>
 
 
-<div class="viewcode-block" id="BooleanFunction.is_monotonic">
-<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_monotonic">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_monotonic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Determine if a Boolean function is monotonic.</span>
 
-<span class="sd">        A Boolean function is monotonic if it is monotonic in each variable. </span>
-<span class="sd">        That is, if for all i=1,...,n: f(x_1, ..., x_i=0, ..., x_n) &gt;= f(x_1,</span>
-<span class="sd">        ..., x_i=1, ..., x_n) for all (x_1, ..., x_n) or f(x_1, ..., x_i=0,</span>
-<span class="sd">        ..., x_n) &lt;= f(x_1, ..., x_i=1, ..., x_n) for all (x_1, ..., x_n).</span>
-
-<span class="sd">        **Returns:**</span>
-<span class="sd">            </span>
-<span class="sd">            - bool: True if f contains no conditional variables, False if at</span>
-<span class="sd">              least one variable is conditional.</span>
-<span class="sd">        &quot;&quot;&quot;</span>            
-        <span class="k">return</span> <span class="s1">&#39;conditional&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_of_inputs</span><span class="p">()</span></div>
-
-    
     
 <div class="viewcode-block" id="BooleanFunction.get_symmetry_groups">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_symmetry_groups">[docs]</a>
@@ -703,106 +1073,6 @@
             <span class="k">return</span> <span class="n">s</span></div>
 
     
-
-<div class="viewcode-block" id="BooleanFunction.is_canalizing">
-<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_canalizing">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Determine if a Boolean function is canalizing.</span>
-
-<span class="sd">        A Boolean function f(x_1, ..., x_n) is canalizing if there exists at</span>
-<span class="sd">        least one variable x_i and a value a ∈ {0, 1} such that f(x_1, ...,</span>
-<span class="sd">        x_i = a, ..., x_n) is constant.</span>
-
-<span class="sd">        **Returns:**</span>
-<span class="sd">            </span>
-<span class="sd">            - bool: True if f is canalizing, False otherwise.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
-    
-        <span class="c1"># Iterate over each variable</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="c1">#really this should be 1 &lt;&lt; self.n-1-i but it&#39;s symmetric and faster as is</span>
-            <span class="n">bit_is_0</span> <span class="o">=</span> <span class="p">(</span><span class="n">indices</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
-            <span class="n">bit_is_1</span> <span class="o">=</span> <span class="o">~</span><span class="n">bit_is_0</span>
-    
-            <span class="c1"># Restrict outputs where x_i = 0 or x_i = 1</span>
-            <span class="n">f0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_0</span><span class="p">]</span>
-            <span class="n">f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_1</span><span class="p">]</span>
-    
-            <span class="c1"># If any restriction is constant, function is canalizing</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f0</span> <span class="o">==</span> <span class="n">f0</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f1</span> <span class="o">==</span> <span class="n">f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                <span class="k">return</span> <span class="kc">True</span>
-    
-        <span class="k">return</span> <span class="kc">False</span></div>
-
-    
-<div class="viewcode-block" id="BooleanFunction.is_k_canalizing">
-<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_k_canalizing">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_k_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Determine if a Boolean function is k-canalizing.</span>
-
-<span class="sd">        A Boolean function is k-canalizing if it has at least k conditionally</span>
-<span class="sd">        canalizing variables. This is checked recursively: after fixing a</span>
-<span class="sd">        canalizing variable (with a fixed canalizing input that forces the</span>
-<span class="sd">        output), the subfunction must itself be canalizing for</span>
-<span class="sd">        the next variable, and so on.</span>
-
-<span class="sd">        **Parameters:**</span>
-<span class="sd">            </span>
-<span class="sd">            - k (int): The desired canalizing depth (0 ≤ k ≤ n).</span>
-<span class="sd">              Note: every function is 0-canalizing.</span>
-
-<span class="sd">        **Returns:**</span>
-<span class="sd">            </span>
-<span class="sd">            - bool: True if f is k-canalizing, False otherwise.</span>
-
-<span class="sd">        **References:**</span>
-<span class="sd">            </span>
-<span class="sd">            #. He, Q., &amp; Macauley, M. (2016). Stratification and enumeration of</span>
-<span class="sd">               Boolean functions by canalizing depth. Physica D: Nonlinear</span>
-<span class="sd">               Phenomena, 314, 1-8.</span>
-<span class="sd">            </span>
-<span class="sd">            #. Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D.</span>
-<span class="sd">               (2022). Revealing the canalizing structure of Boolean functions:</span>
-<span class="sd">               Algorithms and applications. Automatica, 146, 110630.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Base cases</span>
-        <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>  <span class="c1"># constant function is by definition not canalizing</span>
-            <span class="k">return</span> <span class="kc">False</span>
-    
-        <span class="c1"># Precompute input indices for masking</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
-    
-        <span class="c1"># Try each variable to see if it is canalizing</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="c1">#really this should be 1 &lt;&lt; self.n-1-i but it&#39;s symmetric and faster as is</span>
-            <span class="n">bit_is_0</span> <span class="o">=</span> <span class="p">(</span><span class="n">indices</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
-            <span class="n">bit_is_1</span> <span class="o">=</span> <span class="o">~</span><span class="n">bit_is_0</span>
-    
-            <span class="n">f0</span><span class="p">,</span> <span class="n">f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_1</span><span class="p">]</span>
-    
-            <span class="c1"># Case 1: x_i = 0 is canalizing</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f0</span> <span class="o">==</span> <span class="n">f0</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="kc">True</span>
-                <span class="c1"># recurse on subfunction with x_i fixed to 0 → drop that variable</span>
-                <span class="k">return</span> <span class="n">BooleanFunction</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span><span class="o">.</span><span class="n">is_k_canalizing</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    
-            <span class="c1"># Case 2: x_i = 1 is canalizing</span>
-            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f1</span> <span class="o">==</span> <span class="n">f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="kc">True</span>
-                <span class="k">return</span> <span class="n">BooleanFunction</span><span class="p">(</span><span class="n">f0</span><span class="p">)</span><span class="o">.</span><span class="n">is_k_canalizing</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
-
-
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_layer_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">can_inputs</span><span class="p">,</span> <span class="n">can_outputs</span><span class="p">,</span> <span class="n">can_order</span><span class="p">,</span>
                              <span class="n">variables</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">number_layers</span><span class="p">):</span>
@@ -1006,23 +1276,24 @@
         <span class="k">return</span> <span class="n">canalizing_hits</span> <span class="o">/</span> <span class="n">total_tests</span> <span class="k">if</span> <span class="n">total_tests</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span></div>
 
 
-<div class="viewcode-block" id="BooleanFunction.is_kset_canalizing">
-<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_kset_canalizing">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_kset_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Determine if a Boolean function is k-set canalizing.</span>
 
-<span class="sd">        A Boolean function is k-set canalizing if there exists a set of k</span>
-<span class="sd">        variables such that setting these variables to specific values forces</span>
-<span class="sd">        the output of the function, irrespective of the other n - k inputs.</span>
+<div class="viewcode-block" id="BooleanFunction.get_kset_canalizing_proportion_of_variables">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_kset_canalizing_proportion_of_variables">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_kset_canalizing_proportion_of_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the proportion of k-set canalizing input sets that contain a specific variable.</span>
+
+<span class="sd">        For a given k, this function calculates the probability that a randomly</span>
+<span class="sd">        chosen set of k inputs (including a specific variable) canalizes the function,</span>
+<span class="sd">        i.e., forces the output regardless of the remaining variables.</span>
 
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
-<span class="sd">            - k (int): The size of the variable set (with 0 ≤ k ≤ n).</span>
+<span class="sd">            - k (int): The size of the variable set (0 ≤ k ≤ n).</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
-<span class="sd">            - bool: True if f is k-set canalizing, False otherwise.</span>
+<span class="sd">            - float: The proportion of k-set canalizing input sets.</span>
 
 <span class="sd">        **References:**</span>
 <span class="sd">            </span>
@@ -1030,7 +1301,35 @@
 <span class="sd">               canalizing Boolean functions. Advances in Applied Mathematics,</span>
 <span class="sd">               145, 102475.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kset_canalizing_proportion</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span></div>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">==</span><span class="nb">int</span> <span class="ow">and</span> <span class="mi">0</span><span class="o">&lt;=</span><span class="n">k</span><span class="o">&lt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="s2">&quot;k must be an integer and satisfy 0 &lt;= k &lt;= degree n&quot;</span>
+        
+        <span class="c1"># trivial case</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_constant</span><span class="p">())</span>
+        
+        <span class="c1"># precompute binary representation of all inputs</span>
+        <span class="c1">#indices = np.arange(2**self.n, dtype=np.uint32)</span>
+        <span class="c1">#bits = ((indices[:, None] &gt;&gt; np.arange(self.n)) &amp; 1).astype(np.uint8)  # shape (2**n, n)</span>
+        <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        
+        <span class="n">canalizing_hits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        
+        <span class="c1"># iterate over variable subsets of size k</span>
+        <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">k</span><span class="p">):</span>
+            <span class="n">Xsub</span> <span class="o">=</span> <span class="n">left_side_of_truth_table</span><span class="p">[:,</span> <span class="n">subset</span><span class="p">]</span>  <span class="c1"># shape (2**n, k)</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
+            <span class="c1"># For each possible assignment to this subset</span>
+            <span class="k">for</span> <span class="n">assignment</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">repeat</span><span class="o">=</span><span class="n">k</span><span class="p">):</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">Xsub</span> <span class="o">==</span> <span class="n">assignment</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="c1"># If all outputs equal when these vars are fixed → canalizing</span>
+                <span class="n">f_sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f_sub</span> <span class="o">==</span> <span class="n">f_sub</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="n">canalizing_hits</span><span class="p">[</span><span class="n">subset</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+        <span class="k">return</span> <span class="n">canalizing_hits</span> <span class="o">/</span> <span class="p">(</span><span class="n">k</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span><span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="n">k</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="BooleanFunction.get_canalizing_strength">
@@ -1048,11 +1347,7 @@
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
-<span class="sd">            - tuple:</span>
-<span class="sd">                </span>
-<span class="sd">                - float: The canalizing strength of f.</span>
-<span class="sd">                - list[float]: A list of the k-set canalizing proportions</span>
-<span class="sd">                  for k = 1, 2, ..., n-1.</span>
+<span class="sd">            - The canalizing strength of f.</span>
 
 <span class="sd">        **References:**</span>
 <span class="sd">            </span>
@@ -1066,8 +1361,39 @@
         <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
             <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kset_canalizing_proportion</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))),</span> <span class="n">res</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span></div>
 
+
+
+<div class="viewcode-block" id="BooleanFunction.get_canalizing_strength_of_variables">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_canalizing_strength_of_variables">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_canalizing_strength_of_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the canalizing strength of each variable in a Boolean function </span>
+<span class="sd">        via exhaustive enumeration.</span>
+
+<span class="sd">        The canalizing strength is defined as a weighted average of the</span>
+<span class="sd">        proportions of k-set canalizing inputs for k = 1 to n-1. It is 0 for</span>
+<span class="sd">        minimally canalizing functions (e.g., Boolean parity functions) and 1</span>
+<span class="sd">        for maximally canalizing functions (e.g., nested canalizing functions</span>
+<span class="sd">        with one layer).</span>
+
+<span class="sd">        **Returns:**</span>
+<span class="sd">            </span>
+<span class="sd">            - np.array(float): The canalizing strength of each variable of f.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning:</span><span class="se">\n</span><span class="s2">Canalizing strength is only properly defined for Boolean functions with n &gt; 1 inputs. Returned 1 for n==1.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kset_canalizing_proportion_of_variables</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">multipliers</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">res</span> <span class="o">*</span> <span class="n">multipliers</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="mi">0</span><span class="p">)</span></div>
+
+    
+    
     
 <div class="viewcode-block" id="BooleanFunction.get_input_redundancy">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_input_redundancy">[docs]</a>

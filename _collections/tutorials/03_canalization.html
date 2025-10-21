@@ -23,7 +23,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="prev" title="BoolForge Tutorial #2: Advanced concepts related to Boolean Functions" href="02_advanced_concepts_boolean_functions.html" /> 
+    <link rel="next" title="BoolForge Tutorial #4: Generating random Boolean functions" href="04_generate_random_boolean_functions.html" />
+    <link rel="prev" title="BoolForge Tutorial #2: Advanced concepts related to Boolean functions" href="02_advanced_concepts_boolean_functions.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,14 +50,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../tutorial.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="01_working_with_boolean_functions.html">BoolForge Tutorial #1: Working with Boolean Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="02_advanced_concepts_boolean_functions.html">BoolForge Tutorial #2: Advanced concepts related to Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_working_with_boolean_functions.html">BoolForge Tutorial #1: Working with Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_advanced_concepts_boolean_functions.html">BoolForge Tutorial #2: Advanced concepts related to Boolean functions</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">BoolForge Tutorial #3: Canalization</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Canalizing-variables-and-layers">Canalizing variables and layers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Collective-canalization">Collective canalization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Canalization-as-a-measure-of-input-redundancy">Canalization as a measure of input redundancy</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="04_generate_random_boolean_functions.html">BoolForge Tutorial #4: Generating random Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_pipelines_random_function_generator.html">BoolForge Tutorial #5: Example use cases of the random function generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_working_with_Boolean_networks.html">BoolForge Tutorial #6: Working with Boolean networks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
@@ -108,17 +112,16 @@
 <section id="Canalizing-variables-and-layers">
 <h2>Canalizing variables and layers<a class="headerlink" href="#Canalizing-variables-and-layers" title="Link to this heading"></a></h2>
 <p>A Boolean function <span class="math notranslate nohighlight">\(f(x_1, \ldots, x_n)\)</span> is <em>canalizing</em> if there exists at least one <em>canalizing variable</em> <span class="math notranslate nohighlight">\(x_i\)</span> and a <em>canalizing input value</em> <span class="math notranslate nohighlight">\(a \in \{0, 1\}\)</span> such that <span class="math notranslate nohighlight">\(f(x_1, \ldots,x_i = a, \ldots, x_n)=b\)</span>, where <span class="math notranslate nohighlight">\(b\in\{0,1\}\)</span> is a constant, the <em>canalized output</em>.</p>
-<p>A Boolean function is <em>k-canalizing</em> if it has at least k conditionally canalizing variables. This is checked recursively: after fixing a canalizing variable (with a fixed canalizing input that forces the output), the subfunction must itself be canalizing for the next variable, and so on. For a given function, the maximal possible value of k is defined as its <em>canalizing depth</em>. If all variables are conditionally canalizing (i.e., if the canalizing depth is <span class="math notranslate nohighlight">\(n\)</span>), the function is called
-<em>nested canalizing</em>. Biological networks are heavily enriched for nested canalizing functions as we explore in a later tutorial.</p>
+<p>A Boolean function is <em>k-canalizing</em> if it has at least k conditionally canalizing variables. This is checked recursively: after fixing a canalizing variable <span class="math notranslate nohighlight">\(x_i\)</span> to its non-canalizing input value <span class="math notranslate nohighlight">\(\bar a\)</span>, the subfunction <span class="math notranslate nohighlight">\(f(x_1,\ldots,x_{i-1},x_{i+1},\ldots,x_n)\)</span> must itself contain another canalizing variable, and so on. For a given function, the maximal possible value of k is defined as its <em>canalizing depth</em>. If all variables are conditionally canalizing (i.e., if the
+canalizing depth is <span class="math notranslate nohighlight">\(n\)</span>), the function is called <em>nested canalizing</em>. Biological networks are heavily enriched for nested canalizing functions as we explore in a later tutorial.</p>
 <p>Per (He and Macauley, Physica D, 2016), any Boolean function can be decomposed into a unique standard monomial form by recursively identifying and removing all conditionally canalizing variables (this set of variables is called a <em>canalizing layer</em>). Each variable of a Boolean function appears in exactly one layer, or (if it is not conditionally canalizing) it is part of the non-canalizing core function that has to be evaluated only if all conditionally canalizing variables receive their
-non-canalizing input value. The <em>canalizing layer structure</em> <span class="math notranslate nohighlight">\([k_1,\ldots,k_r]\)</span> describes the number of variables in each canalizing layer. We thus have <span class="math notranslate nohighlight">\(r\geq 0\)</span>, <span class="math notranslate nohighlight">\(k_i\geq 1\)</span> and <span class="math notranslate nohighlight">\(k_1+\cdots+k_r\)</span></p>
+non-canalizing input value. The <em>canalizing layer structure</em> <span class="math notranslate nohighlight">\([k_1,\ldots,k_r]\)</span> describes the number of variables in each canalizing layer. We thus have <span class="math notranslate nohighlight">\(r\geq 0\)</span>, <span class="math notranslate nohighlight">\(k_i\geq 1\)</span> and <span class="math notranslate nohighlight">\(k_1+\cdots+k_r\)</span>.</p>
 <p>In the following code, we define four 3-input functions with different canalizing properties.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span>
-<span class="c1"># Example: a non-canalizing XOR function.</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: a non-canalizing XOR function.</span>
 <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s1">&#39;(x0 + x1 + x2) % 2&#39;</span><span class="p">)</span>
 
 <span class="c1"># Example: a 1-canalizing function</span>
@@ -278,7 +281,7 @@ irrespective of the other n - k inputs (Kadelka et al, Advances in Applied Mathe
 </ul>
 <p>For any function and a given k, we can quantify the proportion of k-sets that collectively canalize this function (i.e., suffice to determine its output). This is called the <em>k-set canalizing proportion</em> <span class="math notranslate nohighlight">\(P_k(f)\)</span>. It is fairly obvious that</p>
 <ul class="simple">
-<li><p>nested canalizing functions of a single layer such as <code class="docutils literal notranslate"><span class="pre">h</span></code> are the non-degenerated functions with highest k-set canalizing proportion <span class="math notranslate nohighlight">\(P_k(f) = 1-1/2^k\)</span>, and</p></li>
+<li><p>nested canalizing functions of a single layer such as <code class="docutils literal notranslate"><span class="pre">h</span></code> are the non-degenerate functions with highest k-set canalizing proportion <span class="math notranslate nohighlight">\(P_k(f) = 1-1/2^k\)</span>, and</p></li>
 <li><p><span class="math notranslate nohighlight">\(P_{k-1}(f) \leq P_k(f)\)</span>, i.e., more knowledge about a function’s inputs cannot result in less knowledge about its output,</p></li>
 <li><p>the <span class="math notranslate nohighlight">\(n-1\)</span>-set canalizing proportion <span class="math notranslate nohighlight">\(P_{n-1}(f)\)</span> is 1 minus the function’s normalized average sensitivity.</p></li>
 </ul>
@@ -323,7 +326,7 @@ Normalized average sensitivity of k: 0.4166666666666667
 
 </pre></div></div>
 </div>
-<p>The <em>canalizing strength</em> is a measure to quantify the degree of canalization of any Boolean function (Kadelka et al, Advances in Applied Mathematics, 2023). It is computed as a weighted average of the k-set canalizing proportions. It is 1 for the most canalizing non-degenerated functions (namely, nested canalizing functions of a single canalizing layer such as <code class="docutils literal notranslate"><span class="pre">h</span></code>) and 0 for the least canalizing functions (namely, parity / XOR functions such as <code class="docutils literal notranslate"><span class="pre">f</span></code>). For all other non-degenerated Boolen
+<p>The <em>canalizing strength</em> is a measure to quantify the degree of canalization of any Boolean function (Kadelka et al, Advances in Applied Mathematics, 2023). It is computed as a weighted average of the k-set canalizing proportions. It is 1 for the most canalizing non-degenerate functions (namely, nested canalizing functions of a single canalizing layer such as <code class="docutils literal notranslate"><span class="pre">h</span></code>) and 0 for the least canalizing functions (namely, parity / XOR functions such as <code class="docutils literal notranslate"><span class="pre">f</span></code>). For all other non-degenerate Boolean
 functions it is within <span class="math notranslate nohighlight">\((0,1)\)</span>.</p>
 <p>It helps to consider the canalizing strength as a probability: Given that I know a random number of function inputs (drawn uniformly at random from <span class="math notranslate nohighlight">\(1,\ldots,n-1\)</span>), how likely am I to already know the function output?</p>
 <div class="nbinput docutils container">
@@ -331,7 +334,7 @@ functions it is within <span class="math notranslate nohighlight">\((0,1)\)</spa
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">func</span><span class="p">,</span><span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">k</span><span class="p">],</span><span class="n">labels</span><span class="p">):</span>
-    <span class="n">canalizing_strength</span><span class="p">,</span> <span class="n">kset_canalizing_proportions</span>  <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">()</span>
+    <span class="n">canalizing_strength</span>  <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Canalizing strength of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">canalizing_strength</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">()</span>
 </pre></div>
@@ -352,7 +355,7 @@ Canalizing strength of k: 0.5555555555555556
 
 </pre></div></div>
 </div>
-<p>An enumeration of all non-degenerated 3-input Boolean functions reveals the distribution of the canalizing strength. Note that this brute-force code can also run (in less than a minute) for all <span class="math notranslate nohighlight">\(2^{2^4}=2^{16}=65,536\)</span> 4-input functions but will take days for all <span class="math notranslate nohighlight">\(2^{2^5}=2^{32}=4,294,967,296\)</span> 5-input functions.</p>
+<p>An enumeration of all non-degenerate 3-input Boolean functions reveals the distribution of the canalizing strength. Note that this brute-force code can also run (in less than a minute) for all <span class="math notranslate nohighlight">\(2^{2^4}=2^{16}=65,536\)</span> 4-input functions but will take days for all <span class="math notranslate nohighlight">\(2^{2^5}=2^{32}=4,294,967,296\)</span> 5-input functions.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
 </pre></div>
@@ -363,8 +366,8 @@ Canalizing strength of k: 0.5555555555555556
 <span class="n">canalizing_strengths</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">binary_vector</span> <span class="ow">in</span> <span class="n">all_functions</span><span class="p">:</span>
     <span class="n">func</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="n">f</span> <span class="o">=</span> <span class="n">binary_vector</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">is_degenerated</span><span class="p">()</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
-        <span class="n">canalizing_strength</span><span class="p">,</span> <span class="n">_</span>  <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">()</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">canalizing_strength</span>  <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">()</span>
         <span class="n">canalizing_strengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">canalizing_strength</span><span class="p">)</span>
 
 <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -457,7 +460,8 @@ Normalized input redundancy of k: 0.4791666666666667
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="02_advanced_concepts_boolean_functions.html" class="btn btn-neutral float-left" title="BoolForge Tutorial #2: Advanced concepts related to Boolean Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="02_advanced_concepts_boolean_functions.html" class="btn btn-neutral float-left" title="BoolForge Tutorial #2: Advanced concepts related to Boolean functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="04_generate_random_boolean_functions.html" class="btn btn-neutral float-right" title="BoolForge Tutorial #4: Generating random Boolean functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

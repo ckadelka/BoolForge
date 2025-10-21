@@ -87,6 +87,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -323,7 +324,7 @@
         
         <span class="bp">self</span><span class="o">.</span><span class="n">I</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">regulators</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">regulators</span> <span class="ow">in</span> <span class="n">I</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">indegrees</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indegrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">)))</span>
         
         <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)]</span>
@@ -335,6 +336,83 @@
         
         <span class="bp">self</span><span class="o">.</span><span class="n">outdegrees</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_outdegrees</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
+
+<div class="viewcode-block" id="WiringDiagram.from_DiGraph">
+<a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.WiringDiagram.from_DiGraph">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_DiGraph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">nx_DiGraph</span> <span class="p">:</span> <span class="s2">&quot;nx.DiGraph&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WiringDiagram&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        **Compatibility Method:**</span>
+<span class="sd">        </span>
+<span class="sd">            Converts a `networkx.DiGraph` instance into a `WiringDiagram` object.</span>
+<span class="sd">            Each node in the DiGraph represents a Boolean variable, and each</span>
+<span class="sd">            directed edge (u → v) indicates that variable `u` regulates variable `v`.</span>
+<span class="sd">        </span>
+<span class="sd">        **Parameters:**</span>
+<span class="sd">        </span>
+<span class="sd">            - nx_DiGraph (nx.DiGraph): A directed graph where edges represent</span>
+<span class="sd">              regulatory influences (u → v).</span>
+<span class="sd">            </span>
+<span class="sd">            - Node attributes (optional):</span>
+<span class="sd">                </span>
+<span class="sd">                - `&#39;name&#39;`: a string name of the variable (defaults to node label).</span>
+<span class="sd">                - `&#39;weight&#39;`: numerical edge weights (stored in `weights` matrix, optional).</span>
+<span class="sd">        </span>
+<span class="sd">        **Returns:**</span>
+<span class="sd">        </span>
+<span class="sd">            - WiringDiagram: An instance constructed from the graph structure.</span>
+<span class="sd">            </span>
+<span class="sd">        **Example:**</span>
+<span class="sd">        </span>
+<span class="sd">            &gt;&gt;&gt; import networkx as nx</span>
+<span class="sd">            &gt;&gt;&gt; G = nx.DiGraph()</span>
+<span class="sd">            &gt;&gt;&gt; G.add_edges_from([(0, 1), (1, 2), (2, 0)])</span>
+<span class="sd">            &gt;&gt;&gt; WD = WiringDiagram.from_DiGraph(G)</span>
+<span class="sd">            &gt;&gt;&gt; WD.I</span>
+<span class="sd">            [array([2]), array([0]), array([1])]</span>
+<span class="sd">            &gt;&gt;&gt; WD.variables</span>
+<span class="sd">            array([&#39;x0&#39;, &#39;x1&#39;, &#39;x2&#39;], dtype=&#39;&lt;U2&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1">#BEN: #TODO</span>
+        
+        <span class="c1"># Ensure input is a DiGraph</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nx_DiGraph</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">),</span> <span class="s2">&quot;Input must be a networkx.DiGraph instance.&quot;</span>
+    
+        <span class="c1"># Sort nodes to ensure deterministic ordering</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nx_DiGraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+        
+        <span class="c1"># Extract variable names, defaulting to &quot;x0&quot;, &quot;x1&quot;, ...</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">nx_DiGraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">]:</span>
+                <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nx_DiGraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+    
+        <span class="c1"># Build regulator list I: for each node i, collect its predecessors (inputs)</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="n">regulators</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nx_DiGraph</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+            <span class="c1"># Convert regulators to integer indices if nodes are not already 0..N-1</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regulators</span><span class="p">):</span>
+                <span class="n">regulators</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regulators</span><span class="p">]</span>
+            <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">regulators</span><span class="p">)</span>
+    
+        <span class="c1"># Optional: extract weights if available</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">has_weights</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span> <span class="ow">in</span> <span class="n">nx_DiGraph</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">nx_DiGraph</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_weights</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+                <span class="n">regs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nx_DiGraph</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="p">[</span><span class="n">nx_DiGraph</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">regs</span><span class="p">]</span>
+                <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    
+        <span class="c1"># Instantiate WiringDiagram</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">I</span><span class="o">=</span><span class="n">I</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
@@ -403,7 +481,7 @@
         <span class="n">edges_wiring_diagram</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">target</span><span class="p">,</span> <span class="n">regulators</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">regulator</span> <span class="ow">in</span> <span class="n">regulators</span><span class="p">:</span>
-                <span class="n">edges_wiring_diagram</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">regulator</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+                <span class="n">edges_wiring_diagram</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">regulator</span><span class="p">),</span> <span class="n">target</span><span class="p">))</span>
         <span class="n">subG</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_edgelist</span><span class="p">(</span><span class="n">edges_wiring_diagram</span><span class="p">,</span> <span class="n">create_using</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">())</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">scc</span> <span class="k">for</span> <span class="n">scc</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">strongly_connected_components</span><span class="p">(</span><span class="n">subG</span><span class="p">)]</span></div>
 
@@ -642,8 +720,9 @@
 <span class="sd">          list[int]]): A list of N Boolean functions, or of N lists of length</span>
 <span class="sd">          2^n representing the outputs of a Boolean function with n inputs.</span>
 
-<span class="sd">        - I (list[list[int]] | np.ndarray[list[int]]): A list of N lists</span>
-<span class="sd">          representing the regulators (or inputs) for each Boolean function.</span>
+<span class="sd">        - I (list[list[int]] | np.ndarray[list[int]] | WiringDiagram):</span>
+<span class="sd">          A list of N lists representing the regulators (or inputs) for each </span>
+<span class="sd">          Boolean function.</span>
 
 <span class="sd">        - variables (list[str] | np.array[str], optional): A list of N strings</span>
 <span class="sd">          representing the names of each variable, default = None.</span>
@@ -947,18 +1026,77 @@
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}{</span><span class="n">separator</span><span class="si">}{</span><span class="n">function</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
+    
+<div class="viewcode-block" id="BooleanNetwork.to_truth_table">
+<a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.to_truth_table">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_truth_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">RETURN</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determines the full truth table of the Boolean network as pandas DataFrame.</span>
+
+<span class="sd">        Each row shows the input combination (x1, x2, ..., xN)</span>
+<span class="sd">        and the corresponding output(s) f(x).</span>
+<span class="sd">        </span>
+<span class="sd">        The output is returned as a pandas DataFrame and can optionally be</span>
+<span class="sd">        exported to a file in CSV or Excel format.</span>
+
+<span class="sd">        **Parameters:**</span>
+<span class="sd">            - RETURN (bool, optional):</span>
+<span class="sd">                Whether to return the truth table as a pandas DataFrame.</span>
+<span class="sd">                Defaults to True.</span>
+<span class="sd">            </span>
+<span class="sd">            - filename (str, optional):</span>
+<span class="sd">                If provided, the truth table is written to a file. The file</span>
+<span class="sd">                extension determines the format and must be one of:</span>
+<span class="sd">                `&#39;csv&#39;`, `&#39;xls&#39;`, or `&#39;xlsx&#39;`.</span>
+<span class="sd">                Example: `&quot;truth_table.csv&quot;` or `&quot;truth_table.xlsx&quot;`.</span>
+<span class="sd">                If `None` (default), no file is created.</span>
+
+<span class="sd">        **Returns:**</span>
+<span class="sd">            </span>
+<span class="sd">            - pd.DataFrame: The full truth table with shape (2^N, 2N).</span>
+<span class="sd">              Returned only if `RETURN=True`.</span>
+<span class="sd">              </span>
+<span class="sd">        **Notes:**</span>
+<span class="sd">            - The function automatically computes the synchronous</span>
+<span class="sd">              state transition graph (`STG`) if it has not been computed yet.</span>
+<span class="sd">            - Each output row represents a deterministic transition from the</span>
+<span class="sd">              current state to its next state under synchronous updating.</span>
+<span class="sd">            - Exporting to Excel requires the `openpyxl` package to be installed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;(t)&#39;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span>
+        <span class="n">columns</span> <span class="o">+=</span> <span class="p">[</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;(t+1)&#39;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">STG</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_synchronous_state_transition_graph</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[:,:</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">:]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">dec2bin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">STG</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">truth_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ending</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">ending</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span><span class="s1">&#39;xls&#39;</span><span class="p">,</span><span class="s1">&#39;xlsx&#39;</span><span class="p">],</span><span class="s2">&quot;filename must end in &#39;csv&#39;,&#39;xls&#39;, or &#39;xlsx&#39;&quot;</span>
+            <span class="k">if</span> <span class="n">ending</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">:</span>
+                <span class="n">truth_table</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">truth_table</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">RETURN</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">truth_table</span></div>
 
     
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span>
     
     
+<div class="viewcode-block" id="BooleanNetwork.__str__">
+<a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.__str__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Boolean network of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2"> nodes with indegrees </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">indegrees</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Boolean network of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2"> nodes with indegrees </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">indegrees</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
     
     
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="c1">#return (self.F[index],self.I[index],self.variables[index])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
     
     <span class="k">def</span><span class="w"> </span><span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -966,7 +1104,26 @@
         <span class="n">result</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="n">result</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
-        
+    
+<div class="viewcode-block" id="BooleanNetwork.__call__">
+<a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform a synchronous update of a Boolean network.</span>
+
+<span class="sd">        Each node&#39;s new state is determined by applying its Boolean function</span>
+<span class="sd">        to the current states of its regulators.</span>
+
+<span class="sd">        **Parameters:**</span>
+<span class="sd">            </span>
+<span class="sd">            - X (list[int] | np.array[int]): Current state vector of the network.</span>
+
+<span class="sd">        **Returns:**</span>
+<span class="sd">            </span>
+<span class="sd">            - np.array[int]: New state vector after the update.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_network_synchronously</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
+
     
 <div class="viewcode-block" id="BooleanNetwork.get_types_of_regulation">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_types_of_regulation">[docs]</a>
@@ -985,6 +1142,9 @@
             <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dict_weights</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">bf</span><span class="o">.</span><span class="n">get_type_of_inputs</span><span class="p">()]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
         <span class="k">return</span> <span class="n">weights</span></div>
+
+    
+
 
 
     <span class="c1">## Transform Boolean networks</span>
@@ -1969,7 +2129,6 @@
                 
             <span class="c1"># Build the dictionary {current_state: next_state}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">STG</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_variables</span><span class="p">),</span> <span class="n">next_indices</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">STG</span>
     <span class="k">else</span><span class="p">:</span>
 <div class="viewcode-block" id="BooleanNetwork.compute_synchronous_state_transition_graph">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.compute_synchronous_state_transition_graph">[docs]</a>

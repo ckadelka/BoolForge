@@ -108,7 +108,7 @@
     <span class="n">EXACT_DEPTH</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">layer_structure</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">LINEAR</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">absolute_bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">USE_ABSOLUTE_BIAS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -135,20 +135,20 @@
 
 <span class="sd">        - Else if exact `hamming_weight` is provided: sample uniformly a truth</span>
 <span class="sd">          table with the requested number of ones, and keep resampling until</span>
-<span class="sd">          the additional constraints implied by `ALLOW_DEGENERATED_FUNCTIONS`</span>
+<span class="sd">          the additional constraints implied by `ALLOW_DEGENERATE_FUNCTIONS`</span>
 <span class="sd">          and `EXACT_DEPTH` are satisfied:</span>
 
-<span class="sd">            - If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: return a</span>
+<span class="sd">            - If `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`: return a</span>
 <span class="sd">              **non-canalizing** function with exact Hamming weight.</span>
 
-<span class="sd">            - If `ALLOW_DEGENERATED_FUNCTIONS` and not `EXACT_DEPTH`: return</span>
+<span class="sd">            - If `ALLOW_DEGENERATE_FUNCTIONS` and not `EXACT_DEPTH`: return</span>
 <span class="sd">              a fully random function with exact Hamming weight.</span>
 
-<span class="sd">            - If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: return</span>
-<span class="sd">              a **non-canalizing &amp; non-degenerated** function with exact</span>
+<span class="sd">            - If not `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`: return</span>
+<span class="sd">              a **non-canalizing &amp; non-degenerate** function with exact</span>
 <span class="sd">              Hamming weight.</span>
 
-<span class="sd">            - Else: return a **non-degenerated** function with exact Hamming</span>
+<span class="sd">            - Else: return a **non-degenerate** function with exact Hamming</span>
 <span class="sd">              weight.</span>
 
 <span class="sd">        - Else:</span>
@@ -162,21 +162,21 @@
 
 <span class="sd">            - Then:</span>
 
-<span class="sd">                - If `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`: return</span>
+<span class="sd">                - If `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`: return</span>
 <span class="sd">                  a **non-canalizing** function with that bias</span>
 <span class="sd">                  (`random_non_canalizing_function`).</span>
 
-<span class="sd">                - If `ALLOW_DEGENERATED_FUNCTIONS` and not `EXACT_DEPTH`:</span>
+<span class="sd">                - If `ALLOW_DEGENERATE_FUNCTIONS` and not `EXACT_DEPTH`:</span>
 <span class="sd">                  return a fully random function with that bias, as used in</span>
 <span class="sd">                  classical NK-Kauffman models (`random_function_with_bias`).</span>
 
-<span class="sd">                - If not `ALLOW_DEGENERATED_FUNCTIONS` and `EXACT_DEPTH`:</span>
-<span class="sd">                  return a **non-canalizing, non-degenerated** function</span>
-<span class="sd">                  (`random_non_canalizing_non_degenerated_function`).</span>
+<span class="sd">                - If not `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`:</span>
+<span class="sd">                  return a **non-canalizing, non-degenerate** function</span>
+<span class="sd">                  (`random_non_canalizing_non_degenerate_function`).</span>
 
 <span class="sd">                - Else (default, if only &#39;n&#39; is provided): return a</span>
-<span class="sd">                  **non-degenerated** function with that bias</span>
-<span class="sd">                  (`random_non_degenerated_function`).</span>
+<span class="sd">                  **non-degenerate** function with that bias</span>
+<span class="sd">                  (`random_non_degenerate_function`).</span>
 
 
 <span class="sd">    **Parameters:**</span>
@@ -198,9 +198,9 @@
 <span class="sd">        - LINEAR (bool, optional): If True, ignore other generation options</span>
 <span class="sd">          and return a random linear function. Default False.</span>
 
-<span class="sd">        - ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True, generators</span>
+<span class="sd">        - ALLOW_DEGENERATE_FUNCTIONS (bool, optional): If True, generators</span>
 <span class="sd">          in the “random” branches may return functions with non-essential</span>
-<span class="sd">          inputs. If False, those branches insist on non-degenerated functions.</span>
+<span class="sd">          inputs. If False, those branches insist on non-degenerate functions.</span>
 <span class="sd">          Default False.</span>
 
 <span class="sd">        - bias (float, optional): Probability of 1s when sampling with bias</span>
@@ -243,30 +243,33 @@
 <span class="sd">    **Notes:**</span>
 
 <span class="sd">        - Extremely biased random functions (with bias very close to 0 or 1)</span>
-<span class="sd">          are often degenerated and highly canalizing; some functions force</span>
+<span class="sd">          are often degenerate and highly canalizing; some functions force</span>
 <span class="sd">          bias in [0.001,0.999] to avoid RunTimeErrors.</span>
 
 
 <span class="sd">    **Examples:**</span>
 
-<span class="sd">        &gt;&gt;&gt; # Unbiased, non-degenerated random function</span>
+<span class="sd">        &gt;&gt;&gt; # Unbiased, non-degenerate random function</span>
 <span class="sd">        &gt;&gt;&gt; f = random_function(n=3)</span>
 
-<span class="sd">        &gt;&gt;&gt; # Function with minimal canalizing depth 2</span>
+<span class="sd">        &gt;&gt;&gt; # Non-degenerate function with minimal canalizing depth 2</span>
 <span class="sd">        &gt;&gt;&gt; f = random_function(n=5, depth=2)</span>
 
-<span class="sd">        &gt;&gt;&gt; # Function with exact canalizing depth 2</span>
+<span class="sd">        &gt;&gt;&gt; # Non-degenerate function with exact canalizing depth 2</span>
 <span class="sd">        &gt;&gt;&gt; f = random_function(n=5, depth=2, EXACT_DEPTH=True)</span>
 
-<span class="sd">        &gt;&gt;&gt; # With a specific layer structure (takes precedence over `depth`)</span>
+<span class="sd">        &gt;&gt;&gt; # Non-degenerate function with a specific layer structure (takes precedence over `depth`)</span>
 <span class="sd">        &gt;&gt;&gt; f = random_function(n=6, layer_structure=[2, 1], EXACT_DEPTH=False)</span>
 
 <span class="sd">        &gt;&gt;&gt; # Linear function</span>
 <span class="sd">        &gt;&gt;&gt; f = random_function(n=4, LINEAR=True)</span>
 
-<span class="sd">        &gt;&gt;&gt; # Fixed Hamming weight under non-canalizing + non-degenerated constraints</span>
+<span class="sd">        &gt;&gt;&gt; # Fixed Hamming weight under non-canalizing + non-degenerate constraints</span>
 <span class="sd">        &gt;&gt;&gt; f = random_function(n=5, hamming_weight=10, EXACT_DEPTH=True,</span>
-<span class="sd">        ...                     ALLOW_DEGENERATED_FUNCTIONS=False)</span>
+<span class="sd">        ...                     ALLOW_DEGENERATE_FUNCTIONS=False)</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; # Completely random (possibly degenerate) function</span>
+<span class="sd">        &gt;&gt;&gt; f = random_function(n=3, ALLOW_DEGENERATE_FUNCTIONS=True)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
 
@@ -277,7 +280,7 @@
             <span class="n">n</span><span class="p">,</span>
             <span class="n">layer_structure</span><span class="p">,</span>
             <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="n">EXACT_DEPTH</span><span class="p">,</span>
-            <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">,</span>
+            <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">,</span>
             <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -285,7 +288,7 @@
             <span class="n">n</span><span class="p">,</span>
             <span class="nb">min</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span>
             <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="n">EXACT_DEPTH</span><span class="p">,</span>
-            <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">,</span>
+            <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">,</span>
             <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">hamming_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -298,16 +301,16 @@
         <span class="p">)</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">random_function_with_exact_hamming_weight</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span> <span class="ow">and</span> <span class="n">EXACT_DEPTH</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span> <span class="ow">and</span> <span class="n">EXACT_DEPTH</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">():</span>
                     <span class="k">return</span> <span class="n">f</span>
-            <span class="k">elif</span> <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">f</span>
             <span class="k">elif</span> <span class="n">EXACT_DEPTH</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerated</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
                     <span class="k">return</span> <span class="n">f</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerated</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
                     <span class="k">return</span> <span class="n">f</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">random_function_with_exact_hamming_weight</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -323,18 +326,18 @@
                 <span class="s2">&quot;bias must be in [0,1]. It describes the probability of a 1 in the randomly generated function.&quot;</span>
             <span class="p">)</span>
             <span class="n">bias_of_function</span> <span class="o">=</span> <span class="n">bias</span>
-        <span class="k">if</span> <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">EXACT_DEPTH</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">random_non_canalizing_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias_of_function</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>  <span class="c1"># completely random function</span>
                 <span class="k">return</span> <span class="n">random_function_with_bias</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias_of_function</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">EXACT_DEPTH</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">random_non_canalizing_non_degenerated_function</span><span class="p">(</span>
+                <span class="k">return</span> <span class="n">random_non_canalizing_non_degenerate_function</span><span class="p">(</span>
                     <span class="n">n</span><span class="p">,</span> <span class="n">bias_of_function</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>  <span class="c1"># generated by default</span>
-                <span class="k">return</span> <span class="n">random_non_degenerated_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias_of_function</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span></div>
+                <span class="k">return</span> <span class="n">random_non_degenerate_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias_of_function</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span></div>
 
 
 
@@ -436,17 +439,17 @@
 
 
 
-<div class="viewcode-block" id="random_non_degenerated_function">
-<a class="viewcode-back" href="../../generate.html#boolforge.generate.random_non_degenerated_function">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">random_non_degenerated_function</span><span class="p">(</span>
+<div class="viewcode-block" id="random_non_degenerate_function">
+<a class="viewcode-back" href="../../generate.html#boolforge.generate.random_non_degenerate_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_non_degenerate_function</span><span class="p">(</span>
     <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate a random non-degenerated Boolean function in n variables.</span>
+<span class="sd">    Generate a random non-degenerate Boolean function in n variables.</span>
 
-<span class="sd">    A non-degenerated Boolean function is one in which every variable is</span>
+<span class="sd">    A non-degenerate Boolean function is one in which every variable is</span>
 <span class="sd">    essential (i.e. the output depends on every input). The function is</span>
-<span class="sd">    repeatedly generated with the specified bias until a non-degenerated</span>
+<span class="sd">    repeatedly generated with the specified bias until a non-degenerate</span>
 <span class="sd">    function is found.</span>
 
 <span class="sd">    **Parameters:**</span>
@@ -471,26 +474,26 @@
     <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;n must be a positive integer&quot;</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bias</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">))</span> <span class="ow">and</span> <span class="mf">0.001</span> <span class="o">&lt;</span> <span class="n">bias</span> <span class="o">&lt;</span> <span class="mf">0.999</span><span class="p">,</span> <span class="p">(</span>
-        <span class="s2">&quot;almost all extremely biased Boolean functions are degenerated. Choose a more balanced value for the &#39;bias&#39;.&quot;</span>
+        <span class="s2">&quot;almost all extremely biased Boolean functions are degenerate. Choose a more balanced value for the &#39;bias&#39;.&quot;</span>
     <span class="p">)</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># works well because most Boolean functions are non-degenerated</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># works well because most Boolean functions are non-degenerate</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">random_function_with_bias</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerated</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">f</span></div>
 
 
 
-<div class="viewcode-block" id="random_degenerated_function">
-<a class="viewcode-back" href="../../generate.html#boolforge.generate.random_degenerated_function">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">random_degenerated_function</span><span class="p">(</span>
+<div class="viewcode-block" id="random_degenerate_function">
+<a class="viewcode-back" href="../../generate.html#boolforge.generate.random_degenerate_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_degenerate_function</span><span class="p">(</span>
     <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate a random degenerated Boolean function in n variables.</span>
+<span class="sd">    Generate a random degenerate Boolean function in n variables.</span>
 
-<span class="sd">    A degenerated Boolean function is one in which at least one variable is</span>
+<span class="sd">    A degenerate Boolean function is one in which at least one variable is</span>
 <span class="sd">    non‐essential (its value never affects the output). The function is</span>
-<span class="sd">    generated repeatedly until a degenerated function is found.</span>
+<span class="sd">    generated repeatedly until a degenerate function is found.</span>
 
 <span class="sd">    **Parameters:**</span>
 
@@ -503,7 +506,7 @@
 
 <span class="sd">    **Returns:**</span>
 
-<span class="sd">        - BooleanFunction: Boolean function object that is degenerated in</span>
+<span class="sd">        - BooleanFunction: Boolean function object that is degenerate in</span>
 <span class="sd">          the first input (and possibly others).</span>
 
 <span class="sd">    **References:**</span>
@@ -565,14 +568,14 @@
 
 
 
-<div class="viewcode-block" id="random_non_canalizing_non_degenerated_function">
-<a class="viewcode-back" href="../../generate.html#boolforge.generate.random_non_canalizing_non_degenerated_function">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">random_non_canalizing_non_degenerated_function</span><span class="p">(</span>
+<div class="viewcode-block" id="random_non_canalizing_non_degenerate_function">
+<a class="viewcode-back" href="../../generate.html#boolforge.generate.random_non_canalizing_non_degenerate_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_non_canalizing_non_degenerate_function</span><span class="p">(</span>
     <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a random Boolean function in n (&gt;1) variables that is both</span>
-<span class="sd">    non-canalizing and non-degenerated.</span>
+<span class="sd">    non-canalizing and non-degenerate.</span>
 
 <span class="sd">    Such a function has every variable essential and is not canalizing.</span>
 
@@ -597,9 +600,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;n must be an integer &gt; 1&quot;</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># works because most functions are non-canalizing and non-degenerated</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># works because most functions are non-canalizing and non-degenerate</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">random_function_with_bias</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerated</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">f</span></div>
 
 
@@ -610,7 +613,7 @@
     <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">EXACT_DEPTH</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
@@ -631,8 +634,8 @@
 <span class="sd">        - EXACT_DEPTH (bool, optional): If True, enforce that the canalizing</span>
 <span class="sd">          depth is exactly k (default is False).</span>
 
-<span class="sd">        - ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False)</span>
-<span class="sd">          and k==0 and layer_structure is None, degenerated functions may be</span>
+<span class="sd">        - ALLOW_DEGENERATE_FUNCTIONS(bool, optional): If True (default False)</span>
+<span class="sd">          and k==0 and layer_structure is None, degenerate functions may be</span>
 <span class="sd">          created as in classical NK-Kauffman networks.</span>
 
 <span class="sd">        - rng (None, optional): Argument for the random number generator,</span>
@@ -673,7 +676,7 @@
             <span class="n">n</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="n">k</span><span class="p">,</span>
             <span class="n">depth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="n">EXACT_DEPTH</span><span class="p">,</span>
-            <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">,</span>
+            <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">,</span>
             <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -697,7 +700,7 @@
     <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">layer_structure</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
     <span class="n">EXACT_DEPTH</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
@@ -722,8 +725,8 @@
 <span class="sd">        - EXACT_DEPTH (bool, optional): If True, the canalizing depth is</span>
 <span class="sd">          exactly sum(layer_structure) (default is False).</span>
 
-<span class="sd">        - ALLOW_DEGENERATED_FUNCTIONS(bool, optional): If True (default False),</span>
-<span class="sd">          the core function may be degenerated, as in NK-Kauffman networks.</span>
+<span class="sd">        - ALLOW_DEGENERATE_FUNCTIONS(bool, optional): If True (default False),</span>
+<span class="sd">          the core function may be degenerate, as in NK-Kauffman networks.</span>
 
 <span class="sd">        - rng (None, optional): Argument for the random number generator,</span>
 <span class="sd">          implemented in &#39;utils._coerce_rng&#39;.</span>
@@ -775,7 +778,7 @@
             <span class="n">n</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="n">depth</span><span class="p">,</span>
             <span class="n">depth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="n">EXACT_DEPTH</span><span class="p">,</span>
-            <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">,</span>
+            <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">,</span>
             <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1319,7 +1322,7 @@
 <span class="c1"># depth=0</span>
 <span class="c1"># EXACT_DEPTH=False</span>
 <span class="c1"># layer_structure=None</span>
-<span class="c1"># ALLOW_DEGENERATED_FUNCTIONS=False</span>
+<span class="c1"># ALLOW_DEGENERATE_FUNCTIONS=False</span>
 <span class="c1"># LINEAR=False,</span>
 <span class="c1"># bias=0.5</span>
 <span class="c1"># absolute_bias = 0.</span>
@@ -1340,7 +1343,7 @@
     <span class="n">depth</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">EXACT_DEPTH</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">layer_structure</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">LINEAR</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">bias</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">absolute_bias</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -1351,7 +1354,7 @@
     <span class="n">indegree_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span>
     <span class="n">AT_LEAST_ONE_REGULATOR_PER_NODE</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">n_attempts_to_generate_strongly_connected_network</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
-    <span class="n">I</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">WiringDiagram</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">I</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">WiringDiagram</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanNetwork</span><span class="p">:</span>
@@ -1428,8 +1431,8 @@
 <span class="sd">              in-degree. When provided, `layer_structure` takes precedence</span>
 <span class="sd">              over `depth`.</span>
 
-<span class="sd">        - ALLOW_DEGENERATED_FUNCTIONS (bool, optional): If True and</span>
-<span class="sd">          `depth==0` and `layer_structure is None`, degenerated functions</span>
+<span class="sd">        - ALLOW_DEGENERATE_FUNCTIONS (bool, optional): If True and</span>
+<span class="sd">          `depth==0` and `layer_structure is None`, degenerate functions</span>
 <span class="sd">          (with non-essential inputs) may be generated (classical NK-Kauffman</span>
 <span class="sd">          models). If False, generated functions are essential in all</span>
 <span class="sd">          variables. Default False.</span>
@@ -1482,7 +1485,7 @@
 <span class="sd">        - n_attempts_to_generate_strongly_connected_network (int, optional):</span>
 <span class="sd">          Max attempts for strong connectivity before raising. Default 1000.</span>
 
-<span class="sd">        - I (list[list[int]] | list[np.ndarray[int]] | None | WiringDiagram, optional):</span>
+<span class="sd">        - I (list[list[int]] | list[np.ndarray[int]] | None | WiringDiagram | nx.DiGraph, optional):</span>
 <span class="sd">          Existing wiring diagram. If provided, `N` and `n` are ignored and</span>
 <span class="sd">          `indegrees` are computed from `I`.</span>
 
@@ -1525,10 +1528,10 @@
 <span class="sd">    **Examples:**</span>
 
 <span class="sd">        &gt;&gt;&gt; # Boolean network with only essential inputs</span>
-<span class="sd">        &gt;&gt;&gt; bn = random_network(N=10, n=2, ALLOW_DEGENERATED_FUNCTIONS=False)</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N=10, n=2, ALLOW_DEGENERATE_FUNCTIONS=False)</span>
 
-<span class="sd">        &gt;&gt;&gt; # Classic NK-Kauffman network allowing degenerated rules</span>
-<span class="sd">        &gt;&gt;&gt; bn = random_network(N=10, n=3, ALLOW_DEGENERATED_FUNCTIONS=True)</span>
+<span class="sd">        &gt;&gt;&gt; # Classic NK-Kauffman network allowing degenerate rules</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N=10, n=3, ALLOW_DEGENERATE_FUNCTIONS=True)</span>
 
 <span class="sd">        &gt;&gt;&gt; # Fixed wiring: reuse an existing diagram but resample rules</span>
 <span class="sd">        &gt;&gt;&gt; bn0 = random_network(N=6, n=2)</span>
@@ -1550,9 +1553,9 @@
 <span class="sd">        &gt;&gt;&gt; # Exact Hamming weights (broadcast)</span>
 <span class="sd">        &gt;&gt;&gt; bn = random_network(N=6, n=3, hamming_weight=4)</span>
 
-<span class="sd">        &gt;&gt;&gt; # To ensure strong connectivity, set ALLOW_DEGENERATED_FUNCTIONS=False</span>
+<span class="sd">        &gt;&gt;&gt; # To ensure strong connectivity, set ALLOW_DEGENERATE_FUNCTIONS=False</span>
 <span class="sd">        &gt;&gt;&gt; # and STRONGLY_CONNECTED=True</span>
-<span class="sd">        &gt;&gt;&gt; bn = random_network(N,n,ALLOW_DEGENERATED_FUNCTIONS=False,STRONGLY_CONNECTED=True)</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N,n,ALLOW_DEGENERATE_FUNCTIONS=False,STRONGLY_CONNECTED=True)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">I</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">N</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># generate wiring diagram</span>
@@ -1568,7 +1571,7 @@
         <span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">I</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># load wiring diagram</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">WiringDiagram</span><span class="p">)),</span> <span class="p">(</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">WiringDiagram</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">)),</span> <span class="p">(</span>
             <span class="s2">&quot;I must be an instance of WiringDiagram or a list or np.array of lists or np.arrays. Each inner list describes the regulators of node i (indexed by 0,1,...,len(I)-1)&quot;</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
@@ -1582,6 +1585,8 @@
                     <span class="s2">&quot;Each element in I describes the regulators of a node (indexed by 0,1,...,len(I)-1)&quot;</span>
                 <span class="p">)</span>
             <span class="n">I</span> <span class="o">=</span> <span class="n">WiringDiagram</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">):</span>
+            <span class="n">I</span> <span class="o">=</span> <span class="n">WiringDiagram</span><span class="o">.</span><span class="n">from_DiGraph</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
             <span class="s2">&quot;At a minimum, the wiring diagram I must be provided or the network size N and degree parameter n.&quot;</span>
@@ -1660,7 +1665,7 @@
             <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="n">EXACT_DEPTH</span><span class="p">,</span>
             <span class="n">layer_structure</span><span class="o">=</span><span class="n">layer_structure</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
             <span class="n">LINEAR</span><span class="o">=</span><span class="n">LINEAR</span><span class="p">,</span>
-            <span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATED_FUNCTIONS</span><span class="p">,</span>
+            <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">,</span>
             <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
             <span class="n">absolute_bias</span><span class="o">=</span><span class="n">absolute_bias</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
             <span class="n">USE_ABSOLUTE_BIAS</span><span class="o">=</span><span class="n">USE_ABSOLUTE_BIAS</span><span class="p">,</span>
@@ -1761,7 +1766,7 @@
 
 <span class="sd">                - a **core** function with the **same Hamming weight** as</span>
 <span class="sd">                  `f`’s core and that is **non-canalizing** and</span>
-<span class="sd">                  **non-degenerated**.</span>
+<span class="sd">                  **non-degenerate**.</span>
 
 <span class="sd">            - If `PRESERVE_BIAS and not PRESERVE_CANALIZING_DEPTH`: A new</span>
 <span class="sd">              rule with the same Hamming weight is drawn uniformly at random.</span>
@@ -1769,7 +1774,7 @@
 <span class="sd">            - If `PRESERVE_CANALIZING_DEPTH and not PRESERVE_BIAS`: A random</span>
 <span class="sd">              function with **exact** canalizing depth `d` is generated.</span>
 
-<span class="sd">            - Else: A random **non-degenerated** function of the same</span>
+<span class="sd">            - Else: A random **non-degenerate** function of the same</span>
 <span class="sd">              in-degree is generated.</span>
 
 <span class="sd">    **References:**</span>
@@ -1835,7 +1840,7 @@
                         <span class="n">f</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">depth</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">core_function</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="n">core_function</span><span class="o">.</span><span class="n">is_degenerated</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">core_function</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
                             <span class="k">break</span>
             <span class="n">newf</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">depth</span><span class="p">):</span>
@@ -1862,7 +1867,7 @@
                 <span class="n">n</span><span class="o">=</span><span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="n">depth</span><span class="p">,</span> <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">newf</span> <span class="o">=</span> <span class="n">random_non_degenerated_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+            <span class="n">newf</span> <span class="o">=</span> <span class="n">random_non_degenerate_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
         <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newf</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span></div>
 
