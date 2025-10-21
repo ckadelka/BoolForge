@@ -379,24 +379,28 @@ non-reduced DNF.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.to_truth_table">
-<span class="sig-name descname"><span class="pre">to_truth_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">RETURN</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_truth_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_truth_table" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_truth_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">RETURN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_truth_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_truth_table" title="Link to this definition"></a></dt>
 <dd><p>Returns or saves the full truth table of the Boolean function as a pandas DataFrame.</p>
 <p>Each row shows the input combination (x1, x2, …, xn)
 and the corresponding output f(x).</p>
-<dl>
-<dt><strong>Parameters</strong></dt><dd><ul class="simple">
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
 <li><p>RETURN (bool, optional): Whether to return the DataFrame (default: True).
 If False, the function only writes the table to file when <cite>filename</cite> is provided.</p></li>
 <li><p>filename (str, optional): File name (including extension) to which the truth table
 should be saved. Supported formats are ‘csv’, ‘xls’, and ‘xlsx’.
 If provided, the truth table is automatically saved in the specified format.</p></li>
 </ul>
-</dd>
-<dt><strong>Returns</strong></dt><dd><ul class="simple">
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
 <li><p>pd.DataFrame: The full truth table, if <cite>RETURN=True</cite>.
 Otherwise, nothing is returned.</p></li>
 </ul>
-</dd>
+</div></blockquote>
+<dl>
 <dt><strong>Example</strong></dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(x1 &amp; ~x2) | x3&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">to_truth_table</span><span class="p">()</span>
 <span class="go">    x1  x2  x3  f</span>
@@ -411,12 +415,14 @@ Otherwise, nothing is returned.</p></li>
 </pre></div>
 </div>
 </dd>
-<dt><strong>Notes</strong></dt><dd><ul class="simple">
+</dl>
+<p><strong>Notes:</strong></p>
+<blockquote>
+<div><ul class="simple">
 <li><p>The column names correspond to the function’s variables followed by its name.</p></li>
 <li><p>When saving to a file, the file extension determines the format.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">

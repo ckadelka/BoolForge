@@ -1029,7 +1029,7 @@
     
 <div class="viewcode-block" id="BooleanNetwork.to_truth_table">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.to_truth_table">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_truth_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">RETURN</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_truth_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">RETURN</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">filename</span> <span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determines the full truth table of the Boolean network as pandas DataFrame.</span>
 
@@ -1040,16 +1040,17 @@
 <span class="sd">        exported to a file in CSV or Excel format.</span>
 
 <span class="sd">        **Parameters:**</span>
+<span class="sd">        </span>
 <span class="sd">            - RETURN (bool, optional):</span>
-<span class="sd">                Whether to return the truth table as a pandas DataFrame.</span>
-<span class="sd">                Defaults to True.</span>
+<span class="sd">              Whether to return the truth table as a pandas DataFrame.</span>
+<span class="sd">              Defaults to True.</span>
 <span class="sd">            </span>
 <span class="sd">            - filename (str, optional):</span>
-<span class="sd">                If provided, the truth table is written to a file. The file</span>
-<span class="sd">                extension determines the format and must be one of:</span>
-<span class="sd">                `&#39;csv&#39;`, `&#39;xls&#39;`, or `&#39;xlsx&#39;`.</span>
-<span class="sd">                Example: `&quot;truth_table.csv&quot;` or `&quot;truth_table.xlsx&quot;`.</span>
-<span class="sd">                If `None` (default), no file is created.</span>
+<span class="sd">              If provided, the truth table is written to a file. The file</span>
+<span class="sd">              extension determines the format and must be one of:</span>
+<span class="sd">              `&#39;csv&#39;`, `&#39;xls&#39;`, or `&#39;xlsx&#39;`.</span>
+<span class="sd">              Example: `&quot;truth_table.csv&quot;` or `&quot;truth_table.xlsx&quot;`.</span>
+<span class="sd">              If `None` (default), no file is created.</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>
@@ -1057,10 +1058,13 @@
 <span class="sd">              Returned only if `RETURN=True`.</span>
 <span class="sd">              </span>
 <span class="sd">        **Notes:**</span>
+<span class="sd">        </span>
 <span class="sd">            - The function automatically computes the synchronous</span>
 <span class="sd">              state transition graph (`STG`) if it has not been computed yet.</span>
+<span class="sd">              </span>
 <span class="sd">            - Each output row represents a deterministic transition from the</span>
 <span class="sd">              current state to its next state under synchronous updating.</span>
+<span class="sd">              </span>
 <span class="sd">            - Exporting to Excel requires the `openpyxl` package to be installed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
@@ -1310,9 +1314,9 @@
 <div class="viewcode-block" id="BooleanNetwork.get_network_with_edge_controls">
 <a class="viewcode-back" href="../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_network_with_edge_controls">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_network_with_edge_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
-                                      <span class="n">control_targets</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">list</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span>
-                                      <span class="n">control_sources</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">list</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> 
-                                      <span class="n">type_of_edge_controls</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">list</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BooleanNetwork&quot;</span><span class="p">:</span>
+        <span class="n">control_targets</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">list</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span>
+        <span class="n">control_sources</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">list</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> 
+        <span class="n">type_of_edge_controls</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">list</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BooleanNetwork&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a perturbed Boolean network by removing the influence of</span>
 <span class="sd">        specified regulators on specified targets.</span>
@@ -1325,14 +1329,14 @@
 <span class="sd">        **Parameters:**</span>
 <span class="sd">            </span>
 <span class="sd">            - control_targets (int | list[int] | np.array[int]): </span>
-<span class="sd">                Index of the target node(s) to be perturbed.</span>
+<span class="sd">              Index of the target node(s) to be perturbed.</span>
 <span class="sd">                </span>
 <span class="sd">            - control_sources (int | list[int] | np.array[int]): </span>
-<span class="sd">                Index of the regulator(s) whose influence is to be fixed.</span>
+<span class="sd">              Index of the regulator(s) whose influence is to be fixed.</span>
 <span class="sd">              </span>
 <span class="sd">            - type_of_edge_controls (int | list[int] | np.array[int]) | None): </span>
-<span class="sd">                Source value in regulation of target after control. </span>
-<span class="sd">                Default is None (which is interpreted as 0).</span>
+<span class="sd">              Source value in regulation of target after control. </span>
+<span class="sd">              Default is None (which is interpreted as 0).</span>
 
 <span class="sd">        **Returns:**</span>
 <span class="sd">            </span>

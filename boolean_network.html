@@ -536,32 +536,26 @@ expression. Defaults to true.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.to_truth_table">
-<span class="sig-name descname"><span class="pre">to_truth_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">RETURN</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.to_truth_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.to_truth_table" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_truth_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">RETURN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.to_truth_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.to_truth_table" title="Link to this definition"></a></dt>
 <dd><p>Determines the full truth table of the Boolean network as pandas DataFrame.</p>
 <p>Each row shows the input combination (x1, x2, …, xN)
 and the corresponding output(s) f(x).</p>
 <p>The output is returned as a pandas DataFrame and can optionally be
 exported to a file in CSV or Excel format.</p>
-<dl class="simple">
-<dt><strong>Parameters:</strong></dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>RETURN (bool, optional):</dt><dd><p>Whether to return the truth table as a pandas DataFrame.
-Defaults to True.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>filename (str, optional):</dt><dd><p>If provided, the truth table is written to a file. The file
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>RETURN (bool, optional):
+Whether to return the truth table as a pandas DataFrame.
+Defaults to True.</p></li>
+<li><p>filename (str, optional):
+If provided, the truth table is written to a file. The file
 extension determines the format and must be one of:
 <cite>‘csv’</cite>, <cite>‘xls’</cite>, or <cite>‘xlsx’</cite>.
 Example: <cite>“truth_table.csv”</cite> or <cite>“truth_table.xlsx”</cite>.
-If <cite>None</cite> (default), no file is created.</p>
-</dd>
-</dl>
-</li>
+If <cite>None</cite> (default), no file is created.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 <p><strong>Returns:</strong></p>
 <blockquote>
 <div><ul class="simple">
@@ -569,16 +563,16 @@ If <cite>None</cite> (default), no file is created.</p>
 Returned only if <cite>RETURN=True</cite>.</p></li>
 </ul>
 </div></blockquote>
-<dl class="simple">
-<dt><strong>Notes:</strong></dt><dd><ul class="simple">
+<p><strong>Notes:</strong></p>
+<blockquote>
+<div><ul class="simple">
 <li><p>The function automatically computes the synchronous
 state transition graph (<cite>STG</cite>) if it has not been computed yet.</p></li>
 <li><p>Each output row represents a deterministic transition from the
 current state to its next state under synchronous updating.</p></li>
 <li><p>Exporting to Excel requires the <cite>openpyxl</cite> package to be installed.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -737,22 +731,13 @@ regulators are then removed from the wiring diagram for that node.</p>
 <p><strong>Parameters:</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li><dl class="simple">
-<dt>control_targets (int | list[int] | np.array[int]): </dt><dd><p>Index of the target node(s) to be perturbed.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>control_sources (int | list[int] | np.array[int]): </dt><dd><p>Index of the regulator(s) whose influence is to be fixed.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>type_of_edge_controls (int | list[int] | np.array[int]) | None): </dt><dd><p>Source value in regulation of target after control. 
-Default is None (which is interpreted as 0).</p>
-</dd>
-</dl>
-</li>
+<li><p>control_targets (int | list[int] | np.array[int]): 
+Index of the target node(s) to be perturbed.</p></li>
+<li><p>control_sources (int | list[int] | np.array[int]): 
+Index of the regulator(s) whose influence is to be fixed.</p></li>
+<li><p>type_of_edge_controls (int | list[int] | np.array[int]) | None): 
+Source value in regulation of target after control. 
+Default is None (which is interpreted as 0).</p></li>
 </ul>
 </div></blockquote>
 <p><strong>Returns:</strong></p>
