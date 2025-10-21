@@ -1105,7 +1105,7 @@ class BooleanNetwork(WiringDiagram):
         """
         indices_source_nodes = self.get_source_nodes(AS_DICT=False)
         assert len(values_source_nodes)==len(indices_source_nodes),f"The length of 'values_source_nodes', which is {len(values_source_nodes)}, must equal the number of source nodes, which is {len(indices_source_nodes)}."
-        assert set(values_source_nodes) in set([0,1]),"Controlled node values must be 0 or 1."
+        assert set(values_source_nodes) <= {0,1},"Controlled node values must be 0 or 1."
         F = deepcopy(self.F)
         I = deepcopy(self.I)
         for source_node,value in zip(indices_source_nodes,values_source_nodes):
@@ -1139,7 +1139,7 @@ class BooleanNetwork(WiringDiagram):
             - BooleanNetwork: A BooleanNetwork object with specified nodes controlled.
         """
         assert len(values_controlled_nodes)==len(indices_controlled_nodes),f"The length of 'values_controlled_nodes', which is {len(values_controlled_nodes)}, must equal the length of 'indices_controlled_nodes', which is {len(indices_controlled_nodes)}."
-        assert set(values_controlled_nodes) in set([0,1]),"Controlled node values must be 0 or 1."
+        assert set(values_controlled_nodes) <= {0,1},"Controlled node values must be 0 or 1."
         F = deepcopy(self.F)
         I = deepcopy(self.I)
         for node,value in zip(indices_controlled_nodes,values_controlled_nodes):
