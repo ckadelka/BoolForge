@@ -6,4 +6,6 @@ Boolean Network
 
 .. automodule:: boolforge.boolean_network
    :members:
+   :special-members:
+   :exclude-members: __init__
    :show-inheritance:

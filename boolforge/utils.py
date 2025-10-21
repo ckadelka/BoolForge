@@ -334,7 +334,7 @@ def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n : int, w : int) -> 
     **Returns:**
         
         - layer_structure_NCF (list[int]): A list [k_1, ..., k_r]
-              describing the number of variables in each layer.
+          describing the number of variables in each layer.
 
     **References:**
         

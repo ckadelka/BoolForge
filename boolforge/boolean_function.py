@@ -10,8 +10,13 @@ import numpy as np
 import pandas as pd
 import itertools
 import math
-from pyeda.inter import exprvar, Or, And, Not, espresso_exprs
-from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
+
+try:
+    from pyeda.inter import exprvar, Or, And, espresso_exprs
+    from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
+    __LOADED_PyEDA__ = True
+except:
+    __LOADED_PyEDA__ = False
 
 from typing import Union
 from typing import Optional
@@ -224,12 +229,14 @@ class BooleanFunction(object):
         """
         Element-wise Boolean addition: +.
     
-        Supports:
-            - BooleanFunction * BooleanFunction
-            - BooleanFunction * int (0 or 1)
+        **Supports:**
+            
+            - BooleanFunction \\* BooleanFunction
+            - BooleanFunction \\* int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of element-wise addition modulo 2.
+        
+            - BooleanFunction: The result of element-wise addition modulo 2.
         """
         if isinstance(value, int):
             return self.__class__((self.f + value) % 2)
@@ -241,14 +248,16 @@ class BooleanFunction(object):
     
     def __mul__(self, value):
         """
-        Element-wise Boolean multiplication (logical AND): *.
+        Element-wise Boolean multiplication (logical AND): \\*.
     
-        Supports:
-            - BooleanFunction * BooleanFunction
-            - BooleanFunction * int (0 or 1)
+        **Supports:**
+            
+            - BooleanFunction \\* BooleanFunction
+            - BooleanFunction \\* int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of element-wise multiplication.
+        
+            - BooleanFunction: The result of element-wise multiplication.
         """
         if isinstance(value, int):
             assert value in (0, 1), "Integer multiplier must be 0 or 1 for Boolean functions."
@@ -260,14 +269,16 @@ class BooleanFunction(object):
 
     def __rmul__(self, value):
         """
-        Element-wise Boolean multiplication (logical AND): *.
+        Element-wise Boolean multiplication (logical AND): \\*.
     
-        Supports:
-            - BooleanFunction * BooleanFunction
-            - int (0 or 1) * BooleanFunction
+        **Supports:**
+        
+            - BooleanFunction \\* BooleanFunction
+            - int (0 or 1) \\* BooleanFunction
     
         **Returns:**
-            BooleanFunction: The result of element-wise multiplication.
+        
+            - BooleanFunction: The result of element-wise multiplication.
         """
         return self.__mul__(value)
     
@@ -275,12 +286,14 @@ class BooleanFunction(object):
         """
         Element-wise logical AND: &.
     
-        Supports:
+        **Supports:**
+            
             - BooleanFunction & BooleanFunction
             - BooleanFunction & int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of the logical AND.
+        
+            - BooleanFunction: The result of the logical AND.
         """
         if isinstance(value, int):
             assert value in (0, 1), "Integer must be 0 or 1."
@@ -292,14 +305,16 @@ class BooleanFunction(object):
     
     def __or__(self, value):
         """
-        Element-wise logical OR: |.
+        Element-wise logical OR: \\|.
     
-        Supports:
-            - BooleanFunction | BooleanFunction
-            - BooleanFunction | int (0 or 1)
+        **Supports:**
+        
+            - BooleanFunction \\| BooleanFunction
+            - BooleanFunction \\| int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of the logical OR.
+        
+            - BooleanFunction: The result of the logical OR.
         """
         if isinstance(value, int):
             assert value in (0, 1), "Integer must be 0 or 1."
@@ -313,12 +328,13 @@ class BooleanFunction(object):
         """
         Element-wise logical XOR: ^.
     
-        Supports:
+        **Supports:**
             - BooleanFunction ^ BooleanFunction
             - BooleanFunction ^ int (0 or 1)
     
         **Returns:**
-            BooleanFunction: The result of the logical XOR.
+        
+            - BooleanFunction: The result of the logical XOR.
         """
         if isinstance(value, int):
             assert value in (0, 1), "Integer must be 0 or 1."
@@ -333,7 +349,8 @@ class BooleanFunction(object):
         Element-wise negation: ~.
     
         **Returns:**
-            BooleanFunction: The result of element-wise negation.
+        
+            - BooleanFunction: The result of element-wise negation.
         """
         return self.__class__(1 - self.f)
         
@@ -355,21 +372,23 @@ class BooleanFunction(object):
         """
         return utils.bool_to_poly(self.f,variables=self.variables)
 
-    def to_truth_table(self,RETURN=True,filename=None):
+    def to_truth_table(self, RETURN : bool = True,filename : str = None) -> pd.DataFrame:
         """
         Returns or saves the full truth table of the Boolean function as a pandas DataFrame.
     
         Each row shows the input combination (x1, x2, ..., xn)
         and the corresponding output f(x).
     
-        **Parameters**
+        **Parameters:**
+        
             - RETURN (bool, optional): Whether to return the DataFrame (default: True).
               If False, the function only writes the table to file when `filename` is provided.
             - filename (str, optional): File name (including extension) to which the truth table
               should be saved. Supported formats are 'csv', 'xls', and 'xlsx'.
               If provided, the truth table is automatically saved in the specified format.
     
-        **Returns**
+        **Returns:**
+        
             - pd.DataFrame: The full truth table, if `RETURN=True`.
               Otherwise, nothing is returned.
     
@@ -386,7 +405,8 @@ class BooleanFunction(object):
             6    1   1   0  0
             7    1   1   1  1
     
-        **Notes**
+        **Notes:**
+        
             - The column names correspond to the function's variables followed by its name.
             - When saving to a file, the file extension determines the format.
         """
@@ -444,28 +464,32 @@ class BooleanFunction(object):
             
             - str: A string representing the Boolean function.
         """
-        variables = [ exprvar(str(var)) for var in self.variables ]
-        minterms = [ i for i in range(2**self.n) if self.f[i] ]
-        terms = []
-        for m in minterms:
-            bits = [(variables[i] if (m >> (self.n - 1 - i)) & 1 else ~variables[i]) for i in range(self.n)]
-            terms.append(And(*bits))
-        func_expr = Or(*terms).to_dnf()
-        if func_expr == ZERO: #TODO
-            return '0'
-        if MINIMIZE_EXPRESSION:
-            func_expr, = espresso_exprs(func_expr)
-        def __pyeda_to_string__(e):
-            if isinstance(e, OrOp):
-                return '('+(")%s("%OR).join(__pyeda_to_string__(arg) for arg in e.xs)+')'
-            elif isinstance(e, AndOp):
-                return AND.join(__pyeda_to_string__(arg) for arg in e.xs)
-            elif isinstance(e, (NotOp)):
-                return "%s(%s)"%(NOT, __pyeda_to_string__(e.x))
-            elif isinstance(e, Complement):
-                return "(%s%s)"%(NOT, str(e)[1::])
-            return str(e)
-        return __pyeda_to_string__(func_expr)
+        if __LOADED_PyEDA__:
+            variables = [ exprvar(str(var)) for var in self.variables ]
+            minterms = [ i for i in range(2**self.n) if self.f[i] ]
+            terms = []
+            for m in minterms:
+                bits = [(variables[i] if (m >> (self.n - 1 - i)) & 1 else ~variables[i]) for i in range(self.n)]
+                terms.append(And(*bits))
+            func_expr = Or(*terms).to_dnf()
+            if func_expr.is_zero():
+                return '0'
+            if MINIMIZE_EXPRESSION:
+                func_expr, = espresso_exprs(func_expr)
+            def __pyeda_to_string__(e):
+                if isinstance(e, OrOp):
+                    return '('+(")%s("%OR).join(__pyeda_to_string__(arg) for arg in e.xs)+')'
+                elif isinstance(e, AndOp):
+                    return AND.join(__pyeda_to_string__(arg) for arg in e.xs)
+                elif isinstance(e, (NotOp)):
+                    return "%s(%s)"%(NOT, __pyeda_to_string__(e.x))
+                elif isinstance(e, Complement):
+                    return "(%s%s)"%(NOT, str(e)[1::])
+                return str(e)
+            return __pyeda_to_string__(func_expr)
+        else:
+            # something that works
+            return self.to_polynomial().replace(" * ", AND).replace(" + ", OR).replace("1 - ", NOT)
     
     
     ## Methods with binary output: self.is_xxx(*args)

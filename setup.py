@@ -23,11 +23,16 @@ setup(
           "Programming Language :: Python :: 3",
       ],
       
+      python_requires = ">=3.8",
+      
       install_requires = [
           "numpy",
           "networkx",
           "pandas",
           "scipy",
-          "pyeda"
-      ]
+      ],
+      
+      extras_require = {
+          "Extension" : ["pyeda", "cana", "numba"]
+      }
 )
