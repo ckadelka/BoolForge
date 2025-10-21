@@ -206,6 +206,11 @@ class BooleanFunction(object):
         elif isinstance(value, BooleanFunction):
             return self.__class__((self.f + value.f) % 2)
         
+    def __call__(self,values):
+        assert len(values)==self.n, f"The argument must be of length {self.n}."
+        assert set(values) <= {0, 1}, "Binary values required."
+        return self.f[utils.bin2dec(values)].item()
+        
     def to_polynomial(self) -> str:
         """
         Returns the Boolean function converted into polynomial format in
