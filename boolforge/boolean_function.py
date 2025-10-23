@@ -103,7 +103,7 @@ def display_truth_table(*functions: "BooleanFunction", labels = None):
     print(header)
     print("-" * len(header.expandtabs()))
 
-    for inputs, outputs in zip(utils.get_left_side_of_truth_table(f.n), np.c_[*[f.f for f in functions]]):
+    for inputs, outputs in zip(utils.get_left_side_of_truth_table(f.n), np.column_stack([f.f for f in functions])):
         inputs_str = "\t".join(map(str, inputs))
         outputs_str = "\t".join(map(str, outputs))
         print(f"{inputs_str}\t|\t{outputs_str}")
