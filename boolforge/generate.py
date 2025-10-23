@@ -1,10 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 29 09:25:40 2025
+This module provides functions for generating random Boolean functions and
+Boolean networks with specified structural and dynamical properties.
 
-@author: Claus Kadelka, Benjamin Coberly
+The :mod:`~boolforge.generate` module enables the systematic creation of
+Boolean functions and networks that satisfy particular constraints, such as
+specified canalization depth, sensitivity range, bias, or connectivity.
+Generated instances can be used for statistical analysis, benchmarking, or
+simulation studies.
+
+Several generation routines leverage Numba acceleration for efficient sampling
+and evaluation of large function spaces. While Numba is **recommended** to
+achieve near-native performance, it is **not required** for functionality; all
+functions have pure Python fallbacks.
+
+This module complements :mod:`~boolforge.boolean_function` and
+:mod:`~boolforge.boolean_network` by facilitating reproducible generation of
+synthetic test cases and large ensembles of random networks.
+
+Example
+-------
+>>> from boolforge import generate
+>>> generate.random_function(n=3)
+>>> str(generate.random_network(N=5, n=2))
 """
+
 
 ##Imports
 import numpy as np

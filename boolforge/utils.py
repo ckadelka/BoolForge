@@ -1,10 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
-Created on Tue Jul 29 09:25:40 2025
+This module provides utility functions and helper routines used throughout
+BoolForge.
 
-@author: Claus Kadelka, Benjamin Coberly
+The :mod:`~boolforge.utils` module includes low-level operations for binary and
+decimal conversions, truth table manipulations, and combinatorial helper
+functions. These utilities are used internally by
+:class:`~boolforge.BooleanFunction` and :class:`~boolforge.BooleanNetwork`
+classes to enable efficient representation and analysis of Boolean functions
+and networks.
+
+Several functions in this module can take advantage of Numba-based JIT
+compilation for significant speedups when processing large truth tables or
+performing repeated bit-level operations. Installation of Numba is therefore
+**encouraged** but **optional**; pure Python fallbacks are provided for all
+functions.
+
+Example
+-------
+>>> from boolforge import utils
+>>> utils.bin2dec([1, 0, 1])
+5
+>>> utils.dec2bin(5, 3)
+array([1, 0, 1])
 """
 
 

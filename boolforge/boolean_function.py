@@ -1,9 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 12 11:03:49 2025
+This module defines the :class:`~boolforge.BooleanFunction` class, which forms
+the foundation of the BoolForge package.
 
-@author: Benjamin Coberly, Claus Kadelka
+A :class:`BooleanFunction` represents a Boolean mapping
+:math:`f : \\{0,1\\}^n \\rightarrow \\{0,1\\}` and provides methods for
+evaluating, analyzing, and transforming Boolean functions. It supports a wide
+range of operations including algebraic manipulation, sensitivity and
+canalization analysis, truth table generation, and composition.
+
+Several computationally intensive methods are implemented with optional
+Numba-based just-in-time (JIT) acceleration to improve performance on large or
+repeated computations. Users are **encouraged but not required** to install
+Numba; all functionality remains available without it, albeit at reduced speed.
+
+This module is part of the core BoolForge library and is designed for both
+direct programmatic use and integration with higher-level Boolean network
+classes.
+
+Example
+-------
+>>> from boolforge import BooleanFunction
+>>> f = BooleanFunction("x1 | (x2 & x3)")
+>>> f([1, 0, 1])
+1
 """
 
 import numpy as np
@@ -354,7 +375,38 @@ class BooleanFunction(object):
         """
         return self.__class__(1 - self.f)
         
-    def __call__(self,values):
+    def __call__(self, values : Union[list, tuple, np.array]):
+        """
+        Evaluate the Boolean function on a given binary input vector.
+    
+        This method makes BooleanFunction instances callable. It returns the
+        function’s output value for a provided list or tuple of binary inputs.
+    
+        Parameters
+        ----------
+        values : list[int] | tuple[int] | np.array[int]
+            A sequence of binary values (0 or 1) of length `n`, where `n` is
+            the number of variables in the Boolean function.
+    
+        Returns
+        -------
+        int
+            The output of the Boolean function (0 or 1) for the specified input.
+    
+        Raises
+        ------
+        AssertionError
+            If the input length does not match `n`, or if non-binary values are
+            provided.
+    
+        Examples
+        --------
+        >>> f = BooleanFunction("x1 | (x2 & x3)")
+        >>> f([1, 0, 1])
+        1
+        >>> f([0, 1, 0])
+        0
+        """
         assert len(values)==self.n, f"The argument must be of length {self.n}."
         assert set(values) <= {0, 1}, "Binary values required."
         return self.f[utils.bin2dec(values)].item()
