@@ -1,9 +1,43 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Sep 22 11:48:48 2025
+This module provides functionality for retrieving, parsing, and loading
+biological Boolean network models from public online repositories.
 
-@author: ckadelka
+The :mod:`~boolforge.bio_models` module allows users to programmatically access
+and import published Boolean and logical gene regulatory network models from
+GitHub repositories such as:
+    - `expert-curated (ckadelka)` — manually curated models from the
+      *Design Principles of Gene Regulatory Networks* repository.
+    - `pystablemotifs (jcrozum)` — models accompanying the PyStableMotifs
+      library.
+    - `biodivine (sybila)` — models from the Sybila Biodivine Boolean Models
+      repository.
+
+Functions are provided to:
+    * Recursively list and download files from GitHub folders using the REST API.
+    * Fetch raw text or byte content from remote sources.
+    * Parse Boolean network models directly into
+      :class:`~boolforge.BooleanNetwork` objects.
+    * Batch-download and convert all models from supported repositories.
+
+All network parsing routines use pure Python and standard libraries only.
+No external dependencies (such as Numba) are required for functionality, though
+BoolForge’s Boolean network analysis methods can benefit from Numba-based JIT
+acceleration when installed.
+
+This module is intended to facilitate reproducible research by providing
+direct access to real-world Boolean GRN models for simulation, comparison, and
+benchmarking.
+
+Example
+-------
+>>> from boolforge import bio_models
+>>> bns, ok, failed = bio_models.get_bio_models_from_repository('expert-curated (ckadelka)')
+>>> len(bns)
+122
+>>> bns[0].variables[:5]
+['GeneA', 'GeneB', 'GeneC', 'GeneD', 'GeneE']
 """
 
 import requests
