@@ -7,10 +7,13 @@ biological Boolean network models from public online repositories.
 The :mod:`~boolforge.bio_models` module allows users to programmatically access
 and import published Boolean and logical gene regulatory network models from
 GitHub repositories such as:
+    
     - `expert-curated (ckadelka)` — manually curated models from the
       *Design Principles of Gene Regulatory Networks* repository.
+      
     - `pystablemotifs (jcrozum)` — models accompanying the PyStableMotifs
       library.
+      
     - `biodivine (sybila)` — models from the Sybila Biodivine Boolean Models
       repository.
 
@@ -19,6 +22,7 @@ Functions are provided to:
     * Fetch raw text or byte content from remote sources.
     * Parse Boolean network models directly into
       :class:`~boolforge.BooleanNetwork` objects.
+      
     * Batch-download and convert all models from supported repositories.
 
 All network parsing routines use pure Python and standard libraries only.
