@@ -57,6 +57,26 @@ p_10 = [[0]]
 # attr: [[(3, 0), (0, 1), (3, 1), (0, 3)],
 #       [(3, 4), (0, 9), (3, 5), (0, 11)]]
 
+
+# def get_BN_with_fixed_source_nodes(F,I,n_variables,n_source_nodes,values_source_nodes):
+#     #NOTE: F, I must be arranged so that the source nodes appear last
+    
+#     assert len(F) == len(I)
+#     F_new = [np.array(el) for el in F[:n_variables]]
+#     I_new = [np.array(el) for el in I[:n_variables]]
+    
+#     for source_node,value in zip(list(range(n_variables,n_variables+n_source_nodes)),values_source_nodes):
+#         for i in range(n_variables):
+#             try:
+#                 index = list(I[i]).index(source_node) #check if the constant is part of regulators
+#             except ValueError:
+#                 continue
+#             truth_table = np.array(list(map(np.array, list(itertools.product([0, 1], repeat=len(I_new[i]))))))
+#             indices_to_keep = np.where(truth_table[:,index]==value)[0]
+#             F_new[i] = F_new[i][indices_to_keep]
+#             I_new[i] = I_new[i][~np.isin(I_new[i], source_node)]
+#     return F_new,I_new
+
 def get_product_of_non_autonomous_attractors(attrs_1, attrs_2, merge_bits):
     attractors = []
     for attr1 in attrs_1:
@@ -124,53 +144,57 @@ def _merge_state_representation(x, y, ybits):
     return ((x[0] << ybits[0] | y[0]), (x[1] << ybits[1]) | y[1])
 
 def get_attractors_synchronous_exact_non_autonomous(F, I, non_periodic_seq, periodic_seq):
+    n_var = len(F)
+    bn = boolforge.BooleanNetwork(F, I)
     if len(non_periodic_seq) > 0:
-        initial_states = set()
-        n_var = len(F)
+        initial_states = set() # stores initial states for the periodic computation
         n_const = len(non_periodic_seq)
         
         max_len_pattern = max(list(zip(map(len,non_periodic_seq))))[0]
-        for i,sequence in enumerate(non_periodic_seq):
-            if len(sequence) < max_len_pattern:
-                for j in range(max_len_pattern - len(sequence)):
-                    val = periodic_seq[i][0]
-                    sequence.append(val)
-                    periodic_seq[i].pop(0)
-                    periodic_seq[i].append(val)
-                non_periodic_seq[i] = sequence
+        # for i,sequence in enumerate(non_periodic_seq):
+        #     if len(sequence) < max_len_pattern:
+        #         for j in range(max_len_pattern - len(sequence)):
+        #             val = periodic_seq[i][0]
+        #             sequence.append(val)
+        #             periodic_seq[i].pop(0)
+        #             periodic_seq[i].append(val)
+        #         non_periodic_seq[i] = sequence
+        
+        fixed_source_networks = {}
         
         for i in range(2 ** n_var):
             fxvec = boolforge.dec2bin(i, n_var)
             for iii in range(max_len_pattern):
                 values = [ non_periodic_seq[j][iii] for j in range(n_const) ]
-                F2, I2 = get_BN_with_fixed_source_nodes(F, I, n_var, n_const, values)
-                fxvec = boolforge.BooleanNetwork(F2, I2).update_network_synchronously(fxvec)
+                values_decimal = boolforge.bin2dec(values)
+                if values_decimal in fixed_source_networks:
+                    fixed_source_network = fixed_source_networks[values_decimal]
+                else:
+                    fixed_source_network = bn.get_network_with_fixed_source_nodes(values)
+                    fixed_source_networks[values_decimal] = fixed_source_network
+                fxvec = fixed_source_network.update_network_synchronously(fxvec)
             initial_states.add(boolforge.bin2dec(fxvec))
         initial_states = list(initial_states)
     else:
         initial_states = list(range(2**len(F)))
+        n_const = 0
     
     attr_computation = get_attractors_synchronous_exact_with_external_inputs(F, I, periodic_seq, initial_states)
-    return attr_computation[0], attr_computation[1], attr_computation[2], attr_computation[3], attr_computation[4], attr_computation[5], initial_states
+    
+    formatted_attractors = []
+    for attractor in attr_computation[0]:
+        formatted_attractors.append([])
+        for decimal_const,decimal_var in attractor:
+            if n_const>0:
+                binary = boolforge.dec2bin(decimal_const,n_const)
+            else:
+                binary = []
+            binary.extend( boolforge.dec2bin(decimal_var,n_var))
+            formatted_attractors[-1].append(binary)
+    
+    
+    return attr_computation[0], attr_computation[1], attr_computation[2], attr_computation[3], attr_computation[4], attr_computation[5], initial_states, formatted_attractors
 
-def get_BN_with_fixed_source_nodes(F,I,n_variables,n_source_nodes,values_source_nodes):
-    #NOTE: F, I must be arranged so that the source nodes appear last
-    
-    assert len(F) == len(I)
-    F_new = [np.array(el) for el in F[:n_variables]]
-    I_new = [np.array(el) for el in I[:n_variables]]
-    
-    for source_node,value in zip(list(range(n_variables,n_variables+n_source_nodes)),values_source_nodes):
-        for i in range(n_variables):
-            try:
-                index = list(I[i]).index(source_node) #check if the constant is part of regulators
-            except ValueError:
-                continue
-            truth_table = np.array(list(map(np.array, list(itertools.product([0, 1], repeat=len(I_new[i]))))))
-            indices_to_keep = np.where(truth_table[:,index]==value)[0]
-            F_new[i] = F_new[i][indices_to_keep]
-            I_new[i] = I_new[i][~np.isin(I_new[i], source_node)]
-    return F_new,I_new
 
 def get_attractors_synchronous_exact_with_external_inputs(F, I, input_patterns = [], starting_states = None):
     if starting_states is None:
@@ -253,4 +277,16 @@ def get_attractors_synchronous_exact_with_external_inputs(F, I, input_patterns =
         for state in attr:
             formatted_attr.append((int(boolforge.bin2dec(periodic_pattern_of_external_inputs[state[0]])), int(state[1])))
         attrs.append(formatted_attr)
+        
+        
     return (attrs, len(attractors), basin_sizes, attr_dict, state_space, stg)
+
+
+
+if __name__ == '__main__':
+    F, I, non_periodic_seq, periodic_seq = F_8,I_8,np_8,p_8
+    res = get_attractors_synchronous_exact_non_autonomous(F_8,I_8,np_8,p_8)
+    
+    
+    
+    
