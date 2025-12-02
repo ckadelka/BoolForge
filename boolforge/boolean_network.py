@@ -518,7 +518,7 @@ class WiringDiagram(object):
                 
                 - list[list[int]]: A list of identified FFLs.
         """
-        I_inv = [[] for _ in self.N]
+        I_inv = [[] for _ in range(self.N)]
         for target, regulators in enumerate(self.I):
             for regulator in regulators:
                 I_inv[regulator].append(target)
