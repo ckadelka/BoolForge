@@ -677,6 +677,7 @@ class BooleanNetwork(WiringDiagram):
                 self.F.append(f)
             else:
                 raise TypeError(f"F holds invalid data type {type(f)} : Expected either list, np.array, or BooleanFunction")
+            assert self.F[ii].n == self.indegrees[ii], f"Index {ii}: Mismatch between the degree of the provided function {self.F[ii].n} and the degree of the wiring diagram {self.indegrees[ii]}."
         if not hasattr(self, 'constants'): #keeps track of all constants and nodes set to constants
             self.constants = {}
         if self.N_constants > 0:
