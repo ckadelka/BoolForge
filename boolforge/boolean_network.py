@@ -310,25 +310,23 @@ class WiringDiagram(object):
             >>> WD.I
             [array([2]), array([0]), array([1])]
             >>> WD.variables
-            array(['x0', 'x1', 'x2'], dtype='<U2')
+            array(['x_0', 'x_1', 'x_2'], dtype='<U2')
         """
-        
-        #BEN: #TODO
-        
         # Ensure input is a DiGraph
         assert isinstance(nx_DiGraph, nx.DiGraph), "Input must be a networkx.DiGraph instance."
-    
+        
         # Sort nodes to ensure deterministic ordering
         nodes = list(nx_DiGraph.nodes)
-        N = len(nodes)
         
         # Extract variable names, defaulting to "x0", "x1", ...
         variables = []
         for node in nodes:
-            if isinstance(node, str):
+            if 'name' in nx_DiGraph.nodes[node]:
+                variables.append(str(nx_DiGraph.nodes[node]['name']))
+            elif isinstance(node, str):
                 variables.append(node)
-            elif 'name' in nx_DiGraph.nodes[node]:
-                variables.append(nx_DiGraph.nodes[node]['name'])
+            else:
+                variables.append(f"x_{str(node)}")
     
         # Build regulator list I: for each node i, collect its predecessors (inputs)
         I = []
