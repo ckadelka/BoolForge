@@ -443,52 +443,6 @@ class WiringDiagram(object):
         return dag
 
 
-    # def get_signed_effective_graph(self, type_of_each_regulation : list,
-    #     constants : list = [], IGNORE_SELFLOOPS : bool = False,
-    #     IGNORE_CONSTANTS : bool = True) -> np.array:
-    #     """
-    #     Construct the signed effective graph of a Boolean network.
-
-    #     This function computes an effective graph in which each edge is
-    #     weighted by its effectiveness. Effectiveness is obtained via
-    #     get_edge_effectiveness on the corresponding Boolean function. Edges
-    #     are signed according to the type of regulation ('increasing' or
-    #     'decreasing').
-
-    #     **Parameters:**
-            
-    #         - type_of_each_regulation (list[str]): List of lists specifying
-    #           the type of regulation for each edge.
-              
-    #         - constants (list[int], optional): List of constant nodes.
-    #         - IGNORE_SELFLOOPS (bool, optional): If True, self-loops are ignored.
-    #         - IGNORE_CONSTANTS (bool, optional): If True, constant nodes
-    #           are excluded.
-
-    #     **Returns:**
-            
-    #         - np.array[float]: The signed effective graph as a matrix of edge
-    #           effectiveness values.
-    #     """
-    #     n = len(self.I)
-    #     n_constants = len(constants)
-    #     if IGNORE_CONSTANTS:
-    #         m = np.zeros((n - n_constants, n - n_constants), dtype=float)
-    #         for i, (regulators, type_of_regulation) in enumerate(zip(self.I, type_of_each_regulation)):
-    #             effectivenesses = self.F[i].get_edge_effectiveness() #TODO: F does not exist here
-    #             for j, t, e in zip(regulators, type_of_regulation, effectivenesses):
-    #                 if j < n - n_constants and (not IGNORE_SELFLOOPS or i != j):
-    #                     if t == 'increasing':
-    #                         m[j, i] = e
-    #                     elif t == 'decreasing':
-    #                         m[j, i] = -e
-    #                     else:
-    #                         m[j, i] = np.nan
-    #         return m
-    #     else:
-    #         return self.get_signed_effective_graph(type_of_each_regulation, [], IGNORE_CONSTANTS=True)
-
-
     def get_ffls(self) -> Union[tuple, list]:
         """
         Identify feed-forward loops (FFLs) in a Boolean network based solely
@@ -876,6 +830,11 @@ class BooleanNetwork(WiringDiagram):
         return cls(F, I, var+consts)
 
 
+    @classmethod
+    def from_DiGraph(cls, nx_DiGraph : "nx.DiGraph") -> "WiringDiagram":
+        raise NotImplementedError("from_DiGraph is not supported in BooleanNetwork class.")
+    
+    
     def to_cana(self) -> "cana.boolean_network.BooleanNetwork":
         """
         **Compatability method:**
