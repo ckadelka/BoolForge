@@ -1076,7 +1076,7 @@ class BooleanNetwork(WiringDiagram):
         return np.where(is_source_node)[0]
 
     
-    def get_network_with_fixed_source_nodes(self,values_source_nodes : Union[list, np.array]) -> "BooleanNetwork":
+    def get_network_with_fixed_source_nodes(self, values_source_nodes : Union[list, np.array]) -> "BooleanNetwork":
         """
         Fix the values of source nodes within this Boolean Network.
 
@@ -1097,7 +1097,7 @@ class BooleanNetwork(WiringDiagram):
         F = deepcopy(self.F)
         I = deepcopy(self.I)
         for source_node,value in zip(indices_source_nodes,values_source_nodes):
-            F[source_node].f = [value]
+            F[source_node] = BooleanFunction([value])
             I[source_node] = []
         bn = self.__class__(F, I, self.variables)
         bn.constants.update(self.constants)
@@ -1132,7 +1132,7 @@ class BooleanNetwork(WiringDiagram):
         I = deepcopy(self.I)
         for node,value in zip(indices_controlled_nodes,values_controlled_nodes):
             if KEEP_CONTROLLED_NODES:
-                F[node].f = [value,value]
+                F[node] = BooleanFunction([value,value])
                 I[node] = [node]        
             else:
                 F[node].f = [value]
@@ -2677,3 +2677,224 @@ class BooleanNetwork(WiringDiagram):
 # bn_new.compute_synchronous_state_transition_graph()
 # STG = bn_new.STG
 # print(STG_old == STG)
+
+# ==================================================================================================== #
+#                                                                                                      #
+#       \  |   _ \  _ \  |  | |       \    _ \      _ )   _ \   _ \  |     __| _ \  _ \   __|  __|     #
+#      |\/ |  (   | |  | |  | |      _ \     /      _ \  (   | (   | |     _| (   |   /  (_ |  _|      #
+#     _|  _| \___/ ___/ \__/ ____| _/  _\ _|_\     ___/ \___/ \___/ ____| _| \___/ _|_\ \___| ___|     #
+#                                                                                                      #
+# ==================================================================================================== #
+
+# TODO: Make human readable
+# TODO: Product of Trajectories
+# TODO: Product of STG
+
+# 2.8
+# attr: [[(1, 0), (0, 0)], [(1, 1), (0, 2)]]
+# stg: {(1, 0): (0, 0),
+#       (0, 0): (1, 0),
+#       (1, 1): (0, 2),
+#       (0, 2): (1, 1),
+#       (1, 2): (0, 1),
+#       (0, 1): (1, 0),
+#       (1, 3): (0, 3),
+#       (0, 3): (1, 1)}
+
+# 2.9
+# attr: [[(1, 0), (0, 1), (1, 1), (0, 3)]]
+# stg: {(1, 0): (0, 1),
+#       (0, 1): (1, 1),
+#       (1, 1): (0, 3),
+#       (0, 3): (1, 0),
+#       (1, 2): (0, 0),
+#       (0, 0): (1, 1),
+#       (1, 3): (0, 2),
+#       (0, 2): (1, 0)}
+
+# 2.8 x 2.9
+# attr: [[(3, 0), (0, 1), (3, 1), (0, 3)],
+#       [(3, 4), (0, 9), (3, 5), (0, 11)]]
+    
+    def get_attractors_synchronous_exact_non_autonomous(self,
+        non_periodic_component, periodic_component) -> dict:
+        """
+        desc.
+        
+        **Parameters:**
+            
+            - non_periodic_component (list | np.array): desc.
+            
+            - periodic_component (list | np.array): desc.
+
+        **Returns:**
+        
+            - dict[str:Variant]: A dictionary containing:
+                
+                - Attractors (list[list[tuple[int, int]]]): List of attractors
+                  where each attractor is repesented as a list of integer pairs
+                  forming the cycle. The first value in each pair represents
+                  the decimal value of the input pattern, and the second value
+                  represents the decimal value of the state.
+                  
+                - NumberOfAttractors (int): Total number of unique attractors.
+                - BasinSizes (list[int]): List of counts for each attractor.
+                - AttractorDict (dict[tuple[int, int]:int]): Dictionary mapping
+                  each state value pair (in decimal) to its attractor index.
+                  
+                - STG (dict[int:int]): The state transition graph as a dictionary,
+                  with each state represented by its decimal pair representation.
+                  
+                - InitialStatesPeriodic (list[int]): The set of unique initial
+                  states in decimal format after evaluating the non-periodic
+                  component of the input sequence. Used as initial states for
+                  the evaluation of the periodic component.
+                  
+                - FormattedAttractors (list[list[list[int]]]): List of attractors
+                  represented as a list of binary vectors. The values of the
+                  attractor decimal pairs are concatenated into a single vector.
+        """ #TODO: type hints, docstring
+        # Convert components into single argument? tuple|list|arr, str, etc.?
+        if len(non_periodic_component) > 0:
+            initial_states = set() # stores initial states for periodic computation
+            len_np_comp = len(non_periodic_component)
+            max_len_pattern = max(list(zip(map(len, non_periodic_component))))[0]
+            fixed_source_networks = {}
+            for i in range(2 ** self.N):
+                fxvec = utils.dec2bin(i, self.N) # initialize binary vector
+                for iii in range(max_len_pattern):
+                    values = [ non_periodic_component[j][iii] for j in range(len_np_comp) ]
+                    values_decimal = utils.bin2dec(values)
+                    if values_decimal in fixed_source_networks:
+                        fixed_source_network = fixed_source_networks[values_decimal]
+                    else:
+                        fixed_source_network = self.get_network_with_fixed_source_nodes(values)
+                        fixed_source_networks[values_decimal] = fixed_source_network
+                    fxvec = fixed_source_network.update_network_synchronously(fxvec)
+                initial_states.add(utils.bin2dec(fxvec))
+            initial_states = list(initial_states)
+        else:
+            initial_states = list(range(2**self.N))
+        
+        attr_computation = self.get_attractors_synchronous_exact_with_external_inputs(periodic_component, initial_states)
+        
+        bvec_attractors = []
+        len_pattern = len(periodic_component)
+        for attr in attr_computation["Attractors"]:
+            bvec_attractors.append([])
+            for decimal_external, decimal_module in attr:
+                if len_pattern > 0:
+                    bvec = utils.dec2bin(decimal_external, len_pattern)
+                else:
+                    bvec = []
+                bvec.extend(utils.dec2bin(decimal_module, self.N))
+                bvec_attractors[-1].append(bvec)
+        
+        attr_computation.update({"InitialStatesPeriodic":initial_states,"FormattedAttractors":bvec_attractors})
+        return attr_computation
+    
+    def get_attractors_synchronous_exact_with_external_inputs(self,
+        input_patterns : Union[list, np.array],
+        starting_states : Union[list, np.array, None] = None) -> dict:
+        """
+        desc.
+        
+        **Parameters:**
+            
+            - input_patterns (list | np.array): desc.
+            
+            - starting_states (list | np.array | None, optional): desc.
+
+        **Returns:**
+        
+            - dict[str:Variant]: A dictionary containing:
+                
+                - Attractors (list[list[tuple[int, int]]]): List of attractors
+                  (each attractor is repesented as a list of integer pairs
+                  forming the cycle). The first value in each pair represents
+                  the decimal value of the input pattern, and the second value
+                  represents the decimal value of the state.
+                  
+                - NumberOfAttractors (int): Total number of unique attractors.
+                - BasinSizes (list[int]): List of counts for each attractor.
+                - AttractorDict (dict[tuple[int, int]:int]): Dictionary mapping
+                  each state value pair (in decimal) to its attractor index.
+                  
+                - STG (dict[int:int]): The state transition graph as a dictionary,
+                  with each state represented by its decimal pair representation.
+        """ #TODO: docstring
+        N = self.N - len(self.get_source_nodes(False))
+        
+        if starting_states is None:
+            starting_states = list(range(2**N))
+        
+        len_patterns = len(input_patterns)
+        lcm = math.lcm(*list(map(len, input_patterns)))
+        periodic_pattern_of_external_inputs = np.zeros((lcm, len_patterns), int)
+        for i, pattern in enumerate(input_patterns):
+            for j in range(int(lcm / len(pattern))):
+                periodic_pattern_of_external_inputs[len(pattern)*j:len(pattern)*(j+1),i] = pattern
+        n_initial_values = len(periodic_pattern_of_external_inputs)
+        
+        fixed_source_networks = []
+        for input_values in periodic_pattern_of_external_inputs:
+            fixed_source_networks.append(self.get_network_with_fixed_source_nodes(input_values))
+        
+        lstt = utils.get_left_side_of_truth_table(N)
+        po2 = np.array([2**i for i in range(N)])[::-1]
+        
+        dictF_fixed_source = []
+        
+        for iii in range(n_initial_values):
+            state_space = np.zeros((2**N, N), dtype=int)
+            for i in range(N):
+                for j, x in enumerate(itertools.product([0, 1], repeat=fixed_source_networks[iii].indegrees[i])):
+                    if fixed_source_networks[iii].F[i][j]==1:
+                        # For rows in left_side_of_truth_table where the columns I[i] equal x, set state_space accordingly.
+                        state_space[np.all(lstt[:, fixed_source_networks[iii].I[i]] == np.array(x), axis=1), i] = 1
+            dictF_fixed_source.append(dict(zip(list(range(2**N)), np.dot(state_space, po2))))
+        
+        attractors = []
+        basin_sizes = []
+        attractor_dict = dict()
+        stg = dict()
+        for iii_start in range(lcm):
+            for xdec in starting_states:
+                iii = iii_start
+                queue = [xdec]
+                while True:
+                    fxdec = dictF_fixed_source[iii % n_initial_values][xdec]
+                    stg.update({(int(utils.bin2dec(periodic_pattern_of_external_inputs[iii % n_initial_values])),int(xdec)):(int(utils.bin2dec(periodic_pattern_of_external_inputs[(iii + 1) % n_initial_values])),int(fxdec))})
+                    iii += 1
+                    try:
+                        index_attr = attractor_dict[(iii % n_initial_values,fxdec)]
+                        basin_sizes[index_attr] += 1
+                        attractor_dict.update(list(zip(zip(np.arange(iii_start,len(queue)+iii_start)%n_initial_values,queue), [index_attr] * len(queue))))
+                        break
+                    except KeyError:
+                        try: 
+                            index = queue[-n_initial_values::-n_initial_values].index(fxdec)
+                            dummy = np.arange(iii_start,len(queue)+iii_start)%n_initial_values
+                            #print(iii_start,j,list(zip(dummy[-n_initial_values*(index+1):],queue[-n_initial_values*(index+1):])))
+                            attractor_dict.update(list(zip(zip(dummy,queue), [len(attractors)] * len(queue))))
+                            attractors.append(list(zip(dummy[-n_initial_values*(index+1):],queue[-n_initial_values*(index+1):])))
+                            basin_sizes.append(1)
+                            break
+                        except ValueError:
+                            pass
+                    queue.append(fxdec)
+                    xdec = fxdec
+        
+        attrs = []
+        attr_dict = {}
+        for key in attractor_dict.keys():
+            attr_dict[(int(utils.bin2dec(periodic_pattern_of_external_inputs[key[0]])), int(key[1]))] = int(attractor_dict[key])
+        for attr in attractors:
+            formatted_attr = []
+            for state in attr:
+                formatted_attr.append((int(utils.bin2dec(periodic_pattern_of_external_inputs[state[0]])), int(state[1])))
+            attrs.append(formatted_attr)
+        
+        return { "Attractors":attrs, "NumberOfAttractors":len(attrs),
+                "BasinSizes":basin_sizes, "AttractorDict":attr_dict,
+                "STG":stg }#, "StateSpace":state_space} # state space is not properly maintained, so it is not returned

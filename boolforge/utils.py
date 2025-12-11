@@ -379,3 +379,77 @@ def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n : int, w : int) -> 
         layer_structure_NCF[-1] += 1
     return layer_structure_NCF
 
+# ==================================================================================================== #
+#                                                                                                      #
+#       \  |   _ \  _ \  |  | |       \    _ \      _ )   _ \   _ \  |     __| _ \  _ \   __|  __|     #
+#      |\/ |  (   | |  | |  | |      _ \     /      _ \  (   | (   | |     _| (   |   /  (_ |  _|      #
+#     _|  _| \___/ ___/ \__/ ____| _/  _\ _|_\     ___/ \___/ \___/ ____| _| \___/ _|_\ \___| ___|     #
+#                                                                                                      #
+# ==================================================================================================== #
+
+import math
+
+def merge_state_representation(x : Union[int, tuple], y : Union[int, tuple],
+    b : Union[int, tuple]) -> Union[int, tuple]:
+    """
+    Combines two state representations *x* and *y* into a single decimal integer.
+    
+    **Parameters:**
+        
+        - x (int | tuple[int, int]): The first decimal state representation to
+          merge. Can either be an integer or a pair of integers.
+        
+        - y (int | tuple[int, int]): The second decimal state representation to
+          merge. Can either be an integer or a pair of integers.
+          
+        - b (int | tuple[int, int]): The size of the state *y*, in bits.
+          Must be the same dimension as *y* (if *y* is an int, *b* must be an
+          int, or if *y* is a pair of ints, *b* must be a pair of ints).
+
+    **Returns:**
+    
+        - int | tuple[int, int]: The combined state representation of *x* and *y*.
+        
+            - If *x* and *y* are both ints, the merged state is returned as an int.
+            - Otherwise, returns the merged state as a pair of ints.
+    """
+    is_pair_x = isinstance(x, (tuple, list))
+    is_pair_y = isinstance(y, (tuple, list))
+    if is_pair_x:
+        if is_pair_y:
+            return ((x[0] << b[0]) | y[0], (x[1] << b[1]) | y[1]) 
+        return (x[0], (x[1] << b) | y)
+    elif is_pair_y:
+        return (y[0], (x << b[1]) | y[1])
+    return (x << b) | y
+
+def get_product_of_attractors(attrs_1 : list, attrs_2 : list,
+    bits : Union[int | tuple]) -> list:
+    """
+    Computes the product of two sets of attractors.
+    
+    **Parameters:**
+        
+        - attrs_1 (list[list[int]] | list[list[tuple[int, int]]]): The first
+          set of attractors to combine.
+        
+        - attrs_2 (list[list[int]] | list[list[tuple[int, int]]]): The second
+          set of attractors to combine.
+          
+        - bits (int | tuple[int, int]): The size of the states in *attrs_2*, in bits.
+
+    **Returns:**
+    
+        - list[list[int]] | list[list[tuple[int, int]]]: The set of attractors
+          that is the product of *attrs_1* and *attrs_2*.
+    """
+    attractors = []
+    for attr1 in attrs_1:
+        attr = []
+        for attr2 in attrs_2:
+            m = len(attr1)
+            n = len(attr2)
+            for i in range(math.lcm(*[m, n])):
+                attr.append(merge_state_representation(attr1[i % m], attr2[i % n], bits))
+        attractors.append(attr)
+    return attractors
