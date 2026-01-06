@@ -26,7 +26,6 @@ Example
 >>> bn.get_attractors_synchronous_exact()
 """
 
-import itertools
 import math
 from collections import defaultdict
 from copy import deepcopy
@@ -52,13 +51,15 @@ except ModuleNotFoundError:
     __LOADED_CANA__=False
 
 try:
-    from numba import njit
+    from numba import njit, int64
     from numba.typed import List
     __LOADED_NUMBA__=True
 except ModuleNotFoundError:
     print('The module numba cannot be found. Ensure it is installed to increase the run time of critical code in this toolbox.')
     __LOADED_NUMBA__=False
 
+
+dict_weights = {'non-essential' : np.nan, 'conditional' : 0, 'positive' : 1, 'negative' : -1}
 
 def get_entropy_of_basin_size_distribution(basin_sizes : Union[list, np.array]) -> float:
     """
@@ -82,9 +83,13 @@ def get_entropy_of_basin_size_distribution(basin_sizes : Union[list, np.array]) 
     probabilities = [size * 1.0 / total for size in basin_sizes]
     return sum([-np.log(p) * p for p in probabilities])
 
+
 if __LOADED_NUMBA__:
     @njit(fastmath=True) #can safely use fastmath because computations are integers only
-    def _update_network_synchronously_numba(x, F_array_list, I_array_list, N):
+    def _update_network_synchronously_numba(x, 
+                                            F_array_list, 
+                                            I_array_list, 
+                                            N):
         """
         Compute one synchronous network update for a given binary state vector x.
         Returns a new binary vector (uint8).
@@ -104,7 +109,9 @@ if __LOADED_NUMBA__:
         return fx
     
     @njit
-    def _compute_synchronous_stg_numba(F_list, I_list, N_variables):
+    def _compute_synchronous_stg_numba(F_list, 
+                                       I_list, 
+                                       N_variables):
         """
         Compute synchronous state transition graph (STG)
         in a fully numba-jitted function.
@@ -136,7 +143,7 @@ if __LOADED_NUMBA__:
                 next_states[s, j] = F_list[j][idx]
     
         # Convert each next state to integer index
-        next_indices = np.zeros(nstates, dtype=np.int64)
+        next_indices = np.zeros(nstates, dtype=np.int64) # NOTE: this cannot be an unsigned int for safe indexing inside Numba kernels.
         for s in range(nstates):
             val = 0
             for j in range(N_variables):
@@ -146,7 +153,9 @@ if __LOADED_NUMBA__:
         return next_indices
 
     @njit    
-    def _compute_synchronous_stg_numba_low_memory(F_array_list, I_array_list, N_variables):
+    def _compute_synchronous_stg_numba_low_memory(F_array_list, 
+                                                  I_array_list, 
+                                                  N_variables):
         """
         Compute synchronous state transition graph (STG) without storing all states.
     
@@ -156,7 +165,7 @@ if __LOADED_NUMBA__:
           - encode back to integer
         """
         nstates = 2 ** N_variables
-        next_indices = np.zeros(nstates, dtype=np.int64)
+        next_indices = np.zeros(nstates, dtype=np.int64) # NOTE: this cannot be an unsigned int for safe indexing inside Numba kernels.
         powers_of_two = 2 ** np.arange(N_variables - 1, -1, -1)
     
         state = np.zeros(N_variables, dtype=np.uint8)
@@ -199,7 +208,11 @@ if __LOADED_NUMBA__:
     
     
     @njit(fastmath=True) #can safely use fastmath because computations are integers only
-    def _derrida_simulation(F_array_list, I_array_list, N, nsim, seed):
+    def _derrida_simulation(F_array_list, 
+                            I_array_list, 
+                            N, 
+                            nsim, 
+                            seed):
         """
         Monte Carlo loop for Derrida value, using Numba-compatible RNG.
         """
@@ -227,7 +240,133 @@ if __LOADED_NUMBA__:
             total_dist += _hamming_distance(FX, FY)
     
         return total_dist / nsim
+
+    @njit(cache=True)
+    def _attractors_functional_graph(next_state):
+        """
+        next_state: int array of length n with next_state[x] in [0, n-1]
+        Returns:
+            attr_id: int32 array length n, mapping each state -> attractor index
+            basin_sizes: int32 array length n_attr
+            cycle_rep: int64 array length n_attr, one representative node on each cycle
+            cycle_len: int32 array length n_attr, cycle length
+            n_attr: int32, number of attractors
+        """
+        n = next_state.shape[0]
+        attr_id = np.full(n, -1, dtype=np.int32)
     
+        # For detecting cycles within the current walk:
+        # seen[u] == run_id  means u was visited in this run
+        # pos[u] = index of u in the current path (when first visited this run)
+        seen = np.zeros(n, dtype=np.int32)
+        pos = np.zeros(n, dtype=np.int32)
+    
+        # Upper bounds: in the worst case every node could be its own 1-cycle
+        basin_sizes_full = np.zeros(n, dtype=np.int32)
+        cycle_rep_full = np.empty(n, dtype=np.int64)
+        cycle_len_full = np.zeros(n, dtype=np.int32)
+    
+        n_attr = 0
+    
+        # Numba typed list for the current path
+        path = List.empty_list(int64)
+    
+        for start in range(n):
+            if attr_id[start] != -1:
+                continue
+    
+            path.clear()
+            u = start
+            run_id = start + 1  # unique per start (int32 safe while n <= ~2e9)
+    
+            # Walk until we hit a known attractor or revisit a node in this run
+            while attr_id[u] == -1 and seen[u] != run_id:
+                seen[u] = run_id
+                pos[u] = len(path)
+                path.append(u)
+                u = next_state[u]
+    
+            if attr_id[u] != -1:
+                # This path flows into an already-known attractor
+                aid = attr_id[u]
+                for i in range(len(path)):
+                    v = path[i]
+                    attr_id[v] = aid
+                    basin_sizes_full[aid] += 1
+            else:
+                # We found a cycle within the current run.
+                # u is the first repeated node; cycle starts at pos[u] in path
+                cyc_start = pos[u]
+                aid = n_attr
+                n_attr += 1
+    
+                # Representative and length of the cycle
+                cycle_rep_full[aid] = u
+                cycle_len_full[aid] = len(path) - cyc_start
+    
+                # Assign all nodes on the path to this new attractor
+                for i in range(len(path)):
+                    v = path[i]
+                    attr_id[v] = aid
+                    basin_sizes_full[aid] += 1
+    
+        return attr_id, basin_sizes_full[:n_attr], cycle_rep_full[:n_attr], cycle_len_full[:n_attr], np.int32(n_attr)
+    
+    @njit(cache=True)
+    def _robustness_edge_traversal_numba(N, attractor_idx, is_attr_mask, dist_attr):
+        """
+        Core Numba kernel for Step 4 (hypercube edge traversal) using bit logic.
+    
+        Parameters
+        ----------
+        N : int
+        attractor_idx : int32 array, shape (2**N,)
+            attractor_idx[state] = attractor id in [0, A-1]
+        is_attr_mask : uint8/bool array, shape (2**N,)
+            1/True if state is in any attractor, else 0/False
+        dist_attr : float64 array, shape (A, A)
+            distance_between_attractors
+    
+        Returns
+        -------
+        basin_coh, basin_frag, attr_coh, attr_frag : float64 arrays, shape (A,)
+        """
+        n_states = attractor_idx.shape[0]
+        n_attr = dist_attr.shape[0]
+    
+        basin_coh = np.zeros(n_attr, dtype=np.float64)
+        basin_frag = np.zeros(n_attr, dtype=np.float64)
+        attr_coh = np.zeros(n_attr, dtype=np.float64)
+        attr_frag = np.zeros(n_attr, dtype=np.float64)
+    
+        # Iterate each undirected hypercube edge exactly once:
+        # For x, flip only bits that are 0 -> y = x | (1<<bit), which guarantees y > x.
+        for xdec in range(n_states):
+            idx_x = attractor_idx[xdec]
+            # (Should never be -1 if attractor_idx is filled for all states)
+            for bit in range(N):
+                if (xdec >> bit) & 1:
+                    continue
+                ydec = xdec | (1 << bit)
+                idx_y = attractor_idx[ydec]
+    
+                if idx_x == idx_y:
+                    # same basin: count both directions (like your +2)
+                    basin_coh[idx_x] += 2.0
+                    if is_attr_mask[xdec]:
+                        attr_coh[idx_x] += 1.0
+                    if is_attr_mask[ydec]:
+                        attr_coh[idx_y] += 1.0
+                else:
+                    dxy = dist_attr[idx_x, idx_y]
+                    basin_frag[idx_x] += dxy
+                    basin_frag[idx_y] += dxy
+                    if is_attr_mask[xdec]:
+                        attr_frag[idx_x] += dxy
+                    if is_attr_mask[ydec]:
+                        attr_frag[idx_y] += dxy
+    
+        return basin_coh, basin_frag, attr_coh, attr_frag
     
 
 class WiringDiagram(object):
@@ -256,8 +395,10 @@ class WiringDiagram(object):
         - weights (list[list[int | np.nan]]): As passed by the constructor.
     """
     
-    def __init__(self, I : Union[list, np.ndarray],
-                 variables : Union[list, np.array, None] = None, weights = None):
+    def __init__(self, 
+                 I : Union[list, np.ndarray],
+                 variables : Union[list, np.array, None] = None, 
+                 weights = None):
         assert isinstance(I, (list, np.ndarray)), "I must be an array"
         #assert (len(I[i]) == ns[i] for i in range(len(ns))), "Malformed wiring diagram I"
         assert variables is None or len(I)==len(variables), "len(I)==len(variables) required if variable names are provided"
@@ -279,7 +420,8 @@ class WiringDiagram(object):
         self.weights = weights
 
     @classmethod
-    def from_DiGraph(cls, nx_DiGraph : "nx.DiGraph") -> "WiringDiagram":
+    def from_DiGraph(cls, 
+                     nx_DiGraph : "nx.DiGraph") -> "WiringDiagram":
         """
         **Compatibility Method:**
         
@@ -350,8 +492,38 @@ class WiringDiagram(object):
         # Instantiate WiringDiagram
         return cls(I=I, variables=variables, weights=weights)
 
+
+    def to_DiGraph(self, 
+                   USE_VARIABLE_NAMES : bool = True) -> nx.DiGraph:
+        """
+        Generate a NetworkX directed graph from a wiring diagram.
+
+        Nodes are labeled with variable names (from variables) and constant
+        names (from constants). Edges are added from each regulator to its
+        target based on the wiring diagram I.
+
+        **Parameters:**
+            
+            - USE_VARIABLE_NAMES (bool, optional): If True, nodes are labled using
+            the variables names (default), otherwise indices are used.
+
+        **Returns:**
+            
+            - networkx.DiGraph: The wiring diagram as directed graph.
+        """
+        G = nx.DiGraph()
+        if USE_VARIABLE_NAMES:
+            G.add_nodes_from(self.variables)
+            G.add_edges_from([(self.variables[self.I[i][j]], self.variables[i]) for i in range(self.N) for j in range(self.indegrees[i])])
+        else:
+            G.add_nodes_from(range(self.N_variables))
+            G.add_edges_from([(self.I[i][j], i) for i in range(self.N) for j in range(self.indegrees[i])])
+        return G
+    
+
     def __getitem__(self, index):
         return self.I[index]
+    
 
     def get_outdegrees(self) -> np.array:
         """
@@ -368,7 +540,8 @@ class WiringDiagram(object):
         return outdegrees
 
 
-    def get_constants(self, AS_DICT : bool = True) -> Union[dict, np.array]:
+    def get_constants(self, 
+                      AS_DICT : bool = True) -> Union[dict, np.array]:
         """
         Identify constants in a Boolean network.
         
@@ -412,6 +585,7 @@ class WiringDiagram(object):
                 edges_wiring_diagram.append((int(regulator), target))
         subG = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
         return [scc for scc in nx.strongly_connected_components(subG)]
+
 
     def get_modular_structure(self):
         """
@@ -486,63 +660,114 @@ class WiringDiagram(object):
                         continue
                     ffls.append([i, j, k])
                     if self.weights is not None:
-                        direct = self.weights[k][self.I[k].index(i)]
-                        indirect1 = self.weights[j][self.I[j].index(i)]
-                        indirect2 = self.weights[k][self.I[k].index(j)]
+                        direct = self.weights[k][list(self.I[k]).index(i)]
+                        indirect1 = self.weights[j][list(self.I[j]).index(i)]
+                        indirect2 = self.weights[k][list(self.I[k]).index(j)]
                         types.append([direct, indirect1, indirect2])
         if self.weights is not None:
             return (ffls, types)
         else:
             return ffls
-
-
-    def generate_networkx_graph(self) -> nx.DiGraph:
+        
+        
+    def get_fbls(self, max_length=4):
         """
-        Generate a NetworkX directed graph from a wiring diagram.
-
-        Nodes are labeled with variable names (from variables) and constant
-        names (from constants). Edges are added from each regulator to its
-        target based on the wiring diagram I.
-
+        Compute all feedback loops (i.e., simple cycles) using a variant of Johnson's algorithm.
+    
+        This function finds simple cycles (elementary circuits) in the directed graph G
+        with a maximum length of max_len. It first computes self-cycles (if any), 
+        then iterates through the strongly connected components of G,
+        recursively unblocking nodes to compute cycles.
+    
         **Parameters:**
-            
-            - constants (list[str]): List of constant names.
-            - variables (list[str]): List of variable names.
-
+        
+            - max_length (int, optional): Maximum length of cycles to consider (default is 4).
+    
         **Returns:**
-            
-            - networkx.DiGraph: The wiring diagram as directed graph.
+        
+            - list[list[str]]: A list of lists, where each inner list represents a simple cycle.
         """
-        G = nx.DiGraph()
-        G.add_nodes_from(self.variables)
-        G.add_edges_from([(self.variables[self.I[i][j]], self.variables[i]) for i in range(self.N) for j in range(self.indegrees[i])])
-        return G
+        G = self.to_DiGraph(USE_VARIABLE_NAMES=False)
+    
+        def _unblock(thisnode, blocked, B):
+            stack = set([thisnode])
+            while stack:
+                node = stack.pop()
+                if node in blocked:
+                    blocked.remove(node)
+                    stack.update(B[node])
+                    B[node].clear()
+    
+        subG = nx.DiGraph(G.edges())
+        sccs = [scc for scc in nx.strongly_connected_components(subG) if len(scc) > 1]
+        
+        fbls = []
+        
+        # Yield self-cycles and remove them.
+        for v in subG:
+            if subG.has_edge(v, v):
+                fbls.append([v])
+                subG.remove_edge(v, v)
+        
+        while sccs:
+            scc = sccs.pop()
+            sccG = subG.subgraph(scc)
+            startnode = scc.pop()
+            path = [startnode]
+            len_path = 1
+            blocked = set()
+            closed = set()
+            blocked.add(startnode)
+            B = defaultdict(set)
+            stack = [(startnode, list(sccG[startnode]))]
+            while stack:
+                thisnode, nbrs = stack[-1]
+                if nbrs and len_path <= max_length:
+                    nextnode = nbrs.pop()
+                    if nextnode == startnode:
+                        fbls.append( path[:] )
+                        closed.update(path)
+                    elif nextnode not in blocked:
+                        path.append(nextnode)
+                        len_path += 1
+                        stack.append((nextnode, list(sccG[nextnode])))
+                        closed.discard(nextnode)
+                        blocked.add(nextnode)
+                        continue
+                if not nbrs or len_path > max_length:
+                    if thisnode in closed:
+                        _unblock(thisnode, blocked, B)
+                    else:
+                        for nbr in sccG[thisnode]:
+                            if thisnode not in B[nbr]:
+                                B[nbr].add(thisnode)
+                    stack.pop()
+                    path.pop()
+                    len_path -= 1
+            H = subG.subgraph(scc)
+            sccs.extend(scc for scc in nx.strongly_connected_components(H) if len(scc) > 1)
+        return fbls
 
 
-    def generate_networkx_graph_from_edges(self, n_variables : int) -> nx.DiGraph:
-        """
-        Generate a NetworkX directed graph from an edge list derived from the
-        wiring diagram.
+    def get_types_of_fbls(self, fbls):
+        if self.weights is None:
+            return
+        
+        types = []
+        n_negative_regulations_in_fbls = []
+        for fbl in fbls:
+            length = len(fbl)
+            dummy = fbl[:]
+            dummy.append(fbl[0])
+            all_weights = []
+            for i in range(length):
+                all_weights.append( self.weights[dummy[i+1]][list(self.I[dummy[i+1]]).index(i)] )
+            types.append(np.prod(all_weights))
+            n_negative_regulations_in_fbls.append(sum([el==-1 for el in all_weights]))
+                
+        return types,n_negative_regulations_in_fbls
 
-        Only edges among the first n_variables (excluding constant self-loops)
-        are included.
 
-        **Parameters:**
-            
-            - n_variables (int): Number of variable nodes (constants are
-              excluded).
-
-        **Returns:**
-            
-            - networkx.DiGraph: The generated directed graph.
-        """
-        edges = []
-        for j, regulators in enumerate(self.I):
-            if j >= n_variables:  # Exclude constant self-loops
-                break
-            for i in regulators:
-                edges.append((i, j))
-        return nx.DiGraph(edges)
 
     def get_type_of_loop(self, loop : list) -> list:
         """
@@ -607,7 +832,9 @@ class BooleanNetwork(WiringDiagram):
         - weights (np.array[float] | None): Inherited from WiringDiagram. Default None.
     """
 
-    def __init__(self, F : Union[list, np.ndarray], I : Union[list, np.ndarray, WiringDiagram],
+    def __init__(self, 
+                 F : Union[list, np.ndarray], 
+                 I : Union[list, np.ndarray, WiringDiagram],
                  variables : Union[list, np.array, None] = None,
                  SIMPLIFY_FUNCTIONS : Optional[bool] = False):
         assert isinstance(F, (list, np.ndarray)), "F must be an array or list."
@@ -638,7 +865,8 @@ class BooleanNetwork(WiringDiagram):
         if SIMPLIFY_FUNCTIONS:
             self.simplify_functions() 
 
-    def remove_constants(self, values_constants : Optional[list] = None) -> None:
+    def remove_constants(self, 
+                         values_constants : Optional[list] = None) -> None:
         """
         Removes constants from this Boolean network.
 
@@ -696,10 +924,11 @@ class BooleanNetwork(WiringDiagram):
         self.outdegrees = [self.outdegrees[i] for i in range(self.N) if dict_constants[i]==False]
         self.indegrees = [self.indegrees[i] for i in range(self.N) if dict_constants[i]==False]
         self.N -= len(indices_constants)
-        self.N_constants = 0
+        self.N_constants = len(self.constants)
 
     @classmethod
-    def from_cana(cls, cana_BooleanNetwork : "cana.boolean_network.BooleanNetwork") -> "BooleanNetwork":
+    def from_cana(cls, 
+                  cana_BooleanNetwork : "cana.boolean_network.BooleanNetwork") -> "BooleanNetwork":
         """
         **Compatability Method:**
         
@@ -726,10 +955,13 @@ class BooleanNetwork(WiringDiagram):
         return cls(F = F, I = I, variables=variables)
 
     @classmethod
-    def from_string(cls, network_string : str, separator : Union[str, list, np.array] = ',',
-        max_degree : int = 24, original_not : Union[str, list, np.array] = 'NOT',
-        original_and : Union[str, list, np.array] = 'AND',
-        original_or : Union[str, list, np.array] = 'OR') -> "BooleanNetwork":
+    def from_string(cls, 
+                    network_string : str, 
+                    separator : Union[str, list, np.array] = ',', 
+                    max_degree : int = 24, 
+                    original_not : Union[str, list, np.array] = 'NOT', 
+                    original_and : Union[str, list, np.array] = 'AND', 
+                    original_or : Union[str, list, np.array] = 'OR') -> "BooleanNetwork":
         """
         **Compatability Method:**
         
@@ -829,7 +1061,8 @@ class BooleanNetwork(WiringDiagram):
 
 
     @classmethod
-    def from_DiGraph(cls, nx_DiGraph : "nx.DiGraph") -> "WiringDiagram":
+    def from_DiGraph(cls, 
+                     nx_DiGraph : "nx.DiGraph") -> "WiringDiagram":
         raise NotImplementedError("from_DiGraph is not supported in BooleanNetwork class.")
     
     
@@ -849,7 +1082,9 @@ class BooleanNetwork(WiringDiagram):
             logic_dicts.append({'name':var, 'in': list(regulators), 'out': list(bf.f)})
         return cana.boolean_network.BooleanNetwork(Nnodes = self.N, logic = dict(zip(range(self.N),logic_dicts))) 
 
-    def to_bnet(self, separator=',\t', AS_POLYNOMIAL : bool = True) -> str:
+    def to_bnet(self, 
+                separator=',\t', 
+                AS_POLYNOMIAL : bool = True) -> str:
         """
         **Compatability method:**
             
@@ -881,7 +1116,9 @@ class BooleanNetwork(WiringDiagram):
             lines.append(f'{self.variables[i]}{separator}{function}')
         return '\n'.join(lines)
     
-    def to_truth_table(self,RETURN : bool = True, filename : str = None) -> pd.DataFrame:
+    def to_truth_table(self, 
+                       RETURN : bool = True, 
+                       filename : str = None) -> pd.DataFrame:
         """
         Determines the full truth table of the Boolean network as pandas DataFrame.
 
@@ -984,7 +1221,6 @@ class BooleanNetwork(WiringDiagram):
             - weights (np.array): The weights of this network.
         """
         weights = []
-        dict_weights = {'non-essential' : np.nan, 'conditional' : 0, 'positive' : 1, 'negative' : -1}
         for bf in self.F:
             weights.append(np.array([dict_weights[el] for el in bf.get_type_of_inputs()]))
         self.weights = weights
@@ -1043,7 +1279,8 @@ class BooleanNetwork(WiringDiagram):
             self.indegrees[i] = len(essential_variables)
 
 
-    def get_source_nodes(self, AS_DICT : bool = False) -> Union[dict, np.array]:
+    def get_source_nodes(self, 
+                         AS_DICT : bool = False) -> Union[dict, np.array]:
         """
         Identify source nodes in a Boolean network.
         
@@ -1074,7 +1311,8 @@ class BooleanNetwork(WiringDiagram):
         return np.where(is_source_node)[0]
 
     
-    def get_network_with_fixed_source_nodes(self,values_source_nodes : Union[list, np.array]) -> "BooleanNetwork":
+    def get_network_with_fixed_source_nodes(self, 
+                                            values_source_nodes : Union[list, np.array]) -> "BooleanNetwork":
         """
         Fix the values of source nodes within this Boolean Network.
 
@@ -1101,7 +1339,8 @@ class BooleanNetwork(WiringDiagram):
         bn.constants.update(self.constants)
         return bn
 
-    def get_network_with_node_controls(self,indices_controlled_nodes : Union[list, np.array], 
+    def get_network_with_node_controls(self,
+                                       indices_controlled_nodes : Union[list, np.array], 
                                        values_controlled_nodes : Union[list, np.array],
                                        KEEP_CONTROLLED_NODES : bool = False) -> "BooleanNetwork":
         """
@@ -1142,9 +1381,9 @@ class BooleanNetwork(WiringDiagram):
 
 
     def get_network_with_edge_controls(self, 
-        control_targets : Union[int,list,np.array],
-        control_sources : Union[int,list,np.array], 
-        type_of_edge_controls : Union[int,list,np.array,None] = None) -> "BooleanNetwork":
+                                       control_targets : Union[int,list,np.array], 
+                                       control_sources : Union[int,list,np.array], 
+                                       type_of_edge_controls : Union[int,list,np.array,None] = None) -> "BooleanNetwork":
         """
         Generate a perturbed Boolean network by removing the influence of
         specified regulators on specified targets.
@@ -1209,8 +1448,9 @@ class BooleanNetwork(WiringDiagram):
 
             
     
-    def update_single_node(self, index : int,
-        states_regulators : Union[list, np.array]) -> int:
+    def update_single_node(self, 
+                           index : int, 
+                           states_regulators : Union[list, np.array]) -> int:
         """
         Update the state of a single node.
 
@@ -1231,7 +1471,8 @@ class BooleanNetwork(WiringDiagram):
         return self.F[index].f[utils.bin2dec(states_regulators)].item()
 
 
-    def update_network_synchronously(self, X : Union[list, np.array]) -> np.array:
+    def update_network_synchronously(self, 
+                                     X : Union[list, np.array]) -> np.array:
         """
         Perform a synchronous update of a Boolean network.
 
@@ -1254,30 +1495,11 @@ class BooleanNetwork(WiringDiagram):
         return Fx
 
 
-    def update_network_synchronously_many_times(self, X : Union[list, np.array],
-        n_steps : int) -> np.array:
-        """
-        Update the state of a Boolean network sychronously multiple time steps.
-
-        Starting from the initial state, the network is updated synchronously
-        n_steps times using the update_network_synchronously function.
-
-        **Parameters:**
-            
-            - X (list[int] | np.array[int]): Initial state vector of the network.
-            - n_steps (int): Number of update iterations to perform.
-
-        **Returns:**
-            
-            - np.array[int]: Final state vector after n_steps updates.
-        """
-        for i in range(n_steps):
-            X = self.update_network_synchronously(X)
-        return X
-
-
-    def update_network_SDDS(self, X : Union[list, np.array], P : np.array,
-        *, rng=None) -> np.array:
+    def update_network_SDDS(self, 
+                            X : Union[list, np.array], 
+                            P : np.ndarray, 
+                            *, 
+                            rng=None) -> np.array:
         """
         Perform a stochastic update (SDDS) on a Boolean network.
 
@@ -1314,9 +1536,132 @@ class BooleanNetwork(WiringDiagram):
         return Fx
 
 
-    def get_steady_states_asynchronous(self, nsim : int = 500, EXACT : bool = False,
-        initial_sample_points : list = [], search_depth : int = 50,
-        DEBUG : bool = False, *, rng=None) -> dict:
+    def get_steady_states_asynchronous_exact(self,
+                                             stochastic_weights : Union[list, np.array, None] = None,
+                                             max_iterations: int = 1000,
+                                             tol=1e-9):
+        """
+        Compute exhaustively the steady states of a Boolean network under general asynchronous update.
+
+        This function simulates asynchronous updates of a Boolean network
+        (with N nodes) for a given number of initial conditions (nsim). For
+        each initial state, the network is updated asynchronously until a
+        steady state (or attractor) is reached or until a maximum search depth
+        is exceeded. The simulation starts from nsim random initial conditions.
+
+        **Parameters:**
+            
+            - stochastic_weights (list, np.array, None): The propensity of update 
+              for each node. If None (default), uniform update probabilities are assumed.
+              
+            - max_iterations (int): The maximal number of iterations of updates 
+              before raising a convergence error. These errors occur if the network contains
+              non-steady state attractors.
+              
+            - tol (float): Maximal allowable error before convergence is declared.
+            
+
+        **Returns:**
+            
+            - dict[str:Variant]: A dictionary containing:
+                
+                - SteadyStates (list[int]): List of steady state
+                  values (in decimal form) found.
+                  
+                - NumberOfSteadyStates (int): Total number of unique steady states.
+                - BasinSizes (list[int]): List of counts showing how many
+                  initial conditions converged to each steady state.
+                  
+                - STGAsynchronous (dict[tuple(int, int):int]):
+                  The asynchronous state transition graph. 
+                  STGAsynchronous[(a,i)] = c implies that state a transitions
+                  to state c when the ith variable is updated. Here, a and c
+                  are decimal representations of the state and i is in {0, 1,
+                  ..., self.N-1}.
+                  
+                - FinalTransitionProbabilities (np.array[float]): The final transition
+                  probability for each state in the system. Each row is a probability distribution.
+        """
+
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
+
+        assert stochastic_weights is None or len(stochastic_weights) == self.N and min(stochastic_weights)>0, "one positive weight per node is required"    
+        if stochastic_weights is None:
+            stochastic_weights = np.ones(self.N,dtype=float)/self.N
+        else:
+            stochastic_weights = np.array(stochastic_weights) / sum(stochastic_weights)            
+        
+        steady_states = []
+        steady_state_dict = {}
+        STG = dict(zip(range(2**self.N),[{} for i in range(2**self.N)]))
+        sped_up_STG = dict(zip(range(2**self.N),[[np.zeros(0,dtype=int),np.zeros(0,dtype=float)] for i in range(2**self.N)]))
+        for xdec in range(2**self.N):
+            x = left_side_of_truth_table[xdec].copy() #important: must create a copy here!
+            to_be_distributed = 0
+            for i in range(self.N):
+                fx_i = self.update_single_node(i, x[self.I[i]])
+                if fx_i > x[i]:
+                    fxdec = xdec + 2**(self.N - 1 - i)
+                elif fx_i < x[i]:
+                    fxdec = xdec - 2**(self.N - 1 - i)
+                else:
+                    fxdec = xdec
+                if fxdec in STG[xdec]:
+                    STG[xdec][fxdec] += stochastic_weights[i]
+                else:
+                    STG[xdec][fxdec] = stochastic_weights[i]
+                if fxdec!=xdec:
+                    sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], fxdec)
+                    sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], stochastic_weights[i])
+                else:
+                    to_be_distributed += stochastic_weights[i]
+            sped_up_STG[xdec][1] /= (1-to_be_distributed)
+            if len(STG[xdec])==1:
+                steady_state_dict[xdec] = len(steady_states)
+                steady_states.append(xdec)
+                sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], xdec)
+                sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], 1)
+                
+        # Probability vectors for all states
+        final_probabilities = np.zeros((2**self.N, len(steady_states)), dtype=float)
+    
+        # Boundary conditions: absorbing states have probability 1 of themselves
+        for xdec in steady_states:
+            final_probabilities[xdec, steady_state_dict[xdec]] = 1.0
+        transient_states = [xdec for xdec in range(2**self.N) if xdec not in steady_state_dict]
+        
+        for it in range(1, max_iterations + 1):
+            max_delta = 0.0
+    
+            # In-place Gauss–Seidel  update:
+            for xdec in transient_states:
+                nxt, pr = sped_up_STG[xdec]
+
+                old = final_probabilities[xdec].copy()
+                final_probabilities[xdec] = np.dot(pr, final_probabilities[nxt, :])   # weighted average of successor probability vectors
+    
+                # track convergence (infinity norm per row)
+                delta = np.max(np.abs(final_probabilities[xdec] - old))
+                if delta > max_delta:
+                    max_delta = delta
+    
+            if max_delta < tol:
+                basin_sizes = final_probabilities.sum(0)/2**self.N
+                
+                        
+                return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "STGAsynchronous", "FinalTransitionProbabilities"],
+                                (steady_states, len(steady_states), basin_sizes, STG, final_probabilities)))
+            
+        raise RuntimeError(f"Did not converge in {max_iterations} iterations; last max_delta={max_delta:g}")
+        
+
+    def get_steady_states_asynchronous(self,
+                                       nsim : int = 500,
+                                       initial_sample_points : list = [], 
+                                       search_depth : int = 50, 
+                                       DEBUG : bool = False, 
+                                       *, 
+                                       rng=None) -> dict:
         """
         Compute the steady states of a Boolean network under asynchronous updates.
 
@@ -1324,19 +1669,12 @@ class BooleanNetwork(WiringDiagram):
         (with N nodes) for a given number of initial conditions (nsim). For
         each initial state, the network is updated asynchronously until a
         steady state (or attractor) is reached or until a maximum search depth
-        is exceeded. The simulation can be performed either approximately
-        (by sampling nsim random initial conditions) or exactly (by iterating
-        over the entire state space when EXACT == True).
+        is exceeded. The simulation starts from nsim random initial conditions.
 
         **Parameters:**
             
             - nsim (int, optional): Number of initial conditions to simulate
               (default is 500).
-              
-            - EXACT (bool, optional): If True, iterate over the entire state
-              space and guarantee finding all steady states (2^N initial
-              conditions); otherwise, use nsim random initial conditions.
-              (Default is False.)
               
             - initial_sample_points (list[list[int]], optional): List of
               initial states (as binary vectors) to use. If provided and EXACT
@@ -1373,33 +1711,23 @@ class BooleanNetwork(WiringDiagram):
                   points used (if provided) or those generated during simulation.
         """
         rng = utils._coerce_rng(rng)
-        if EXACT:
-            left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
 
         sampled_points = []
         
-        assert initial_sample_points == [] or not EXACT, (
-            "Warning: sample points were provided but, with option EXACT==True, the entire state space is computed "
-            "(and initial sample points ignored)"
-        )
                 
         STG_asynchronous = dict()
         steady_states = []
         basin_sizes = []
         steady_state_dict = dict()   
         
-        for iteration in range(nsim if not EXACT else 2**self.N):
-            if EXACT:
-                x = left_side_of_truth_table[iteration]
-                xdec = iteration
-            else:
-                if initial_sample_points == []:  # generate random initial states on the fly
-                    x = rng.integers(2, size=self.N)
-                    xdec = utils.bin2dec(x)
-                    sampled_points.append(xdec)
-                else:                
-                    x = initial_sample_points[iteration]
-                    xdec = utils.bin2dec(x)
+        for iteration in range(nsim):
+            if initial_sample_points == []:  # generate random initial states on the fly
+                x = rng.integers(2, size=self.N)
+                xdec = utils.bin2dec(x)
+                sampled_points.append(xdec)
+            else:                
+                x = initial_sample_points[iteration]
+                xdec = utils.bin2dec(x)
             
             if DEBUG:
                 print(iteration, -1, -1, False, xdec, x)
@@ -1447,10 +1775,10 @@ class BooleanNetwork(WiringDiagram):
                         break
             if DEBUG:
                 print()
-        if sum(basin_sizes) < (nsim if not EXACT else 2**self.N):
+        if sum(basin_sizes) < nsim:
             print('Warning: only %i of the %i tested initial conditions eventually reached a steady state. Try increasing the search depth. '
                   'It may however also be the case that your asynchronous state space contains a limit cycle.' %
-                  (sum(basin_sizes), nsim if not EXACT else 2**self.N))
+                  (sum(basin_sizes), nsim))
         return dict(zip(["SteadyStates", "NumberOfSteadyStates", "BasinSizes", "STGAsynchronous", "InitialSamplePoints"],
                         (steady_states, len(steady_states), basin_sizes, STG_asynchronous,
                 initial_sample_points if initial_sample_points != [] else sampled_points)))
@@ -1458,8 +1786,12 @@ class BooleanNetwork(WiringDiagram):
 
     def get_steady_states_asynchronous_given_one_initial_condition(self,
         initial_condition : Union[int, list, np.array] = 0,
-        nsim : int = 500, stochastic_weights : list = [],search_depth : int = 50,
-        DEBUG : bool = False,*, rng = None) -> dict:
+        nsim : int = 500, 
+        stochastic_weights : Union[list, np.array, None] = None, 
+        search_depth : int = 50,
+        DEBUG : bool = False, 
+        *, 
+        rng = None) -> dict:
         """
         Determine the steady states reachable from one initial condition using
         weighted asynchronous updates.
@@ -1467,8 +1799,7 @@ class BooleanNetwork(WiringDiagram):
         This function is similar to steady_states_asynchronous_given_one_IC but
         allows the update order to be influenced by provided stochastic weights
         (one per node). A weight vector (of length N) may be provided, and if
-        given, it is normalized and used to bias the random permutation of
-        node update order.
+        given, it is used to select the next node to be updated.
 
         **Parameters:**
 
@@ -1479,8 +1810,8 @@ class BooleanNetwork(WiringDiagram):
             - nsim (int, optional): Number of simulation runs (default is 500).
             
             - stochastic_weights (list[float], optional): List of stochastic
-              weights (one per node) used to bias update order. If empty,
-              uniform random order is used.
+              weights (one per node) used to bias update order. If None,
+              nodes to be updated are chosen uniformly at random.
               
             - search_depth (int, optional): Maximum number of asynchronous
               update iterations per simulation (default is 50).
@@ -1525,8 +1856,8 @@ class BooleanNetwork(WiringDiagram):
             initial_condition = np.array(initial_condition, dtype=int)
             initial_condition_bin = utils.bin2dec(initial_condition)
         
-        assert stochastic_weights == [] or len(stochastic_weights) == self.N, "one stochastic weight per node is required"    
-        if stochastic_weights != []:
+        assert stochastic_weights is None or len(stochastic_weights) == self.N, "one stochastic weight per node is required"    
+        if stochastic_weights is not None:
             stochastic_weights = np.array(stochastic_weights) / sum(stochastic_weights)
         
         STG_async = dict()
@@ -1598,366 +1929,186 @@ class BooleanNetwork(WiringDiagram):
                         (steady_states, len(steady_states), basin_sizes, transient_times, STG_async, queues)))
 
 
-    if __LOADED_NUMBA__:
-        def get_attractors_synchronous(self,
-            nsim: int = 500,
-            initial_sample_points: list = [],
-            n_steps_timeout: int = 1000,
-            INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS: bool = False,
-            *,
-            rng=None
-        ) -> dict:
-            """
-            Compute the number of attractors in a Boolean network.
+    def get_attractors_synchronous(
+        self,
+        nsim: int = 500,
+        initial_sample_points: list = [],
+        n_steps_timeout: int = 1000,
+        INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS: bool = False,
+        USE_NUMBA: bool = True,
+        *,
+        rng=None,
+    ) -> dict:
+        """
+        Compute the number of attractors in a Boolean network using synchronous updates.
     
-            This version is optimized for networks with longer average path
-            lengths. For each of nb initial conditions, the network is updated
-            synchronously until an attractor is reached or until n_steps_timeout
-            is exceeded. The function returns the attractors found, their basin
-            sizes, a mapping of states to attractors, the set of initial sample
-            points used, the explored state space, and the number of simulations
-            that timed out.
-            
-            Hybrid Numba-accelerated version:
-            - Python logic for bookkeeping (dicts, cycles, basins)
-            - Compiled numeric kernel for Boolean updates
+        This method is optimized for networks with long transient dynamics. Starting
+        from a set of initial conditions, the network is updated synchronously until
+        an attractor is reached or a timeout is exceeded. The returned attractors and
+        basin sizes are lower-bound / unbiased estimates based on the sampled states.
     
-            **Parameters:**
-                
-                - nsim (int, optional): Number of initial conditions to simulate
-                  (default is 500). Ignored if 'initial_sample_points' are provided.
-                  
-                - initial_sample_points (list[int | list[int]], optional): List of
-                  initial states to use. 'INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS'
-                  specifies whether these points are given as vectors or decimals.
-                  
-                - n_steps_timeout (int, optional): Maximum number of update steps
-                  allowed per simulation (default 1000).
-                  
-                - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If
-                  True, initial_sample_points are provided as binary vectors; if
-                  False, they are given as decimal numbers. Default is False.
-                  
-                - rng (None, optional): Argument for the random number generator,
-                  implemented in 'utils._coerce_rng'.
+        If Numba is available and USE_NUMBA=True, Boolean updates are accelerated using
+        a compiled kernel; otherwise a pure-Python implementation is used.
     
-            **Returns:**
-                
-                - dict[str:Variant]: A dictionary containing:
-                    
-                    - Attractors (list[list[int]]): List of attractors (each as a
-                      list of states in the attractor cycle).
-                    
-                    - NumberOfAttractors (int): Total number of unique attractors
-                      found. This is a lower bound.
-                      
-                    - BasinSizes (list[int]): List of counts for each attractor.
-                      This is an unbiased estimator.
-                      
-                    - AttractorDict (dict[int:int]): Dictionary mapping states
-                      (in decimal) to the index of their attractor.
-                      
-                    - InitialSamplePoints (list[int]): The initial sample points
-                      used (if provided, they are returned; otherwise, the 'nsim'
-                      generated points are returned).
-                      
-                    - STG (dict[int:int]):
-                      A sample of the state transition graph as dictionary, with 
-                      each state represented by its decimal representation.
-                      
-                    - NumberOfTimeouts (int): Number of simulations that timed out
-                      before reaching an attractor. Increase 'n_steps_timeout' to 
-                      reduce this number.
-            """
-            rng = utils._coerce_rng(rng)
-            dictF = {}
-            attractors = []
-            basin_sizes = []
-            attr_dict = {}
-            STG = {}
-            n_timeout = 0
-            sampled_points = []
-        
-            INITIAL_SAMPLE_POINTS_EMPTY = utils.check_if_empty(initial_sample_points)
-            if not INITIAL_SAMPLE_POINTS_EMPTY:
-                nsim = len(initial_sample_points)
-        
-            # --- Prepare numba-friendly lookup tables
+        **Parameters:**
+    
+            - nsim (int, optional): Number of initial conditions to simulate
+              (default 500). Ignored if initial_sample_points are provided.
+    
+            - initial_sample_points (list[int | list[int]], optional): Initial states
+              to use. Interpretation is controlled by
+              INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS.
+    
+            - n_steps_timeout (int, optional): Maximum number of update steps per
+              simulation (default 1000).
+    
+            - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If True,
+              initial_sample_points are binary vectors; otherwise decimal states.
+    
+            - USE_NUMBA (bool, optional): If True (default), use Numba acceleration
+              when available.
+    
+            - rng (None, optional): Random number generator, coerced via
+              utils._coerce_rng.
+    
+        **Returns:**
+    
+            - dict[str:Variant] with keys:
+                Attractors, NumberOfAttractors, BasinSizes, AttractorDict,
+                InitialSamplePoints, STG, NumberOfTimeouts
+        """
+        rng = utils._coerce_rng(rng)
+    
+        dictF = {}          # memorized transitions
+        attractors = []     # list of attractor cycles
+        basin_sizes = []    # basin counts
+        attr_dict = {}      # state -> attractor index
+        STG = {}            # sampled state transition graph
+        n_timeout = 0
+        sampled_points = []
+    
+        INITIAL_SAMPLE_POINTS_EMPTY = utils.check_if_empty(initial_sample_points)
+        if not INITIAL_SAMPLE_POINTS_EMPTY:
+            nsim = len(initial_sample_points)
+    
+        # --- Decide update backend
+        use_numba = __LOADED_NUMBA__ and USE_NUMBA
+    
+        if use_numba:
             F_array_list = List([np.array(bf.f, dtype=np.uint8) for bf in self.F])
             I_array_list = List([np.array(regs, dtype=np.int64) for regs in self.I])
-            N = self.N_variables
-        
-            # --- Simulation loop
-            for sim_idx in range(nsim):
-                # Initialize state
-                if INITIAL_SAMPLE_POINTS_EMPTY:
-                    x = rng.integers(2, size=N, dtype=np.uint8)
+            N = self.N
+    
+        # --- Main simulation loop
+        for sim_idx in range(nsim):
+            # --- Initialize state
+            if INITIAL_SAMPLE_POINTS_EMPTY:
+                x = rng.integers(2, size=self.N, dtype=np.uint8)
+                xdec = utils.bin2dec(x)
+                sampled_points.append(xdec)
+            else:
+                if INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS:
+                    x = np.asarray(initial_sample_points[sim_idx], dtype=np.uint8)
                     xdec = utils.bin2dec(x)
-                    sampled_points.append(xdec)
                 else:
-                    if INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS:
-                        x = np.asarray(initial_sample_points[sim_idx], dtype=np.uint8)
-                        xdec = utils.bin2dec(x)
-                    else:
-                        xdec = int(initial_sample_points[sim_idx])
-                        x = np.array(utils.dec2bin(xdec, N), dtype=np.uint8)
-        
-                visited = {xdec: 0}
-                trajectory = [xdec]
-                count = 0
-        
-                # Iterate until attractor or timeout
-                while count < n_steps_timeout:
-                    if xdec in dictF:
-                        fxdec = dictF[xdec]
-                    else:
-                        fx = _update_network_synchronously_numba(x, F_array_list, I_array_list, N)
-                        fxdec = utils.bin2dec(fx)
-                        dictF[xdec] = fxdec
-                        x = fx
-        
-                    if count == 0:
-                        STG[xdec] = fxdec
-        
-                    # Already mapped to attractor
-                    if fxdec in attr_dict:
-                        idx_attr = attr_dict[fxdec]
-                        basin_sizes[idx_attr] += 1
-                        for s in trajectory:
-                            attr_dict[s] = idx_attr
-                        break
-        
-                    # New attractor detected
-                    if fxdec in visited:
-                        cycle_start = visited[fxdec]
-                        attractor_states = trajectory[cycle_start:]
-                        attractors.append(attractor_states)
-                        basin_sizes.append(1)
-                        idx_attr = len(attractors) - 1
-                        for s in attractor_states:
-                            attr_dict[s] = idx_attr
-                        break
-        
-                    # Continue traversal
-                    visited[fxdec] = len(trajectory)
-                    trajectory.append(fxdec)
-                    xdec = fxdec
-                    count += 1
-        
-                    if count == n_steps_timeout:
-                        n_timeout += 1
-                        break
-        
-            return {
-                "Attractors": attractors,
-                "NumberOfAttractors": len(attractors),
-                "BasinSizes": basin_sizes,
-                "AttractorDict": attr_dict,
-                "InitialSamplePoints": (
-                    sampled_points if INITIAL_SAMPLE_POINTS_EMPTY else initial_sample_points
-                ),
-                "STG": STG,
-                "NumberOfTimeouts": n_timeout,
-            }
+                    xdec = int(initial_sample_points[sim_idx])
+                    x = np.array(utils.dec2bin(xdec, self.N), dtype=np.uint8)
     
-    else:
-        def get_attractors_synchronous(
-            self,
-            nsim: int = 500,
-            initial_sample_points: list = [],
-            n_steps_timeout: int = 1000,
-            INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS: bool = False,
-            *,
-            rng=None
-        ) -> dict:
-            """
-            Compute the number of attractors in a Boolean network.
+            visited = {xdec: 0}
+            trajectory = [xdec]
+            count = 0
     
-            This version is optimized for networks with longer average path
-            lengths. For each of nb initial conditions, the network is updated
-            synchronously until an attractor is reached or until n_steps_timeout
-            is exceeded. The function returns the attractors found, their basin
-            sizes, a mapping of states to attractors, the set of initial sample
-            points used, the explored state space, and the number of simulations
-            that timed out.
-    
-            **Parameters:**
-                
-                - nsim (int, optional): Number of initial conditions to simulate
-                  (default is 500). Ignored if 'initial_sample_points' are provided.
-                  
-                - initial_sample_points (list[int | list[int]], optional): List of
-                  initial states to use. 'INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS'
-                  specifies whether these points are given as vectors or decimals.
-                  
-                - n_steps_timeout (int, optional): Maximum number of update steps
-                  allowed per simulation (default 1000).
-                  
-                - INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS (bool, optional): If
-                  True, initial_sample_points are provided as binary vectors; if
-                  False, they are given as decimal numbers. Default is False.
-                  
-                - rng (None, optional): Argument for the random number generator,
-                  implemented in 'utils._coerce_rng'.
-    
-            **Returns:**
-                
-                - dict[str:Variant]: A dictionary containing:
-                    
-                    - Attractors (list[list[int]]): List of attractors (each as a
-                      list of states in the attractor cycle).
-                    
-                    - NumberOfAttractors (int): Total number of unique attractors
-                      found. This is a lower bound.
-                      
-                    - BasinSizes (list[int]): List of counts for each attractor.
-                      This is an unbiased estimator.
-                      
-                    - AttractorDict (dict[int:int]): Dictionary mapping states
-                      (in decimal) to the index of their attractor.
-                      
-                    - InitialSamplePoints (list[int]): The initial sample points
-                      used (if provided, they are returned; otherwise, the 'nsim'
-                      generated points are returned).
-                      
-                    - STG (dict[int:int]):
-                      A sample of the state transition graph as dictionary, with 
-                      each state represented by its decimal representation.
-                      
-                    - NumberOfTimeouts (int): Number of simulations that timed out
-                      before reaching an attractor. Increase 'n_steps_timeout' to 
-                      reduce this number.
-            """
-            rng = utils._coerce_rng(rng)
-            dictF = {}               # memorized transitions
-            attractors = []          # list of attractor cycles
-            basin_sizes = []         # basin counts
-            attr_dict = {}           # map: state -> attractor index
-            STG = {}                 # sampled state transitions
-            n_timeout = 0
-            sampled_points = []
-        
-            INITIAL_SAMPLE_POINTS_EMPTY = utils.check_if_empty(initial_sample_points)
-            if not INITIAL_SAMPLE_POINTS_EMPTY:
-                nsim = len(initial_sample_points)
-        
-            # Main simulation loop
-            for sim_idx in range(nsim):
-                # --- Initial state setup
-                if INITIAL_SAMPLE_POINTS_EMPTY:
-                    x = rng.integers(2, size=self.N, dtype=np.uint8)
-                    xdec = utils.bin2dec(x)
-                    sampled_points.append(xdec)
+            # --- Iterate until attractor or timeout
+            while count < n_steps_timeout:
+                if xdec in dictF:
+                    fxdec = dictF[xdec]
                 else:
-                    if INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS:
-                        x = np.asarray(initial_sample_points[sim_idx], dtype=np.uint8)
-                        xdec = utils.bin2dec(x)
+                    if use_numba:
+                        fx = _update_network_synchronously_numba(
+                            x, F_array_list, I_array_list, N
+                        )
                     else:
-                        xdec = int(initial_sample_points[sim_idx])
-                        x = np.array(utils.dec2bin(xdec, self.N), dtype=np.uint8)
-        
-                visited = {xdec: 0}  # maps state→position in trajectory
-                trajectory = [xdec]
-                count = 0
-        
-                # --- Iterate until attractor or timeout
-                while count < n_steps_timeout:
-                    if xdec in dictF:
-                        fxdec = dictF[xdec]
-                    else:
-                        # use vectorized network update
                         fx = self.update_network_synchronously(x)
-                        fxdec = utils.bin2dec(fx)
-                        dictF[xdec] = fxdec
-                        x = fx
-        
-                    if count == 0:
-                        STG[xdec] = fxdec
-        
-                    # already mapped to attractor?
-                    if fxdec in attr_dict:
-                        idx_attr = attr_dict[fxdec]
-                        basin_sizes[idx_attr] += 1
-                        for s in trajectory:
-                            attr_dict[s] = idx_attr
-                        break
-        
-                    # cycle found in trajectory → new attractor
-                    if fxdec in visited:
-                        cycle_start = visited[fxdec]
-                        attractor_states = trajectory[cycle_start:]
-                        attractors.append(attractor_states)
-                        basin_sizes.append(1)
-                        idx_attr = len(attractors) - 1
-                        for s in attractor_states:
-                            attr_dict[s] = idx_attr
-                        break
-        
-                    # continue traversal
-                    visited[fxdec] = len(trajectory)
-                    trajectory.append(fxdec)
-                    xdec = fxdec
-                    count += 1
-        
-                    if count == n_steps_timeout:
-                        n_timeout += 1
-                        break
-        
-            return {
-                "Attractors": attractors,
-                "NumberOfAttractors": len(attractors),
-                "BasinSizes": basin_sizes,
-                "AttractorDict": attr_dict,
-                "InitialSamplePoints": sampled_points if INITIAL_SAMPLE_POINTS_EMPTY else initial_sample_points,
-                "STG": STG,
-                "NumberOfTimeouts": n_timeout,
-            }
+    
+                    fxdec = utils.bin2dec(fx)
+                    dictF[xdec] = fxdec
+                    x = fx
+    
+                if count == 0:
+                    STG[xdec] = fxdec
+    
+                # already mapped to known attractor
+                if fxdec in attr_dict:
+                    idx_attr = attr_dict[fxdec]
+                    basin_sizes[idx_attr] += 1
+                    for s in trajectory:
+                        attr_dict[s] = idx_attr
+                    break
+    
+                # new attractor detected
+                if fxdec in visited:
+                    cycle_start = visited[fxdec]
+                    attractor_states = trajectory[cycle_start:]
+                    attractors.append(attractor_states)
+                    basin_sizes.append(1)
+                    idx_attr = len(attractors) - 1
+                    for s in attractor_states:
+                        attr_dict[s] = idx_attr
+                    break
+    
+                # continue traversal
+                visited[fxdec] = len(trajectory)
+                trajectory.append(fxdec)
+                xdec = fxdec
+                count += 1
+    
+                if count == n_steps_timeout:
+                    n_timeout += 1
+                    break
+    
+        return {
+            "Attractors": attractors,
+            "NumberOfAttractors": len(attractors),
+            "BasinSizes": basin_sizes,
+            "AttractorDict": attr_dict,
+            "InitialSamplePoints": (
+                sampled_points if INITIAL_SAMPLE_POINTS_EMPTY else initial_sample_points
+            ),
+            "STG": STG,
+            "NumberOfTimeouts": n_timeout,
+        }
 
-
-
-    if __LOADED_NUMBA__:
-        def compute_synchronous_state_transition_graph(self) -> dict:
-            """
-            Compute the entire synchronous state transition graph (STG)
-            using Numba for high performance.
-            
-            **Returns:**
-            
-                - dict[int:int]: A dictionary representing the state transition
-                  graph of the network, where each key represents the current state
-                  and its corresponding value the next state.
-            """
+    
+    def compute_synchronous_state_transition_graph(self, USE_NUMBA : bool = True):
+        """
+        Compute the synchronous state transition graph (STG) for all 2^N states.
         
+        The STG is stored in `self.STG` as a one-dimensional NumPy array of length 2^N,
+        where `self.STG[x]` is the decimal representation of the successor state 
+        reached from state `x` under synchronous update.
+        
+        **Parameters:**
+        
+            - USE_NUMBA (bool, optional): If True (default), 
+              Numba acceleration is used when available.
+        """
+    
+        if __LOADED_NUMBA__ and USE_NUMBA:
             # Preprocess data into Numba-friendly types
             F_list = [np.array(bf.f, dtype=np.uint8) for bf in self.F]
             I_list = [np.array(regs, dtype=np.int64) for regs in self.I]
             
-            if self.N_variables <= 22:
-                next_indices = _compute_synchronous_stg_numba(F_list, I_list, self.N_variables)
+            if self.N <= 22:
+                self.STG = _compute_synchronous_stg_numba(F_list, I_list, self.N)
             else:
-                next_indices = _compute_synchronous_stg_numba_low_memory(F_list, I_list, self.N_variables)
-                
-            # Build the dictionary {current_state: next_state}
-            self.STG = dict(zip(range(2 ** self.N_variables), next_indices.tolist()))
-    else:
-        def compute_synchronous_state_transition_graph(self) -> dict:
-            """
-            Compute the entire synchronous state transition graph for all 2^N states.
-            
-            **Returns:**
-            
-                - dict[int:int]: A dictionary representing the state transition
-                  graph of the network, where each key represents the current state
-                  and its corresponding value the next state.
-            """  
-        
+                self.STG = _compute_synchronous_stg_numba_low_memory(F_list, I_list, self.N)
+        else:
             # 1. Represent all possible network states as binary matrix
-            #    shape = (2**n, n), each row = one state
-            states = utils.get_left_side_of_truth_table(self.N_variables)
+            states = utils.get_left_side_of_truth_table(self.N)
             
             # 2. Preallocate array for next states
             next_states = np.zeros_like(states)
-            powers_of_two = 2 ** np.arange(self.N_variables)[::-1]
+            powers_of_two = 2 ** np.arange(self.N)[::-1]
         
             # 3. Compute next value for each node in vectorized form
             for j, bf in enumerate(self.F):
@@ -1977,18 +2128,18 @@ class BooleanNetwork(WiringDiagram):
                 next_states[:, j] = bf.f[idx]
         
             # 4. Convert each next-state binary vector to integer index
-            next_indices = np.dot(next_states, powers_of_two)
-        
-            self.STG = dict(zip(list(range(2**self.N_variables)), next_indices.tolist()))
+            self.STG = np.dot(next_states, powers_of_two).astype(np.int64)
 
 
-    def get_attractors_synchronous_exact(self) -> dict:
+    def get_attractors_synchronous_exact(self, USE_NUMBA : bool = True) -> dict:
         """
-        Compute the exact number of attractors in a Boolean network using a
-        fast, vectorized approach.
-
-        This function computes all attractors and their basin sizes from the 
-        the full state transition graph.
+        Compute all attractors and their exact basin sizes under a synchronous
+        updating scheme.
+        
+        **Parameters:**
+        
+            - USE_NUMBA (bool, optional): If True (default), 
+              Numba acceleration is used when available.
 
         **Returns:**
             
@@ -1998,108 +2149,87 @@ class BooleanNetwork(WiringDiagram):
                   attractor is represented as a list of states forming the
                   cycle).
                 
-                - NumberOfAttractors (int): Total number of unique attractors.
+                - NumberOfAttractors (int): Number of unique attractors.
                 
-                - BasinSizes (list[int]): List of counts for each attractor.
+                - BasinSizes (np.ndarray[float]): Proportion of states that 
+                  eventually transition to each attractor.
                 
-                - AttractorDict (dict[int:int]): Dictionary mapping each state
-                  (in decimal) to its attractor index.
+                - AttractorID (np.ndarray[int]): A one-dimensional integer array
+                  representing the index of the attractor eventually reached from
+                  each of the 2^N states.
                   
-                - STG (dict[int:int]):
-                  The state transition graph as dictionary, with each state
-                  represented by its decimal representation.
+                - STG (np.ndarray[int]):
+                  A one-dimensional integer array representing the synchronous 
+                  state transition graph. For each of the 2^N states, the decimal
+                  index of its successor state is stored.
         """        
-
         if self.STG is None:
-            self.compute_synchronous_state_transition_graph()
-        
+            self.compute_synchronous_state_transition_graph(USE_NUMBA=USE_NUMBA)
+
         attractors = []
-        basin_sizes = []
-        attractor_dict = dict()
-        for xdec in range(2**self.N):
-            queue = [xdec]
-            while True:
-                fxdec = self.STG[xdec]
-                try:
-                    index_attr = attractor_dict[fxdec]
-                    basin_sizes[index_attr] += 1
-                    attractor_dict.update(list(zip(queue, [index_attr] * len(queue))))
-                    break
-                except KeyError:
-                    try:
-                        index = queue.index(fxdec)
-                        attractor_dict.update(list(zip(queue, [len(attractors)] * len(queue))))
-                        attractors.append(queue[index:])
-                        basin_sizes.append(1)
+        
+        if __LOADED_NUMBA__ and USE_NUMBA:
+            attractor_id, basin_sizes, cycle_rep, cycle_len, n_attr = _attractors_functional_graph(self.STG)
+        
+            # Reconstruct explicit attractor cycles
+            for k in range(int(n_attr)):
+                rep = int(cycle_rep[k])
+                L = int(cycle_len[k])
+                cyc = [rep]
+                x = rep
+                for _ in range(L - 1):
+                    x = int(self.STG[x])
+                    cyc.append(x)
+                attractors.append(cyc)
+
+        else:                
+            basin_sizes = []
+            attractor_id = -np.ones(2**self.N,dtype=np.int32)
+            n_attr = 0
+            for xdec in range(2**self.N):
+                queue = [xdec]
+                while True:
+                    fxdec = self.STG[xdec]
+                    if attractor_id[fxdec]==-1:
+                        try:
+                            index = queue.index(fxdec)
+                            attractor_id[np.array(queue)] = n_attr
+                            n_attr += 1
+                            attractors.append(queue[index:])
+                            basin_sizes.append(1)
+                            break
+                        except ValueError:
+                            pass
+                    else: #already know the attractor of fxdec
+                        index_attr = attractor_id[fxdec]
+                        basin_sizes[index_attr] += 1
+                        attractor_id[np.array(queue)] = index_attr
                         break
-                    except ValueError:
-                        pass
-                queue.append(fxdec)
-                xdec = fxdec
-        return dict(zip(["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorDict", "STG"],
-                        (attractors, len(attractors), basin_sizes, attractor_dict, self.STG)))  
+                    queue.append(fxdec)
+                    xdec = fxdec
 
-
-
-
+        basin_sizes = np.array(basin_sizes,dtype=np.float64)/2**self.N
+        
+        return dict(zip(
+            ["Attractors", "NumberOfAttractors", "BasinSizes", "AttractorID", "STG"],
+            (attractors, len(attractors), basin_sizes, attractor_id, self.STG)
+        ))
 
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
-    def get_derrida_value(self, nsim : int = 1000, EXACT : bool = False,*, rng = None) -> float:
+    def get_attractors_and_robustness_measures_synchronous_exact(self, USE_NUMBA : bool = True) -> dict:
         """
-        Estimate the Derrida value for a Boolean network.
-
-        The Derrida value is computed by perturbing a single node in a randomly
-        chosen state and measuring the average Hamming distance between the
-        resulting updated states of the original and perturbed networks.
-
-        **Parameters:**
-            
-            - nsim (int, optional): Number of simulations to perform. Default
-              is 1000.
-              
-            - EXACT (bool, optional): If True, the exact Derrida value is
-              computed and 'nsim' is ignored. Otherwise, 'nsim' simulations
-              are used to approximate the Derrida value.
-            
-            - rng (None, optional): Argument for the random number generator,
-              implemented in 'utils._coerce_rng'.
-
-        **Returns:**
-            
-            - float: The average Hamming distance (Derrida value) over
-              nsim simulations.
-
-        **References:**
-            
-            #. Derrida, B., & Pomeau, Y. (1986). Random networks of automata:
-               a simple annealed approximation. Europhysics letters, 1(2), 45.
-        """
-        if EXACT:
-            return np.mean([
-                bf.get_average_sensitivity(EXACT=True, NORMALIZED=False) for bf in self.F
-            ])
-        else:
-            
-            # --- Numba-friendly preparation
-            F_array_list = List([np.array(bf.f, dtype=np.uint8) for bf in self.F])
-            I_array_list = List([np.array(regs, dtype=np.int64) for regs in self.I])
-            N = self.N_variables if hasattr(self, "N_variables") else self.N
-        
-            # Derive reproducible seed from rng
-            rng = utils._coerce_rng(rng)
-            seed = int(rng.integers(19891989))
-        
-            return _derrida_simulation(F_array_list, I_array_list, N, nsim, seed)
-
-
-    def get_attractors_and_robustness_measures_synchronous_exact(self) -> dict:
-        """
-        Compute the attractors and several robustness measures of a Boolean network.
+        Compute the attractors and several robustness measures of a synchronously 
+        updated Boolean network.
 
         This function computes the exact attractors and robustness (coherence
         and fragility) of the entire network, as well as robustness measures
         for each basin of attraction and each attractor.
+        
+        **Parameters:**
+        
+            - USE_NUMBA (bool, optional): If True (default), 
+              Numba acceleration is used when available.
 
         **Returns:**
             
@@ -2108,142 +2238,158 @@ class BooleanNetwork(WiringDiagram):
                 - Attractors (list[list[int]]): List of attractors (each
                   attractor is represented as a list of state decimal numbers).
                 
-                - ExactNumberOfAttractors (int): The exact number of network
-                  attractors.
-                  
-                - BasinSizes (list[int]): List of exact basin sizes for each
-                  attractor.
-                  
-                - AttractorDict (dict[int:int]): Dictionary mapping each state
-                  (in decimal) to its attractor index.
+                - NumberOfAttractors (int): Number of unique attractors.
+                
+                - BasinSizes (np.ndarray[float]): Proportion of states that 
+                  eventually transition to each attractor.
+                
+                - AttractorID (np.ndarray[int]): A one-dimensional integer array
+                  representing the index of the attractor eventually reached from
+                  each of the 2^N states.
                   
                 - Coherence (float): overall exact network coherence
                 - Fragility (float): overall exact network fragility
-                - BasinCoherence (list[float]): exact coherence of each basin.
-                - BasinFragility (list[float]): exact fragility of each basin.
-                - AttractorCoherence (list[float]): exact coherence of each
+                - BasinCoherence (np.ndarray[float]): exact coherence of each basin.
+                - BasinFragility (np.ndarray[float]): exact fragility of each basin.
+                - AttractorCoherence (np.ndarray[float]): exact coherence of each
                   attractor.
                   
-                - AttractorFragility (list[float]): exact fragility of each
+                - AttractorFragility (np.ndarray[float]): exact fragility of each
                   attractor.
         
         **References:**
             
-            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum,
+            1. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum,
                J. C. (2023). Models of cell processes are far from the edge of
                chaos. PRX life, 1(2), 023009.
                
-            #. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). xxxx
-               arXiv preprint arXiv:xxx.xxx.
+            2. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). Attractors
+               are less stable than their basins: Canalization creates a coherence 
+               gap in gene regulatory networks. bioRxiv 2025-11.
         """
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
-    
-        result = self.get_attractors_synchronous_exact()
+        
+        # 0) attractors + basins
+        result = self.get_attractors_synchronous_exact(USE_NUMBA=USE_NUMBA)
+        
         attractors = result["Attractors"]
         n_attractors = result["NumberOfAttractors"]
-        basin_sizes = np.array(result["BasinSizes"], dtype=np.int64)
-        attractor_dict = result["AttractorDict"]
+        basin_sizes = result["BasinSizes"]
+        attractor_id = result["AttractorID"]
     
-        len_attractors = np.array([len(a) for a in attractors], dtype=np.int64)
-    
-        # --- Single-attractor shortcut
+        # --- Single-attractor shortcut: values are trivial
         if n_attractors == 1:
             return dict(zip(
-                ["Attractors", "ExactNumberOfAttractors", "BasinSizes",
-                 "AttractorDict", "BasinCoherence", "BasinFragility",
+                ["Attractors", "NumberOfAttractors", "BasinSizes",
+                 "AttractorID", "BasinCoherence", "BasinFragility",
                  "AttractorCoherence", "AttractorFragility", "Coherence", "Fragility"],
-                (attractors, n_attractors, basin_sizes / 2 ** self.N,
-                 attractor_dict, np.ones(1), np.zeros(1),
+                (attractors, n_attractors, basin_sizes,
+                 attractor_id, np.ones(1), np.zeros(1),
                  np.ones(1), np.zeros(1), 1.0, 0.0)
             ))
     
-        # -------------------------------------------------------------------------
-        # 1. Convert attractor_dict -> numeric array for O(1) lookup
-        # -------------------------------------------------------------------------
-        attractor_idx = np.full(2 ** self.N, -1, dtype=np.int32)
-        for k, v in attractor_dict.items():
-            attractor_idx[k] = v
-    
-        # 2. Compute mean binary vector for each attractor (needed for fragility computation)
-        mean_states_attractors = []
-        is_attr_mask = np.zeros(2 ** self.N, dtype=bool)
+        # 1) arrays for O(1) lookup + attractor membership
+        n_states = 2**self.N
+        is_attr_mask = np.zeros(n_states, dtype=np.uint8)
+        len_attractors = np.empty(len(attractors), dtype=np.int64)
         for i, states in enumerate(attractors):
+            len_attractors[i] = len(states)
+            # states is list[int] of decimals
+            is_attr_mask[np.array(states, dtype=np.int64)] = 1
+    
+        # 2) mean binary vector per attractor (NumPy; usually small)
+        mean_states_attractors = []
+        for states in attractors:
             if len(states) == 1:
-                mean_states_attractors.append(np.array(utils.dec2bin(states[0], self.N), dtype=float))
+                mean_states_attractors.append(
+                    np.array(utils.dec2bin(states[0], self.N), dtype=np.float64)
+                )
             else:
-                arr = np.array([utils.dec2bin(s, self.N) for s in states], dtype=float)
+                arr = np.array([utils.dec2bin(s, self.N) for s in states], dtype=np.float64)
                 mean_states_attractors.append(arr.mean(axis=0))
-            is_attr_mask[states] = True
         mean_states_attractors = np.stack(mean_states_attractors)
     
-        # 3. Distance matrix between attractors (vectorized)
+        # 3) distance matrix between attractors (NumPy vectorized)
         diff = mean_states_attractors[:, None, :] - mean_states_attractors[None, :, :]
         distance_between_attractors = np.sum(np.abs(diff), axis=2) / self.N
+        distance_between_attractors = np.asarray(distance_between_attractors, dtype=np.float64)
     
-        # -------------------------------------------------------------------------
-        # 4. Edge traversal (same logic, now with array lookups)
-        # -------------------------------------------------------------------------
-        n_attractors = len(attractors)
-        basin_coherences = np.zeros(n_attractors)
-        basin_fragilities = np.zeros(n_attractors)
-        attractor_coherences = np.zeros(n_attractors)
-        attractor_fragilities = np.zeros(n_attractors)
+        # 4) Numba kernel for edge traversal
+        if __LOADED_NUMBA__ and USE_NUMBA:
+            basin_coherences, basin_fragilities, attractor_coherences, attractor_fragilities = _robustness_edge_traversal_numba(
+                int(self.N), attractor_id, is_attr_mask, distance_between_attractors
+            )
+        else:
+            #left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
+            
+            n_attractors = len(attractors)
+            basin_coherences = np.zeros(n_attractors)
+            basin_fragilities = np.zeros(n_attractors)
+            attractor_coherences = np.zeros(n_attractors)
+            attractor_fragilities = np.zeros(n_attractors)
+        
+            #powers_of_2 = (2 ** np.arange(self.N))[::-1]
+        
+            for xdec in range(n_states):
+                for bit in range(self.N):
+                    if (xdec >> bit) & 1:
+                        continue # skip to avoid double-counting
+                    ydec = xdec | (1 << bit)
+        
+            # for xdec, x in enumerate(left_side_of_truth_table):
+            #     for i in range(self.N):
+            #         if x[i] == 1:
+            #             continue  # skip to avoid double-counting
+            #         ydec = xdec + powers_of_2[i]
+        
+                    idx_x = attractor_id[xdec]
+                    idx_y = attractor_id[ydec]
+        
+                    if idx_x == idx_y:
+                        basin_coherences[idx_x] += 2  # count both directions
+                        if is_attr_mask[xdec]:
+                            attractor_coherences[idx_x] += 1
+                        if is_attr_mask[ydec]:
+                            attractor_coherences[idx_y] += 1
+                    else:
+                        dxy = distance_between_attractors[idx_x, idx_y]
+                        basin_fragilities[idx_x] += dxy
+                        basin_fragilities[idx_y] += dxy
+                        if is_attr_mask[xdec]:
+                            attractor_fragilities[idx_x] += dxy
+                        if is_attr_mask[ydec]:
+                            attractor_fragilities[idx_y] += dxy
     
-        powers_of_2 = (2 ** np.arange(self.N))[::-1]
+        # 5) normalize (Python/NumPy; cheap)
+        basin_counts = basin_sizes * n_states
+        for i in range(n_attractors):
+            basin_coherences[i] /= (basin_counts[i] * self.N)
+            basin_fragilities[i] /= (basin_counts[i] * self.N)
+            attractor_coherences[i] /= (len_attractors[i] * self.N)
+            attractor_fragilities[i] /= (len_attractors[i] * self.N)
     
-        for xdec, x in enumerate(left_side_of_truth_table):
-            for i in range(self.N):
-                if x[i] == 1:
-                    continue  # skip to avoid double-counting
-                ydec = xdec + powers_of_2[i]
-    
-                idx_x = attractor_idx[xdec]
-                idx_y = attractor_idx[ydec]
-    
-                if idx_x == idx_y:
-                    basin_coherences[idx_x] += 2  # count both directions
-                    if is_attr_mask[xdec]:
-                        attractor_coherences[idx_x] += 1
-                    if is_attr_mask[ydec]:
-                        attractor_coherences[idx_y] += 1
-                else:
-                    dxy = distance_between_attractors[idx_x, idx_y]
-                    basin_fragilities[idx_x] += dxy
-                    basin_fragilities[idx_y] += dxy
-                    if is_attr_mask[xdec]:
-                        attractor_fragilities[idx_x] += dxy
-                    if is_attr_mask[ydec]:
-                        attractor_fragilities[idx_y] += dxy
-    
-        # -------------------------------------------------------------------------
-        # 5. Normalize
-        # -------------------------------------------------------------------------
-        for i, (basin_size, length_attractor) in enumerate(zip(basin_sizes, len_attractors)):
-            basin_coherences[i] /= basin_size * self.N
-            basin_fragilities[i] /= basin_size * self.N
-            attractor_coherences[i] /= length_attractor * self.N
-            attractor_fragilities[i] /= length_attractor * self.N
-    
-        basin_sizes_norm = basin_sizes / (2 ** self.N)
-        coherence = np.dot(basin_sizes_norm, basin_coherences)
-        fragility = np.dot(basin_sizes_norm, basin_fragilities)
-    
+        #basin_sizes_norm = basin_sizes / (2 ** self.N)
+        coherence = float(np.dot(basin_sizes, basin_coherences))
+        fragility = float(np.dot(basin_sizes, basin_fragilities))
+
         return dict(zip(
-            ["Attractors", "ExactNumberOfAttractors",
-             "BasinSizes", "AttractorDict",
+            ["Attractors", "NumberOfAttractors",
+             "BasinSizes", "AttractorID",
              "Coherence", "Fragility",
              "BasinCoherence", "BasinFragility",
              "AttractorCoherence", "AttractorFragility"],
             (attractors, n_attractors,
-             basin_sizes_norm, attractor_dict,
+             basin_sizes, attractor_id,
              coherence, fragility,
              basin_coherences, basin_fragilities,
              attractor_coherences, attractor_fragilities)
         ))
 
 
-    def get_attractors_and_robustness_measures_synchronous(self, number_different_IC : int = 500,
-        RETURN_ATTRACTOR_COHERENCE : bool = True, *, rng=None) -> dict:
+    def get_attractors_and_robustness_measures_synchronous(self, 
+                                                           number_different_IC : int = 500, 
+                                                           RETURN_ATTRACTOR_COHERENCE : bool = True, 
+                                                           *, 
+                                                           rng=None) -> dict:
         """
         Approximate global robustness measures and attractors.
 
@@ -2284,7 +2430,9 @@ class BooleanNetwork(WiringDiagram):
                 - LowerBoundOfNumberOfAttractors (int): The lower bound on the
                   number of attractors found.
                   
-                - BasinSizes (list[int]): List of basin sizes for each attractor.
+                - BasinSizes (np.ndarray[float]): Proportion of states that 
+                  eventually transition to each attractor.
+                  
                 - CoherenceApproximation (float): The approximate overall
                   network coherence.
                   
@@ -2294,28 +2442,29 @@ class BooleanNetwork(WiringDiagram):
                 - FinalHammingDistanceApproximation (float): The approximate
                   final Hamming distance measure.
                   
-                - BasinCoherenceApproximation (list[float]): The approximate
+                - BasinCoherenceApproximation (np.ndarray[float]): The approximate
                   coherence of each basin.
                   
-                - BasinFragilityApproximation (list[float]): The approximate
+                - BasinFragilityApproximation (np.ndarray[float]): The approximate
                   fragility of each basin.
                   
-                - AttractorCoherence (list[float]): The exact coherence of
+                - AttractorCoherence (np.ndarray[float]): The exact coherence of
                   each attractor (only computed and returned if
                   RETURN_ATTRACTOR_COHERENCE == True).
                   
-                - AttractorFragility (list[float]): The exact fragility of
+                - AttractorFragility (np.ndarray[float]): The exact fragility of
                   each attractor (only computed and returned if
                   RETURN_ATTRACTOR_COHERENCE == True).
 
         **References:**
             
-            #. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum,
+            1. Park, K. H., Costa, F. X., Rocha, L. M., Albert, R., & Rozum,
                J. C. (2023). Models of cell processes are far from the edge of
                chaos. PRX life, 1(2), 023009.
                
-            #. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). xxxx
-               arXiv preprint arXiv:xxx.xxx.
+            2. Bavisetty, V. S. N., Wheeler, M., & Kadelka, C. (2025). Attractors
+               are less stable than their basins: Canalization creates a coherence 
+               gap in gene regulatory networks. bioRxiv 2025-11.
         """
         rng = utils._coerce_rng(rng)
         def lcm(a, b):
@@ -2572,106 +2721,76 @@ class BooleanNetwork(WiringDiagram):
                              "BasinCoherenceApproximation", "BasinFragilityApproximation",
                              "AttractorCoherence", "AttractorFragility"],
                             tuple(results + [attractor_coherence,attractor_fragility])))
+        
+    def get_derrida_value(self, 
+                          nsim : int = 1000, 
+                          EXACT : bool = False,
+                          USE_NUMBA : bool = True,
+                          *, 
+                          rng = None) -> float:
+        """
+        Estimate the Derrida value for a Boolean network.
 
-    # def get_attractors_and_robustness_measures_synchronous_vectorized(
-    #     self, number_different_IC: int = 500,
-    #     RETURN_ATTRACTOR_COHERENCE: bool = True,
-    #     *, rng=None
-    # ) -> dict:
-    #     """
-    #     Vectorized approximation of attractors, coherence, and fragility.
-    #     10–30× faster than the dict-based version, identical outputs statistically.
-    #     """
-    #     rng = utils._coerce_rng(rng)
-    #     N = self.N
-    #     powers_of_2 = 2 ** np.arange(N)[::-1]
-    
-    #     # --- 1. Sample random initial conditions and their one-bit flips
-    #     X0 = rng.integers(0, 2, size=(number_different_IC, N), dtype=np.uint8)
-    #     flip_indices = rng.integers(0, N, size=number_different_IC)
-    #     X1 = X0.copy()
-    #     X1[np.arange(number_different_IC), flip_indices] ^= 1  # bit-flip
-    
-    #     # --- 2. Compute next states for all X0 and X1 in vectorized batches
-    #     FX0 = np.zeros_like(X0)
-    #     FX1 = np.zeros_like(X1)
-    #     powers_cache = {deg: 2 ** np.arange(deg)[::-1] for deg in range(max(self.indegrees) + 1)}
-    
-    #     for j, bf in enumerate(self.F):
-    #         regs = self.I[j]
-    #         deg = len(regs)
-    #         if deg == 0:
-    #             FX0[:, j] = bf.f[0]
-    #             FX1[:, j] = bf.f[0]
-    #         else:
-    #             idx0 = np.dot(X0[:, regs], powers_cache[deg])
-    #             idx1 = np.dot(X1[:, regs], powers_cache[deg])
-    #             FX0[:, j] = bf.f[idx0]
-    #             FX1[:, j] = bf.f[idx1]
-    
-    #     # --- 3. Compute Hamming distances between updated pairs
-    #     diff = np.abs(FX0 != FX1)
-    #     hamming = diff.sum(axis=1)
-    #     mean_hamming = hamming.mean() / N
-    
-    #     # --- 4. Estimate coherence and fragility
-    #     coherence_approx = np.mean(hamming == 0)
-    #     fragility_approx = np.mean(hamming > 0) * mean_hamming
-    
-    #     # --- 5. Optionally estimate attractor coherence/fragility (via FX0 only)
-    #     if RETURN_ATTRACTOR_COHERENCE:
-    #         # Treat each unique FX0 state as an attractor representative
-    #         uniq, inv = np.unique(FX0, axis=0, return_inverse=True)
-    #         n_attr = len(uniq)
-    #         basin_sizes = np.bincount(inv) / number_different_IC
-    
-    #         # Compute average internal coherence within each basin
-    #         basin_coherence = np.zeros(n_attr)
-    #         basin_fragility = np.zeros(n_attr)
-    #         for k in range(n_attr):
-    #             members = FX0[inv == k]
-    #             if len(members) > 1:
-    #                 dmat = np.sum(np.abs(members[:, None, :] - members[None, :, :]), axis=2) / N
-    #                 basin_fragility[k] = dmat.mean()
-    #                 basin_coherence[k] = np.mean(dmat == 0)
-    #             else:
-    #                 basin_coherence[k] = 1.0
-    #                 basin_fragility[k] = 0.0
-    
-    #         attractor_coherence = basin_coherence.copy()
-    #         attractor_fragility = basin_fragility.copy()
-    
-    #         return dict(
-    #             Attractors=[np.dot(a, powers_of_2).astype(int).tolist() for a in uniq],
-    #             LowerBoundOfNumberOfAttractors=n_attr,
-    #             BasinSizesApproximation=basin_sizes,
-    #             CoherenceApproximation=coherence_approx,
-    #             FragilityApproximation=fragility_approx,
-    #             FinalHammingDistanceApproximation=mean_hamming,
-    #             BasinCoherenceApproximation=basin_coherence,
-    #             BasinFragilityApproximation=basin_fragility,
-    #             AttractorCoherence=attractor_coherence,
-    #             AttractorFragility=attractor_fragility,
-    #         )
-    
-    #     else:
-    #         uniq, inv = np.unique(FX0, axis=0, return_inverse=True)
-    #         n_attr = len(uniq)
-    #         basin_sizes = np.bincount(inv) / number_different_IC
-    #         return dict(
-    #             Attractors=[np.dot(a, powers_of_2).astype(int).tolist() for a in uniq],
-    #             LowerBoundOfNumberOfAttractors=n_attr,
-    #             BasinSizesApproximation=basin_sizes,
-    #             CoherenceApproximation=coherence_approx,
-    #             FragilityApproximation=fragility_approx,
-    #             FinalHammingDistanceApproximation=mean_hamming,
-    #         )
-# n = 14
-# k=4
-# bn = boolforge.random_network(N=10,n=4)
-# bn_new = BooleanNetwork(bn.F,bn.I)
-# bn_new.compute_synchronous_state_transition_graph_old()
-# STG_old = bn_new.STG
-# bn_new.compute_synchronous_state_transition_graph()
-# STG = bn_new.STG
-# print(STG_old == STG)
+        The Derrida value is computed by perturbing a single node in a randomly
+        chosen state and measuring the average Hamming distance between the
+        resulting updated states of the original and perturbed networks.
+
+        **Parameters:**
+            
+            - nsim (int, optional): Number of simulations to perform. Default
+              is 1000.
+              
+            - EXACT (bool, optional): If True, the exact Derrida value is
+              computed and 'nsim' is ignored. If False, the Derrida value is 
+              approximated using Monte Carlo simulation (Numba-accelerated when available).
+              
+            - USE_NUMBA (bool, optional): If True (default), 
+              Numba acceleration is used when available.
+            
+            - rng (None, optional): Argument for the random number generator,
+              implemented in 'utils._coerce_rng'.
+
+        **Returns:**
+            
+            - float: The average Hamming distance (Derrida value) over
+              nsim simulations.
+
+        **References:**
+            
+            #. Derrida, B., & Pomeau, Y. (1986). Random networks of automata:
+               a simple annealed approximation. Europhysics letters, 1(2), 45.
+        """
+        if EXACT:
+            return float(np.mean([
+                bf.get_average_sensitivity(EXACT=True, NORMALIZED=False) for bf in self.F
+            ]))
+        else:
+            rng = utils._coerce_rng(rng)
+            if __LOADED_NUMBA__ and USE_NUMBA:
+                # --- Numba-friendly preparation
+                F_array_list = List([np.array(bf.f, dtype=np.uint8) for bf in self.F])
+                I_array_list = List([np.array(regs, dtype=np.int64) for regs in self.I])
+            
+                # Derive reproducible seed from rng
+                
+                seed = int(rng.integers(19891989))
+            
+                return _derrida_simulation(F_array_list, I_array_list, self.N, nsim, seed)
+            else:
+                total_dist = 0.0
+                
+                for _ in range(nsim):
+                    x = rng.integers(0, 2, size=self.N, dtype=np.uint8)
+                    y = x.copy()
+                
+                    idx = rng.integers(0, self.N)
+                    y[idx] ^= 1
+                
+                    fx = self.update_network_synchronously(x)
+                    fy = self.update_network_synchronously(y)
+                
+                    total_dist += np.sum(fx != fy)
+                
+                return float(total_dist / nsim)
+         
+

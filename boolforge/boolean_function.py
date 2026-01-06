@@ -170,6 +170,10 @@ class BooleanFunction(object):
         
         - name (str, optional): The name of the node regulated by the Boolean
           function (default '').
+          
+        - variables (list[str] | np.array[str] | None, optional): A list of length n
+          of the variable names (default None, in which case variable names
+          x0, ..., x_{n-1} are used.
         
     **Members:**
         
@@ -190,7 +194,7 @@ class BooleanFunction(object):
     
     __slots__ = ['f','n','variables','name','properties']
     
-    def __init__(self, f : Union[list, np.array, str], name : str = ""):
+    def __init__(self, f : Union[list, np.array, str], name : str = "", variables : Union[list, np.array, None] = None):
         self.name = name
         if isinstance(f, str):
             f, self.variables = utils.f_from_expression(f)
@@ -202,7 +206,10 @@ class BooleanFunction(object):
             _n = int(np.log2(len(f)))
             assert abs(np.log2(len(f)) - _n) < 1e-6, "f must be of size 2^n, n >= 0"
             self.n = _n
-            self.variables = np.array(['x%i' % i for i in range(self.n)])
+            if variables is None:
+                self.variables = np.array(['x%i' % i for i in range(self.n)])
+            else:
+                assert len(variables)==_n,f"the length of optional argument variables must be equal to {_n}"
             
         self.f = np.array(f, dtype=int)
         
@@ -252,8 +259,8 @@ class BooleanFunction(object):
     
         **Supports:**
             
-            - BooleanFunction \\* BooleanFunction
-            - BooleanFunction \\* int (0 or 1)
+            - BooleanFunction \\+ BooleanFunction
+            - BooleanFunction \\+ int (0 or 1)
     
         **Returns:**
         
@@ -556,30 +563,29 @@ class BooleanFunction(object):
             - bool: True if f is constant (all outputs are 0 or all are 1),
               False otherwise.
         """
-        return np.all(self.f == self.f[0])
+        return bool(np.all(self.f == self.f[0]))
     
-    if __LOADED_NUMBA__:
-        def is_degenerate(self) -> bool:
-            """
-            Determine if a Boolean function contains non-essential variables.
-            Numba-accelerated version.
-            """
+    
+    def is_degenerate(self, USE_NUMBA : bool = True) -> bool:
+        """
+        Determine if a Boolean function contains non-essential variables.
+
+        A variable is non-essential if the function's output does not depend
+        on it.
+        
+        **Parameters:**
+            - USE_NUMBA (bool, optional): If True (default), 
+              Numba acceleration is used when available.
+    
+        **Returns:**
+            
+            - bool: True if f contains at least one non-essential variable,
+              False if all variables are essential.
+        """
+        if __LOADED_NUMBA__ and USE_NUMBA:
             f = np.asarray(self.f, dtype=np.uint8)
-            return _is_degenerate_numba(f, self.n)
-    
-    else:
-        def is_degenerate(self) -> bool:
-            """
-            Determine if a Boolean function contains non-essential variables.
-    
-            A variable is non-essential if the function's output does not depend
-            on it.
-    
-            **Returns:**
-                
-                - bool: True if f contains at least one non-essential variable,
-                  False if all variables are essential.
-            """
+            return bool(_is_degenerate_numba(f, self.n))
+        else:
             for i in range(self.n):
                 dummy_add = (2**(self.n-1-i))
                 dummy = np.arange(2**self.n) % (2**(self.n-i)) // dummy_add
@@ -872,7 +878,7 @@ class BooleanFunction(object):
             
             - float: The absolute bias of the Boolean function.
         """
-        return abs(self.get_hamming_weight() * 1.0 / 2**(self.n - 1) - 1)
+        return float(abs(self.get_hamming_weight() * 1.0 / 2**(self.n - 1) - 1))
 
 
     def get_activities(self, 
@@ -956,9 +962,9 @@ class BooleanFunction(object):
         activities = self.get_activities(nsim,EXACT,rng=rng)
         s = sum(activities)
         if NORMALIZED:
-            return s / self.n
+            return float(s / self.n)
         else:
-            return s
+            return float(s)
     
 
     def _get_layer_structure(self, can_inputs, can_outputs, can_order,
@@ -1234,7 +1240,7 @@ class BooleanFunction(object):
         res = []
         for k in range(1, self.n):
             res.append(self.get_kset_canalizing_proportion(k))
-        return np.mean(np.multiply(res, 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1)))
+        return float(np.mean(np.multiply(res, 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1))))
 
 
     def get_canalizing_strength_of_variables(self) -> tuple:
@@ -1260,7 +1266,7 @@ class BooleanFunction(object):
         for k in range(1, self.n):
             res[k-1] = self.get_kset_canalizing_proportion_of_variables(k)
         multipliers = 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1)
-        return np.mean(res * multipliers[:, np.newaxis],0)
+        return float(np.mean(res * multipliers[:, np.newaxis],0))
     
     
     
