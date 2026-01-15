@@ -119,7 +119,7 @@ print(f'W.N_variables: {W.N_variables}')
 # print(f'Feedforward-loops: {W.get_ffls()}')
 
 # Plot the wiring diagram
-DiGraph = W.generate_networkx_graph()
+DiGraph = W.to_DiGraph()
 plt.figure()
 nx.draw_networkx(DiGraph, with_labels=True, arrows=True)
 plt.axis("off")

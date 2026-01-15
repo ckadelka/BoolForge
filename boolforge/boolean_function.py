@@ -239,7 +239,7 @@ class BooleanFunction(object):
         if self.n < 6:
             return f"{type(self).__name__}(f={self.f.tolist()})"
         else:
-            return f"{type(self).__name__}(f={self.f})"
+            return f"{type(self).__name__}(n={self.n})"
     
     def __len__(self):
         return 2**self.n
@@ -553,6 +553,70 @@ class BooleanFunction(object):
     
     
     ## Methods with binary output: self.is_xxx(*args)
+    def summary(self, *, AS_DICT: bool = False, COMPUTE_ALL: bool = False):
+        """
+        Return a concise summary of the Boolean function.
+    
+        Parameters
+        ----------
+        AS_DICT : bool, optional
+            If True, return the summary as a dictionary.
+            If False (default), return a formatted string.
+        COMPUTE_ALL : bool, optional
+            If True, additional (possibly computationally expensive) properties are computed.
+            If False (default), nothing is computed.
+
+        Returns
+        -------
+        str or dict
+            Summary of the Boolean function.
+        """
+    
+        ones = sum(self.f)
+        bias = ones / 2**self.n
+        abs_bias = 2 * abs(bias-0.5)
+
+        summary = {
+            "Number of variables": self.n,
+            "Hamming Weight": int(ones),
+            "Bias": float(bias),
+            "Absolute bias": float(abs_bias),
+            "Variables": self.variables
+        }
+    
+        # Optional properties (only if already computed / cached)
+        if COMPUTE_ALL:
+            self.get_layer_structure()
+            self.get_type_of_inputs()
+            
+        summary.update(self.properties)
+                
+        if AS_DICT:
+            return summary
+    
+        # Pretty formatting
+        lines = [
+            "BooleanFunction summary",
+            "-" * 40,
+            f"Number of variables:        {summary['Number of variables']}",
+            f"Hamming Weight:             {summary['Hamming Weight']}",
+            f"Bias:                       {summary['Bias']:.3f}",
+            f"Absolute bias:              {summary['Absolute bias']:.3f}",
+            f"Variables:                  {summary['Variables']}"
+        ]
+    
+        for key in summary:
+            if key not in {
+                "Number of variables",
+                "Hamming Weight",
+                "Bias",
+                "Absolute bias",
+                "Variables"
+            }:
+                lines.append(f"{key}:"+(" "*(27-len(key)))+f"{summary[key]}")
+
+        return "\n".join(lines)
+
     
     def is_constant(self) -> bool:
         """
