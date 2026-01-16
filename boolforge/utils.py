@@ -312,11 +312,11 @@ def f_from_expression(expr : str, max_degree : int = 16) -> tuple:
     
     if n_var <= max_degree:
         truth_table = get_left_side_of_truth_table(n_var)
-        local_dict = {var: truth_table[:, i] for i, var in enumerate(variables)}
+        local_dict = {var: truth_table[:, i].astype(bool) for i, var in enumerate(variables)}
         f = eval(expr_mod, {"__builtins__": None}, local_dict)
     else:
         f = []
-    return np.array(f,dtype=int), np.array(variables)
+    return np.array(f,dtype=np.uint8), np.array(variables)
 
 
 def flatten(l : Union[list, np.array]) -> list:

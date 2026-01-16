@@ -212,6 +212,7 @@ print("Absolute bias:", g.get_absolute_bias())
 # %%
 f = boolforge.BooleanFunction("(A and B) OR NOT C")
 print(f.summary())
+print()
 
 # Trigger computation of more advanced properties
 print(f.summary(COMPUTE_ALL=True))
@@ -276,10 +277,12 @@ print(type(cana_object))
 # throughout later tutorials.
 #
 # ### **Conversions and interoperability**
-# BoolForge supports conversion between representations (e.g., truth table <--> polynomial form) and is compatible with external packages such as **CANA** for
+# BoolForge supports conversion between representations (e.g., truth table to/from polynomial form) and is compatible with external packages such as **CANA** for
 # advanced analysis.  
 # This makes it easy to move between analytical frameworks and reuse models.
+#
 # ---
+#
 # Together, these concepts provide the foundation for understanding canalization,
 # random Boolean function generation, and eventually the construction and analysis
 # of full Boolean networks.
