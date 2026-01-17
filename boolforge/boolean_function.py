@@ -247,6 +247,24 @@ class BooleanFunction(object):
             variables : list[str] | np.ndarray | None = None,
             name : str = ""
     ):
+        """
+        Initialize a Boolean function.
+        
+        Parameters
+        ----------
+        f : list[int] or np.ndarray or str
+            Truth table of the Boolean function, given as a list or array
+            of length ``2**n``, or a Boolean expression as a string.
+        variables : list[str] or np.ndarray[str], optional
+            Names of the input variables. Must have length ``n`` if provided.
+            If None, default variable names x0, x1, ... are assigned.
+        name : str, optional
+            Optional name of the Boolean function.
+        
+        Notes
+        -----
+        - The number of inputs ``n`` is inferred from the length of ``f``.
+        """
         self.name = name
         if isinstance(f, str):
             f, self.variables = utils.f_from_expression(f)
