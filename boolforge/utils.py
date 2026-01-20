@@ -379,15 +379,13 @@ def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n : int, w : int) -> 
         layer_structure_NCF[-1] += 1
     return layer_structure_NCF
 
-# ==================================================================================================== #
-#                                                                                                      #
-#       \  |   _ \  _ \  |  | |       \    _ \      _ )   _ \   _ \  |     __| _ \  _ \   __|  __|     #
-#      |\/ |  (   | |  | |  | |      _ \     /      _ \  (   | (   | |     _| (   |   /  (_ |  _|      #
-#     _|  _| \___/ ___/ \__/ ____| _/  _\ _|_\     ___/ \___/ \___/ ____| _| \___/ _|_\ \___| ___|     #
-#                                                                                                      #
-# ==================================================================================================== #
+# ===================== #
+#   Modular BoolForge   #
+# ===================== #
 
 import math
+import matplotlib.pyplot as plt
+import networkx as nx
 
 def merge_state_representation(x : Union[int, tuple], y : Union[int, tuple],
     b : Union[int, tuple]) -> Union[int, tuple]:
@@ -453,3 +451,116 @@ def get_product_of_attractors(attrs_1 : list, attrs_2 : list,
                 attr.append(merge_state_representation(attr1[i % m], attr2[i % n], bits))
         attractors.append(attr)
     return attractors
+
+def merge_trajectories(trajectories : list, num_bits : [int, None] = None) -> nx.DiGraph:
+    # Helper method: determine the 'canon' ordering of a periodic pattern.
+    # The canon ordering is the phase such that the lowest states come first
+    # without changing the relative ordering of the states.
+    def _canon_cycle_(pattern):
+        return min([ tuple(pattern[i:] + pattern[:i]) for i in range(len(pattern)) ])
+    
+    # Helper method: determine which offset a given pattern is from the canon
+    # ordering. That is, how much the pattern has been phased relative to the
+    # canon ordering.
+    def _cycle_offset_(pattern, canon):
+        pattern = list(pattern)
+        canon = list(canon)
+        len_pattern = len(pattern)
+        for offset in range(len_pattern):
+            if canon[offset:] + canon[:offset] == pattern:
+                return offset
+        raise ValueError("Pattern does not match canonical rotations")
+    
+    G = nx.DiGraph()
+    next_id = 0
+    cycle_nodes = {}
+    prefix_merge = {}
+    for states, period in trajectories:
+        len_traj = len(states)
+        # First look through the non-periodic component of the trajectory,
+        # also referred to in this code as the 'prefix' of the trajectory
+        len_pref = len_traj - period
+        pref_ids = []
+        for i in range(len_pref):
+            # Determine if this prefix can be merged elsewhere into the graph
+            future = states[i:]
+            prefix_tail = future[:-period]
+            pattern = future[-period:]
+            canon = _canon_cycle_(pattern)
+            entry_offset = _cycle_offset_(pattern, canon)
+            signature = (tuple(prefix_tail), canon, entry_offset)
+            # If so, merge the it and mark the node as initial
+            if signature in prefix_merge:
+                node_id = prefix_merge[signature]
+                if i == 0:
+                    G.nodes[node_id]["initial"] = True
+            # Otherwise, make a new initial node
+            else:
+                node_id = next_id
+                prefix_merge[signature] = node_id
+                G.add_node(next_id, initial=(i == 0),
+                    label=(str(dec2bin(states[i], num_bits)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
+                    if num_bits is not None else str(states[i])))
+                pref_ids.append(next_id)
+                next_id += 1
+            pref_ids.append(node_id)
+        # Once prefix nodes are added, create edges
+        for i in range(len(pref_ids) - 1):
+            if pref_ids[i] != pref_ids[i+1]:
+                G.add_edge(pref_ids[i], pref_ids[i+1])
+        # Second look through the periodic component of the trajectory,
+        # also referred to in this code as the 'cycle' of the trajectory
+        cycle = states[-period:]
+        key = _canon_cycle_(cycle)
+        # If we have found a new cycle, add it to the graph
+        if key not in cycle_nodes:
+            ids = []
+            for s in key:
+                # Create nodes based off of the canon ordering to ensure
+                # predictable ordering in case we need to reference
+                # this cycle again for another trajectory
+                G.add_node(next_id, initial=False,
+                    label=(str(dec2bin(s, num_bits)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
+                    if num_bits is not None else str(s)))
+                ids.append(next_id)
+                next_id += 1
+            # Once nodes are added, add in edges
+            for a, b in zip(ids, ids[1:]):
+                G.add_edge(a, b)
+            G.add_edge(ids[-1], ids[0])
+            cycle_nodes[key] = ids
+        # For a trajectory without a prefix, mark the first state of the trajectory
+        # within the cycle as an initial node
+        if len_pref == 0:
+            G.nodes()[cycle_nodes[key][key.index(cycle[0])]]["initial"] = True
+        # Otherwise, we need to add an edge between the prefix and cycle
+        else:
+            G.add_edge(pref_ids[-1], cycle_nodes[key][_cycle_offset_(cycle, key)])
+    return G
+
+def plot_trajectory(merged_trajectory_graph : nx.DiGraph, seed:int=42) -> None:
+    pos = nx.spring_layout(merged_trajectory_graph, seed=seed)
+    nx.draw_networkx_nodes(merged_trajectory_graph, pos, node_size=400, node_color="white")
+    nx.draw_networkx_edges(merged_trajectory_graph, pos, arrows=True, arrowstyle="->", arrowsize=20)
+    
+    # Add a box to nodes that are marked as initial
+    normal = {}
+    boxed = {}
+    labels = nx.get_node_attributes(merged_trajectory_graph, "label")
+    initial = nx.get_node_attributes(merged_trajectory_graph, "initial")
+    for n in merged_trajectory_graph.nodes():
+        if initial[n]:
+            boxed.update({n:labels[n]})
+        else:
+            normal.update({n:labels[n]})
+    nx.draw_networkx_labels(merged_trajectory_graph, pos, labels=normal, font_size=10)
+    nx.draw_networkx_labels(merged_trajectory_graph, pos, labels=boxed, font_size=10, bbox=dict(
+            boxstyle="round,pad=0.2",
+            fc="white",
+            ec="black",
+            lw=1
+        )
+    )
+    
+    plt.axis("off")
+    plt.show()

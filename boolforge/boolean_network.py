@@ -1368,7 +1368,7 @@ class BooleanNetwork(WiringDiagram):
         I = deepcopy(self.I)
     
         for identity_node, value in zip(indices_identity_nodes, values_identity_nodes):
-            F[identity_node].f = np.array([value], dtype=int)
+            F[identity_node] = BooleanFunction(np.array([value], dtype=int))
             I[identity_node] = np.array([], dtype=int)
     
         bn = self.__class__(F, I, self.variables)
@@ -3275,15 +3275,10 @@ class BooleanNetwork(WiringDiagram):
     
         return float(total_dist / float(nsim))
 
-# ==================================================================================================== #
-#                                                                                                      #
-#       \  |   _ \  _ \  |  | |       \    _ \      _ )   _ \   _ \  |     __| _ \  _ \   __|  __|     #
-#      |\/ |  (   | |  | |  | |      _ \     /      _ \  (   | (   | |     _| (   |   /  (_ |  _|      #
-#     _|  _| \___/ ___/ \__/ ____| _/  _\ _|_\     ___/ \___/ \___/ ____| _| \___/ _|_\ \___| ___|     #
-#                                                                                                      #
-# ==================================================================================================== #
+# ===================== #
+#   Modular BoolForge   #
+# ===================== #
 
-# TODO: Make human readable
 # TODO: Product of Trajectories
 # TODO: Product of STG
 
@@ -3352,26 +3347,27 @@ class BooleanNetwork(WiringDiagram):
                   attractor decimal pairs are concatenated into a single vector.
         """ #TODO: type hints, docstring
         # Convert components into single argument? tuple|list|arr, str, etc.?
+        N = self.N - len(self.get_identity_nodes(False))
         if len(non_periodic_component) > 0:
             initial_states = set() # stores initial states for periodic computation
             len_np_comp = len(non_periodic_component)
             max_len_pattern = max(list(zip(map(len, non_periodic_component))))[0]
             fixed_source_networks = {}
-            for i in range(2 ** self.N):
-                fxvec = utils.dec2bin(i, self.N) # initialize binary vector
+            for i in range(2 ** N):
+                fxvec = utils.dec2bin(i, N) # initialize binary vector
                 for iii in range(max_len_pattern):
                     values = [ non_periodic_component[j][iii] for j in range(len_np_comp) ]
                     values_decimal = utils.bin2dec(values)
                     if values_decimal in fixed_source_networks:
                         fixed_source_network = fixed_source_networks[values_decimal]
                     else:
-                        fixed_source_network = self.get_network_with_fixed_source_nodes(values)
+                        fixed_source_network = self.get_network_with_fixed_identity_nodes(values)
                         fixed_source_networks[values_decimal] = fixed_source_network
                     fxvec = fixed_source_network.update_network_synchronously(fxvec)
                 initial_states.add(utils.bin2dec(fxvec))
             initial_states = list(initial_states)
         else:
-            initial_states = list(range(2**self.N))
+            initial_states = list(range(2**N))
         
         attr_computation = self.get_attractors_synchronous_exact_with_external_inputs(periodic_component, initial_states)
         
@@ -3384,15 +3380,15 @@ class BooleanNetwork(WiringDiagram):
                     bvec = utils.dec2bin(decimal_external, len_pattern)
                 else:
                     bvec = []
-                bvec.extend(utils.dec2bin(decimal_module, self.N))
+                bvec.extend(utils.dec2bin(decimal_module, N))
                 bvec_attractors[-1].append(bvec)
         
         attr_computation.update({"InitialStatesPeriodic":initial_states,"FormattedAttractors":bvec_attractors})
         return attr_computation
     
     def get_attractors_synchronous_exact_with_external_inputs(self,
-        input_patterns : Union[list, np.array],
-        starting_states : Union[list, np.array, None] = None) -> dict:
+        input_patterns : [list, np.array],
+        starting_states : [list, np.array, None] = None) -> dict:
         """
         desc.
         
@@ -3420,7 +3416,8 @@ class BooleanNetwork(WiringDiagram):
                 - STG (dict[int:int]): The state transition graph as a dictionary,
                   with each state represented by its decimal pair representation.
         """ #TODO: docstring
-        N = self.N - len(self.get_source_nodes(False))
+        import itertools
+        N = self.N - len(self.get_identity_nodes(False))
         
         if starting_states is None:
             starting_states = list(range(2**N))
@@ -3435,7 +3432,7 @@ class BooleanNetwork(WiringDiagram):
         
         fixed_source_networks = []
         for input_values in periodic_pattern_of_external_inputs:
-            fixed_source_networks.append(self.get_network_with_fixed_source_nodes(input_values))
+            fixed_source_networks.append(self.get_network_with_fixed_identity_nodes(input_values))
         
         lstt = utils.get_left_side_of_truth_table(N)
         po2 = np.array([2**i for i in range(N)])[::-1]
@@ -3495,3 +3492,89 @@ class BooleanNetwork(WiringDiagram):
         return { "Attractors":attrs, "NumberOfAttractors":len(attrs),
                 "BasinSizes":basin_sizes, "AttractorDict":attr_dict,
                 "STG":stg }#, "StateSpace":state_space} # state space is not properly maintained, so it is not returned
+    
+    def get_trajectories(self,
+        non_periodic_component, periodic_component,
+        MERGE_TRAJECTORIES : bool = True) -> [nx.DiGraph, list]:
+        N = self.N - len(self.get_identity_nodes(False))
+        
+        # Helper method: get the network with fixed source nodes
+        # associated with the given values vector.
+        fixed_networks = {}
+        def _get_fnet_(values):
+            values_dec = utils.bin2dec(values)
+            if values_dec in fixed_networks:
+                fixed_network = fixed_networks[values_dec]
+            else:
+                fixed_network = self.get_network_with_fixed_identity_nodes(values)
+                fixed_networks[values_dec] = fixed_network
+            return fixed_network
+        
+        # Helper method: calculate the trajectory of this network given
+        # a starting state represented in decimal.
+        def _calc_traj_(starting):
+            trajectory = [starting]
+            latest_state = starting
+            # Compute the non-periodic component of the trajectory.
+            len_np = len(non_periodic_component)
+            max_len_pattern = max(list(zip(map(len, non_periodic_component))))[0]
+            for idx in range(max_len_pattern):
+                vals = [ non_periodic_component[node][idx] for node in range(len_np) ]
+                fixed_network = _get_fnet_(vals)
+                latest_state = utils.bin2dec(fixed_network.update_network_synchronously(utils.dec2bin(latest_state, N)))
+                trajectory.append(latest_state)
+            # Compute the periodic component of the trajectory.
+            len_p = len(periodic_component)
+            lcm = math.lcm(*list(map(len, periodic_component)))
+            idx_p = 0
+            not_cyclic = True
+            cycle_len = -1
+            while not_cyclic:
+                vals = [ periodic_component[node][idx_p % len(periodic_component[node])] for node in range(len_p) ]
+                fixed_network = _get_fnet_(vals)
+                latest_state = utils.bin2dec(fixed_network.update_network_synchronously(utils.dec2bin(latest_state, N)))
+                trajectory.append(latest_state)
+                idx_p += 1
+                len_traj = len(trajectory)
+                if idx_p >= lcm: # Cycle detection can probably be optimized
+                    for L in range(1, len_traj // 2 + 1):
+                        supposed_pattern = trajectory[len_traj - L : len_traj]
+                        # If we find a cycle that is repeated three times consecutively,
+                        # it must be the periodic component.
+                        # Note that this assumes that no sub-pattern will be repeated
+                        # three or more times.
+                        if supposed_pattern == trajectory[len_traj - 2 * L : len_traj - L] and supposed_pattern == trajectory[len_traj - 3 * L : len_traj - 2 * L]:
+                            not_cyclic = False
+                            cycle_len = L
+            # Compress the trajectory's representation to be minimal.
+            # That is, only the non-periodic component and a single
+            # cycle of the periodic component.
+            if len_traj >= cycle_len * 2:
+               cycle = trajectory[-cycle_len:]
+               m = 0
+               i = len_traj
+               while i >= cycle_len and trajectory[i - cycle_len:i] == cycle:
+                   m += 1
+                   i -= cycle_len
+               if m >= 1:
+                   new_len = len_traj - (m - 1) * cycle_len
+                   trajectory = trajectory[:new_len]
+            # Return the compressed trajectory array and the length of the
+            # periodic component.
+            # Note that the periodic component will ALWAYS be the last
+            # cycle_len values in the array. The periodic components
+            # also correspond with the attractors of the network.
+            return trajectory, cycle_len
+        
+        # Compute the trajectory for every initial state of the network.
+        trajectories = []
+        for i in range(2**N):
+            trajectories.append(_calc_traj_(i))
+        
+        # If the MERGE_TRAJECTORIES flag is set, return the merged representation
+        # of the trajectories, which is of type nx.DiGraph.
+        if MERGE_TRAJECTORIES:
+            return utils.merge_trajectories(trajectories, N)
+        # If the flag is not set, then just return the trajectory arrays
+        # without further modification.
+        return trajectories
