@@ -230,7 +230,7 @@ def get_bio_models_from_repository(
 
     download_urls_pystablemotifs : list[str] or None, optional
         Optional list of direct download URLs for PyStableMotifs models.
-        If provided, these URLs are used instead of querying the GitHub API.
+        If provided, these URLs are used instead of querying the GitHub API (faster).
         If None (default), model URLs are fetched dynamically from GitHub.
 
     Returns
