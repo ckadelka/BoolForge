@@ -402,7 +402,7 @@ plt.show()
 
 # For nested canalizing functions of a given degree $n$, there exists a bijection 
 # between their absolute bias and their canalizing layer structure (Kadelka et al., Physica D, 2017).
-# The function `boolforge.get_layer_structure_of_an_NCF_given_its_Hamming_weight(degree,hamming_weight)` implements this.
+# The function `boolforge.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
 # NCFs with the same layer structure have the same dynamical properties. 
 # That is, they have the same average sensitivity, canalizing strength and the same effective degree.
 # Iterating over all possible absolute biases (parametrized by the possible Hamming weights), 
@@ -420,7 +420,7 @@ eff_degree = np.zeros_like(avg_sens)
 layer_structures = []
 
 for i, w in enumerate(all_hamming):
-    layer = boolforge.get_layer_structure_of_an_NCF_given_its_Hamming_weight(n, w)
+    layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
     layer_structures.append(layer)
     f = boolforge.random_function(n, layer_structure=layer)
     avg_sens[i] = f.get_average_sensitivity(EXACT=True, NORMALIZED=False)

@@ -88,10 +88,10 @@ df_attractors = pd.DataFrame({
 })
 
 print("Basin-level robustness:")
-display(df_basins)
+print(df_basins)
 
 print("Attractor-level robustness:")
-display(df_attractors)
+print(df_attractors)
 
 # %% [markdown]
 # Interpretation:

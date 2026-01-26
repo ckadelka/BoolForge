@@ -45,6 +45,38 @@ except ModuleNotFoundError:
 
 
 ## Random function generation
+def _validate_bias(bias: float) -> None:
+    if not isinstance(bias, (float, int, np.floating)):
+        raise TypeError("bias must be a float")
+    if not (0.0 <= bias <= 1.0):
+        raise ValueError("bias must be in [0, 1]")
+
+def _validate_absolute_bias(absolute_bias: float) -> None:
+    if not isinstance(absolute_bias, (float, int, np.floating)):
+        raise TypeError("absolute_bias must be a float")
+    if not (0.0 <= absolute_bias <= 1.0):
+        raise ValueError("absolute_bias must be in [0, 1]")
+
+
+
+def _validate_hamming_weight(
+    n: int,
+    hamming_weight: int,
+    *,
+    EXACT_DEPTH: bool,
+) -> None:
+    if not isinstance(hamming_weight, (int, np.integer)):
+        raise TypeError("hamming_weight must be an integer")
+    if not (0 <= hamming_weight <= 2**n):
+        raise ValueError("hamming_weight must satisfy 0 <= hamming_weight <= 2**n")
+
+    if EXACT_DEPTH and not (1 < hamming_weight < 2**n - 1):
+        raise ValueError(
+            "If EXACT_DEPTH=True and depth=0, hamming_weight must be in "
+            "{2, 3, ..., 2**n - 2}. "
+            "Functions with weights 0, 1, 2**n-1, 2**n are canalizing."
+        )
+
 
 
 def random_function(
@@ -52,7 +84,7 @@ def random_function(
     depth: int = 0,
     EXACT_DEPTH: bool = False,
     layer_structure: Optional[list] = None,
-    LINEAR: bool = False,
+    PARITY: bool = False,
     ALLOW_DEGENERATE_FUNCTIONS: bool = False,
     bias: float = 0.5,
     absolute_bias: float = 0,
@@ -66,8 +98,8 @@ def random_function(
 
     Selection logic (first match applies):
 
-        - If `LINEAR`: return a random **linear** Boolean function
-          (`random_linear_function`).
+        - If `PARITY`: return a random **parity** function
+          (`random_parity_function`).
 
         - Else if `layer_structure is not None`: return a function with the
           specified **canalizing layer structure** using
@@ -140,8 +172,8 @@ def random_function(
           structure [k1, ..., kr]. If provided, it takes precedence over
           `depth`. Exact depth behavior follows `EXACT_DEPTH`. Default None.
 
-        - LINEAR (bool, optional): If True, ignore other generation options
-          and return a random linear function. Default False.
+        - PARITY (bool, optional): If True, ignore other generation options
+          and return a random parity function. Default False.
 
         - ALLOW_DEGENERATE_FUNCTIONS (bool, optional): If True, generators
           in the “random” branches may return functions with non-essential
@@ -206,8 +238,8 @@ def random_function(
         >>> # Non-degenerate function with a specific layer structure (takes precedence over `depth`)
         >>> f = random_function(n=6, layer_structure=[2, 1], EXACT_DEPTH=False)
 
-        >>> # Linear function
-        >>> f = random_function(n=4, LINEAR=True)
+        >>> # Parity function
+        >>> f = random_function(n=4, PARITY=True)
 
         >>> # Fixed Hamming weight under non-canalizing + non-degenerate constraints
         >>> f = random_function(n=5, hamming_weight=10, EXACT_DEPTH=True,
@@ -218,8 +250,8 @@ def random_function(
     """
     rng = utils._coerce_rng(rng)
 
-    if LINEAR:
-        return random_linear_function(n, rng=rng)
+    if PARITY:
+        return random_parity_function(n, rng=rng)
     elif layer_structure is not None:
         return random_k_canalizing_function_with_specific_layer_structure(
             n,
@@ -285,249 +317,677 @@ def random_function(
                 return random_non_degenerate_function(n, bias_of_function, rng=rng)
 
 
-def random_function_with_bias(
-    n: int, bias: float = 0.5, *, rng=None
+def generate_random_function(
+    n: int,
+    depth: int = 0,
+    EXACT_DEPTH: bool = False,
+    layer_structure: list[int] | None = None,
+    PARITY: bool = False,
+    ALLOW_DEGENERATE_FUNCTIONS: bool = False,
+    bias: float = 0.5,
+    absolute_bias: float = 0,
+    USE_ABSOLUTE_BIAS: bool = False,
+    hamming_weight: int | None = None,
+    *,
+    rng=None,
 ) -> BooleanFunction:
     """
-    Generate a random Boolean function in n variables with a specified bias.
+    Generate a random Boolean function under flexible structural constraints.
 
-    The Boolean function is represented as a truth table (an array of length
-    2^n) in which each entry is 0 or 1. Each entry is set to 1 with
-    probability `bias`.
+    This function acts as a high-level generator that unifies several common
+    ensembles of Boolean functions, including parity functions, canalizing
+    functions of specified depth or layer structure, functions with fixed
+    Hamming weight, and biased random functions. The first applicable
+    generation rule (in the order described below) is applied.
 
-    **Parameters:**
+    **Selection logic (first applicable rule is used)**
 
-        - n (int): Number of variables.
-        - bias (float, optional): Probability that a given entry is 1
-          (default is 0.5).
+    1. If ``PARITY`` is True, return a random parity function
+       (see ``random_parity_function``).
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    2. Else, if ``layer_structure`` is provided, return a Boolean function
+       with the specified canalizing layer structure using
+       ``random_k_canalizing_function_with_specific_layer_structure``.
+       Exactness of the canalizing depth is controlled by ``EXACT_DEPTH``.
 
-    **Returns:**
+    3. Else, if ``depth > 0``, return a k-canalizing function with
+       ``k = min(depth, n)`` using ``random_k_canalizing_function``.
+       If ``EXACT_DEPTH`` is True, the function has exactly this depth;
+       otherwise, its canalizing depth is at least ``k``.
 
-        - BooleanFunction: Boolean function object.
+    4. Else, if ``hamming_weight`` is provided, repeatedly sample Boolean
+       functions with the specified Hamming weight until additional
+       constraints implied by ``EXACT_DEPTH`` and
+       ``ALLOW_DEGENERATE_FUNCTIONS`` are satisfied.
+
+    5. Else, generate a random Boolean function using a Bernoulli model with
+       either:
+       
+       - fixed bias ``bias``, or
+       - an automatically chosen bias determined by ``absolute_bias`` if
+         ``USE_ABSOLUTE_BIAS`` is True.
+
+       Additional constraints on canalization and degeneracy are enforced
+       depending on ``EXACT_DEPTH`` and ``ALLOW_DEGENERATE_FUNCTIONS``.
+
+    Parameters
+    ----------
+    n : int
+        Number of input variables. Must be a positive integer.
+    depth : int, optional
+        Requested canalizing depth. Used only if ``layer_structure`` is None
+        and ``depth > 0``. If ``EXACT_DEPTH`` is True, the function has exactly
+        this canalizing depth (clipped at ``n``); otherwise, its depth is at
+        least ``depth``. Default is 0.
+    EXACT_DEPTH : bool, optional
+        Enforce exact canalizing depth where applicable. If ``depth == 0``,
+        setting ``EXACT_DEPTH=True`` enforces that the function is
+        non-canalizing. Default is False.
+    layer_structure : list[int] or None, optional
+        Explicit canalizing layer structure ``[k1, ..., kr]``. If provided,
+        this takes precedence over ``depth``. Exactness of the canalizing
+        depth is controlled by ``EXACT_DEPTH``. Default is None.
+    PARITY : bool, optional
+        If True, ignore all other options and return a random parity function.
+        Default is False.
+    ALLOW_DEGENERATE_FUNCTIONS : bool, optional
+        If True, functions with non-essential variables may be returned in
+        random-generation branches. If False, non-degenerate functions are
+        enforced whenever possible. Default is False.
+    bias : float, optional
+        Probability of a 1 when sampling truth-table entries independently.
+        Used only if ``USE_ABSOLUTE_BIAS`` is False and no other branch applies.
+        Must lie in ``[0, 1]``. Default is 0.5.
+    absolute_bias : float, optional
+        Absolute deviation from 0.5 used to determine the bias when
+        ``USE_ABSOLUTE_BIAS`` is True. The bias is chosen uniformly from
+        ``{0.5*(1 - absolute_bias), 0.5*(1 + absolute_bias)}``. Must lie in
+        ``[0, 1]``. Default is 0.
+    USE_ABSOLUTE_BIAS : bool, optional
+        If True, ignore ``bias`` and determine the bias using
+        ``absolute_bias``. Default is False.
+    hamming_weight : int or None, optional
+        If provided, enforce that the Boolean function has exactly this many
+        ones in its truth table. Additional constraints are enforced depending
+        on ``EXACT_DEPTH`` and ``ALLOW_DEGENERATE_FUNCTIONS``. Default is None.
+    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
+
+    Returns
+    -------
+    BooleanFunction
+        A randomly generated Boolean function of arity ``n``.
+
+    Raises
+    ------
+    TypeError
+        If parameters have invalid types.
+    ValueError
+        If parameter values or combinations are invalid.
+
+    Notes
+    -----
+    - This function does not sample uniformly from the space of Boolean
+      functions satisfying the given constraints.
+    - Extremely biased functions are often degenerate or canalizing; some
+      generation branches may reject repeatedly under restrictive settings.
+    - For most use cases, calling specialized generators (e.g.,
+      ``random_parity_function`` or ``random_k_canalizing_function``)
+      directly is recommended.
+
+    Examples
+    --------
+    >>> # Unbiased, non-degenerate random function
+    >>> f = generate_random_function(n=3)
+
+    >>> # Function with canalizing depth at least 2
+    >>> f = generate_random_function(n=5, depth=2)
+
+    >>> # Function with exact canalizing depth 2
+    >>> f = generate_random_function(n=5, depth=2, EXACT_DEPTH=True)
+
+    >>> # Function with a specific canalizing layer structure
+    >>> f = generate_random_function(n=6, layer_structure=[2, 1])
+
+    >>> # Parity function
+    >>> f = generate_random_function(n=4, PARITY=True)
+
+    >>> # Fixed Hamming weight with non-canalizing and non-degenerate constraints
+    >>> f = generate_random_function(
+    ...     n=5,
+    ...     hamming_weight=10,
+    ...     EXACT_DEPTH=True,
+    ...     ALLOW_DEGENERATE_FUNCTIONS=False
+    ... )
+    """
+
+    if not isinstance(n, (int, np.integer)) or n <= 0:
+        raise ValueError("n must be a positive integer")
+
+    rng = utils._coerce_rng(rng)
+
+    # ------------------------------------------------------------
+    # Parity branch (highest priority)
+    # ------------------------------------------------------------
+    if PARITY:
+        return random_parity_function(n, rng=rng)
+
+    # ------------------------------------------------------------
+    # Layer structure branch
+    # ------------------------------------------------------------
+    if layer_structure is not None:
+        return random_k_canalizing_function_with_specific_layer_structure(
+            n,
+            layer_structure,
+            EXACT_DEPTH=EXACT_DEPTH,
+            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
+            rng=rng,
+        )
+
+    # ------------------------------------------------------------
+    # Canalizing depth branch
+    # ------------------------------------------------------------
+    if not isinstance(depth, (int, np.integer)) or depth < 0:
+        raise ValueError("depth must be a nonnegative integer")
+    
+    if depth > 0:
+        return random_k_canalizing_function(
+            n,
+            min(depth, n),
+            EXACT_DEPTH=EXACT_DEPTH,
+            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
+            rng=rng,
+        )
+
+    # ------------------------------------------------------------
+    # Fixed Hamming weight branch
+    # ------------------------------------------------------------
+    if hamming_weight is not None:
+        _validate_hamming_weight(n, hamming_weight, EXACT_DEPTH=EXACT_DEPTH)
+
+        while True:
+            f = random_function_with_exact_hamming_weight(
+                n, hamming_weight, rng=rng
+            )
+
+            if ALLOW_DEGENERATE_FUNCTIONS and EXACT_DEPTH:
+                if not f.is_canalizing():
+                    return f
+
+            elif ALLOW_DEGENERATE_FUNCTIONS:
+                return f
+
+            elif EXACT_DEPTH:
+                if not f.is_canalizing() and not f.is_degenerate():
+                    return f
+
+            else:
+                if not f.is_degenerate():
+                    return f
+
+    # ------------------------------------------------------------
+    # Bias-based random generation
+    # ------------------------------------------------------------
+    if USE_ABSOLUTE_BIAS:
+        _validate_absolute_bias(absolute_bias)
+        bias_of_function = rng.choice(
+            [0.5 * (1 - absolute_bias), 0.5 * (1 + absolute_bias)]
+        )
+    else:
+        _validate_bias(bias)
+        bias_of_function = bias
+
+    if ALLOW_DEGENERATE_FUNCTIONS:
+        if EXACT_DEPTH:
+            return random_non_canalizing_function(
+                n, bias_of_function, rng=rng
+            )
+        else:
+            return random_function_with_bias(
+                n, bias_of_function, rng=rng
+            )
+
+    else:
+        if EXACT_DEPTH:
+            return random_non_canalizing_non_degenerate_function(
+                n, bias_of_function, rng=rng
+            )
+        else:
+            return random_non_degenerate_function(
+                n, bias_of_function, rng=rng
+            )
+
+
+def random_function_with_bias(
+    n: int,
+    bias: float = 0.5,
+    *,
+    rng=None,
+) -> BooleanFunction:
+    """
+    Generate a random Boolean function with a specified bias.
+
+    The Boolean function is represented by its truth table of length
+    ``2**n``, where each entry is independently set to 1 with probability
+    ``bias`` and to 0 otherwise.
+
+    Parameters
+    ----------
+    n : int
+        Number of Boolean variables.
+    bias : float, optional
+        Probability that a given truth-table entry equals 1. Default is 0.5.
+    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
+
+    Returns
+    -------
+    BooleanFunction
+        Random Boolean function with the specified bias.
+
+    Notes
+    -----
+    Truth-table entries are generated independently.
     """
     rng = utils._coerce_rng(rng)
-    return BooleanFunction(np.array(rng.random(2**n) < bias, dtype=int))
+    return BooleanFunction._from_f_unchecked(
+        np.array(rng.random(2**n) < bias, dtype=int)
+    )
 
 
 def random_function_with_exact_hamming_weight(
-    n: int, hamming_weight: int, *, rng=None
+    n: int,
+    hamming_weight: int,
+    *,
+    rng=None,
 ) -> BooleanFunction:
     """
-    Generate a random Boolean function in n variables with exact Hamming
-    weight (number of ones).
+    Generate a random Boolean function with a fixed Hamming weight.
 
-    The Boolean function is represented as a truth table (an array of length
-    2^n) in which each entry is 0 or 1. Exactly 'hamming_weight' entries are
-    set to 1.
+    The Boolean function is represented by its truth table of length
+    ``2**n``, containing exactly ``hamming_weight`` entries equal to 1.
+    All such functions are sampled uniformly at random.
 
-    **Parameters:**
+    Parameters
+    ----------
+    n : int
+        Number of Boolean variables.
+    hamming_weight : int
+        Number of truth-table entries equal to 1.
+    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - n (int): Number of variables.
-        - hamming_weight (int): Probability that a given entry is 1
-          (default is 0.5).
+    Returns
+    -------
+    BooleanFunction
+        Random Boolean function with exactly ``hamming_weight`` ones in its
+        truth table.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    Raises
+    ------
+    TypeError
+        If ``hamming_weight`` is not an integer.
+    ValueError
+        If ``hamming_weight`` is not in the range ``[0, 2**n]``.
 
-    **Returns:**
-
-        - BooleanFunction: Boolean function object.
+    Notes
+    -----
+    - Truth-table entries are not sampled independently.
+    - All Boolean functions with the specified Hamming weight are equally
+      likely to be returned.
     """
     rng = utils._coerce_rng(rng)
-    assert (
-        isinstance(hamming_weight, (int, np.integer)) and 0 <= hamming_weight <= 2**n
-    ), "Hamming weight must be an integer between 0 and 2^n."
-    oneIndices = rng.choice(2**n, hamming_weight, replace=False)
+
+    if not isinstance(hamming_weight, (int, np.integer)):
+        raise TypeError("hamming_weight must be an integer")
+
+    if not (0 <= hamming_weight <= 2**n):
+        raise ValueError("hamming_weight must satisfy 0 <= hamming_weight <= 2**n")
+
+    one_indices = rng.choice(2**n, hamming_weight, replace=False)
     f = np.zeros(2**n, dtype=int)
-    f[oneIndices] = 1
-    return BooleanFunction(f)
+    f[one_indices] = 1
+
+    return BooleanFunction._from_f_unchecked(f)
 
 
-def random_linear_function(n: int, *, rng=None) -> BooleanFunction:
+def random_parity_function(
+    n: int,
+    *,
+    rng=None,
+) -> BooleanFunction:
     """
-    Generate a random linear Boolean function in n variables.
+    Generate a random parity Boolean function.
 
-    A random linear Boolean function is constructed by randomly choosing
-    whether to include each variable or its negation in a linear sum. The
-    resulting expression is then reduced modulo 2.
+    A parity Boolean function evaluates to the parity (sum modulo 2) of all
+    input variables, optionally shifted by a constant. This function returns
+    either the parity function or its complement, chosen uniformly at random.
 
-    **Parameters:**
+    Parameters
+    ----------
+    n : int
+        Number of Boolean variables.
+    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - n (int): Number of variables.
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    Returns
+    -------
+    BooleanFunction
+        Random parity Boolean function on ``n`` variables.
 
-    **Returns:**
+    Raises
+    ------
+    ValueError
+        If ``n`` is not a positive integer.
 
-        - BooleanFunction: Boolean function object.
+    Notes
+    -----
+    - The returned function is either
+      ``x1 ⊕ x2 ⊕ ... ⊕ xn`` or its complement.
+    - All variables are included symmetrically.
+    - Parity functions are never canalizing. All variables must always be known
+      to determine the output; they have maximal average sensitivity.
+
+    Examples
+    --------
+    >>> f = random_parity_function(3)
+    >>> sum(f)
+    4
     """
+    if not isinstance(n, (int, np.integer)) or n <= 0:
+        raise ValueError("n must be a positive integer")
+
     rng = utils._coerce_rng(rng)
-    assert isinstance(n, (int, np.integer)) and n > 0, "n must be a positive integer"
+
+    # choose parity or its complement
     val = rng.integers(2)
-    f = [0] * 2**n
-    for i in range(1 << n):
+
+    f = np.zeros(2**n, dtype=np.uint8)
+    for i in range(2**n):
         if i.bit_count() % 2 == val:
             f[i] = 1
-    return BooleanFunction(f)
+
+    return BooleanFunction._from_f_unchecked(f)
+
 
 
 def random_non_degenerate_function(
-    n: int, bias: float = 0.5, *, rng=None
+    n: int,
+    bias: float = 0.5,
+    *,
+    rng=None,
 ) -> BooleanFunction:
     """
-    Generate a random non-degenerate Boolean function in n variables.
+    Generate a random non-degenerate Boolean function.
 
-    A non-degenerate Boolean function is one in which every variable is
-    essential (i.e. the output depends on every input). The function is
-    repeatedly generated with the specified bias until a non-degenerate
-    function is found.
+    A Boolean function is non-degenerate if every variable is essential, i.e.,
+    the function depends on all ``n`` input variables. Functions are sampled
+    repeatedly from the Bernoulli(bias) ensemble until a non-degenerate
+    function is obtained.
 
-    **Parameters:**
+    Parameters
+    ----------
+    n : int
+        Number of Boolean variables.
+    bias : float, optional
+        Probability that a truth-table entry equals 1. Default is 0.5.
+    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - n (int): Number of variables.
-        - bias (float, optional): Bias of the Boolean function (probability
-          of a 1; default is 0.5).
+    Returns
+    -------
+    BooleanFunction
+        Random non-degenerate Boolean function.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    Raises
+    ------
+    ValueError
+        If ``n`` is not a positive integer.
+    ValueError
+        If ``bias`` is not strictly between 0 and 1.
 
-    **Returns:**
+    Notes
+    -----
+    - For moderate bias values, almost all Boolean functions are non-degenerate.
+    - Extremely biased functions are very likely to be degenerate, which may
+      lead to long rejection-sampling times.
 
-        - BooleanFunction: Boolean function object.
-
-    **References:**
-
-        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence
-           of canalization on the robustness of Boolean networks. Physica D:
-           Nonlinear Phenomena, 353, 39-47.
+    References
+    ----------
+    C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
+    The influence of canalization on the robustness of Boolean networks.
+    *Physica D: Nonlinear Phenomena*, 353, 39–47.
     """
+    if not isinstance(n, (int, np.integer)) or n <= 0:
+        raise ValueError("n must be a positive integer")
+
+    if not isinstance(bias, (float, np.floating)) or not (0.0 < bias < 1.0):
+        raise ValueError("bias must be a float strictly between 0 and 1")
+
     rng = utils._coerce_rng(rng)
-    assert isinstance(n, (int, np.integer)) and n > 0, "n must be a positive integer"
-    assert isinstance(bias, (float, np.floating)) and 0.001 < bias < 0.999, (
-        "almost all extremely biased Boolean functions are degenerate. Choose a more balanced value for the 'bias'."
-    )
-    while True:  # works well because most Boolean functions are non-degenerate
-        f = random_function_with_bias(n, bias, rng=rng)
+
+    # Rejection sampling; almost all Boolean functions are non-degenerate
+    while True:
+        f = random_function_with_bias(n, bias=bias, rng=rng)
         if not f.is_degenerate():
             return f
 
 
 def random_degenerate_function(
-    n: int, bias: float = 0.5, *, rng=None
+    n: int,
+    bias: float = 0.5,
+    *,
+    rng=None,
 ) -> BooleanFunction:
     """
-    Generate a random degenerate Boolean function in n variables.
+    Generate a random degenerate Boolean function.
 
-    A degenerate Boolean function is one in which at least one variable is
-    non‐essential (its value never affects the output). The function is
-    generated repeatedly until a degenerate function is found.
+    A Boolean function is degenerate if at least one variable is
+    non-essential, i.e., the function does not depend on that variable.
+    This function constructs a degenerate Boolean function by selecting
+    one variable uniformly at random and enforcing that the output is
+    independent of that variable.
 
-    **Parameters:**
+    Parameters
+    ----------
+    n : int
+        Number of Boolean variables.
+    bias : float, optional
+        Probability that a truth-table entry equals 1 for the underlying
+        (n−1)-variable function. Default is 0.5.
+    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - n (int): Number of variables.
-        - bias (float, optional): Bias of the Boolean function (default is
-          0.5, i.e., unbiased).
+    Returns
+    -------
+    BooleanFunction
+        Random degenerate Boolean function on ``n`` variables.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    Raises
+    ------
+    ValueError
+        If ``n`` is not a positive integer.
+    ValueError
+        If ``bias`` is not strictly between 0 and 1.
 
-    **Returns:**
+    Notes
+    -----
+    - Exactly one variable is forced to be non-essential by construction,
+      though additional variables may also be non-essential by chance.
+    - The degenerate variable is chosen uniformly at random.
+    - The resulting distribution is not uniform over all degenerate Boolean
+      functions.
+    - This construction avoids rejection sampling.
 
-        - BooleanFunction: Boolean function object that is degenerate in
-          the first input (and possibly others).
-
-    **References:**
-
-        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence
-           of canalization on the robustness of Boolean networks. Physica D:
-           Nonlinear Phenomena, 353, 39-47.
+    References
+    ----------
+    C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
+    The influence of canalization on the robustness of Boolean networks.
+    *Physica D: Nonlinear Phenomena*, 353, 39–47.
     """
-    rng = utils._coerce_rng(rng)
-    assert isinstance(n, (int, np.integer)) and n > 0, "n must be a positive integer"
+    if not isinstance(n, (int, np.integer)) or n <= 0:
+        raise ValueError("n must be a positive integer")
 
-    f_original = random_function_with_bias(n - 1, bias, rng=rng)
+    if not isinstance(bias, (float, np.floating)) or not (0.0 < bias < 1.0):
+        raise ValueError("bias must be a float strictly between 0 and 1")
+
+    rng = utils._coerce_rng(rng)
+
+    # Generate an (n-1)-variable Boolean function
+    f_original = random_function_with_bias(n - 1, bias=bias, rng=rng)
+
+    # Choose the non-essential variable uniformly at random
     index_non_essential_variable = rng.integers(n)
-    f = np.zeros(2**n, dtype=int)
-    indices = (np.arange(2**n) // (2**index_non_essential_variable)) % 2 == 1
+
+    f = np.zeros(2**n, dtype=np.uint8)
+
+    # Copy the (n-1)-variable function across both values of the non-essential variable
+    block = 2 ** index_non_essential_variable
+    indices = (np.arange(2**n) // block) % 2 == 1
     f[indices] = f_original.f
     f[~indices] = f_original.f
-    return BooleanFunction(f)
+
+    return BooleanFunction._from_f_unchecked(f)
 
 
 def random_non_canalizing_function(
-    n: int, bias: float = 0.5, *, rng=None
+    n: int,
+    bias: float = 0.5,
+    *,
+    rng=None,
 ) -> BooleanFunction:
     """
-    Generate a random non-canalizing Boolean function in n (>1) variables.
+    Generate a random non-canalizing Boolean function.
 
     A Boolean function is canalizing if there exists at least one variable
-    whose fixed value forces the output. This function returns one that is
-    not canalizing.
+    and a value of that variable such that fixing it forces the output of
+    the function. This function samples Boolean functions from the
+    Bernoulli(bias) ensemble until a non-canalizing function is obtained.
 
-    **Parameters:**
+    Parameters
+    ----------
+    n : int
+        Number of Boolean variables. Must satisfy ``n > 1``.
+    bias : float, optional
+        Probability that a truth-table entry equals 1. Default is 0.5.
+    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - n (int): Number of variables (n > 1).
-        - bias (float, optional): Bias of the Boolean function (default is
-          0.5, i.e., unbiased).
+    Returns
+    -------
+    BooleanFunction
+        Random non-canalizing Boolean function on ``n`` variables.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    Raises
+    ------
+    ValueError
+        If ``n`` is not an integer greater than 1.
+    ValueError
+        If ``bias`` is not strictly between 0 and 1.
 
-    **Returns:**
+    Notes
+    -----
+    - This function uses rejection sampling.
+    - For moderate bias values, almost all Boolean functions are
+      non-canalizing.
+    - Extremely biased functions are more likely to be canalizing and may
+      lead to longer sampling times.
 
-        - BooleanFunction: Boolean function object.
-
-    **References:**
-
-        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence
-           of canalization on the robustness of Boolean networks. Physica D:
-           Nonlinear Phenomena, 353, 39-47.
+    References
+    ----------
+    C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
+    The influence of canalization on the robustness of Boolean networks.
+    *Physica D: Nonlinear Phenomena*, 353, 39–47.
     """
+    if not isinstance(n, (int, np.integer)) or n <= 1:
+        raise ValueError("n must be an integer greater than 1")
+
+    if not isinstance(bias, (float, np.floating)) or not (0.0 < bias < 1.0):
+        raise ValueError("bias must be a float strictly between 0 and 1")
+
     rng = utils._coerce_rng(rng)
-    assert isinstance(n, (int, np.integer)) and n > 1, "n must be an integer > 1"
-    while True:  # works because most functions are non-canalizing
+
+    # Rejection sampling; most Boolean functions are non-canalizing
+    while True:
         f = random_function_with_bias(n, bias=bias, rng=rng)
         if not f.is_canalizing():
             return f
 
 
+
 def random_non_canalizing_non_degenerate_function(
-    n: int, bias: float = 0.5, *, rng=None
+    n: int,
+    bias: float = 0.5,
+    *,
+    rng=None,
 ) -> BooleanFunction:
     """
-    Generate a random Boolean function in n (>1) variables that is both
-    non-canalizing and non-degenerate.
+    Generate a random Boolean function that is both non-canalizing and
+    non-degenerate.
 
-    Such a function has every variable essential and is not canalizing.
+    A Boolean function is non-canalizing if no variable can force the output
+    when fixed, and non-degenerate if every variable is essential. This
+    function samples Boolean functions from the Bernoulli(bias) ensemble
+    until both properties are satisfied.
 
-    **Parameters:**
+    Parameters
+    ----------
+    n : int
+        Number of Boolean variables. Must satisfy ``n > 1``.
+    bias : float, optional
+        Probability that a truth-table entry equals 1. Default is 0.5.
+    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - n (int): Number of variables (n > 1).
-        - bias (float, optional): Bias of the Boolean function (default is
-          0.5, i.e., unbiased).
+    Returns
+    -------
+    BooleanFunction
+        Random Boolean function on ``n`` variables that is both non-canalizing
+        and non-degenerate.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    Raises
+    ------
+    ValueError
+        If ``n`` is not an integer greater than 1.
+    ValueError
+        If ``bias`` is not strictly between 0 and 1.
 
-    **Returns:**
+    Notes
+    -----
+    - This function uses rejection sampling.
+    - For moderate bias values and sufficiently large ``n``, almost all
+      Boolean functions are both non-canalizing and non-degenerate.
+    - Extremely biased functions are more likely to be canalizing or
+      degenerate and may lead to longer sampling times.
 
-        - BooleanFunction: Boolean function object.
-
-    **References:**
-
-        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence
-           of canalization on the robustness of Boolean networks. Physica D:
-           Nonlinear Phenomena, 353, 39-47.
+    References
+    ----------
+    C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
+    The influence of canalization on the robustness of Boolean networks.
+    *Physica D: Nonlinear Phenomena*, 353, 39–47.
     """
+    if not isinstance(n, (int, np.integer)) or n <= 1:
+        raise ValueError("n must be an integer greater than 1")
+
+    if not isinstance(bias, (float, np.floating)) or not (0.0 < bias < 1.0):
+        raise ValueError("bias must be a float strictly between 0 and 1")
+
     rng = utils._coerce_rng(rng)
-    assert isinstance(n, (int, np.integer)) and n > 1, "n must be an integer > 1"
-    while True:  # works because most functions are non-canalizing and non-degenerate
+
+    # Rejection sampling; almost all Boolean functions satisfy both properties
+    while True:
         f = random_function_with_bias(n, bias=bias, rng=rng)
         if not f.is_canalizing() and not f.is_degenerate():
             return f
+
 
 
 def random_k_canalizing_function(
@@ -1222,7 +1682,7 @@ def rewire_wiring_diagram(
 # EXACT_DEPTH=False
 # layer_structure=None
 # ALLOW_DEGENERATE_FUNCTIONS=False
-# LINEAR=False,
+# PARITY=False,
 # bias=0.5
 # absolute_bias = 0.
 # USE_ABSOLUTE_BIAS=True

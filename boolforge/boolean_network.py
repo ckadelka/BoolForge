@@ -2799,16 +2799,14 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # Initialization
         # ------------------------------------------------------------------
-        dictF: dict = {}
-        attractors: list = []
-        ICs_per_attractor_state: list = []
-        basin_sizes: list = []
-        attractor_dict: dict = {}
-        attractor_state_dict: list = []
-        distance_from_attractor_state_dict: list = []
-        counter_phase_shifts: list = []
-    
-        height: list = []
+        dictF = {}
+        attractors = []
+        ICs_per_attractor_state = []
+        basin_sizes = []
+        attractor_dict = {}
+        attractor_state_dict = []
+        distance_from_attractor_state_dict = []
+        counter_phase_shifts = []
     
         powers_of_2s = [
             np.asarray([2**i for i in range(NN)][::-1], dtype=np.int64)
@@ -2818,54 +2816,59 @@ class BooleanNetwork(WiringDiagram):
         if self.N < 64:
             powers_of_2 = np.asarray([2**i for i in range(self.N)][::-1], dtype=np.int64)
     
-        robustness_approximation: int = 0
-        fragility_sum: float = 0.0
+        robustness_approximation = 0
+        fragility_sum = 0.0
         basin_robustness = defaultdict(float)
         basin_fragility = defaultdict(float)
-        final_hamming_distance_approximation: float = 0.0
+        final_hamming_distance_approximation = 0.0
     
-        mean_states_attractors: list = []
-        states_attractors: list = []
+        mean_states_attractors = []
+        states_attractors = []
     
         # ------------------------------------------------------------------
-        # Main sampling loop
+        # Sampling phase
         # ------------------------------------------------------------------
         for _ in range(number_different_IC):
             index_attractors = []
-            index_of_state_within_attractor_reached = []
-            distance_from_attractor = []
+            index_within_attr = []
+            dist_from_attr = []
     
             for j in range(2):
                 if j == 0:
-                    x = rng.integers(2, size=self.N, dtype=np.int8)
+                    x = rng.integers(2, size=self.N, dtype=np.uint8)
                     if self.N < 64:
                         xdec = int(np.dot(x, powers_of_2))
                     else:
-                        xdec = ''.join(str(int(bit)) for bit in x)
+                        xdec = "".join(str(int(b)) for b in x)
                     x_old = x.copy()
                 else:
                     x = x_old.copy()
                     bit = int(rng.integers(self.N))
-                    x[bit] = 1 - x[bit]
+                    x[bit] ^= 1
                     if self.N < 64:
                         xdec = int(np.dot(x, powers_of_2))
                     else:
-                        xdec = ''.join(str(int(bit)) for bit in x)
+                        xdec = "".join(str(int(b)) for b in x)
     
                 queue = [xdec]
     
                 try:
-                    index_attr = attractor_dict[xdec]
+                    idx_attr = attractor_dict[xdec]
                 except KeyError:
                     while True:
                         try:
                             fxdec = dictF[xdec]
                         except KeyError:
-                            fx = np.empty(self.N, dtype=np.int8)
+                            fx = np.empty(self.N, dtype=np.uint8)
                             for jj in range(self.N):
                                 if self.indegrees[jj] > 0:
                                     fx[jj] = self.F[jj].f[
-                                        int(np.dot(x[self.I[jj]], powers_of_2s[self.indegrees[jj]]))
+                                        int(
+                                            np.dot(
+                                                x[self.I[jj]],
+                                                powers_of_2s[self.indegrees[jj]],
+                                            )
+                                        )
                                     ]
                                 else:
                                     fx[jj] = self.F[jj].f[0]
@@ -2873,20 +2876,20 @@ class BooleanNetwork(WiringDiagram):
                             if self.N < 64:
                                 fxdec = int(np.dot(fx, powers_of_2))
                             else:
-                                fxdec = ''.join(str(int(bit)) for bit in fx)
+                                fxdec = "".join(str(int(b)) for b in fx)
     
                             dictF[xdec] = fxdec
     
                         try:
-                            index_attr = attractor_dict[fxdec]
-                            idx_state = attractor_state_dict[index_attr][fxdec]
-                            dist_state = distance_from_attractor_state_dict[index_attr][fxdec]
+                            idx_attr = attractor_dict[fxdec]
+                            idx_state = attractor_state_dict[idx_attr][fxdec]
+                            dist_state = distance_from_attractor_state_dict[idx_attr][fxdec]
     
-                            attractor_dict.update({q: index_attr for q in queue})
-                            attractor_state_dict[index_attr].update(
+                            attractor_dict.update({q: idx_attr for q in queue})
+                            attractor_state_dict[idx_attr].update(
                                 {q: idx_state for q in queue}
                             )
-                            distance_from_attractor_state_dict[index_attr].update(
+                            distance_from_attractor_state_dict[idx_attr].update(
                                 {
                                     q: d
                                     for q, d in zip(
@@ -2900,7 +2903,7 @@ class BooleanNetwork(WiringDiagram):
                         except KeyError:
                             if fxdec in queue:
                                 idx = queue.index(fxdec)
-                                index_attr = len(attractors)
+                                idx_attr = len(attractors)
     
                                 attractors.append(queue[idx:])
                                 basin_sizes.append(1)
@@ -2911,46 +2914,48 @@ class BooleanNetwork(WiringDiagram):
                                     [0] * len(attractors[-1])
                                 )
     
-                                attractor_dict.update({q: index_attr for q in queue})
+                                attractor_dict.update({q: idx_attr for q in queue})
                                 attractor_state_dict.append(
-                                    {q: (0 if q in queue[:idx] else queue[idx:].index(q))
-                                     for q in queue}
+                                    {
+                                        q: (0 if q in queue[:idx] else queue[idx:].index(q))
+                                        for q in queue
+                                    }
                                 )
                                 distance_from_attractor_state_dict.append(
                                     {
-                                        q: (idx - queue.index(q)) if q in queue[:idx] else 0
+                                        q: (idx - queue.index(q))
+                                        if q in queue[:idx]
+                                        else 0
                                         for q in queue
                                     }
                                 )
     
                                 if len(attractors[-1]) == 1:
-                                    if self.N < 64:
-                                        fp = np.asarray(
+                                    fp = (
+                                        np.asarray(
                                             utils.dec2bin(queue[idx], self.N),
                                             dtype=np.float64,
                                         )
-                                    else:
-                                        fp = np.asarray(
-                                            list(queue[idx]), dtype=np.float64
-                                        )
+                                        if self.N < 64
+                                        else np.asarray(list(queue[idx]), dtype=np.float64)
+                                    )
                                     states_attractors.append(fp.reshape(1, self.N))
                                     mean_states_attractors.append(fp)
                                 else:
-                                    if self.N < 64:
-                                        lc = np.asarray(
+                                    lc = (
+                                        np.asarray(
                                             [
                                                 utils.dec2bin(s, self.N)
                                                 for s in queue[idx:]
                                             ],
                                             dtype=np.float64,
                                         )
-                                    else:
-                                        lc = np.asarray(
-                                            [
-                                                list(s) for s in queue[idx:]
-                                            ],
+                                        if self.N < 64
+                                        else np.asarray(
+                                            [list(s) for s in queue[idx:]],
                                             dtype=np.float64,
                                         )
+                                    )
                                     states_attractors.append(lc)
                                     mean_states_attractors.append(lc.mean(axis=0))
                                 break
@@ -2959,28 +2964,22 @@ class BooleanNetwork(WiringDiagram):
                                 queue.append(fxdec)
                                 xdec = fxdec
     
-                index_attractors.append(index_attr)
-                index_of_state_within_attractor_reached.append(
-                    attractor_state_dict[index_attr][xdec]
-                )
-                distance_from_attractor.append(
-                    distance_from_attractor_state_dict[index_attr][xdec]
+                index_attractors.append(idx_attr)
+                index_within_attr.append(attractor_state_dict[idx_attr][xdec])
+                dist_from_attr.append(
+                    distance_from_attractor_state_dict[idx_attr][xdec]
                 )
     
-                basin_sizes[index_attr] += 1
-                ICs_per_attractor_state[index_attr][
-                    attractor_state_dict[index_attr][xdec]
+                basin_sizes[idx_attr] += 1
+                ICs_per_attractor_state[idx_attr][
+                    attractor_state_dict[idx_attr][xdec]
                 ] += 1
     
             if index_attractors[0] == index_attractors[1]:
                 robustness_approximation += 1
                 basin_robustness[index_attractors[0]] += 1
-    
-                ps = (
-                    max(index_of_state_within_attractor_reached)
-                    - min(index_of_state_within_attractor_reached)
-                )
-                counter_phase_shifts[index_attr][ps] += 1
+                ps = max(index_within_attr) - min(index_within_attr)
+                counter_phase_shifts[index_attractors[0]][ps] += 1
             else:
                 d = np.sum(
                     np.abs(
@@ -2988,8 +2987,8 @@ class BooleanNetwork(WiringDiagram):
                         - mean_states_attractors[index_attractors[1]]
                     )
                 )
-                fragility_sum += float(d)
-                basin_fragility[index_attractors[0]] += float(d)
+                fragility_sum += d
+                basin_fragility[index_attractors[0]] += d
     
                 L = lcm(
                     len(attractors[index_attractors[0]]),
@@ -3000,36 +2999,26 @@ class BooleanNetwork(WiringDiagram):
                 s1 = states_attractors[index_attractors[1]]
     
                 p0 = np.tile(s0, (L // len(s0) + 1, 1))[
-                    index_of_state_within_attractor_reached[0] :
-                    index_of_state_within_attractor_reached[0] + L
+                    index_within_attr[0] : index_within_attr[0] + L
                 ]
                 p1 = np.tile(s1, (L // len(s1) + 1, 1))[
-                    index_of_state_within_attractor_reached[1] :
-                    index_of_state_within_attractor_reached[1] + L
+                    index_within_attr[1] : index_within_attr[1] + L
                 ]
     
-                final_hamming_distance_approximation += float(
-                    np.mean(p0 == p1)
-                )
-    
-            height.extend(distance_from_attractor)
+                final_hamming_distance_approximation += np.mean(p0 == p1)
     
         # ------------------------------------------------------------------
         # Aggregation
         # ------------------------------------------------------------------
-        lower_bound_number_of_attractors = int(len(attractors))
+        lower_bound_number_of_attractors = len(attractors)
     
         approximate_basin_sizes = (
             np.asarray(basin_sizes, dtype=np.float64)
             / (2.0 * float(number_different_IC))
         )
     
-        approximate_coherence = float(
-            robustness_approximation / float(number_different_IC)
-        )
-        approximate_fragility = float(
-            fragility_sum / float(number_different_IC) / float(self.N)
-        )
+        approximate_coherence = robustness_approximation / float(number_different_IC)
+        approximate_fragility = fragility_sum / float(number_different_IC) / float(self.N)
     
         approximate_basin_coherence = np.asarray(
             [
@@ -3047,21 +3036,7 @@ class BooleanNetwork(WiringDiagram):
             dtype=np.float64,
         )
     
-        for i in range(lower_bound_number_of_attractors):
-            periodic = np.tile(states_attractors[i], (2, 1))
-            for shift, cnt in enumerate(counter_phase_shifts[i]):
-                if cnt > 0 and shift > 0:
-                    final_hamming_distance_approximation += float(
-                        cnt
-                        * np.mean(
-                            states_attractors[i]
-                            == periodic[shift : shift + len(attractors[i])]
-                        )
-                    )
-    
-        final_hamming_distance_approximation = float(
-            final_hamming_distance_approximation / float(number_different_IC)
-        )
+        final_hamming_distance_approximation /= float(number_different_IC)
     
         results = [
             attractors,
@@ -3092,42 +3067,82 @@ class BooleanNetwork(WiringDiagram):
             )
     
         # ------------------------------------------------------------------
-        # Attractor-level coherence / fragility
+        # Attractor-level coherence / fragility (FIXED)
         # ------------------------------------------------------------------
-        attractor_coherence = np.zeros(
-            lower_bound_number_of_attractors, dtype=np.float64
-        )
-        attractor_fragility = np.zeros(
-            lower_bound_number_of_attractors, dtype=np.float64
-        )
+        attractor_coherence = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
+        attractor_fragility = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
     
         attractors_original = attractors[:]
     
         for idx0, attractor in enumerate(attractors_original):
             for state in attractor:
                 for i in range(self.N):
-                    if self.N < 64:
-                        x = np.asarray(utils.dec2bin(state, self.N), dtype=np.int8)
-                    else:
-                        x = np.asarray(list(state), dtype=np.int8)
-                    x[i] = 1 - x[i]
+                    x = (
+                        np.asarray(utils.dec2bin(state, self.N), dtype=np.uint8)
+                        if self.N < 64
+                        else np.asarray(list(state), dtype=np.uint8)
+                    )
+                    x[i] ^= 1
     
                     if self.N < 64:
                         xdec = int(np.dot(x, powers_of_2))
                     else:
-                        xdec = ''.join(str(int(bit)) for bit in x)
+                        xdec = "".join(str(int(b)) for b in x)
     
-                    idx1 = attractor_dict[xdec]
+                    try:
+                        idx1 = attractor_dict[xdec]
+                    except KeyError:
+                        # --- safe forward-walk without touching basin counts
+                        queue = [xdec]
+                        x_local = x.copy()
+                        while True:
+                            try:
+                                fxdec = dictF[xdec]
+                            except KeyError:
+                                fx = np.empty(self.N, dtype=np.uint8)
+                                for jj in range(self.N):
+                                    if self.indegrees[jj] > 0:
+                                        fx[jj] = self.F[jj].f[
+                                            int(
+                                                np.dot(
+                                                    x_local[self.I[jj]],
+                                                    powers_of_2s[self.indegrees[jj]],
+                                                )
+                                            )
+                                        ]
+                                    else:
+                                        fx[jj] = self.F[jj].f[0]
+    
+                                if self.N < 64:
+                                    fxdec = int(np.dot(fx, powers_of_2))
+                                else:
+                                    fxdec = "".join(str(int(b)) for b in fx)
+    
+                                dictF[xdec] = fxdec
+    
+                            if fxdec in attractor_dict:
+                                idx1 = attractor_dict[fxdec]
+                                break
+    
+                            if fxdec in queue:
+                                idx1 = len(attractors)
+                                attractors.append(queue[queue.index(fxdec):])
+                                attractor_dict.update(
+                                    {q: idx1 for q in queue}
+                                )
+                                break
+    
+                            queue.append(fxdec)
+                            xdec = fxdec
+                            x_local = fx.copy()
     
                     if idx0 == idx1:
                         attractor_coherence[idx0] += 1.0
                     else:
-                        attractor_fragility[idx0] += float(
-                            np.sum(
-                                np.abs(
-                                    mean_states_attractors[idx0]
-                                    - mean_states_attractors[idx1]
-                                )
+                        attractor_fragility[idx0] += np.sum(
+                            np.abs(
+                                mean_states_attractors[idx0]
+                                - mean_states_attractors[idx1]
                             )
                         )
     

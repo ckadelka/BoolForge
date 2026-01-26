@@ -73,6 +73,31 @@ class WiringDiagram(object):
     - Constant nodes are identified solely by indegree.
     - The wiring diagram encodes topology only and does not define dynamics.
 
+    Examples
+    --------
+    Nodes with zero indegree are interpreted as constants.
+    
+    >>> from boolforge import WiringDiagram
+    >>> I = [
+    ...     [],        # node 0 has no regulators -> constant
+    ...     [0],       # node 1 is regulated by node 0
+    ...     [0, 1],    # node 2 is regulated by nodes 0 and 1
+    ... ]
+    >>> wd = WiringDiagram(I)
+    
+    >>> wd.N
+    3
+    >>> wd.N_constants
+    1
+    >>> wd.N_variables
+    2
+    
+    >>> wd.get_constants(AS_DICT=True)
+    {0: True, 1: False, 2: False}
+    
+    >>> wd.get_constants(AS_DICT=False)
+    array([0])
+    
     See Also
     --------
     boolforge.BooleanNetwork
@@ -204,11 +229,14 @@ class WiringDiagram(object):
         Examples
         --------
         >>> import networkx as nx
+        >>> from boolforge import WiringDiagram
         >>> G = nx.DiGraph()
-        >>> G.add_edges_from([(0, 1), (1, 2), (2, 0)])
-        >>> WD = WiringDiagram.from_DiGraph(G)
-        >>> WD.I
-        [array([2]), array([0]), array([1])]
+        >>> G.add_edges_from([(0, 1), (1, 2)])
+        >>> W = WiringDiagram.from_DiGraph(G)
+        >>> W.I
+        [array([], dtype=int64), array([0]), array([1])]
+        >>> W.get_constants()
+        {0: True, 1: False, 2: False}
         """
         if not isinstance(nx_DiGraph, nx.DiGraph):
             raise TypeError("nx_DiGraph must be a networkx.DiGraph")
@@ -588,7 +616,9 @@ class WiringDiagram(object):
             ``(types, n_negative)``, where:
     
             - ``types`` is a list containing the product of edge weights for
-              each feedback loop.
+              each feedback loop. Interpretation:
+              'non-essential' : np.nan, 'conditional' : 0, 
+              'positive' : 1, 'negative' : -1
             - ``n_negative`` is a list containing the number of negative
               regulations in each feedback loop.
     
@@ -615,6 +645,6 @@ class WiringDiagram(object):
                 all_weights.append(w)
     
             types.append(float(np.prod(all_weights)))
-            n_negative.append(sum(w < 0 for w in all_weights))
+            n_negative.append(int(sum(w < 0 for w in all_weights)))
     
         return types, n_negative
