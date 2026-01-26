@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
+r"""
 This module defines the :class:`~boolforge.BooleanNetwork` class, which provides
 a high-level framework for modeling, simulating, and analyzing Boolean networks.
 
@@ -12,8 +12,8 @@ computing robustness and sensitivity measures, and exporting truth tables.
 
 Several computational routines—particularly those involving state space
 exploration, attractor detection, and robustness estimation—offer optional
-Numba-based just-in-time (JIT) acceleration. Installing Numba is **recommended**
-for optimal performance but **not required**; all features remain functional
+Numba-based just-in-time (JIT) acceleration. Installing Numba is recommended
+for optimal performance but not required; all features remain functional
 without it.
 
 This module serves as the central interface for dynamic Boolean network
@@ -860,6 +860,8 @@ class BooleanNetwork(WiringDiagram):
         return cls(F=F, I=I, variables=variables)
 
 
+
+
     @classmethod
     def from_string(
         cls,
@@ -869,8 +871,8 @@ class BooleanNetwork(WiringDiagram):
         original_not: str | Sequence[str] = "NOT",
         original_and: str | Sequence[str] = "AND",
         original_or: str | Sequence[str] = "OR",
-        ALLOW_TRUNCATION: bool = False,
-    ) -> "BooleanNetwork":
+        ALLOW_TRUNCATION: bool = False
+        ) -> "BooleanNetwork":
         """
         Construct a BooleanNetwork from a textual Boolean rule specification.
     
@@ -911,100 +913,105 @@ class BooleanNetwork(WiringDiagram):
             a node exceeds ``max_degree``.
         """
         sepstr, andop, orop, notop = "@", "∧", "∨", "¬"
+        
         get_dummy_var = lambda i: f"x{int(i)}y"
-    
+        
+        # reformat network string
         def _replace_all(string, original, replacement):
-            if isinstance(original, (list, tuple)):
+            if isinstance(original, (list, np.ndarray)):
                 for s in original:
                     string = string.replace(s, f" {replacement} ")
             else:
                 string = string.replace(original, f" {replacement} ")
             return string
-    
-        # Normalize input
+        
         text = (
-            network_string.replace("\t", " ")
-            .replace("(", " ( ")
-            .replace(")", " ) ")
+            network_string.replace('\t', ' ',)
+            .replace('(', ' ( ')
+            .replace(')', ' ) ')
         )
         text = _replace_all(text, separator, sepstr)
         text = _replace_all(text, original_not, notop)
         text = _replace_all(text, original_and, andop)
         text = _replace_all(text, original_or, orop)
-    
+        
         # Remove comments and empty lines
         lines = [
             l for l in text.splitlines()
             if l.strip() and not l.strip().startswith("#")
         ]
-    
-        variables = [line.split(sepstr)[0].strip() for line in lines]
-    
-        # Collect symbols
-        symbols = set()
+        
+        n = len(lines)
+        
+        # find variables and constants
+        var = ["" for i in range(n)]
+        for i in range(n):
+            var[i] = lines[i].split(sepstr)[0].replace(' ', '')
+        consts_and_vars = []
         for line in lines:
-            for token in line.split():
-                if token not in {"(", ")", sepstr, andop, orop, notop} and not utils.is_float(token):
-                    symbols.add(token)
-    
-        consts = list(symbols - set(variables))
-        dummy_map = {v: get_dummy_var(i) for i, v in enumerate(variables + consts)}
-    
-        # Replace symbols with dummy variables
+            words = line.split(' ')
+            for word in words:
+                if word not in ['(', ')', sepstr, andop, orop, notop, ''] and not utils.is_float(word):
+                    consts_and_vars.append(word)
+        consts = list(set(consts_and_vars)-set(var))
+        dict_var_const = dict(list(zip(var, [get_dummy_var(i) for i in range(len(var))])))
+        dict_var_const.update(dict(list(zip(consts, [get_dummy_var(i+len(var)) for i in range(len(consts))]))))
+        
+        # replace all variables and constants with dummy names
         for i, line in enumerate(lines):
-            tokens = line.split()
-            lines[i] = " ".join(dummy_map.get(t, t) for t in tokens)
-    
+            words = line.split(' ')
+            for j, word in enumerate(words):
+                if word not in ['(', ')', sepstr, andop, orop, notop, ''] and not utils.is_float(word):
+                    words[j] = dict_var_const[word]
+            lines[i] = ' '.join(words)
+        
+        # update line to only be function
         expressions = [line.split(sepstr)[1] for line in lines]
-    
+        
+        # generate wiring diagram I
         I: list[np.ndarray] = []
-        F: list[np.ndarray] = []
-    
-        # Build wiring diagram
-        for expr in expressions:
-            regs = sorted(
-                int(expr[j + 1 : k])
-                for j, k in zip(
-                    utils.find_all_indices(expr, "x"),
-                    utils.find_all_indices(expr, "y"),
-                )
-            )
-            I.append(np.array(regs, dtype=int))
-    
+        
+        for i in range(n):
+            try:
+                idcs_open = utils.find_all_indices(expressions[i], 'x')
+                idcs_end = utils.find_all_indices(expressions[i], 'y')
+                regs = np.sort(np.array(list(map(int,list(set([expressions[i][(begin+1):end] for begin,end in zip(idcs_open,idcs_end)]))))))
+                I.append(regs)
+            except ValueError:
+                I.append(np.array([], int))
+        
+                
         # Build Boolean functions
+        F: list[np.ndarray] = []
         for i, expr in enumerate(expressions):
             deg = len(I[i])
-    
             if deg == 0:
-                F.append(np.array([int(expr)], dtype=int))
-    
-            elif deg > max_degree:
+                f = np.array([int(expr)], int)
+            elif deg <= max_degree:
+                tt = utils.get_left_side_of_truth_table(deg)
+                env = { get_dummy_var(I[i][j]) : tt[:, j].astype(bool) for j in range(deg) }
+                f = eval(
+                    expr.replace(andop, '&')
+                    .replace(orop, '|')
+                    .replace(notop, '~')
+                    .replace(' ', ''),
+                    {"__builtins__" : None}, 
+                    env
+                )
+            else:
                 if not ALLOW_TRUNCATION:
                     raise ValueError(
-                        f"Node '{variables[i]}' has indegree {deg} > max_degree={max_degree}."
+                        f"Node '{var[i]}' has indegree {deg} > max_degree={max_degree}."
                     )
                 # Truncate: identity self-loop
                 F.append(np.array([0, 1], dtype=int))
                 I[i] = np.array([i], dtype=int)
-    
-            else:
-                tt = utils.get_left_side_of_truth_table(deg)
-                env = {get_dummy_var(I[i][j]): tt[:, j].astype(bool) for j in range(deg)}
-                try:
-                    f = eval(
-                        expr.replace(andop, "&")
-                            .replace(orop, "|")
-                            .replace(notop, "~")
-                            .replace(" ", ""),
-                        {"__builtins__": None},
-                        env,
-                    )
-                except Exception as e:
-                    raise ValueError(f"Failed to parse expression: {expr}") from e
-    
-                F.append(f.astype(int))
-    
-        return cls(F, I, variables)
+            F.append(f.astype(int))
+        for j in range(len(consts)):
+            F.append(np.array([0, 1], dtype=int))
+            I.append(np.array([len(var) + j]))
+        
+        return cls(F, I, var+consts)
 
 
     @classmethod
