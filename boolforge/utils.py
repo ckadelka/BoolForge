@@ -452,7 +452,7 @@ def get_product_of_attractors(attrs_1 : list, attrs_2 : list,
         attractors.append(attr)
     return attractors
 
-def merge_trajectories(trajectories : list, num_bits : [int, None] = None) -> nx.DiGraph:
+def compress_trajectories(trajectories : list, num_bits : [int, None] = None) -> nx.DiGraph:
     # Helper method: determine the 'canon' ordering of a periodic pattern.
     # The canon ordering is the phase such that the lowest states come first
     # without changing the relative ordering of the states.
@@ -493,13 +493,13 @@ def merge_trajectories(trajectories : list, num_bits : [int, None] = None) -> nx
             if signature in prefix_merge:
                 node_id = prefix_merge[signature]
                 if i == 0:
-                    G.nodes[node_id]["initial"] = True
+                    G.nodes[node_id]["StIn"] = True
             # Otherwise, make a new initial node
             else:
                 node_id = next_id
                 prefix_merge[signature] = node_id
-                G.add_node(next_id, initial=(i == 0),
-                    label=(str(dec2bin(states[i], num_bits)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
+                G.add_node(next_id, StIn=(i == 0),
+                    NLbl=(str(dec2bin(states[i], num_bits)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
                     if num_bits is not None else str(states[i])))
                 pref_ids.append(next_id)
                 next_id += 1
@@ -519,8 +519,8 @@ def merge_trajectories(trajectories : list, num_bits : [int, None] = None) -> nx
                 # Create nodes based off of the canon ordering to ensure
                 # predictable ordering in case we need to reference
                 # this cycle again for another trajectory
-                G.add_node(next_id, initial=False,
-                    label=(str(dec2bin(s, num_bits)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
+                G.add_node(next_id, StIn=False,
+                    NLbl=(str(dec2bin(s, num_bits)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
                     if num_bits is not None else str(s)))
                 ids.append(next_id)
                 next_id += 1
@@ -532,35 +532,61 @@ def merge_trajectories(trajectories : list, num_bits : [int, None] = None) -> nx
         # For a trajectory without a prefix, mark the first state of the trajectory
         # within the cycle as an initial node
         if len_pref == 0:
-            G.nodes()[cycle_nodes[key][key.index(cycle[0])]]["initial"] = True
+            G.nodes()[cycle_nodes[key][key.index(cycle[0])]]["StIn"] = True
         # Otherwise, we need to add an edge between the prefix and cycle
         else:
             G.add_edge(pref_ids[-1], cycle_nodes[key][_cycle_offset_(cycle, key)])
     return G
 
-def plot_trajectory(merged_trajectory_graph : nx.DiGraph, seed:int=42) -> None:
-    pos = nx.spring_layout(merged_trajectory_graph, seed=seed)
-    nx.draw_networkx_nodes(merged_trajectory_graph, pos, node_size=400, node_color="white")
-    nx.draw_networkx_edges(merged_trajectory_graph, pos, arrows=True, arrowstyle="->", arrowsize=20)
+def product_of_trajectories(G1 : nx.DiGraph, G2 : nx.DiGraph) -> nx.DiGraph:
+    _initial_1 = []
+    _initial_2 = []
+    for n in G1.nodes:
+        if G1.nodes[n]["StIn"]:
+            _initial_1.append(n)
+    for n in G2.nodes:
+        if G2.nodes[n]["StIn"]:
+            _initial_2.append(n)
+    G = nx.DiGraph()
+    starting = []
+    for n1 in _initial_1:
+        for n2 in _initial_2:
+            starting.append((n1, n2))
+            G.add_node((n1, n2), StIn=G1.nodes[n1]["StIn"] and G2.nodes[n2]["StIn"],
+                NLbl=f"{G1.nodes[n1]['NLbl']}{G2.nodes[n2]['NLbl']}")
+    stack = starting[:]
+    visited = set(starting)
+    while stack:
+        u1, u2 = stack.pop()
+        for v1 in G1.successors(u1):
+            for v2 in G2.successors(u2):
+                new_pair = (v1, v2)
+                if new_pair not in G:
+                    G.add_node(new_pair, StIn=False,
+                        NLbl=f"{G1.nodes[v1]['NLbl']}{G2.nodes[v2]['NLbl']}")
+                G.add_edge((u1, u2), new_pair)
+                if new_pair not in visited:
+                    visited.add(new_pair)
+                    stack.append(new_pair)
+    return G
+
+def plot_trajectory(compressed_trajectory_graph : nx.DiGraph) -> None:
+    pos = nx.spring_layout(compressed_trajectory_graph, seed=62)
+    nx.draw_networkx_nodes(compressed_trajectory_graph, pos, node_size=400, node_color="white")
+    nx.draw_networkx_edges(compressed_trajectory_graph, pos, arrows=True, arrowstyle="->", arrowsize=20)
     
-    # Add a box to nodes that are marked as initial
     normal = {}
     boxed = {}
-    labels = nx.get_node_attributes(merged_trajectory_graph, "label")
-    initial = nx.get_node_attributes(merged_trajectory_graph, "initial")
-    for n in merged_trajectory_graph.nodes():
+    labels = nx.get_node_attributes(compressed_trajectory_graph, "NLbl")
+    initial = nx.get_node_attributes(compressed_trajectory_graph, "StIn")
+    for n in compressed_trajectory_graph.nodes():
         if initial[n]:
             boxed.update({n:labels[n]})
         else:
             normal.update({n:labels[n]})
-    nx.draw_networkx_labels(merged_trajectory_graph, pos, labels=normal, font_size=10)
-    nx.draw_networkx_labels(merged_trajectory_graph, pos, labels=boxed, font_size=10, bbox=dict(
-            boxstyle="round,pad=0.2",
-            fc="white",
-            ec="black",
-            lw=1
-        )
-    )
+    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=normal, font_size=10)
+    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=boxed, font_size=10,
+        bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="black", lw=1))
     
     plt.axis("off")
     plt.show()

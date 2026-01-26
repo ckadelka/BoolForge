@@ -3574,7 +3574,7 @@ class BooleanNetwork(WiringDiagram):
         # If the MERGE_TRAJECTORIES flag is set, return the merged representation
         # of the trajectories, which is of type nx.DiGraph.
         if MERGE_TRAJECTORIES:
-            return utils.merge_trajectories(trajectories, N)
+            return utils.compress_trajectories(trajectories, N)
         # If the flag is not set, then just return the trajectory arrays
         # without further modification.
         return trajectories
