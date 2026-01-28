@@ -2705,10 +2705,11 @@ class BooleanNetwork(WiringDiagram):
             if len_attractors[i] > 0:
                 attractor_coherences[i] /= len_attractors[i] * self.N
                 attractor_fragilities[i] /= len_attractors[i] * self.N
-            
-            for d in range(max_distance_from_attractor+1):
-                stratified_coherences[i,d] /= n_states_with_specific_distance_from_attractor[i,d] * self.N
-    
+                
+            if GET_STRATIFIED_COHERENCES:
+                for d in range(max_distance_from_attractor+1):
+                    stratified_coherences[i,d] /= n_states_with_specific_distance_from_attractor[i,d] * self.N
+        
         coherence = float(np.dot(basin_sizes, basin_coherences))
         fragility = float(np.dot(basin_sizes, basin_fragilities))
     
