@@ -648,3 +648,4 @@ class WiringDiagram(object):
             n_negative.append(int(sum(w < 0 for w in all_weights)))
     
         return types, n_negative
+    

@@ -2510,7 +2510,8 @@ class BooleanNetwork(WiringDiagram):
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
     def get_attractors_and_robustness_measures_synchronous_exact(
-        self, USE_NUMBA: bool = True
+        self, 
+        USE_NUMBA: bool = True
     ) -> dict:
         """
         Compute the attractors and exact robustness measures of a synchronously
@@ -2652,6 +2653,10 @@ class BooleanNetwork(WiringDiagram):
             attractor_coherences = np.zeros(n_attractors, dtype=np.float64)
             attractor_fragilities = np.zeros(n_attractors, dtype=np.float64)
     
+            max_distance_from_attractor = max(distances_from_attractor)
+            stratified_coherences = np.zeros((n_attractors,max_distance_from_attractor+1), dtype=np.float64)
+            n_states_with_specific_distance_from_attractor = np.zeros((n_attractors,max_distance_from_attractor+1), dtype=int)
+            
             for xdec in range(n_states):
                 for bitpos in range(self.N):
                     if (xdec >> bitpos) & 1:
@@ -2661,13 +2666,18 @@ class BooleanNetwork(WiringDiagram):
     
                     idx_x = attractor_id[xdec]
                     idx_y = attractor_id[ydec]
-    
+                    
+                    n_states_with_specific_distance_from_attractor[idx_x,distances_from_attractor[xdec]] += 1.0
+                    n_states_with_specific_distance_from_attractor[idx_y,distances_from_attractor[ydec]] += 1.0
+                    
                     if idx_x == idx_y:
                         basin_coherences[idx_x] += 2.0
                         if is_attr_mask[xdec]:
                             attractor_coherences[idx_x] += 1.0
                         if is_attr_mask[ydec]:
                             attractor_coherences[idx_y] += 1.0
+                        stratified_coherences[idx_x,distances_from_attractor[xdec]] += 1.0
+                        stratified_coherences[idx_y,distances_from_attractor[ydec]] += 1.0
                     else:
                         dxy = float(distance_between_attractors[idx_x, idx_y])
                         basin_fragilities[idx_x] += dxy
@@ -2690,6 +2700,9 @@ class BooleanNetwork(WiringDiagram):
             if len_attractors[i] > 0:
                 attractor_coherences[i] /= len_attractors[i] * self.N
                 attractor_fragilities[i] /= len_attractors[i] * self.N
+            
+            for d in range(max_distance_from_attractor+1):
+                stratified_coherences[i,d] /= n_states_with_specific_distance_from_attractor[i,d] * self.N
     
         coherence = float(np.dot(basin_sizes, basin_coherences))
         fragility = float(np.dot(basin_sizes, basin_fragilities))

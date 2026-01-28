@@ -1701,7 +1701,7 @@ def random_network(
     EXACT_DEPTH: bool = False,
     layer_structure: Optional[list] = None,
     ALLOW_DEGENERATE_FUNCTIONS: bool = False,
-    LINEAR: bool = False,
+    PARITY: bool = False,
     bias: Union[float, list, np.ndarray] = 0.5,
     absolute_bias: Union[float, list, np.ndarray] = 0.0,
     USE_ABSOLUTE_BIAS: bool = True,
@@ -1794,19 +1794,19 @@ def random_network(
           models). If False, generated functions are essential in all
           variables. Default False.
 
-        - LINEAR (bool, optional): If True, generate linear Boolean functions
+        - PARITY (bool, optional): If True, generate parity Boolean functions
           for all nodes; other rule parameters (bias, canalization, etc.) are
           ignored. Default False.
 
         - bias (float | list[float] | np.ndarray[float], optional):
           Probability of output 1 when generating random (nonlinear)
           functions, used only if `depth==0`, `layer_structure is None`,
-          and `not LINEAR` and `not USE_ABSOLUTE_BIAS`. If a scalar, broadcast
+          and `not PARITY` and `not USE_ABSOLUTE_BIAS`. If a scalar, broadcast
           to length N. Must lie in [0, 1]. Default 0.5.
 
         - absolute_bias (float | list[float] | np.ndarray[float], optional):
           Absolute deviation from 0.5 (i.e., `|bias-0.5|*2`), used only if
-          `depth==0`, `layer_structure is None`, `not LINEAR`, and
+          `depth==0`, `layer_structure is None`, `not PARITY`, and
           `USE_ABSOLUTE_BIAS`. If a scalar, broadcast to length N. Must lie
           in [0, 1]. Default 0.0.
 
@@ -1814,7 +1814,7 @@ def random_network(
           is used to set the bias per rule to either `0.5*(1 - abs_bias)` or
           `0.5*(1 + abs_bias)` at random. If False, `bias` is used. Only
           relevant when `depth==0`, `layer_structure is None`, and
-          `not LINEAR`. Default True.
+          `not PARITY`. Default True.
 
         - hamming_weight (int | list[int] | np.ndarray[int] | None,
           optional): Exact Hamming weights (number of ones in each truth
@@ -1867,7 +1867,7 @@ def random_network(
 
     **Notes:**
 
-        - **Precedence** for rule constraints: `LINEAR` → `layer_structure`
+        - **Precedence** for rule constraints: `PARITY` → `layer_structure`
           (if provided) → `depth` (+ `EXACT_DEPTH`) and bias settings only
           apply when no canalization constraints are requested.
 
@@ -1900,8 +1900,8 @@ def random_network(
         >>> # Nested canalizing update rules with specific layer structure (broadcast)
         >>> bn = random_network(N=5, n=3, layer_structure=[1,2])  # same for all nodes
 
-        >>> # Linear rules
-        >>> bn = random_network(N=7, n=2, LINEAR=True)
+        >>> # Parity rules
+        >>> bn = random_network(N=7, n=2, PARITY=True)
 
         >>> # Poisson in-degrees (truncated), no self-regulation, request strong connectivity
         >>> bn = random_network(N=12, n=1.6, indegree_distribution='poisson',
@@ -2021,7 +2021,7 @@ def random_network(
             depth=depth[i],
             EXACT_DEPTH=EXACT_DEPTH,
             layer_structure=layer_structure[i],
-            LINEAR=LINEAR,
+            PARITY=PARITY,
             ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
             bias=bias[i],
             absolute_bias=absolute_bias[i],
