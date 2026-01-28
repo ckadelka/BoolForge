@@ -2655,6 +2655,7 @@ class BooleanNetwork(WiringDiagram):
             attractor_fragilities = np.zeros(n_attractors, dtype=np.float64)
             
             if GET_STRATIFIED_COHERENCES:
+                distances_from_attractor = np.ones(2**self.N, dtype=int)
                 max_distance_from_attractor = max(distances_from_attractor)
                 stratified_coherences = np.zeros((n_attractors,max_distance_from_attractor+1), dtype=np.float64)
                 n_states_with_specific_distance_from_attractor = np.zeros((n_attractors,max_distance_from_attractor+1), dtype=int)
