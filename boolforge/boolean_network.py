@@ -31,6 +31,7 @@ import warnings
 
 from collections import defaultdict
 from collections.abc import Sequence
+from collections import deque
 from copy import deepcopy
 import numpy as np
 import networkx as nx
@@ -2506,7 +2507,60 @@ class BooleanNetwork(WiringDiagram):
             "STG": self.STG,
         }
 
-
+    
+    def get_transient_lengths_exact(
+        self,
+        res_exact: dict
+    ) -> np.ndarray:
+        """
+        Compute average transient length using:
+          - Full STG from get_attractors_synchronous_exact()
+          - Attractors (cycle states) from get_attractors_synchronous_exact()
+    
+        This avoids indegree-pruning because cycle states are given explicitly.
+        """
+        stg = self.STG               # full mapping: successor(s)
+        attractors = res_exact["Attractors"]   # list of cycles
+    
+        # Normalize STG to an integer array/list succ where succ[u] = v
+        if isinstance(stg, np.ndarray):
+            succ = stg.astype(int, copy=False)
+            n = int(succ.shape[0])
+        else:
+            succ = list(stg)
+            n = len(succ)
+    
+        # Build reverse adjacency list rev[v] = all u such that u -> v
+        rev = [[] for _ in range(n)]
+        for u in range(n):
+            v = int(succ[u])
+            if v < 0 or v >= n:
+                raise ValueError(f"Invalid successor: {u} -> {v}")
+            rev[v].append(u)
+    
+        # Initialize distances: all cycle states have transient length 0
+        dist = [-1] * n
+        bfs = deque()
+    
+        for cycle in attractors:
+            for s in cycle:
+                if dist[s] == -1:
+                    dist[s] = 0
+                    bfs.append(s)
+    
+        # Multi-source BFS outward from cycle states
+        while bfs:
+            v = bfs.popleft()
+            for u in rev[v]:
+                if dist[u] == -1:
+                    dist[u] = dist[v] + 1
+                    bfs.append(u)
+    
+        # If STG is complete, every state must get a distance
+        if any(d < 0 for d in dist):
+            raise RuntimeError("Some states did not receive a transient length. Is STG complete?")
+        
+        return np.array(dist,dtype=int)
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
     def get_attractors_and_robustness_measures_synchronous_exact(
@@ -2533,6 +2587,9 @@ class BooleanNetwork(WiringDiagram):
         USE_NUMBA : bool, optional
             If True (default) and Numba is available, use a compiled kernel for
             robustness computation.
+        GET_STRATIFIED_COHERENCES : bool, optional
+            If True, the coherence calculation is stratified (slow run time).
+            Default is False.
     
         Returns
         -------
@@ -2655,7 +2712,7 @@ class BooleanNetwork(WiringDiagram):
             attractor_fragilities = np.zeros(n_attractors, dtype=np.float64)
             
             if GET_STRATIFIED_COHERENCES:
-                distances_from_attractor = np.ones(2**self.N, dtype=int)
+                distances_from_attractor = self.get_transient_lengths_exact(result)
                 max_distance_from_attractor = max(distances_from_attractor)
                 stratified_coherences = np.zeros((n_attractors,max_distance_from_attractor+1), dtype=np.float64)
                 n_states_with_specific_distance_from_attractor = np.zeros((n_attractors,max_distance_from_attractor+1), dtype=int)
@@ -2671,8 +2728,8 @@ class BooleanNetwork(WiringDiagram):
                     idx_y = attractor_id[ydec]
                     
                     if GET_STRATIFIED_COHERENCES:
-                        n_states_with_specific_distance_from_attractor[idx_x,distances_from_attractor[xdec]] += 1.0
-                        n_states_with_specific_distance_from_attractor[idx_y,distances_from_attractor[ydec]] += 1.0
+                        n_states_with_specific_distance_from_attractor[idx_x,distances_from_attractor[xdec]] += 1
+                        n_states_with_specific_distance_from_attractor[idx_y,distances_from_attractor[ydec]] += 1
                         
                     if idx_x == idx_y:
                         basin_coherences[idx_x] += 2.0
@@ -2697,6 +2754,8 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         basin_counts = basin_sizes * float(n_states)
     
+        n_states_with_specific_distance_from_attractor = n_states_with_specific_distance_from_attractor//15
+    
         for i in range(n_attractors):
             if basin_counts[i] > 0.0:
                 basin_coherences[i] /= basin_counts[i] * self.N
@@ -2708,15 +2767,18 @@ class BooleanNetwork(WiringDiagram):
                 
             if GET_STRATIFIED_COHERENCES:
                 for d in range(max_distance_from_attractor+1):
-                    stratified_coherences[i,d] /= n_states_with_specific_distance_from_attractor[i,d] * self.N
-        
+                    if n_states_with_specific_distance_from_attractor[i,d] > 0.0:
+                        stratified_coherences[i,d] /= n_states_with_specific_distance_from_attractor[i,d] * self.N
+                    else:
+                        stratified_coherences[i,d] = np.nan
+                        
         coherence = float(np.dot(basin_sizes, basin_coherences))
         fragility = float(np.dot(basin_sizes, basin_fragilities))
     
         # ------------------------------------------------------------------
         # Final return
         # ------------------------------------------------------------------
-        return {
+        return_dict =  {
             "Attractors": attractors,
             "NumberOfAttractors": int(n_attractors),
             "BasinSizes": basin_sizes,
@@ -2728,6 +2790,11 @@ class BooleanNetwork(WiringDiagram):
             "AttractorCoherence": attractor_coherences,
             "AttractorFragility": attractor_fragilities,
         }
+        if GET_STRATIFIED_COHERENCES:
+            return_dict['StratifiedCoherences'] = stratified_coherences
+            return_dict['DistanceFromAttractorCount'] = n_states_with_specific_distance_from_attractor
+            return_dict['DistanceFromAttractor'] = distances_from_attractor
+        return return_dict
 
 
     def get_attractors_and_robustness_measures_synchronous(
