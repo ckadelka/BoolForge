@@ -538,32 +538,33 @@ def compress_trajectories(trajectories : list, num_bits : [int, None] = None) ->
             G.add_edge(pref_ids[-1], cycle_nodes[key][_cycle_offset_(cycle, key)])
     return G
 
-def product_of_trajectories(G1 : nx.DiGraph, G2 : nx.DiGraph) -> nx.DiGraph:
+def product_of_trajectories(compressed_trajectory_graph_1 : nx.DiGraph,
+    compressed_trajectory_graph_2 : nx.DiGraph) -> nx.DiGraph:
     _initial_1 = []
     _initial_2 = []
-    for n in G1.nodes:
-        if G1.nodes[n]["StIn"]:
+    for n in compressed_trajectory_graph_1.nodes:
+        if compressed_trajectory_graph_1.nodes[n]["StIn"]:
             _initial_1.append(n)
-    for n in G2.nodes:
-        if G2.nodes[n]["StIn"]:
+    for n in compressed_trajectory_graph_2.nodes:
+        if compressed_trajectory_graph_2.nodes[n]["StIn"]:
             _initial_2.append(n)
     G = nx.DiGraph()
     starting = []
     for n1 in _initial_1:
         for n2 in _initial_2:
             starting.append((n1, n2))
-            G.add_node((n1, n2), StIn=G1.nodes[n1]["StIn"] and G2.nodes[n2]["StIn"],
-                NLbl=f"{G1.nodes[n1]['NLbl']}{G2.nodes[n2]['NLbl']}")
+            G.add_node((n1, n2), StIn=compressed_trajectory_graph_1.nodes[n1]["StIn"] and compressed_trajectory_graph_2.nodes[n2]["StIn"],
+                NLbl=f"{compressed_trajectory_graph_1.nodes[n1]['NLbl']}{compressed_trajectory_graph_2.nodes[n2]['NLbl']}")
     stack = starting[:]
     visited = set(starting)
     while stack:
         u1, u2 = stack.pop()
-        for v1 in G1.successors(u1):
-            for v2 in G2.successors(u2):
+        for v1 in compressed_trajectory_graph_1.successors(u1):
+            for v2 in compressed_trajectory_graph_2.successors(u2):
                 new_pair = (v1, v2)
                 if new_pair not in G:
                     G.add_node(new_pair, StIn=False,
-                        NLbl=f"{G1.nodes[v1]['NLbl']}{G2.nodes[v2]['NLbl']}")
+                        NLbl=f"{compressed_trajectory_graph_1.nodes[v1]['NLbl']}{compressed_trajectory_graph_2.nodes[v2]['NLbl']}")
                 G.add_edge((u1, u2), new_pair)
                 if new_pair not in visited:
                     visited.add(new_pair)
@@ -571,9 +572,35 @@ def product_of_trajectories(G1 : nx.DiGraph, G2 : nx.DiGraph) -> nx.DiGraph:
     return G
 
 def plot_trajectory(compressed_trajectory_graph : nx.DiGraph) -> None:
-    pos = nx.spring_layout(compressed_trajectory_graph, seed=62)
-    nx.draw_networkx_nodes(compressed_trajectory_graph, pos, node_size=400, node_color="white")
-    nx.draw_networkx_edges(compressed_trajectory_graph, pos, arrows=True, arrowstyle="->", arrowsize=20)
+    def assign_layers(G):
+        layer = {}
+        current_offset = 0
+        for comp in nx.weakly_connected_components(G):
+            sub = G.subgraph(comp)
+            roots = [n for n in sub.nodes if sub.in_degree(n) == 0]
+            if not roots:
+                roots = [next(iter(sub.nodes))]
+            local_layer = {}
+            queue = list(roots)
+            for r in roots:
+                local_layer[r] = 0
+            while queue:
+                parent = queue.pop(0)
+                for child in G.successors(parent):
+                    if child not in local_layer:
+                        local_layer[child] = local_layer[parent] + 1
+                        queue.append(child)
+            for n, l in local_layer.items():
+                layer[n] = l + current_offset
+            current_offset += max(local_layer.values()) + 2
+        return layer
+    
+    layers = assign_layers(compressed_trajectory_graph)
+    nx.set_node_attributes(compressed_trajectory_graph, layers, "GLyr")
+    pos = nx.multipartite_layout(compressed_trajectory_graph, subset_key="GLyr", align="vertical")
+
+    nx.draw_networkx_nodes(compressed_trajectory_graph, pos, node_size=150, node_color="white")
+    nx.draw_networkx_edges(compressed_trajectory_graph, pos, arrows=True, arrowstyle="->", arrowsize=10, width=0.5)
     
     normal = {}
     boxed = {}
@@ -584,8 +611,8 @@ def plot_trajectory(compressed_trajectory_graph : nx.DiGraph) -> None:
             boxed.update({n:labels[n]})
         else:
             normal.update({n:labels[n]})
-    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=normal, font_size=10)
-    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=boxed, font_size=10,
+    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=normal, font_size=6)
+    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=boxed, font_size=6,
         bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="black", lw=1))
     
     plt.axis("off")
