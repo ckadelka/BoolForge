@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This module defines the :class:`~boolforge.BooleanFunction` class, which forms
+This module defines the [Boolean Function][boolforge.BooleanFunction] class, which forms
 the foundation of the BoolForge package.
 
 A :class:`BooleanFunction` represents a Boolean mapping
-:math:`f : \\{0,1\\}^n \\rightarrow \\{0,1\\}` and provides methods for
+\\(`f : \\{0,1\\}^n \\rightarrow \\{0,1\\}`)\\ and provides methods for
 evaluating, analyzing, and transforming Boolean functions. Supported operations
 include algebraic manipulation, sensitivity and canalization analysis, truth
 table generation, and function composition.

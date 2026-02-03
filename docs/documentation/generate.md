@@ -1,0 +1,3 @@
+# Generate
+
+::: boolforge.generate
