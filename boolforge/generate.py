@@ -28,13 +28,10 @@ Example
 
 
 ##Imports
-import math
-
 import numpy as np
 import networkx as nx
 
-from typing import Union
-from typing import Optional
+from collections.abc import Sequence
 
 try:
     from boolforge.boolean_function import BooleanFunction
@@ -58,8 +55,6 @@ def _validate_absolute_bias(absolute_bias: float) -> None:
         raise TypeError("absolute_bias must be a float")
     if not (0.0 <= absolute_bias <= 1.0):
         raise ValueError("absolute_bias must be in [0, 1]")
-
-
 
 def _validate_hamming_weight(
     n: int,
@@ -85,244 +80,7 @@ def random_function(
     n: int,
     depth: int = 0,
     EXACT_DEPTH: bool = False,
-    layer_structure: Optional[list] = None,
-    PARITY: bool = False,
-    ALLOW_DEGENERATE_FUNCTIONS: bool = False,
-    bias: float = 0.5,
-    absolute_bias: float = 0,
-    USE_ABSOLUTE_BIAS: bool = False,
-    hamming_weight: Optional[int] = None,
-    *,
-    rng=None,
-) -> BooleanFunction:
-    """
-    Generate a random Boolean function in n variables under flexible constraints.
-
-    Selection logic (first match applies):
-
-        - If `PARITY`: return a random **parity** function
-          (`random_parity_function`).
-
-        - Else if `layer_structure is not None`: return a function with the
-          specified **canalizing layer structure** using
-          `random_k_canalizing_function_with_specific_layer_structure`,
-          with exact canalizing depth if `EXACT_DEPTH`.
-
-        - Else if `depth > 0`: return a **k-canalizing** function with k =
-          min(depth, n) using `random_k_canalizing_function`, with exact
-          canalizing depth if `EXACT_DEPTH`.
-
-        - Else if exact `hamming_weight` is provided: sample uniformly a truth
-          table with the requested number of ones, and keep resampling until
-          the additional constraints implied by `ALLOW_DEGENERATE_FUNCTIONS`
-          and `EXACT_DEPTH` are satisfied:
-
-            - If `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`: return a
-              **non-canalizing** function with exact Hamming weight.
-
-            - If `ALLOW_DEGENERATE_FUNCTIONS` and not `EXACT_DEPTH`: return
-              a fully random function with exact Hamming weight.
-
-            - If not `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`: return
-              a **non-canalizing & non-degenerate** function with exact
-              Hamming weight.
-
-            - Else: return a **non-degenerate** function with exact Hamming
-              weight.
-
-        - Else:
-
-            - Choose a bias:
-
-                - If `USE_ABSOLUTE_BIAS`, set `bias` randomly to
-                  `0.5*(1−absolute_bias)` or `0.5*(1+absolute_bias)`.
-
-                - Else, use `bias` directly.
-
-            - Then:
-
-                - If `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`: return
-                  a **non-canalizing** function with that bias
-                  (`random_non_canalizing_function`).
-
-                - If `ALLOW_DEGENERATE_FUNCTIONS` and not `EXACT_DEPTH`:
-                  return a fully random function with that bias, as used in
-                  classical NK-Kauffman models (`random_function_with_bias`).
-
-                - If not `ALLOW_DEGENERATE_FUNCTIONS` and `EXACT_DEPTH`:
-                  return a **non-canalizing, non-degenerate** function
-                  (`random_non_canalizing_non_degenerate_function`).
-
-                - Else (default, if only 'n' is provided): return a
-                  **non-degenerate** function with that bias
-                  (`random_non_degenerate_function`).
-
-
-    **Parameters:**
-
-        - n (int): Number of variables (n >= 1 for most nontrivial generators).
-        - depth (int, optional): Requested canalizing depth (used when
-          `layer_structure is None` and `depth > 0`). If `EXACT_DEPTH`,
-          the function has exactly this depth (clipped at n); otherwise, at
-          least this depth. Default 0.
-
-        - EXACT_DEPTH (bool, optional): Enforce exact canalizing depth where
-          applicable. For the case `depth == 0` this implies
-          **non-canalizing**. Default False.
-
-        - layer_structure (list[int] | None, optional): Canalizing layer
-          structure [k1, ..., kr]. If provided, it takes precedence over
-          `depth`. Exact depth behavior follows `EXACT_DEPTH`. Default None.
-
-        - PARITY (bool, optional): If True, ignore other generation options
-          and return a random parity function. Default False.
-
-        - ALLOW_DEGENERATE_FUNCTIONS (bool, optional): If True, generators
-          in the “random” branches may return functions with non-essential
-          inputs. If False, those branches insist on non-degenerate functions.
-          Default False.
-
-        - bias (float, optional): Probability of 1s when sampling with bias
-          (ignored if `USE_ABSOLUTE_BIAS` or a different branch is taken).
-          Must be in [0,1]. Default 0.5.
-
-        - absolute_bias (float, optional): Absolute deviation parameter in
-          [0,1] used when `USE_ABSOLUTE_BIAS`. The actual bias is chosen at
-          random from {0.5*(1−absolute_bias), 0.5*(1+absolute_bias)}. Default 0.
-
-        - USE_ABSOLUTE_BIAS (bool, optional): If True, use `absolute_bias` to
-          set the distance from 0.5; otherwise use `bias` directly. Default False.
-
-        - hamming_weight (int | None, optional): If provided, enforce an
-          exact number of ones in the truth table (0..2^n). Additional
-          constraints apply with `EXACT_DEPTH` and degeneracy settings (see
-          selection logic above). Default None.
-
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
-
-    **Returns:**
-
-        - BooleanFunction: The generated Boolean function of arity n.
-
-    **Raises:**
-
-        - AssertionError: If parameter ranges are violated, e.g.:
-
-            - `0 <= bias <= 1` (when used),
-            - `0 <= absolute_bias <= 1` (when used),
-            - `hamming_weight` in {0, ..., 2^n} (when used),
-            - If `EXACT_DEPTH` and `depth==0`, then `hamming_weight`
-              must be in {2,3,...,2^n−2} (since weights 0,1,2^n−1,2^n are
-              canalizing).
-
-        - AssertionError (from called generators): Some subroutines require
-          `n > 1` for non-canalizing generation.
-
-    **Notes:**
-
-        - Extremely biased random functions (with bias very close to 0 or 1)
-          are often degenerate and highly canalizing; some functions force
-          bias in [0.001,0.999] to avoid RunTimeErrors.
-
-
-    **Examples:**
-
-        >>> # Unbiased, non-degenerate random function
-        >>> f = random_function(n=3)
-
-        >>> # Non-degenerate function with minimal canalizing depth 2
-        >>> f = random_function(n=5, depth=2)
-
-        >>> # Non-degenerate function with exact canalizing depth 2
-        >>> f = random_function(n=5, depth=2, EXACT_DEPTH=True)
-
-        >>> # Non-degenerate function with a specific layer structure (takes precedence over `depth`)
-        >>> f = random_function(n=6, layer_structure=[2, 1], EXACT_DEPTH=False)
-
-        >>> # Parity function
-        >>> f = random_function(n=4, PARITY=True)
-
-        >>> # Fixed Hamming weight under non-canalizing + non-degenerate constraints
-        >>> f = random_function(n=5, hamming_weight=10, EXACT_DEPTH=True,
-        ...                     ALLOW_DEGENERATE_FUNCTIONS=False)
-        
-        >>> # Completely random (possibly degenerate) function
-        >>> f = random_function(n=3, ALLOW_DEGENERATE_FUNCTIONS=True)
-    """
-    rng = utils._coerce_rng(rng)
-
-    if PARITY:
-        return random_parity_function(n, rng=rng)
-    elif layer_structure is not None:
-        return random_k_canalizing_function_with_specific_layer_structure(
-            n,
-            layer_structure,
-            EXACT_DEPTH=EXACT_DEPTH,
-            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
-            rng=rng,
-        )
-    elif depth > 0:
-        return random_k_canalizing_function(
-            n,
-            min(depth, n),
-            EXACT_DEPTH=EXACT_DEPTH,
-            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
-            rng=rng,
-        )
-    elif hamming_weight is not None:
-        assert (
-            isinstance(hamming_weight, (int, np.integer))
-            and 0 <= hamming_weight <= 2**n
-        ), "Hamming weight must be an integer in {0,1,...,2^n}"
-        assert 1 < hamming_weight < 2**n - 1 or not EXACT_DEPTH, (
-            "If EXACT_DEPTH=True and 'depth=0', Hamming_weight must be in 2,3,...,2^n-2. All functions with Hamming weight 0,1,2^n-1,2^n are canalizing"
-        )
-        f = random_function_with_exact_hamming_weight(n, hamming_weight, rng=rng)
-        while True:
-            if ALLOW_DEGENERATE_FUNCTIONS and EXACT_DEPTH:
-                if not f.is_canalizing():
-                    return f
-            elif ALLOW_DEGENERATE_FUNCTIONS:
-                return f
-            elif EXACT_DEPTH:
-                if not f.is_canalizing() and not f.is_degenerate():
-                    return f
-            else:
-                if not f.is_degenerate():
-                    return f
-            f = random_function_with_exact_hamming_weight(n, hamming_weight, rng=rng)
-    else:
-        if USE_ABSOLUTE_BIAS:
-            assert 0 <= absolute_bias <= 1, (
-                "absolute_bias must be in [0,1]. Absolute bias determines the choice of `bias`, which is set randomly to `0.5*(1−absolute_bias)` or `0.5*(1+absolute_bias)`."
-            )
-            bias_of_function = rng.choice(
-                [0.5 * (1 - absolute_bias), 0.5 * (1 + absolute_bias)]
-            )
-        else:
-            assert 0 <= bias <= 1, (
-                "bias must be in [0,1]. It describes the probability of a 1 in the randomly generated function."
-            )
-            bias_of_function = bias
-        if ALLOW_DEGENERATE_FUNCTIONS:
-            if EXACT_DEPTH is True:
-                return random_non_canalizing_function(n, bias_of_function, rng=rng)
-            else:  # completely random function
-                return random_function_with_bias(n, bias_of_function, rng=rng)
-        else:
-            if EXACT_DEPTH is True:
-                return random_non_canalizing_non_degenerate_function(
-                    n, bias_of_function, rng=rng
-                )
-            else:  # generated by default
-                return random_non_degenerate_function(n, bias_of_function, rng=rng)
-
-
-def generate_random_function(
-    n: int,
-    depth: int = 0,
-    EXACT_DEPTH: bool = False,
+    UNIFORM_STRUCTURE: bool = True,
     layer_structure: list[int] | None = None,
     PARITY: bool = False,
     ALLOW_DEGENERATE_FUNCTIONS: bool = False,
@@ -331,7 +89,7 @@ def generate_random_function(
     USE_ABSOLUTE_BIAS: bool = False,
     hamming_weight: int | None = None,
     *,
-    rng=None,
+    rng = None,
 ) -> BooleanFunction:
     """
     Generate a random Boolean function under flexible structural constraints.
@@ -342,7 +100,7 @@ def generate_random_function(
     Hamming weight, and biased random functions. The first applicable
     generation rule (in the order described below) is applied.
 
-    **Selection logic (first applicable rule is used)**
+    Selection logic (first applicable rule is used)
 
     1. If ``PARITY`` is True, return a random parity function
        (see ``random_parity_function``).
@@ -357,6 +115,12 @@ def generate_random_function(
        If ``EXACT_DEPTH`` is True, the function has exactly this depth;
        otherwise, its canalizing depth is at least ``k``.
 
+       If ``UNIFORM_STRUCTURE`` is True, canalizing layer structures are
+       sampled uniformly at random (up to the imposed constraints).
+       If False, canalized outputs are sampled independently and uniformly
+       as bitstrings, which biases the distribution toward more symmetric
+       layer structures.
+
     4. Else, if ``hamming_weight`` is provided, repeatedly sample Boolean
        functions with the specified Hamming weight until additional
        constraints implied by ``EXACT_DEPTH`` and
@@ -364,7 +128,7 @@ def generate_random_function(
 
     5. Else, generate a random Boolean function using a Bernoulli model with
        either:
-       
+
        - fixed bias ``bias``, or
        - an automatically chosen bias determined by ``absolute_bias`` if
          ``USE_ABSOLUTE_BIAS`` is True.
@@ -385,10 +149,14 @@ def generate_random_function(
         Enforce exact canalizing depth where applicable. If ``depth == 0``,
         setting ``EXACT_DEPTH=True`` enforces that the function is
         non-canalizing. Default is False.
+    UNIFORM_STRUCTURE : bool, optional
+        If True (default), canalizing layer structures are sampled uniformly
+        at random in canalizing-function branches. If False, canalized outputs
+        are sampled independently as bitstrings, inducing a bias toward more
+        symmetric structures.
     layer_structure : list[int] or None, optional
         Explicit canalizing layer structure ``[k1, ..., kr]``. If provided,
-        this takes precedence over ``depth``. Exactness of the canalizing
-        depth is controlled by ``EXACT_DEPTH``. Default is None.
+        this takes precedence over ``depth``. Default is None.
     PARITY : bool, optional
         If True, ignore all other options and return a random parity function.
         Default is False.
@@ -412,7 +180,7 @@ def generate_random_function(
         If provided, enforce that the Boolean function has exactly this many
         ones in its truth table. Additional constraints are enforced depending
         on ``EXACT_DEPTH`` and ``ALLOW_DEGENERATE_FUNCTIONS``. Default is None.
-    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
         Random number generator or seed specification. Passed to
         ``utils._coerce_rng``.
 
@@ -430,33 +198,34 @@ def generate_random_function(
 
     Notes
     -----
-    - This function does not sample uniformly from the space of Boolean
-      functions satisfying the given constraints.
-    - Extremely biased functions are often degenerate or canalizing; some
-      generation branches may reject repeatedly under restrictive settings.
-    - For most use cases, calling specialized generators (e.g.,
-      ``random_parity_function`` or ``random_k_canalizing_function``)
-      directly is recommended.
+    For any fixed combination of parameters, this function samples **uniformly
+    at random** from the set of Boolean functions satisfying the corresponding
+    constraints. Non-uniformity arises only when explicitly requested via
+    ``UNIFORM_STRUCTURE=False``.
+
+    Extremely biased functions are often degenerate or highly canalizing;
+    under restrictive parameter choices, some branches may reject repeatedly
+    before returning a valid function.
 
     Examples
     --------
     >>> # Unbiased, non-degenerate random function
-    >>> f = generate_random_function(n=3)
+    >>> f = random_function(n=3)
 
     >>> # Function with canalizing depth at least 2
-    >>> f = generate_random_function(n=5, depth=2)
+    >>> f = random_function(n=5, depth=2)
 
     >>> # Function with exact canalizing depth 2
-    >>> f = generate_random_function(n=5, depth=2, EXACT_DEPTH=True)
+    >>> f = random_function(n=5, depth=2, EXACT_DEPTH=True)
 
     >>> # Function with a specific canalizing layer structure
-    >>> f = generate_random_function(n=6, layer_structure=[2, 1])
+    >>> f = random_function(n=6, layer_structure=[2, 1])
 
     >>> # Parity function
-    >>> f = generate_random_function(n=4, PARITY=True)
+    >>> f = random_function(n=4, PARITY=True)
 
     >>> # Fixed Hamming weight with non-canalizing and non-degenerate constraints
-    >>> f = generate_random_function(
+    >>> f = random_function(
     ...     n=5,
     ...     hamming_weight=10,
     ...     EXACT_DEPTH=True,
@@ -498,6 +267,7 @@ def generate_random_function(
             n,
             min(depth, n),
             EXACT_DEPTH=EXACT_DEPTH,
+            UNIFORM_STRUCTURE=UNIFORM_STRUCTURE,
             ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
             rng=rng,
         )
@@ -588,10 +358,6 @@ def random_function_with_bias(
     -------
     BooleanFunction
         Random Boolean function with the specified bias.
-
-    Notes
-    -----
-    Truth-table entries are generated independently.
     """
     rng = utils._coerce_rng(rng)
     return BooleanFunction._from_f_unchecked(
@@ -634,12 +400,6 @@ def random_function_with_exact_hamming_weight(
         If ``hamming_weight`` is not an integer.
     ValueError
         If ``hamming_weight`` is not in the range ``[0, 2**n]``.
-
-    Notes
-    -----
-    - Truth-table entries are not sampled independently.
-    - All Boolean functions with the specified Hamming weight are equally
-      likely to be returned.
     """
     rng = utils._coerce_rng(rng)
 
@@ -689,7 +449,7 @@ def random_parity_function(
     Notes
     -----
     - The returned function is either
-      ``x1 ⊕ x2 ⊕ ... ⊕ xn`` or its complement.
+      ``x1 XOR x2 XOR ... XOR xn`` or its complement.
     - All variables are included symmetrically.
     - Parity functions are never canalizing. All variables must always be known
       to determine the output; they have maximal average sensitivity.
@@ -758,12 +518,6 @@ def random_non_degenerate_function(
     - For moderate bias values, almost all Boolean functions are non-degenerate.
     - Extremely biased functions are very likely to be degenerate, which may
       lead to long rejection-sampling times.
-
-    References
-    ----------
-    C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
-    The influence of canalization on the robustness of Boolean networks.
-    *Physica D: Nonlinear Phenomena*, 353, 39–47.
     """
     if not isinstance(n, (int, np.integer)) or n <= 0:
         raise ValueError("n must be a positive integer")
@@ -826,12 +580,6 @@ def random_degenerate_function(
     - The resulting distribution is not uniform over all degenerate Boolean
       functions.
     - This construction avoids rejection sampling.
-
-    References
-    ----------
-    C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
-    The influence of canalization on the robustness of Boolean networks.
-    *Physica D: Nonlinear Phenomena*, 353, 39–47.
     """
     if not isinstance(n, (int, np.integer)) or n <= 0:
         raise ValueError("n must be a positive integer")
@@ -906,7 +654,7 @@ def random_non_canalizing_function(
     ----------
     C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
     The influence of canalization on the robustness of Boolean networks.
-    *Physica D: Nonlinear Phenomena*, 353, 39–47.
+    Physica D: Nonlinear Phenomena, 353, 39–47.
     """
     if not isinstance(n, (int, np.integer)) or n <= 1:
         raise ValueError("n must be an integer greater than 1")
@@ -974,7 +722,7 @@ def random_non_canalizing_non_degenerate_function(
     ----------
     C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
     The influence of canalization on the robustness of Boolean networks.
-    *Physica D: Nonlinear Phenomena*, 353, 39–47.
+    Physica D: Nonlinear Phenomena, 353, 39–47.
     """
     if not isinstance(n, (int, np.integer)) or n <= 1:
         raise ValueError("n must be an integer greater than 1")
@@ -1036,7 +784,7 @@ def _get_uniform_structure_weights(max_n, NCF=True):
     
     W = np.zeros((max_n + 1, max_n + 2), dtype=float)
 
-    # Base case: no positions left → close final run
+    # Base case: no positions left -> close final run
     inv_factorial_of_s = 1.0
     for s in range(1, max_n + 2):
         inv_factorial_of_s /= s
@@ -1058,9 +806,10 @@ def _get_uniform_structure_weights(max_n, NCF=True):
     _uniform_structure_weights[(max_n,NCF)] = W    
     return W
 
+
 def sample_canalized_outputs_uniform_structure(n, W, *, rng):
     """
-    Sample a canalized output bitstring with uniform layer-structure weighting.
+    Sample a canalized output bitstring yielding uniform layer-structure weighting.
 
     This function samples a binary vector ``b`` of length ``n`` representing
     canalized output values, where consecutive equal values are part of the same
@@ -1138,50 +887,75 @@ def random_k_canalizing_function(
     """
     Generate a random k-canalizing Boolean function in n variables.
 
-    A Boolean function is k-canalizing if it has at least k conditionally
-    canalizing variables. If EXACT_DEPTH is True, the function will have
-    exactly k canalizing variables; otherwise, its canalizing depth may
-    exceed k.
+    A Boolean function is k-canalizing if it has at least k conditionally 
+    canalizing variables. If ``EXACT_DEPTH`` is True, the function has exactly
+    k conditionally canalizing variables; otherwise, its canalizing depth 
+    may exceed k.
 
-    **Parameters:**
+    Parameters
+    ----------
+    n : int
+        Number of Boolean variables.
+    k : int
+        Requested canalizing depth. Must satisfy ``0 <= k <= n``.
+        Setting ``k = n`` generates a nested canalizing function.
+    EXACT_DEPTH : bool, optional
+        If True, enforce that the canalizing depth is exactly ``k``.
+        If False (default), the depth is at least ``k``.
+    UNIFORM_STRUCTURE : bool, optional
+        If True (default), canalized outputs are sampled uniformly over
+        canalizing layer structures. Specifically, layer structures
+        ``(k_1, ..., k_r)`` are sampled with probability proportional to
+        ``1 / (k_1! ... k_r!)``, removing the bias toward symmetric
+        structures induced by independent sampling.
+        If ``k == n``, the nested canalizing constraint that the final
+        layer has size at least 2 is enforced.
+        If False, canalized outputs are sampled independently and
+        uniformly as a bitstring, which biases the distribution toward
+        more symmetric layer structures.
+    ALLOW_DEGENERATE_FUNCTIONS : bool, optional
+        If True, the non-canalizing core function may be degenerate.
+        If False (default), non-degenerate core functions are enforced
+        whenever possible.
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - n (int): Number of variables.
-        - k (int): Number of canalizing variables. Set 'k=n' to generate a
-          random nested canalizing function.
+    Returns
+    -------
+    BooleanFunction
+        A Boolean function on ``n`` variables with canalizing depth at
+        least ``k`` (or exactly ``k`` if ``EXACT_DEPTH=True``).
 
-        - EXACT_DEPTH (bool, optional): If True, enforce that the canalizing
-          depth is exactly k (default is False).
-          
-        - UNIFORM_STRUCTURE (bool, optional):
-          If True (default), the canalized output vector (b_1,...,b_k) is sampled
-          uniformly over canalizing layer structures, i.e. with probability
-          proportional to 1 / prod_i k_i!, where (k_1,...,k_r) is the layer structure induced
-          by consecutive equal outputs. This removes a sampling bias toward
-          layer structures with more symmetry.
-          If k = n, the nested canalizing constraint (final layer size ≥ 2) is enforced.
-          If False, canalized outputs are sampled independently and uniformly as
-          bitstrings, which biases the distribution toward more symmetric layer structures.
+    Raises
+    ------
+    AssertionError
+        If ``n`` is not a positive integer.
+    AssertionError
+        If ``k`` does not satisfy ``0 <= k <= n``.
+    AssertionError
+        If ``EXACT_DEPTH=True`` and ``k = n-1`` (no such functions exist).
 
-        - ALLOW_DEGENERATE_FUNCTIONS(bool, optional): If True (default False)
-          and k==0 and layer_structure is None, degenerate functions may be
-          created as in classical NK-Kauffman networks.
+    Notes
+    -----
+    For fixed parameter values, this function samples uniformly at random
+    from the ensemble of Boolean functions consistent with the specified
+    constraints. Non-uniformity arises only when
+    ``UNIFORM_STRUCTURE=False``.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    The construction follows the standard decomposition of a k-canalizing
+    function into canalizing variables, canalizing inputs and outputs, and
+    a residual core function on ``n-k`` variables.
 
-    **Returns:**
+    References
+    ----------
+    He, Q., and Macauley, M. (2016).
+        Stratification and enumeration of Boolean functions by canalizing depth.
+        Physica D: Nonlinear Phenomena, 314, 1–8.
 
-        - BooleanFunction: Boolean function object.
-
-    **References:**
-
-        #. He, Q., & Macauley, M. (2016). Stratification and enumeration of
-           Boolean functions by canalizing depth. Physica D: Nonlinear
-           Phenomena, 314, 1-8.
-
-        #. Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D. (2022).
-           Revealing the canalizing structure of Boolean functions: Algorithms
-           and applications. Automatica, 146, 110630.
+    Dimitrova, E., Stigler, B., Kadelka, C., and Murrugarra, D. (2022).
+        Revealing the canalizing structure of Boolean functions: Algorithms
+        and applications. Automatica, 146, 110630.
     """
     rng = utils._coerce_rng(rng)
 
@@ -1225,7 +999,7 @@ def random_k_canalizing_function(
     # fill remaining with core truth table
     f[f < 0] = np.asarray(core_function, dtype=np.int8)
 
-    return BooleanFunction(f)
+    return BooleanFunction._from_f_unchecked(f)
 
 
 def random_k_canalizing_function_with_specific_layer_structure(
@@ -1237,45 +1011,76 @@ def random_k_canalizing_function_with_specific_layer_structure(
     rng=None,
 ) -> BooleanFunction:
     """
-    Generate a random Boolean function in n variables with a specified
-    canalizing layer structure.
+    Generate a random Boolean function with a specified canalizing layer structure.
 
-    The layer structure is given as a list [k_1, ..., k_r], where each
-    k_i indicates the number of canalizing variables in that layer. If the
-    function is fully canalizing (i.e. sum(layer_structure) == n and n > 1),
-    the last layer must have at least 2 variables.
+    The canalizing layer structure is given as a list
+    ``[k_1, ..., k_r]``, where each ``k_i`` specifies the number of
+    canalizing variables in the i-th layer. The total canalizing depth is
+    ``sum(layer_structure)``.
 
-    **Parameters:**
+    If ``sum(layer_structure) == n`` and ``n > 1``, the function is a nested
+    canalizing function and the final layer is required to have size at
+    least 2.
 
-        - n (int): Total number of variables.
-        - layer_structure (list[int]): List [k_1, ..., k_r] describing the
-          canalizing layer structure. Each k_i ≥ 1, and if
-          sum(layer_structure) == n and n > 1, then layer_structure[-1] ≥ 2.
-          Set sum(layer_structure)==n to generate a random nested canalizing
-          function.
+    Parameters
+    ----------
+    n : int
+        Total number of Boolean variables.
+    layer_structure : list of int
+        Canalizing layer structure ``[k_1, ..., k_r]``. Each entry must be
+        at least 1. If ``sum(layer_structure) == n`` and ``n > 1``, the final
+        entry must satisfy ``layer_structure[-1] >= 2``.
+    EXACT_DEPTH : bool, optional
+        If True, enforce that the canalizing depth is exactly
+        ``sum(layer_structure)``. If False (default), additional canalizing
+        variables may occur in the core function.
+    ALLOW_DEGENERATE_FUNCTIONS : bool, optional
+        If True, the non-canalizing core function may be degenerate.
+        If False (default), non-degenerate core functions are enforced
+        whenever possible.
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - EXACT_DEPTH (bool, optional): If True, the canalizing depth is
-          exactly sum(layer_structure) (default is False).
+    Returns
+    -------
+    BooleanFunction
+        A Boolean function on ``n`` variables with the prescribed canalizing
+        layer structure.
 
-        - ALLOW_DEGENERATE_FUNCTIONS(bool, optional): If True (default False),
-          the core function may be degenerate, as in NK-Kauffman networks.
+    Raises
+    ------
+    AssertionError
+        If ``n`` is not a positive integer.
+    AssertionError
+        If ``sum(layer_structure)`` does not satisfy ``0 <= sum(layer_structure) <= n``.
+    AssertionError
+        If ``EXACT_DEPTH=True`` and ``sum(layer_structure) = n - 1``.
+    AssertionError
+        If ``sum(layer_structure) = n > 1`` and the final layer has size less
+        than 2.
+    AssertionError
+        If any entry of ``layer_structure`` is less than 1.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    Notes
+    -----
+    For fixed parameter values, this function samples uniformly at random
+    from the ensemble of Boolean functions consistent with the specified
+    canalizing layer structure and additional constraints.
 
-    **Returns:**
+    The construction follows the standard decomposition of a canalizing
+    function into ordered canalizing layers and a residual core function on
+    the remaining variables.
 
-        - BooleanFunction: Boolean function object.
+    References
+    ----------
+    He, Q., and Macauley, M. (2016).
+        Stratification and enumeration of Boolean functions by canalizing depth.
+        Physica D: Nonlinear Phenomena, 314, 1–8.
 
-    **References:**
-
-        #. He, Q., & Macauley, M. (2016). Stratification and enumeration of
-           Boolean functions by canalizing depth. Physica D: Nonlinear
-           Phenomena, 314, 1-8.
-
-        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence
-           of canalization on the robustness of Boolean networks. Physica D:
-           Nonlinear Phenomena, 353, 39-47.
+    Kadelka, C., Kuipers, J., and Laubenbacher, R. (2017).
+        The influence of canalization on the robustness of Boolean networks.
+        Physica D: Nonlinear Phenomena, 353, 39–47.
     """
     rng = utils._coerce_rng(rng)
     depth = sum(layer_structure)  # canalizing depth
@@ -1324,140 +1129,186 @@ def random_k_canalizing_function_with_specific_layer_structure(
     # fill remaining with core truth table
     f[f < 0] = np.asarray(core_function, dtype=np.int8)
 
-    return BooleanFunction(f)
+    return BooleanFunction._from_f_unchecked(f)
 
 
-def random_nested_canalizing_function(
-    n: int, layer_structure: Optional[list] = None, *, rng=None
+def random_NCF(
+    n: int,
+    UNIFORM_STRUCTURE: bool = True,
+    layer_structure: list | None = None,
+    *,
+    rng=None
 ) -> BooleanFunction:
     """
-    Generate a random nested canalizing Boolean function in n variables
-    with a specified canalizing layer structure (if provided).
+    Generate a random nested canalizing Boolean function in n variables.
 
-    The layer structure is given as a list [k_1, ..., k_r], where each k_i
-    indicates the number of canalizing variables in that layer. If the
-    function is fully canalizing (i.e. sum(layer_structure) == n and n > 1),
-    the last layer must have at least 2 variables.
+    A nested canalizing function (NCF) is an n-canalizing Boolean function,
+    i.e., a function whose canalizing depth equals the number of variables.
+    Optionally, a specific canalizing layer structure may be prescribed.
 
-    **Parameters:**
+    Parameters
+    ----------
+    n : int
+        Total number of Boolean variables.
+    UNIFORM_STRUCTURE : bool, optional
+        If True (default) and ``layer_structure`` is None, canalizing layer
+        structures are sampled uniformly at random, removing the bias toward
+        symmetric structures induced by independent sampling of canalized
+        outputs. If False, canalized outputs are sampled independently and
+        uniformly as a bitstring, which biases the distribution toward more
+        symmetric layer structures.
+        This parameter is ignored if ``layer_structure`` is provided.
+    layer_structure : list of int or None, optional
+        Canalizing layer structure ``[k_1, ..., k_r]``. Each entry must be at
+        least 1. If provided, it must satisfy ``sum(layer_structure) == n``.
+        If ``n > 1``, the final entry must satisfy
+        ``layer_structure[-1] >= 2``. If None (default), the layer structure
+        is sampled at random.
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - n (int): Total number of variables.
-        - layer_structure (list[int] | optional): List [k_1, ..., k_r]
-          describing the canalizing layer structure. Each k_i ≥ 1, and if
-          sum(layer_structure) == n and n > 1, then layer_structure[-1] ≥ 2.
-          Set sum(layer_structure)==n to generate a random nested canalizing
-          function.
+    Returns
+    -------
+    BooleanFunction
+        A nested canalizing Boolean function on ``n`` variables.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    Raises
+    ------
+    AssertionError
+        If ``n`` is not a positive integer.
+    AssertionError
+        If ``layer_structure`` is provided but does not satisfy
+        ``sum(layer_structure) == n``.
+    AssertionError
+        If ``n > 1`` and the final layer has size less than 2.
 
-    **Returns:**
+    Notes
+    -----
+    For fixed parameter values, this function samples uniformly at random
+    from the ensemble of nested canalizing Boolean functions consistent with
+    the specified constraints. Non-uniformity arises only when
+    ``UNIFORM_STRUCTURE=False``.
 
-        - BooleanFunction: Boolean function object.
+    This function is a convenience wrapper around
+    ``random_k_canalizing_function`` and
+    ``random_k_canalizing_function_with_specific_layer_structure``.
 
-    **References:**
+    References
+    ----------
+    He, Q., and Macauley, M. (2016).
+        Stratification and enumeration of Boolean functions by canalizing depth.
+        Physica D: Nonlinear Phenomena, 314, 1–8.
 
-        #. He, Q., & Macauley, M. (2016). Stratification and enumeration of
-           Boolean functions by canalizing depth. Physica D: Nonlinear
-           Phenomena, 314, 1-8.
-
-        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence
-           of canalization on the robustness of Boolean networks. Physica D:
-           Nonlinear Phenomena, 353, 39-47.
+    Kadelka, C., Kuipers, J., and Laubenbacher, R. (2017).
+        The influence of canalization on the robustness of Boolean networks.
+        Physica D: Nonlinear Phenomena, 353, 39–47.
     """
     rng = utils._coerce_rng(rng)
     if layer_structure is None:
-        return random_k_canalizing_function(n, n, EXACT_DEPTH=False, rng=rng)
+        return random_k_canalizing_function(n, 
+                                            n, 
+                                            UNIFORM_STRUCTURE=UNIFORM_STRUCTURE,
+                                            EXACT_DEPTH=False, 
+                                            rng=rng)
     else:
         assert sum(layer_structure) == n, "Ensure sum(layer_structure) == n."
         assert layer_structure[-1] > 1 or n == 1, (
             "The last layer of an NCF has to have size >= 2 whenever n > 1.\nEnsure that layer_structure[-1]>=2."
         )
         return random_k_canalizing_function_with_specific_layer_structure(
-            n, layer_structure, EXACT_DEPTH=False, rng=rng
+            n, 
+            layer_structure, 
+            EXACT_DEPTH=False, 
+            rng=rng
         )
-
-
-def random_NCF(
-    n: int, layer_structure: Optional[list] = None, *, rng=None
-) -> BooleanFunction:
-    """
-    Alias of random_nested_canalizing_function.
-    """
-    return random_nested_canalizing_function(
-        n=n, layer_structure=layer_structure, rng=rng
-    )
 
 
 ## Random network generation
 def random_degrees(
     N: int,
-    n: Union[int, float, list, np.ndarray],
+    n: int | float | list | np.ndarray,
     indegree_distribution: str = "constant",
     NO_SELF_REGULATION: bool = True,
     *,
     rng=None,
 ) -> np.ndarray:
     """
-    Draw an in-degree vector for a network of N nodes.
+    Draw an in-degree vector for a directed network with N nodes.
 
-    You can either (i) pass a full vector of in-degrees and use it as-is, or
-    (ii) ask the function to *sample* in-degrees from a chosen distribution.
+    This function either accepts a user-specified in-degree vector or
+    samples in-degrees independently for each node from a specified
+    distribution.
 
-    **Parameters:**
+    Parameters
+    ----------
+    N : int
+        Number of nodes in the network. Must be a positive integer.
+    n : int, float, list of int, or ndarray of int
+        Interpretation depends on ``indegree_distribution``:
 
-        - N (int) :Number of nodes (>= 1).
+        - If ``n`` is a length-``N`` vector of integers, it is interpreted
+          as a user-specified in-degree sequence and returned after
+          validation.
 
-        - n (int, float, list[int], np.ndarray[int]): Meaning depends on
-          `indegree_distribution`:
+        - If ``indegree_distribution`` is one of
+          ``{'constant', 'dirac', 'delta'}``, then ``n`` is a single integer
+          specifying the in-degree of every node.
 
-            - If `n` is a length-N vector of integers, it is returned
-              (after validation).
+        - If ``indegree_distribution == 'uniform'``, then ``n`` is a positive
+          integer upper bound, and each node independently receives an
+          in-degree sampled uniformly from
+          ``{1, 2, ..., n}``.
 
-            - If `indegree_distribution` in {'constant','dirac','delta'}:
-              the single integer `n` describes the in-degree of each node.
+        - If ``indegree_distribution == 'poisson'``, then ``n`` is the Poisson
+          rate parameter ``λ > 0``. Each node independently receives a
+          Poisson(``λ``) draw, truncated to lie in
+          ``[1, N - int(NO_SELF_REGULATION)]``.
 
-            - If `indegree_distribution` == 'uniform': `n` is an integer upper
-              bound; each node gets an integer sampled *uniformly* from {1, 2,
-              ..., n}.
+    indegree_distribution : str, optional
+        Distribution used to generate in-degrees when ``n`` is not a vector.
+        Must be one of ``{'constant', 'dirac', 'delta', 'uniform', 'poisson'}``.
+        Default is ``'constant'``.
+    NO_SELF_REGULATION : bool, optional
+        If True (default), self-loops are disallowed in subsequent wiring
+        generation. This is enforced here by capping in-degrees at ``N-1``.
+        If False, in-degrees may be as large as ``N``.
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-            - If `indegree_distribution` == 'poisson': `n` is the Poisson
-              rate λ (> 0); each node gets a Poisson(λ) draw, truncated to lie
-              in [1, N - int(NO_SELF_REGULATION)].
+    Returns
+    -------
+    indegrees : ndarray of int, shape (N,)
+        In-degree of each node. For sampled distributions, values lie in
+        ``[1, N - int(NO_SELF_REGULATION)]``.
 
-        - indegree_distribution (str, optional): One of {'constant', 'dirac',
-          'delta', 'uniform', 'poisson'}. Default 'constant'.
+    Raises
+    ------
+    AssertionError
+        If inputs are malformed, out of range, or an unsupported distribution
+        is requested.
 
-        - NO_SELF_REGULATION (bool, optional): If True, later wiring
-          generation will disallow self-loops. This parameter is used here to
-          cap sampled in-degrees at `N-1`. Default True.
+    Notes
+    -----
+    When sampling is requested, in-degrees for different nodes are generated
+    independently. No attempt is made to enforce graphicality or feasibility
+    of the resulting degree sequence for a particular wiring model; such
+    constraints must be handled downstream.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
+    Examples
+    --------
+    >>> random_degrees(5, n=2, indegree_distribution='constant')
+    array([2, 2, 2, 2, 2])
 
-    **Returns:**
+    >>> random_degrees(4, n=2, indegree_distribution='uniform', NO_SELF_REGULATION=True)
+    array([2, 1, 2, 2])
 
-        - indegrees (np.ndarray[int] (shape (N,))): The in-degree of each node,
-          with values in `[1, N - int(NO_SELF_REGULATION)]` for sampled
-          distributions.
+    >>> random_degrees(6, n=1.7, indegree_distribution='poisson')
+    array([1, 2, 1, 1, 2, 1])
 
-    **Raises:**
-
-        - AssertionError: If inputs are malformed or out of range.
-
-    **Examples:**
-
-        >>> random_degrees(5, n=2, indegree_distribution='constant')
-        array([2, 2, 2, 2, 2])
-
-        >>> random_degrees(4, n=2, indegree_distribution='uniform', NO_SELF_REGULATION=True)
-        array([2, 1, 2, 2])  # each in {1,2}
-
-        >>> random_degrees(6, n=1.7, indegree_distribution='poisson')
-        array([1, 2, 1, 1, 2, 1])
-
-        >>> random_degrees(3, n=[1, 2, 1])
-        array([1, 2, 1])
+    >>> random_degrees(3, n=[1, 2, 1])
+    array([1, 2, 1])
     """
     rng = utils._coerce_rng(rng)
 
@@ -1510,94 +1361,116 @@ def random_degrees(
 
 def random_edge_list(
     N: int,
-    indegrees: Union[list, np.array],
+    indegrees: Sequence[int],
     NO_SELF_REGULATION: bool,
     AT_LEAST_ONE_REGULATOR_PER_NODE: bool = False,
     *,
     rng=None,
 ) -> list:
     """
-    Generate a random edge list for a network of N nodes with optional
-    constraints.
+    Generate a random directed edge list for a network with prescribed in-degrees.
 
-    Each node i receives indegrees[i] incoming edges chosen at random.
-    Optionally, the function can ensure that every node regulates at least
-    one other node.
+    Each node ``i`` receives exactly ``indegrees[i]`` incoming edges, with
+    regulators chosen uniformly at random from the set of admissible source
+    nodes. Optionally, the construction enforces that every node regulates at
+    least one other node.
 
-    **Parameters:**
+    Parameters
+    ----------
+    N : int
+        Number of nodes in the network.
+    indegrees : sequence of int
+        Length-``N`` sequence specifying the number of incoming edges for each
+        node.
+    NO_SELF_REGULATION : bool
+        If True, self-loops (edges from a node to itself) are disallowed.
+    AT_LEAST_ONE_REGULATOR_PER_NODE : bool, optional
+        If True, enforce that every node has at least one outgoing edge.
+        This is achieved by rewiring edges while preserving the prescribed
+        in-degree sequence. Default is False.
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - N (int): Number of nodes.
+    Returns
+    -------
+    edge_list : list of tuple of int
+        List of directed edges represented as ``(source, target)`` pairs.
 
-        - indegrees (list[int] | np.array[int]): List of length N specifying
-          the number of regulators for each node.
+    Raises
+    ------
+    ValueError
+        If ``N`` or ``indegrees`` are inconsistent.
+    AssertionError
+        If sampling constraints cannot be satisfied.
 
-        - NO_SELF_REGULATION (bool): If True, disallow self-regulation.
+    Notes
+    -----
+    Regulators for each node are sampled uniformly at random without
+    replacement from the set of admissible source nodes. If
+    ``AT_LEAST_ONE_REGULATOR_PER_NODE``, the algorithm post-processes
+    the initially sampled edge list by replacing edges until every node
+    has at least one outgoing edge, while preserving all in-degrees and
+    respecting the self-regulation constraint.
 
-        - AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure
-          that each node has at least one outgoing edge (default is False).
-
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
-
-    **Returns:**
-
-        - list[tuple[int, int]]: A list of tuples (source, target)
-          representing the edges.
+    No guarantee is made that the resulting edge list is uniformly sampled
+    from the space of all directed graphs satisfying the constraints.
     """
+
     rng = utils._coerce_rng(rng)
-    if AT_LEAST_ONE_REGULATOR_PER_NODE == False:
-        edge_list = []
-        for i in range(N):
-            if NO_SELF_REGULATION:
-                indices = rng.choice(
-                    np.append(np.arange(i), np.arange(i + 1, N)),
-                    indegrees[i],
-                    replace=False,
-                )
-            else:
-                indices = rng.choice(np.arange(N), indegrees[i], replace=False)
-            edge_list.extend(list(zip(indices, i * np.ones(indegrees[i], dtype=int))))
-    else:
+
+    # ------------------------------------------------------------
+    # Step 1: generate initial edge list
+    # ------------------------------------------------------------
+    edge_list = []
+    for i in range(N):
+        if NO_SELF_REGULATION:
+            candidates = np.append(np.arange(i), np.arange(i + 1, N))
+        else:
+            candidates = np.arange(N)
+
+        indices = rng.choice(candidates, indegrees[i], replace=False)
+        edge_list.extend(zip(indices, np.full(indegrees[i], i, dtype=int)))
+
+    # ------------------------------------------------------------
+    # Step 2: enforce at least one outgoing edge per node (optional)
+    # ------------------------------------------------------------
+    if AT_LEAST_ONE_REGULATOR_PER_NODE:
         target_sources = [set() for _ in range(N)]
+        outdegrees = np.zeros(N, dtype=int)
+
         for s, t in edge_list:
             target_sources[t].add(s)
-        edge_list = []
-        outdegrees = np.zeros(N, dtype=int)
-        sum_indegrees = sum(indegrees)  # total number of regulations
-        for i in range(N):
-            if NO_SELF_REGULATION:
-                indices = rng.choice(
-                    np.append(np.arange(i), np.arange(i + 1, N)),
-                    indegrees[i],
-                    replace=False,
-                )
-            else:
-                indices = rng.choice(np.arange(N), indegrees[i], replace=False)
-            outdegrees[indices] += 1
-            edge_list.extend(list(zip(indices, i * np.ones(indegrees[i], dtype=int))))
-        while min(outdegrees) == 0:
+            outdegrees[s] += 1
+
+        sum_indegrees = len(edge_list)
+
+        while np.min(outdegrees) == 0:
             index_sink = np.where(outdegrees == 0)[0][0]
             index_edge = rng.integers(sum_indegrees)
-            t = edge_list[index_edge][1]
-            if NO_SELF_REGULATION and t == index_sink:  # avoid self-regulation
+
+            old_source, t = edge_list[index_edge]
+
+            if NO_SELF_REGULATION and t == index_sink:
                 continue
-            if (
-                index_sink in target_sources[t]
-            ):  # skip if it would duplicate (index_sink -> t)
+            if index_sink in target_sources[t]:
                 continue
-            # perform replacement & update bookkeeping
-            old_source = edge_list[index_edge][0]
+
+            # perform replacement
             target_sources[t].discard(old_source)
             target_sources[t].add(index_sink)
+
             edge_list[index_edge] = (index_sink, t)
+
             outdegrees[index_sink] += 1
             outdegrees[old_source] -= 1
+
     return edge_list
 
 
 def random_wiring_diagram(
     N: int,
-    n: Union[int, list, np.array, float],
+    n: int | float | list | np.ndarray,
     NO_SELF_REGULATION: bool = True,
     STRONGLY_CONNECTED: bool = False,
     indegree_distribution: str = "constant",
@@ -1607,45 +1480,78 @@ def random_wiring_diagram(
     rng=None,
 ) -> tuple:
     """
-    Generate a random wiring diagram for a network of N nodes.
+    Generate a random wiring diagram for a directed network with N nodes.
 
-    Each node i is assigned indegrees[i] outgoing edges (regulators) chosen at random.
-    Optionally, self-regulation (an edge from a node to itself) can be disallowed,
-    and the generated network can be forced to be strongly connected.
+    A wiring diagram specifies, for each node, the set of its regulators
+    (incoming neighbors). In-degrees are first generated according to the
+    specified distribution, after which edges are sampled uniformly at
+    random subject to the requested constraints.
 
-    **Parameters:**
+    Parameters
+    ----------
+    N : int
+        Number of nodes in the network.
+    n : int, float, list of int, or ndarray of int
+        Parameter determining the in-degree sequence. Interpretation depends
+        on ``indegree_distribution``:
 
-        - N (int): Number of nodes.
+        - If a length-``N`` vector is provided, it is interpreted as the
+          in-degree of each node.
+        - If ``indegree_distribution`` is ``'constant'`` (or ``'dirac'`` /
+          ``'delta'``), ``n`` specifies the in-degree of every node.
+        - If ``indegree_distribution`` is ``'uniform'``, ``n`` specifies the
+          upper bound of a discrete uniform distribution on
+          ``{1, ..., n}``.
+        - If ``indegree_distribution`` is ``'poisson'``, ``n`` is the Poisson
+          rate parameter ``lambda > 0``.
+    NO_SELF_REGULATION : bool, optional
+        If True (default), self-loops are disallowed.
+    STRONGLY_CONNECTED : bool, optional
+        If True, repeatedly resample the wiring diagram until a strongly
+        connected network is obtained, or until the maximum number of
+        attempts is exceeded. Default is False.
+    indegree_distribution : str, optional
+        Distribution used to generate in-degrees. Must be one of
+        ``{'constant', 'dirac', 'delta', 'uniform', 'poisson'}``.
+        Default is ``'constant'``.
+    AT_LEAST_ONE_REGULATOR_PER_NODE : bool, optional
+        If True, enforce that every node has at least one outgoing edge.
+        This is achieved by rewiring edges while preserving the in-degree
+        sequence. Default is False.
+    n_attempts_to_generate_strongly_connected_network : int, optional
+        Maximum number of attempts to generate a strongly connected wiring
+        diagram before raising a ``RuntimeError``. Default is 1000.
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - n (int | list[int] | np.array[int] | float (if
-          indegree_distribution=='poisson')):  Determines the in-degree of
-          each node. If an integer, each node has the same number of
-          regulators; if a vector, each element gives the number of regulators
-          for the corresponding node.
+    Returns
+    -------
+    WiringDiagram
+        A wiring diagram object encoding the regulator set of each node.
 
-        - NO_SELF_REGULATION (bool, optional): If True, self-regulation is
-          disallowed (default is True).
+    Raises
+    ------
+    RuntimeError
+        If ``STRONGLY_CONNECTED=True`` and a strongly connected wiring diagram
+        cannot be generated within the specified number of attempts.
 
-        - STRONGLY_CONNECTED (bool, optional): If True, the generated network
-          is forced to be strongly connected (default is False).
+    Notes
+    -----
+    In-degrees are generated first using ``random_degrees``, and edges are
+    then sampled uniformly at random subject to the imposed constraints.
+    When ``STRONGLY_CONNECTED=True`` or
+    ``AT_LEAST_ONE_REGULATOR_PER_NODE=True``, the resulting distribution is
+    not uniform over all wiring diagrams with the given in-degree sequence.
 
-        - indegree_distribution (str, optional): In-degree distribution to
-          use. Options include 'constant' (or 'dirac'/'delta'), 'uniform', or
-          'poisson'. Default is 'constant'.
+    This function is a high-level convenience wrapper around
+    ``random_degrees`` and ``random_edge_list``.
 
-        - AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure
-          that each node has at least one outgoing edge (default is False).
-
-        - n_attempts_to_generate_strongly_connected_network (int, optional):
-          Number of attempts to generate a strongly connected wiring diagram
-          before raising an error and quitting.
-
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
-
-    **Returns:**
-
-        - WiringDiagram: A new wiring diagram.
+    Examples
+    --------
+    >>> W = random_wiring_diagram(5, n=2)
+    >>> W = random_wiring_diagram(10, n=3, STRONGLY_CONNECTED=True)
+    >>> W = random_wiring_diagram(6, n=[1, 2, 1, 2, 1, 2])
     """
     rng = utils._coerce_rng(rng)
     indegrees = random_degrees(
@@ -1692,7 +1598,7 @@ def random_wiring_diagram(
 
 
 def rewire_wiring_diagram(
-    I: Union[list, np.array, WiringDiagram],
+    I: list | np.ndarray | WiringDiagram,
     average_swaps_per_edge: float = 10,
     DO_NOT_ADD_SELF_REGULATION: bool = True,
     FIX_SELF_REGULATION: bool = True,
@@ -1700,68 +1606,73 @@ def rewire_wiring_diagram(
     rng=None,
 ) -> list:
     """
-    Degree-preserving rewiring of a wiring diagram (directed graph) via
-    double-edge swaps.
+    Degree-preserving rewiring of a wiring diagram via double-edge swaps.
 
-    The wiring diagram is given in the “regulators” convention: `I[target]`
-    lists all regulators of `target`. The routine performs
-    random double-edge swaps `(u→v, x→y) → (u→y, x→v)` while **preserving both
-    the in-degree and out-degree** of every node. Parallel edges are disallowed.
+    The wiring diagram is represented in regulator form: ``I[target]`` lists
+    all regulators (incoming neighbors) of ``target``. The algorithm performs
+    random double-edge swaps of the form
+    ``(u -> v, x -> y) -> (u -> y, x -> v)``, while preserving both the
+    in-degree and out-degree of every node. Parallel edges are disallowed.
 
-    **Parameters:**
+    Parameters
+    ----------
+    I : list of array-like or WiringDiagram
+        Wiring diagram in regulator representation. For each node ``target``,
+        ``I[target]`` contains the regulators of that node. Regulator indices
+        must be integers in ``{0, ..., N-1}``. If a ``WiringDiagram`` is
+        provided, its internal adjacency representation is used.
+    average_swaps_per_edge : float, optional
+        Target number of successful double-edge swaps per edge. Larger values
+        typically yield better mixing but increase runtime. Default is 10.
+    DO_NOT_ADD_SELF_REGULATION : bool, optional
+        If True (default), proposed swaps that would introduce a self-loop
+        are rejected.
+    FIX_SELF_REGULATION : bool, optional
+        If True (default), existing self-loops are kept fixed and excluded
+        from the pool of swappable edges. If False, existing self-loops may
+        be rewired; if ``DO_NOT_ADD_SELF_REGULATION`` is True, no new self-loops
+        will be introduced.
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
 
-        - I (list[list[int]] | list[np.ndarray[int]]): Representation of the
-          adjacency matrix / wiring diagram as a list where `I[target]`
-          contains the regulators of node `target`. Each inner list must
-          contain distinct integers in `{0, ..., len(I)-1}`.
+    Returns
+    -------
+    WiringDiagram
+        A new wiring diagram obtained by degree-preserving rewiring of ``I``.
 
-        - average_swaps_per_edge (float, optional): Target number of
-          **successful** swaps per edge. Larger values typically yield better
-          mixing (more randomized graphs) but take longer. Default 10.
+    Raises
+    ------
+    ValueError
+        If the input wiring diagram is malformed.
+    AssertionError
+        If rewiring constraints cannot be satisfied.
 
-        - DO_NOT_ADD_SELF_REGULATION (bool, optional): If True, proposed swaps
-          that would create a self-loop `u→u` are rejected. Default True.
+    Notes
+    -----
+    Both in-degrees and out-degrees of all nodes are preserved exactly.
+    Duplicate edges are never introduced. Control over self-regulation is
+    governed by the two Boolean flags above.
 
-        - FIX_SELF_REGULATION (bool, optional): If True, *existing* self-loops
-          are kept **fixed** and excluded from the pool of swappable edges
-          (they remain as-is in the output). If False, self-loops, if present,
-          may be swapped away; if `DO_NOT_ADD_SELF_REGULATION` is True, no new
-          self-loops will be created. Default True.
+    The resulting wiring diagram is not guaranteed to be sampled uniformly
+    from the space of all directed graphs with the same degree sequence; the
+    procedure is intended as a practical degree-preserving randomization
+    method rather than an exact uniform sampler.
 
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
-
-    **Returns:**
-
-        - WiringDiagram: A new wiring diagram.
-
-    **Guarantees:**
-
-        - **In-degree** and **out-degree** of every node are preserved exactly.
-        - No multi-edges (duplicate `u→v`) are introduced.
-        - Self-loops are controlled by the two flags above.
-
-    **Notes:**
-
-        - If your input contains self-loops and you want to keep them exactly
-          as in `I`, use the defaults (`FIX_SELF_REGULATION`,
-          `DO_NOT_ADD_SELF_REGULATION`).
-
-    **Example:**
-
-        >>> I = random_network(8,3).I
-        >>> J = rewire_wiring_diagram(I)
-        >>> sorted(map(len, I)) == sorted(map(len, J))          # in-degrees
-        True
-        >>> def outdeg(adj):
-        ...     N = len(adj); od = [0]*N
-        ...     for v, regs in enumerate(adj):
-        ...         for u in regs: od[u] += 1
-        ...     return od
-        >>> outdeg(I) == outdeg(J)                               # out-degrees
-        True
+    Examples
+    --------
+    >>> I = random_network(8,3)
+    >>> J = rewire_wiring_diagram(I)
+    >>> I.indegrees == J.indegrees
+    True
+    >>> I.get_outdegrees() == J.get_outdegrees()
+    True
     """
     rng = utils._coerce_rng(rng)
+    
+    if isinstance(I, WiringDiagram):
+        I = I.I
+    
     N = len(I)
 
     edges = [
@@ -1849,195 +1760,178 @@ def rewire_wiring_diagram(
 
 
 def random_network(
-    N: Optional[int] = None,
-    n: Union[int, float, list, np.ndarray, None] = None,
-    depth: Union[int, list, np.ndarray] = 0,
+    N: int | None = None,
+    n: int | float | list | np.ndarray | None = None,
+    depth: int | list | np.ndarray = 0,
     EXACT_DEPTH: bool = False,
-    layer_structure: Optional[list] = None,
+    UNIFORM_STRUCTURE: bool = True,
+    layer_structure: list | None = None,
     ALLOW_DEGENERATE_FUNCTIONS: bool = False,
     PARITY: bool = False,
-    bias: Union[float, list, np.ndarray] = 0.5,
-    absolute_bias: Union[float, list, np.ndarray] = 0.0,
+    bias: float | list | np.ndarray = 0.5,
+    absolute_bias: float | list | np.ndarray = 0.0,
     USE_ABSOLUTE_BIAS: bool = True,
-    hamming_weight: Union[int, list, np.ndarray, None] = None,
+    hamming_weight: int | list | np.ndarray | None = None,
     NO_SELF_REGULATION: bool = True,
     STRONGLY_CONNECTED: bool = False,
     indegree_distribution: str = "constant",
     AT_LEAST_ONE_REGULATOR_PER_NODE: bool = False,
     n_attempts_to_generate_strongly_connected_network: int = 1000,
-    I: Union[list, np.array, None, WiringDiagram, nx.DiGraph] = None,
+    I: list | np.ndarray | None | WiringDiagram | nx.DiGraph = None,
     *,
     rng=None,
 ) -> BooleanNetwork:
     """
-    Construct a random Boolean network with configurable wiring and rule
-    properties.
-
+    Construct a random Boolean network with configurable wiring and update rules.
+    
     The network is built in two stages:
-
-        #. **Wiring diagram**:
-
-            - If `I` is provided, use it as the wiring diagram  (each `I[v]`
-              lists the regulators of node `v`).
-
-            - Otherwise, sample a wiring diagram for `N` nodes using
-              `random_wiring_diagram(N, n, ...)`, where the per-node
-              in-degrees are determined by `n` and `indegree_distribution`.
-              Self-loops can be disallowed and strong connectivity can be
-              requested.
-
-        #. **Update rules**:
-
-            - For node `i`, draw a Boolean function with arity `indegrees[i]`
-              using `random_function(...)` with the requested constraints on
-              canalizing depth (or layer structure), linearity, bias /
-              absolute bias, or exact Hamming weight.
-
-    **Parameters:**
-
-        - N (int | None, optional): Number of nodes. Required when `I` is not
-          provided. Ignored if `I` is given.
-
-        - n (int | float | list[int] | np.ndarray[int] | None, optional):
-          Controls the **in-degree** distribution when generating a wiring
-          diagram (ignored if `I` is given). Interpretation depends on
-          `indegree_distribution`:
-
-            - 'constant' / 'dirac' / 'delta': every node has constant
-              in-degree `n`.
-
-            - 'uniform': `n` is an integer upper bound; each node's in-degree
-              is sampled uniformly from {1, ..., n}.
-
-            - 'poisson': `n` is a positive rate lambda; in-degrees are Poisson
-              (lambda) draws, truncated into [1, N - int(NO_SELF_REGULATION)].
-
-            - If `n` is an N-length vector of integers, it is taken as the
-              exact in-degrees.
-
-        - depth (int | list[int] | np.ndarray[int], optional): Requested
-          canalizing depth per node for rule generation. If an integer, it
-          is broadcast to all nodes and clipped at each node's in-degree. If a
-          vector, it must have length N. Interpreted as **minimum** depth
-          unless `EXACT_DEPTH`. Default 0.
-
-        - EXACT_DEPTH (bool, optional): If True, each function is generated
-          with **exactly** the requested depth (or the sum of the
-          corresponding `layer_structure[i]` if provided). If False, depth
-          is **at least** as large as requested. Default False.
-
-        - layer_structure (list | list[list[int]] | None, optional):
-          Canalizing **layer structure** specifications.
-
-            - If `None` (default), generation is controlled by `depth` /
-              `EXACT_DEPTH`.
-
-            - If a single list like `[k1, ..., kr]`, the same structure is
-              used for all nodes.
-
-            - If a list of lists of length N, `layer_structure[i]` is used
-              for node i.
-
-            - In all cases, `sum(layer_structure[i])` must be <= the node's
-              in-degree. When provided, `layer_structure` takes precedence
-              over `depth`.
-
-        - ALLOW_DEGENERATE_FUNCTIONS (bool, optional): If True and
-          `depth==0` and `layer_structure is None`, degenerate functions
-          (with non-essential inputs) may be generated (classical NK-Kauffman
-          models). If False, generated functions are essential in all
-          variables. Default False.
-
-        - PARITY (bool, optional): If True, generate parity Boolean functions
-          for all nodes; other rule parameters (bias, canalization, etc.) are
-          ignored. Default False.
-
-        - bias (float | list[float] | np.ndarray[float], optional):
-          Probability of output 1 when generating random (nonlinear)
-          functions, used only if `depth==0`, `layer_structure is None`,
-          and `not PARITY` and `not USE_ABSOLUTE_BIAS`. If a scalar, broadcast
-          to length N. Must lie in [0, 1]. Default 0.5.
-
-        - absolute_bias (float | list[float] | np.ndarray[float], optional):
-          Absolute deviation from 0.5 (i.e., `|bias-0.5|*2`), used only if
-          `depth==0`, `layer_structure is None`, `not PARITY`, and
-          `USE_ABSOLUTE_BIAS`. If a scalar, broadcast to length N. Must lie
-          in [0, 1]. Default 0.0.
-
-        - USE_ABSOLUTE_BIAS (bool, optional): If True, `absolute_bias`
-          is used to set the bias per rule to either `0.5*(1 - abs_bias)` or
-          `0.5*(1 + abs_bias)` at random. If False, `bias` is used. Only
-          relevant when `depth==0`, `layer_structure is None`, and
-          `not PARITY`. Default True.
-
-        - hamming_weight (int | list[int] | np.ndarray[int] | None,
-          optional): Exact Hamming weights (number of ones in each truth
-          table). If None, no exact constraint is enforced. If a scalar,
-          broadcast to N. If a vector, must have length N. Values must be
-          in {0, ..., 2^k} for a k-input rule. Additional constraints apply
-          when requesting exact depth zero (see Notes).
-
-        - NO_SELF_REGULATION (bool, optional): If True, forbids self-loops
-          in **generated** wiring diagrams. Has no effect when `I` is
-          provided. Default True.
-
-        - STRONGLY_CONNECTED (bool, optional): If True, the wiring generation
-          retries until a strongly connected directed graph is found (up to a
-          maximum number of attempts) (ignored if `I` is provided). Default
-          False.
-
-        - indegree_distribution (str:{'constant', 'dirac', 'delta', 'uniform',
-          'poisson'}, optional): Distribution used when sampling in-degrees
-          (ignored if `I` is provided). Default 'constant'.
-
-        - AT_LEAST_ONE_REGULATOR_PER_NODE (bool, optional): If True, ensure
-          that each node has at least one outgoing edge (default is False).
-
-        - n_attempts_to_generate_strongly_connected_network (int, optional):
-          Max attempts for strong connectivity before raising. Default 1000.
-
-        - I (list[list[int]] | list[np.ndarray[int]] | None | WiringDiagram | nx.DiGraph, optional):
-          Existing wiring diagram. If provided, `N` and `n` are ignored and
-          `indegrees` are computed from `I`.
-
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
-
-    **Returns:**
-
-        - BooleanNetwork: A new Boolean network with wiring diagram `I` (given or
-          generated) and a list of node functions `F` generated according to
-          the specified constraints.
-
-    **Raises:**
-
-        - AssertionError: If input shapes/types are invalid or constraints
-          are violated (e.g., requested depth > in-degree, malformed layer
-          structures, invalid bias vectors, etc.).
-
-        - RuntimeError: If `STRONGLY_CONNECTED` and a strongly connected
-          wiring diagram cannot be generated within
-          `n_attempts_to_generate_strongly_connected_network` tries.
-
-    **Notes:**
-
-        - **Precedence** for rule constraints: `PARITY` → `layer_structure`
-          (if provided) → `depth` (+ `EXACT_DEPTH`) and bias settings only
-          apply when no canalization constraints are requested.
-
-        - **Bias controls**: Use `USE_ABSOLUTE_BIAS` with `absolute_bias`
-          to enforce a fixed distance from 0.5 while allowing either high or
-          low bias with equal chance. Otherwise, set `USE_ABSOLUTE_BIAS=False`
-          and provide `bias` directly.
-
-        - **Hamming weights & canalization**: When `EXACT_DEPTH` and the
-          target depth is 0, Hamming weights {0, 1, 2^k - 1, 2^k} correspond
-          to canalizing functions and are therefore disallowed if forcing
-          non-canalizing functions through `EXACT_DEPTH` (the implementation
-          enforces this).
-
-    **Examples:**
-
+    
+    1. Wiring diagram
+       If ``I`` is provided, it is used directly as the wiring diagram, where
+       ``I[v]`` lists the regulators of node ``v``. Otherwise, a wiring diagram
+       for ``N`` nodes is sampled using ``random_wiring_diagram``, with in-degrees
+       determined by ``n`` and ``indegree_distribution``. Self-loops may be
+       disallowed and strong connectivity may be enforced.
+    
+    2. Update rules
+       For each node ``i``, a Boolean update function with arity
+       ``indegrees[i]`` is generated using ``random_function`` subject to the
+       requested constraints on canalizing depth or layer structure, parity,
+       bias or absolute bias, and exact Hamming weight.
+    
+    Parameters
+    ----------
+    N : int or None, optional
+        Number of nodes. Required when ``I`` is not provided. Ignored if ``I`` is
+        given.
+    n : int, float, list of int, ndarray of int, or None, optional
+        Controls the in-degree distribution when generating a wiring diagram
+        (ignored if ``I`` is given). Interpretation depends on
+        ``indegree_distribution``:
+    
+        - ``'constant'``, ``'dirac'``, ``'delta'``:
+          Every node has constant in-degree ``n``.
+        - ``'uniform'``:
+          ``n`` is an integer upper bound; each node’s in-degree is sampled
+          uniformly from ``{1, ..., n}``.
+        - ``'poisson'``:
+          ``n`` is a positive rate parameter lambda; in-degrees are Poisson(lambda) 
+          draws truncated to ``[1, N - int(NO_SELF_REGULATION)]``.
+        - If ``n`` is a length-``N`` vector of integers, it is taken as the exact
+          in-degree sequence.
+    depth : int, list of int, or ndarray of int, optional
+        Requested canalizing depth per node. If an integer, it is broadcast to
+        all nodes and clipped at each node’s in-degree. If a vector, it must have
+        length ``N``. Interpreted as a minimum depth unless ``EXACT_DEPTH=True``.
+        Default is 0.
+    EXACT_DEPTH : bool, optional
+        If True, each Boolean function is generated with exactly the requested
+        canalizing depth (or exactly ``sum(layer_structure[i])`` if a layer
+        structure is provided). If False, the canalizing depth is at least as
+        large as requested. Default is False.
+    UNIFORM_STRUCTURE : bool, optional
+        Controls how canalized outputs are sampled when generating canalizing
+        functions.
+    
+        If True (default), canalizing layer structures are sampled uniformly at
+        random, i.e., proportional to the inverse factorials of layer sizes,
+        removing the bias toward symmetric structures induced by independent
+        sampling of canalized outputs.
+    
+        If False, canalized outputs are sampled independently and uniformly as
+        bitstrings, which biases the distribution toward more symmetric layer
+        structures.
+    
+        This parameter is ignored when ``layer_structure`` is explicitly provided.
+    layer_structure : list, list of lists, or None, optional
+        Canalizing layer structure specifications.
+    
+        - If None (default), rule generation is controlled by ``depth`` and
+          ``EXACT_DEPTH``.
+        - If a single list ``[k1, ..., kr]``, the same structure is used for all
+          nodes.
+        - If a list of lists of length ``N``, ``layer_structure[i]`` is used for
+          node ``i``.
+    
+        In all cases, ``sum(layer_structure[i])`` must not exceed the in-degree
+        of node ``i``. When provided, ``layer_structure`` takes precedence over
+        ``depth``.
+    ALLOW_DEGENERATE_FUNCTIONS : bool, optional
+        If True and ``depth == 0`` and ``layer_structure is None``, degenerate
+        Boolean functions (with non-essential inputs) may be generated, as in
+        classical NK-Kauffman models. If False, generated functions are required
+        to be non-degenerate whenever possible. Default is False.
+    PARITY : bool, optional
+        If True, parity Boolean functions are generated for all nodes and all
+        other rule parameters are ignored. Default is False.
+    bias : float, list of float, or ndarray of float, optional
+        Probability of output 1 when generating random (non-canalizing) Boolean
+        functions. Used only when ``depth == 0``, ``layer_structure is None``,
+        ``PARITY`` is False, and ``USE_ABSOLUTE_BIAS`` is False. Scalars are
+        broadcast to length ``N``. Must lie in ``[0, 1]``. Default is 0.5.
+    absolute_bias : float, list of float, or ndarray of float, optional
+        Absolute deviation from 0.5 used when ``USE_ABSOLUTE_BIAS`` is True.
+        Scalars are broadcast to length ``N``. Must lie in ``[0, 1]``. Default 0.0.
+    USE_ABSOLUTE_BIAS : bool, optional
+        If True, the bias of each rule is chosen at random from
+        ``{0.5*(1-absolute_bias), 0.5*(1+absolute_bias)}``. If False, ``bias`` is
+        used directly. Default is True.
+    hamming_weight : int, list of int, ndarray of int, or None, optional
+        Exact Hamming weight (number of ones) of each truth table. Scalars are
+        broadcast to length ``N``. Values must lie in ``{0, ..., 2^k}`` for a
+        k-input function. Additional restrictions apply when requesting exact
+        depth zero. Default is None.
+    NO_SELF_REGULATION : bool, optional
+        If True, self-loops are forbidden in generated wiring diagrams. Ignored
+        if ``I`` is provided. Default is True.
+    STRONGLY_CONNECTED : bool, optional
+        If True, wiring generation is repeated until a strongly connected
+        directed graph is obtained or the attempt limit is exceeded. Ignored if
+        ``I`` is provided. Default is False.
+    indegree_distribution : str, optional
+        Distribution used when sampling in-degrees. Must be one of
+        ``{'constant', 'dirac', 'delta', 'uniform', 'poisson'}``. Default
+        ``'constant'``.
+    AT_LEAST_ONE_REGULATOR_PER_NODE : bool, optional
+        If True, ensure that each node has at least one outgoing edge in the
+        generated wiring diagram. Default is False.
+    n_attempts_to_generate_strongly_connected_network : int, optional
+        Maximum number of attempts to generate a strongly connected wiring
+        diagram before raising an error. Default is 1000.
+    I : list, ndarray, WiringDiagram, networkx.DiGraph, or None, optional
+        Existing wiring diagram. If provided, ``N`` and ``n`` are ignored and
+        in-degrees are inferred from ``I``. If I is a BooleanNetwork, its wiring
+        diagram is reused and its Boolean update rules are ignored.
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
+    
+    Returns
+    -------
+    BooleanNetwork
+        A Boolean network with wiring diagram ``I`` (given or generated) and
+        Boolean update functions generated according to the specified constraints.
+    
+    Raises
+    ------
+    AssertionError
+        If input shapes or parameter combinations are invalid.
+    RuntimeError
+        If ``STRONGLY_CONNECTED=True`` and a strongly connected wiring diagram
+        cannot be generated within the specified number of attempts.
+    
+    Notes
+    -----
+    Constraint precedence for rule generation is:
+    ``PARITY`` -> ``layer_structure`` -> ``depth`` / ``EXACT_DEPTH`` -> bias or
+    Hamming-weight constraints.
+    
+    When ``EXACT_DEPTH=True`` and the requested depth is zero, Hamming weights
+    ``{0, 1, 2^k - 1, 2^k}`` correspond to canalizing functions and are therefore
+    disallowed.
+    
+    Examples
+    --------
         >>> # Boolean network with only essential inputs
         >>> bn = random_network(N=10, n=2, ALLOW_DEGENERATE_FUNCTIONS=False)
 
@@ -2046,7 +1940,7 @@ def random_network(
 
         >>> # Fixed wiring: reuse an existing diagram but resample rules
         >>> bn0 = random_network(N=6, n=2)
-        >>> bn  = random_network(I=bn0.I)
+        >>> bn  = random_network(I=bn)
 
         >>> # Exact canalizing depth k for all nodes
         >>> bn = random_network(N=8, n=3, depth=1, EXACT_DEPTH=True)
@@ -2085,8 +1979,8 @@ def random_network(
         assert isinstance(I, (list, np.ndarray, WiringDiagram, nx.DiGraph)), (
             "I must be an instance of WiringDiagram or a list or np.array of lists or np.arrays. Each inner list describes the regulators of node i (indexed by 0,1,...,len(I)-1)"
         )
+        N = len(I)
         if isinstance(I, (list, np.ndarray)):
-            N = len(I)
             for regulators in I:
                 assert (
                     utils.is_list_or_array_of_ints(regulators)
@@ -2097,7 +1991,7 @@ def random_network(
                 )
             I = WiringDiagram(I)
         elif isinstance(I, nx.DiGraph):
-            I = WiringDiagram.from_DiGraph()
+            I = WiringDiagram.from_DiGraph( I )        
     else:
         raise AssertionError(
             "At a minimum, the wiring diagram I must be provided or the network size N and degree parameter n."
@@ -2106,7 +2000,7 @@ def random_network(
     # Process the inputs, turn single inputs into vectors of length N
 
     # since layer_structure takes precedence over depth, this block needs to run before the depth block to ensure depth is a vector and not reset to a single value
-    if layer_structure == None:
+    if layer_structure is None:
         layer_structure = [None] * N
     elif utils.is_list_or_array_of_ints(layer_structure):
         depth = sum(layer_structure)
@@ -2174,6 +2068,7 @@ def random_network(
             n=I.indegrees[i],
             depth=depth[i],
             EXACT_DEPTH=EXACT_DEPTH,
+            UNIFORM_STRUCTURE=UNIFORM_STRUCTURE,
             layer_structure=layer_structure[i],
             PARITY=PARITY,
             ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
@@ -2200,110 +2095,112 @@ def random_null_model(
 ) -> BooleanNetwork:
     """
     Generate a randomized Boolean network (null model) from an existing
-    network, preserving selected properties of the wiring diagram and update
-    rules.
-
-    The output network has the same number of nodes as `bn`. You can choose to:
-
-        - keep the wiring diagram fixed,
-        - re-sample a wiring diagram that preserves each node’s **in-degree**
-          only, or
-
-        - rewire the original diagram via degree-preserving swaps to keep
-          **both in-degrees and out-degrees** unchanged.
-
-    Independently, the node update rules can be randomized while preserving:
-
-        - the **bias** (Hamming weight) of each rule’s truth table,
-        - the **canalizing depth** of each rule,
-        - both simultaneously
-        - neither (i.e., just the in-degree).
-
-    **Parameters:**
-
-        - bn (BooleanNetwork): The source network.
-        - wiring_diagram (str:{'fixed', 'fixed_indegree',
-          'fixed_in_and_outdegree'}, optional): How to handle the wiring
-          diagram:
-
-            - 'fixed' (default) : Use `bn.I` unchanged.
-            - 'fixed_indegree' : Sample a fresh wiring diagram with the
-              **same in-degree** per node as `bn` (calls
-              `random_wiring_diagram` with `N=bn.N` and `n=bn.indegrees`).
-
-            - 'fixed_in_and_outdegree' : Randomize the original wiring by
-              **double-edge swaps** (calls `rewire_wiring_diagram`),
-              preserving both in-degree and out-degree for every node.
-
-        - PRESERVE_BIAS (bool, optional): If True, each node’s new function
-          keeps the same Hamming weight (number of ones) as the original.
-          Default True.
-
-        - PRESERVE_CANALIZING_DEPTH (bool, optional): If True, each node’s new
-          function has the same canalizing depth as the original. Default True.
-
-        - rng (None, optional): Argument for the random number generator,
-          implemented in 'utils._coerce_rng'.
-
-        - `**kwargs`: Forwarded to the wiring-diagram routine selected above:
-
-            - If `wiring_diagram == 'fixed_indegree'`: passed to
-              `random_wiring_diagram` (e.g., `NO_SELF_REGULATION`,
-              `STRONGLY_CONNECTED`, etc.).
-
-            - If `wiring_diagram == 'fixed_in_and_outdegree'`: passed to
-              `rewire_wiring_diagram` (e.g., `average_swaps_per_edge`,
-              `DO_NOT_ADD_SELF_REGULATION`, `FIX_SELF_REGULATION`).
-
-    **Returns:**
-
-        - BooleanNetwork: A new network with randomized components according
-          to the selected constraints.
-
-    **Rule Randomization Details:**
-
-        Let `f` be an original node rule with in-degree `n` and canalizing
-        depth `k`:
-
-            - If `PRESERVE_BIAS and PRESERVE_CANALIZING_DEPTH`: A new rule
-              is assembled with:
-
-                - the **same canalized outputs** sequence as `f`,
-                - a **random canalizing order** and **random canalizing
-                  inputs**,
-
-                - a **core** function with the **same Hamming weight** as
-                  `f`’s core and that is **non-canalizing** and
-                  **non-degenerate**.
-
-            - If `PRESERVE_BIAS and not PRESERVE_CANALIZING_DEPTH`: A new
-              rule with the same Hamming weight is drawn uniformly at random.
-
-            - If `PRESERVE_CANALIZING_DEPTH and not PRESERVE_BIAS`: A random
-              function with **exact** canalizing depth `d` is generated.
-
-            - Else: A random **non-degenerate** function of the same
-              in-degree is generated.
-
-    **References:**
-
-        #. Kadelka, C., & Murrugarra, D. (2024). *Canalization reduces the
-           nonlinearity of regulation in biological networks.* npj Systems
-           Biology & Applications, 10(1), 67.
-
-    **Examples:**
-
-        >>> # Keep wiring fixed; preserve both bias and canalizing depth (default)
-        >>> bn2 = random_null_model(bn)
-
-        >>> # Preserve in-degrees only (new wiring), and only bias of rules
-        >>> bn3 = random_null_model(bn, wiring_diagram='fixed_indegree',
-        ...                         PRESERVE_BIAS=True, PRESERVE_CANALIZING_DEPTH=False,
-        ...                         NO_SELF_REGULATION=True)
-
-        >>> # Preserve both in- and out-degrees via swaps
-        >>> bn4 = random_null_model(bn, wiring_diagram='fixed_in_and_outdegree',
-        ...                         average_swaps_per_edge=15)
+    Boolean network while preserving selected structural and dynamical
+    properties.
+    
+    The returned network has the same number of nodes as ``bn``. Depending
+    on the selected options, the wiring diagram and/or the Boolean update
+    rules are randomized subject to specified invariants.
+    
+    Wiring diagram randomization
+    ----------------------------
+    The wiring diagram can be handled in one of three ways:
+    
+    - ``'fixed'`` (default):
+      The original wiring diagram ``bn.I`` is reused unchanged.
+    
+    - ``'fixed_indegree'``:
+      A new wiring diagram is sampled uniformly at random subject to
+      preserving the in-degree of each node. This uses
+      ``random_wiring_diagram`` with ``N = bn.N`` and ``n = bn.indegrees``.
+    
+    - ``'fixed_in_and_outdegree'``:
+      The original wiring diagram is randomized via degree-preserving
+      double-edge swaps using ``rewire_wiring_diagram``, preserving both
+      in-degrees and out-degrees of all nodes.
+    
+    Rule randomization
+    ------------------
+    Independently of the wiring diagram, Boolean update rules are
+    randomized for each node, optionally preserving properties of the
+    original rules:
+    
+    - If ``PRESERVE_BIAS`` is True, the exact Hamming weight (number of ones
+      in the truth table) of each rule is preserved.
+    
+    - If ``PRESERVE_CANALIZING_DEPTH`` is True, the canalizing depth of each
+      rule is preserved exactly.
+    
+    If both flags are True, both properties are preserved simultaneously.
+    If neither flag is True, rules are regenerated subject only to
+    non-degeneracy and the node’s in-degree.
+    
+    Parameters
+    ----------
+    bn : BooleanNetwork
+        Source Boolean network.
+    wiring_diagram : {'fixed', 'fixed_indegree', 'fixed_in_and_outdegree'}, optional
+        Strategy for handling the wiring diagram. Default is ``'fixed'``.
+    PRESERVE_BIAS : bool, optional
+        If True, preserve the exact Hamming weight of each Boolean rule.
+        Default is True.
+    PRESERVE_CANALIZING_DEPTH : bool, optional
+        If True, preserve the exact canalizing depth of each Boolean rule.
+        Default is True.
+    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
+        Random number generator or seed specification. Passed to
+        ``utils._coerce_rng``.
+    **kwargs
+        Additional keyword arguments forwarded to the wiring-diagram
+        randomization routine:
+    
+        - For ``wiring_diagram == 'fixed_indegree'``, forwarded to
+          ``random_wiring_diagram`` (e.g., ``NO_SELF_REGULATION``,
+          ``STRONGLY_CONNECTED``).
+    
+        - For ``wiring_diagram == 'fixed_in_and_outdegree'``, forwarded to
+          ``rewire_wiring_diagram`` (e.g., ``average_swaps_per_edge``,
+          ``DO_NOT_ADD_SELF_REGULATION``, ``FIX_SELF_REGULATION``).
+    
+    Returns
+    -------
+    BooleanNetwork
+        A randomized Boolean network satisfying the selected invariants.
+    
+    Raises
+    ------
+    AssertionError
+        If invalid options are provided.
+    RuntimeError
+        If wiring-diagram randomization fails (e.g., strong connectivity
+        cannot be achieved within the allowed number of attempts).
+    
+    Notes
+    -----
+    This function generates null models by selectively preserving structural
+    and dynamical properties of an existing Boolean network. It is intended
+    for hypothesis testing and comparative studies rather than for uniform
+    sampling over all networks satisfying the given constraints.
+    
+    Examples
+    --------
+    >>> # Most restrictive use case: Preserve both wiring and rule properties (default) 
+    >>> bn_null = random_null_model(bn)
+    
+    >>> # Preserve in-degrees only and preserve rule bias
+    >>> bn_null = random_null_model(
+    ...     bn,
+    ...     wiring_diagram='fixed_indegree',
+    ...     PRESERVE_BIAS=True,
+    ...     PRESERVE_CANALIZING_DEPTH=False
+    ... )
+    
+    >>> # Preserve both in- and out-degrees via rewiring
+    >>> bn_null = random_null_model(
+    ...     bn,
+    ...     wiring_diagram='fixed_in_and_outdegree',
+    ...     average_swaps_per_edge=15
+    ... )
     """
     rng = utils._coerce_rng(rng)
     if wiring_diagram == "fixed":
@@ -2317,11 +2214,11 @@ def random_null_model(
             "There are three choices for the wiring diagram: 1. 'fixed' (i.e., as in the provided BooleanNetwork), 2. 'fixed_indegree' (i.e., edges are shuffled but the indegree is preserved), 3. 'fixed_in_and_outdegree' (i.e., edges are shuffled but both the indegree and outdegree are preserved)."
         )
 
-    dict_source_nodes = bn.get_source_nodes(AS_DICT=True)
+    dict_identity_nodes = bn.get_identity_nodes(AS_DICT=True)
 
     F = []
     for i, f in enumerate(bn.F):
-        if dict_source_nodes[i]:  # source nodes don't change
+        if dict_identity_nodes[i]:  # identity nodes don't change
             F.append(np.array([0, 1], dtype=int))
             continue
         if PRESERVE_CANALIZING_DEPTH:
@@ -2350,7 +2247,7 @@ def random_null_model(
                     if not core_function.is_canalizing():
                         if not core_function.is_degenerate():
                             break
-            newf = -np.ones(2 ** bn.indegrees[i], dtype=int)
+            newf = np.full(2 ** bn.indegrees[i], -1, dtype=int)
             for j in range(depth):
                 newf[
                     np.where(

@@ -1304,9 +1304,6 @@ class BooleanNetwork(WiringDiagram):
     def __getitem__(self, index):
         return self.F[index]
     
-    def __repr__(self):
-        return f"BooleanNetwork(N={self.N})"
-    
     
     def __call__(self, state):
         """
