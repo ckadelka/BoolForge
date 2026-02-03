@@ -458,6 +458,60 @@ if __LOADED_NUMBA__:
         return attr_id, basin_sizes_full[:n_attr], cycle_rep_full[:n_attr], cycle_len_full[:n_attr], np.int32(n_attr)
     
     @njit(cache=True)
+    def _transient_lengths_functional_numba(
+        succ,
+        is_attr_mask
+    ):
+        """
+        Compute exact transient length (distance to attractor) for a functional graph.
+    
+        Parameters
+        ----------
+        succ : int64 array, shape (n_states,)
+            succ[x] = successor of state x
+        is_attr_mask : uint8/bool array, shape (n_states,)
+            1 if state lies on an attractor cycle, else 0
+    
+        Returns
+        -------
+        dist : int64 array, shape (n_states,)
+            dist[x] = number of steps from x to its attractor
+        """
+        n = succ.shape[0]
+        dist = np.full(n, -1, dtype=np.int64)
+    
+        # Attractor states have distance 0
+        for i in range(n):
+            if is_attr_mask[i]:
+                dist[i] = 0
+    
+        for i in range(n):
+            if dist[i] >= 0:
+                continue
+    
+            v = i
+    
+            # Walk forward until we hit a known distance
+            while dist[v] == -1:
+                dist[v] = -2          # temporary marker: "in current path"
+                v = succ[v]
+    
+            # Now dist[v] is either:
+            #   0,1,2,...  (known)
+            # or -2       (should not happen if cycles were pre-marked)
+            d = dist[v]
+    
+            # Unwind path, assigning distances
+            v = i
+            while dist[v] == -2:
+                d += 1
+                nxt = succ[v]
+                dist[v] = d
+                v = nxt
+    
+        return dist
+    
+    @njit(cache=True)
     def _robustness_edge_traversal_numba(
         N,
         attractor_idx,
@@ -533,6 +587,72 @@ if __LOADED_NUMBA__:
                         attr_frag[idx_y] += dxy
     
         return basin_coh, basin_frag, attr_coh, attr_frag
+
+
+    @njit(cache=True)
+    def _robustness_edge_traversal_numba_stratified(
+        N,
+        attractor_idx,
+        is_attr_mask,
+        dist_attr,
+        dist_state,
+        max_dist
+    ):
+        n_states = attractor_idx.shape[0]
+        n_attr = dist_attr.shape[0]
+    
+        basin_coh = np.zeros(n_attr, dtype=np.float64)
+        basin_frag = np.zeros(n_attr, dtype=np.float64)
+        attr_coh = np.zeros(n_attr, dtype=np.float64)
+        attr_frag = np.zeros(n_attr, dtype=np.float64)
+    
+        strat_coh = np.zeros((n_attr, max_dist + 1), dtype=np.float64)
+        strat_cnt = np.zeros((n_attr, max_dist + 1), dtype=np.int64)
+    
+        for xdec in range(n_states):
+            dx = dist_state[xdec]
+            idx_x = attractor_idx[xdec]
+    
+            for bit in range(N):
+                if (xdec >> bit) & 1:
+                    continue
+    
+                ydec = xdec | (1 << bit)
+                dy = dist_state[ydec]
+                idx_y = attractor_idx[ydec]
+    
+                strat_cnt[idx_x, dx] += 1
+                strat_cnt[idx_y, dy] += 1
+    
+                if idx_x == idx_y:
+                    basin_coh[idx_x] += 2.0
+    
+                    if is_attr_mask[xdec]:
+                        attr_coh[idx_x] += 1.0
+                    if is_attr_mask[ydec]:
+                        attr_coh[idx_y] += 1.0
+    
+                    strat_coh[idx_x, dx] += 1.0
+                    strat_coh[idx_y, dy] += 1.0
+                else:
+                    dxy = dist_attr[idx_x, idx_y]
+                    basin_frag[idx_x] += dxy
+                    basin_frag[idx_y] += dxy
+    
+                    if is_attr_mask[xdec]:
+                        attr_frag[idx_x] += dxy
+                    if is_attr_mask[ydec]:
+                        attr_frag[idx_y] += dxy
+    
+        return (
+            basin_coh,
+            basin_frag,
+            attr_coh,
+            attr_frag,
+            strat_coh,
+            strat_cnt,
+        )
+
 
 
 class BooleanNetwork(WiringDiagram):
@@ -2510,18 +2630,32 @@ class BooleanNetwork(WiringDiagram):
     
     def get_transient_lengths_exact(
         self,
-        res_exact: dict
+        USE_NUMBA : bool = True
     ) -> np.ndarray:
         """
-        Compute average transient length using:
+        Compute exact transient length using:
           - Full STG from get_attractors_synchronous_exact()
           - Attractors (cycle states) from get_attractors_synchronous_exact()
     
         This avoids indegree-pruning because cycle states are given explicitly.
         """
-        stg = self.STG               # full mapping: successor(s)
-        attractors = res_exact["Attractors"]   # list of cycles
-    
+        attractor_info = self.get_attractors_synchronous_exact(USE_NUMBA=USE_NUMBA)
+
+        stg = self.STG                              # full mapping: successor(s)
+        attractors = attractor_info["Attractors"]   # list of cycles
+        
+        if __LOADED_NUMBA__ and USE_NUMBA:
+            is_attr_mask = np.full(2**self.N, dtype=np.uint8)
+        
+            for i, states in enumerate(attractors):
+                states_arr = np.asarray(states, dtype=np.int64)
+                is_attr_mask[states_arr] = 1
+            return _transient_lengths_functional_numba(
+                self.STG.astype(np.int64, copy=False),
+                is_attr_mask
+            )
+        
+        
         # Normalize STG to an integer array/list succ where succ[u] = v
         if isinstance(stg, np.ndarray):
             succ = stg.astype(int, copy=False)
@@ -2539,7 +2673,7 @@ class BooleanNetwork(WiringDiagram):
             rev[v].append(u)
     
         # Initialize distances: all cycle states have transient length 0
-        dist = [-1] * n
+        dist = np.full(n, -1, dtype=np.int64)
         bfs = deque()
     
         for cycle in attractors:
@@ -2569,53 +2703,76 @@ class BooleanNetwork(WiringDiagram):
         GET_STRATIFIED_COHERENCES : bool = False
     ) -> dict:
         """
-        Compute the attractors and exact robustness measures of a synchronously
+        Compute attractors and exact robustness measures of a synchronously
         updated Boolean network.
-    
-        This method computes the exact synchronous state transition graph (STG)
-        and analyzes it as a functional graph on ``2**N`` states. All attractors
-        (cycles), their basin sizes, and the attractor reached from each state
-        are determined exactly. Based on this decomposition, exact coherence
-        and fragility measures are computed for the full network, for each basin
-        of attraction, and for each attractor.
-    
-        This computation requires memory and time proportional to ``2**N`` and is
-        intended for small-to-moderate networks only.
-    
+
+        This method constructs the exact synchronous state transition graph
+        (STG) on ``2**N`` states and analyzes it as a functional graph. All
+        attractors (cycles), basin sizes, and the attractor reached from each
+        state are determined exactly. Based on this decomposition, exact
+        coherence and fragility measures are computed for the full network,
+        for each basin of attraction, and for each attractor.
+
+        Optionally, coherence can be stratified by the transient length
+        (distance from the attractor) of each state, allowing robustness to be
+        analyzed as a function of how far states lie from their eventual
+        attractor.
+
+        This computation requires memory and time proportional to ``2**N`` and
+        is intended for small-to-moderate networks. When Numba is enabled,
+        exact and stratified robustness measures remain feasible up to
+        moderate values of ``N`` (e.g., ``N ≈ 20`` on typical hardware).
+
         Parameters
         ----------
         USE_NUMBA : bool, optional
-            If True (default) and Numba is available, use a compiled kernel for
-            robustness computation.
+            If True (default) and Numba is available, compiled kernels are used
+            for robustness and transient-length computations, resulting in
+            substantial speedups.
         GET_STRATIFIED_COHERENCES : bool, optional
-            If True, the coherence calculation is stratified (slow run time).
-            Default is False.
-    
+            If True, coherence is additionally computed as a function of the
+            transient length (distance to the attractor) of each state.
+            When Numba is enabled, this option incurs only modest additional
+            computational cost. Default is False.
+
         Returns
         -------
         dict
-            Dictionary with keys:
-    
+            Dictionary with the following keys:
+
             - Attractors : list[list[int]]
-                Each attractor represented as a list of decimal states forming a cycle.
+                Each attractor represented as a list of decimal states forming
+                a cycle.
             - NumberOfAttractors : int
                 Total number of attractors.
-            - BasinSizes : np.ndarray[float]
+            - BasinSizes : np.ndarray of float
                 Fraction of all states belonging to each attractor basin.
-            - AttractorID : np.ndarray[int]
-                For each of the ``2**N`` states, the index of the attractor it reaches.
+            - AttractorID : np.ndarray of int
+                For each of the ``2**N`` states, the index of the attractor it
+                eventually reaches.
             - Coherence : float
                 Exact global network coherence.
             - Fragility : float
                 Exact global network fragility.
-            - BasinCoherence : np.ndarray[float]
+            - BasinCoherence : np.ndarray of float
                 Exact coherence of each basin of attraction.
-            - BasinFragility : np.ndarray[float]
+            - BasinFragility : np.ndarray of float
                 Exact fragility of each basin of attraction.
-            - AttractorCoherence : np.ndarray[float]
+            - AttractorCoherence : np.ndarray of float
                 Exact coherence of each attractor.
-            - AttractorFragility : np.ndarray[float]
+            - AttractorFragility : np.ndarray of float
                 Exact fragility of each attractor.
+
+            If ``GET_STRATIFIED_COHERENCES`` is True, the dictionary additionally
+            contains:
+
+            - StratifiedCoherences : np.ndarray of float
+                Coherence values stratified by attractor and transient length.
+            - DistanceFromAttractorCount : np.ndarray of int
+                Number of state–hypercube-edge incidences contributing to each
+                stratified coherence entry.
+            - DistanceFromAttractor : np.ndarray of int
+                Transient length (distance to attractor) for each state.
         """
     
         # ------------------------------------------------------------------
@@ -2688,17 +2845,43 @@ class BooleanNetwork(WiringDiagram):
         # 4) Hypercube edge traversal
         # ------------------------------------------------------------------
         if __LOADED_NUMBA__ and USE_NUMBA:
-            (
-                basin_coherences,
-                basin_fragilities,
-                attractor_coherences,
-                attractor_fragilities,
-            ) = _robustness_edge_traversal_numba(
-                int(self.N),
-                attractor_id,
-                is_attr_mask,
-                distance_between_attractors,
-            )
+            if GET_STRATIFIED_COHERENCES:
+                distances_from_attractor = _transient_lengths_functional_numba(
+                    self.STG.astype(np.int64, copy=False),
+                    is_attr_mask
+                )
+                max_distance_from_attractor = int(distances_from_attractor.max())
+        
+                (
+                    basin_coherences,
+                    basin_fragilities,
+                    attractor_coherences,
+                    attractor_fragilities,
+                    stratified_coherences,
+                    n_states_with_specific_distance_from_attractor,
+                ) = _robustness_edge_traversal_numba_stratified(
+                    int(self.N),
+                    attractor_id,
+                    is_attr_mask,
+                    distance_between_attractors,
+                    distances_from_attractor,
+                    max_distance_from_attractor,
+                )
+                    
+                stratified_coherences = np.asarray(stratified_coherences, dtype=np.float64)
+                n_states_with_specific_distance_from_attractor = np.asarray(n_states_with_specific_distance_from_attractor, dtype=int)
+            else:
+                (
+                    basin_coherences,
+                    basin_fragilities,
+                    attractor_coherences,
+                    attractor_fragilities,
+                ) = _robustness_edge_traversal_numba(
+                    int(self.N),
+                    attractor_id,
+                    is_attr_mask,
+                    distance_between_attractors,
+                )
     
             basin_coherences = np.asarray(basin_coherences, dtype=np.float64)
             basin_fragilities = np.asarray(basin_fragilities, dtype=np.float64)
@@ -2754,7 +2937,8 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         basin_counts = basin_sizes * float(n_states)
     
-        n_states_with_specific_distance_from_attractor = n_states_with_specific_distance_from_attractor//15
+        if GET_STRATIFIED_COHERENCES:
+            n_states_with_specific_distance_from_attractor //= self.N
     
         for i in range(n_attractors):
             if basin_counts[i] > 0.0:

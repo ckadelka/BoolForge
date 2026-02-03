@@ -28,6 +28,8 @@ Example
 
 
 ##Imports
+import math
+
 import numpy as np
 import networkx as nx
 
@@ -988,12 +990,147 @@ def random_non_canalizing_non_degenerate_function(
         if not f.is_canalizing() and not f.is_degenerate():
             return f
 
+_uniform_structure_weights = {}
 
+def _get_uniform_structure_weights(max_n, NCF=True):
+    """
+    Compute dynamic-programming weights for uniform canalized layer structures.
+
+    This function constructs a dynamic-programming table ``W`` used to sample
+    canalized output bitstrings with probability proportional to the inverse
+    factorials of their layer sizes. The table encodes the total weight of all
+    valid completions of a partially constructed canalized structure.
+
+    Parameters
+    ----------
+    max_n : int
+        Maximum total length of the canalized output string.
+    NCF : bool, optional
+        If True (default), enforce the nested canalizing function (NCF)
+        constraint that the final canalizing layer has size at least 2.
+        If False, no constraint is imposed on the final layer size.
+
+    Returns
+    -------
+    W : ndarray of shape (max_n + 1, max_n + 2)
+        Dynamic-programming weight table. ``W[m, s]`` gives the total weight of
+        all valid completions with ``m`` positions remaining and current layer
+        size ``s``.
+
+    Notes
+    -----
+    The recursion is given by
+
+        W[m, s] = W[m - 1, s + 1] + (1 / s!) * W[m - 1, 1],
+
+    corresponding to either extending the current canalizing layer or
+    terminating it and starting a new layer of size 1. The base case ``m = 0``
+    accounts for the weight of the final layer and enforces the optional NCF
+    constraint.
+
+    Results are cached internally to avoid recomputation for repeated calls
+    with the same ``max_n`` and ``NCF`` values.
+    """
+    if (max_n,NCF) in _uniform_structure_weights:
+        return _uniform_structure_weights[(max_n,NCF)]
+    
+    W = np.zeros((max_n + 1, max_n + 2), dtype=float)
+
+    # Base case: no positions left → close final run
+    inv_factorial_of_s = 1.0
+    for s in range(1, max_n + 2):
+        inv_factorial_of_s /= s
+        if (not NCF) or (s >= 2):
+            W[0, s] = inv_factorial_of_s
+        else:
+            W[0, s] = 0.0
+
+    # DP
+    for m in range(1, max_n + 1):
+        inv_factorial_of_s = 1.0
+        for s in range(1, max_n + 1):
+            inv_factorial_of_s /= s
+            W[m, s] = (
+                W[m - 1, s + 1] +
+                inv_factorial_of_s * W[m - 1, 1]
+            )
+    
+    _uniform_structure_weights[(max_n,NCF)] = W    
+    return W
+
+def sample_canalized_outputs_uniform_structure(n, W, *, rng):
+    """
+    Sample a canalized output bitstring with uniform layer-structure weighting.
+
+    This function samples a binary vector ``b`` of length ``n`` representing
+    canalized output values, where consecutive equal values are part of the same
+    canalizing layer. The probability of a given layer structure
+    ``(k_1, k_2, ..., k_r)`` is proportional to
+
+        1 / (k_1! k_2! ... k_r!).
+        
+    Sampling is performed sequentially using precomputed dynamic-programming
+    weights ``W``, stored in _uniform_structure_weights.
+
+    Parameters
+    ----------
+    n : int
+        Length of the output bitstring to sample.
+    W : ndarray of shape (n+1, n+1)
+        Dynamic-programming weight table, where ``W[m, s]`` gives the total
+        weight of all valid completions with ``m`` positions remaining and
+        current layer size ``s``.
+    rng : numpy.random.Generator
+        Random number generator used for sampling.
+
+    Returns
+    -------
+    b : ndarray of shape (n,), dtype int
+        Sampled binary canalized output vector.
+
+    Notes
+    -----
+    The bitstring is generated left-to-right. At each step, the algorithm
+    probabilistically chooses whether to extend the current layer or start a
+    new one, using the weights in ``W`` to ensure correct global sampling
+    probabilities. The first bit is chosen uniformly at random.
+    """
+    rng = utils._coerce_rng(rng)
+
+    b = np.zeros(n, dtype=int)
+
+    # Randomly pick first canalized output
+    b[0] = rng.integers(2)
+
+    s = 1              # current layer size
+    inv_factorial_of_s = 1.0
+    m = n - 1          # positions remaining to fill
+
+    for i in range(1, n):
+
+        # DP-weighted decision
+        w_extend = W[m - 1, s + 1]
+        w_split  = inv_factorial_of_s * W[m - 1, 1]
+
+        p_extend = w_extend / (w_extend + w_split)
+        if rng.random() < p_extend:
+            b[i] = b[i - 1]
+            s += 1
+            inv_factorial_of_s /= s
+        else:
+            b[i] = 1 - b[i - 1]
+            s = 1
+            inv_factorial_of_s = 1.0
+
+        m -= 1
+
+    return b
 
 def random_k_canalizing_function(
     n: int,
     k: int,
     EXACT_DEPTH: bool = False,
+    UNIFORM_STRUCTURE: bool = True,
     ALLOW_DEGENERATE_FUNCTIONS: bool = False,
     *,
     rng=None,
@@ -1014,6 +1151,16 @@ def random_k_canalizing_function(
 
         - EXACT_DEPTH (bool, optional): If True, enforce that the canalizing
           depth is exactly k (default is False).
+          
+        - UNIFORM_STRUCTURE (bool, optional):
+          If True (default), the canalized output vector (b_1,...,b_k) is sampled
+          uniformly over canalizing layer structures, i.e. with probability
+          proportional to 1 / prod_i k_i!, where (k_1,...,k_r) is the layer structure induced
+          by consecutive equal outputs. This removes a sampling bias toward
+          layer structures with more symmetry.
+          If k = n, the nested canalizing constraint (final layer size ≥ 2) is enforced.
+          If False, canalized outputs are sampled independently and uniformly as
+          bitstrings, which biases the distribution toward more symmetric layer structures.
 
         - ALLOW_DEGENERATE_FUNCTIONS(bool, optional): If True (default False)
           and k==0 and layer_structure is None, degenerate functions may be
@@ -1048,7 +1195,14 @@ def random_k_canalizing_function(
 
     num_values = 2**n
     aas = rng.integers(2, size=k)  # canalizing inputs
-    bbs = rng.integers(2, size=k)  # canalized outputs
+    if UNIFORM_STRUCTURE:
+        bbs = sample_canalized_outputs_uniform_structure(
+            k,
+            _get_uniform_structure_weights(k, NCF = k>=n),
+            rng=rng
+        )
+    else:
+        bbs = rng.integers(2, size=k)  # canalized outputs
 
     can_vars = rng.choice(n, k, replace=False)
     f = np.zeros(num_values, dtype=int)

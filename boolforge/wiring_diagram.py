@@ -16,6 +16,8 @@ from collections import defaultdict
 from collections.abc import Sequence
 import numpy as np
 import networkx as nx
+import matplotlib.pyplot as plt
+
 
 __all__ = [
     "WiringDiagram",
@@ -499,16 +501,21 @@ class WiringDiagram(object):
                         idx_ik = next(idx for idx, r in enumerate(self.I[k]) if r == i)
                         idx_jk = next(idx for idx, r in enumerate(self.I[k]) if r == j)
     
-                        direct = self.weights[k][idx_ik]
-                        indirect1 = self.weights[j][idx_ij]
-                        indirect2 = self.weights[k][idx_jk]
+                        direct = float(self.weights[k][idx_ik])
+                        indirect1 = float(self.weights[j][idx_ij])
+                        indirect2 = float(self.weights[k][idx_jk])
     
                         types.append([direct, indirect1, indirect2])
+        
+        return_dict = {'FFLs' : ffls}
+        if types is not None:
+            return_dict['Types'] = types
+        
+        return return_dict
     
-        return ffls, types
         
         
-    def get_fbls(self, max_length: int = 4) -> list[list[int]]:
+    def get_fbls(self, max_length: int = 4, CLASSIFY : bool = False) -> dict:
         """
         Identify feedback loops (simple directed cycles).
     
@@ -522,13 +529,18 @@ class WiringDiagram(object):
         max_length : int, optional
             Maximum length of feedback loops to consider. Cycles longer than
             ``max_length`` are not returned. Default is 4.
-    
+        CLASSIFY : bool, optional
+            If True and interaction weights are available, the type of each
+            feedback 
+        
         Returns
         -------
-        list of list of int
+        dict
+            list of list of int
             List of feedback loops, where each loop is represented as a list
             of node indices forming a directed cycle. Self-loops are returned
             as single-element lists.
+            
         """
         G = self.to_DiGraph(USE_VARIABLE_NAMES=False)
     
@@ -589,10 +601,16 @@ class WiringDiagram(object):
                     len_path -= 1
             H = subG.subgraph(scc)
             sccs.extend(scc for scc in nx.strongly_connected_components(H) if len(scc) > 1)
-        return fbls
+        
+        return_dict = {'FBLs' : fbls}
+        if self.weights is not None and CLASSIFY == True:
+            types,n_negative = self._get_types_of_fbls(fbls)
+            return_dict['Types'] = types
+            return_dict['NumberNegativeEdges'] = n_negative
+        return return_dict
 
 
-    def get_types_of_fbls(
+    def _get_types_of_fbls(
         self,
         fbls: list[list[int]],
     ) -> tuple[list[float], list[int]] | None:
@@ -649,3 +667,402 @@ class WiringDiagram(object):
     
         return types, n_negative
     
+    def plot_modular_structure(
+        self,
+        ax=None,
+        show=True,
+        node_labels: bool = True,
+        max_nodes: int = 50,
+    ):
+        """
+        Plot the wiring diagram as a directed acyclic graph of strongly connected components.
+    
+        The wiring diagram is first condensed into its strongly connected components (SCCs),
+        yielding a directed acyclic graph (DAG). Each node in the plot represents one SCC.
+        The size of a node scales with the size of the SCC.
+    
+        The layout is hierarchical (top-to-bottom) using topological generations, making
+        feed-forward structure and feedback loops visually apparent.
+    
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes, optional
+            Axis to draw on. If None, a new figure and axis are created.
+        show : bool, default=True
+            Whether to call ``plt.show()`` after plotting.
+        node_labels : bool, default=True
+            Whether to label SCC nodes by their size (only shown for SCCs of size > 1).
+        max_nodes : int, default=50
+            If the number of SCCs exceeds this value, edges are sparsified to reduce clutter.
+    
+        Returns
+        -------
+        ax : matplotlib.axes.Axes
+            The axis containing the plot.
+        """
+    
+        N = self.N
+        I = self.I
+    
+        # ------------------------------------------------------------------
+        # Build directed graph of the wiring diagram
+        # ------------------------------------------------------------------
+        g_full = nx.DiGraph()
+        g_full.add_nodes_from(range(N))
+    
+        outdegrees = np.zeros(N, dtype=int)
+        for target, regulators in enumerate(I):
+            for r in regulators:
+                if r < N:  # ignore constants
+                    g_full.add_edge(r, target)
+                    outdegrees[r] += 1
+    
+        # ------------------------------------------------------------------
+        # Compute SCCs and mapping node -> SCC index
+        # ------------------------------------------------------------------
+        sccs = list(nx.strongly_connected_components(g_full))
+        scc_sizes = np.array([len(scc) for scc in sccs])
+    
+        scc_index = {}
+        for i, scc in enumerate(sccs):
+            for node in scc:
+                scc_index[node] = i
+    
+        # ------------------------------------------------------------------
+        # Build SCC DAG
+        # ------------------------------------------------------------------
+        dag_edges = set()
+        for u, v in g_full.edges():
+            su, sv = scc_index[u], scc_index[v]
+            if su != sv:
+                dag_edges.add((su, sv))
+    
+        dag = nx.DiGraph(dag_edges)
+    
+        # Optionally sparsify edges for large graphs
+        if dag.number_of_nodes() > max_nodes:
+            dag = nx.DiGraph(
+                (u, v) for (u, v) in dag_edges
+                if scc_sizes[u] > 1 or scc_sizes[v] > 1
+            )
+    
+        # ------------------------------------------------------------------
+        # Node types (for coloring)
+        # ------------------------------------------------------------------
+        # -1: input SCC (in-degree 0)
+        #  0: transient
+        #  1: output SCC (out-degree 0)
+        #  2: feedback SCC (size > 1)
+        types = np.zeros(len(sccs), dtype=int)
+    
+        for i, scc in enumerate(sccs):
+            if scc_sizes[i] > 1:
+                types[i] = 2
+            else:
+                node = next(iter(scc))
+                if g_full.in_degree(node) == 0:
+                    types[i] = -1
+                elif outdegrees[node] == 0:
+                    types[i] = 1
+                else:
+                    types[i] = 0
+    
+        # ------------------------------------------------------------------
+        # Hierarchical layout using topological generations
+        # ------------------------------------------------------------------
+        pos = {}
+        for layer, generation in enumerate(nx.topological_generations(dag)):
+            gen = list(generation)
+            k = len(gen)
+            if k == 1:
+                pos[gen[0]] = (0.0, -layer)
+            else:
+                delta = min(k, 7) / 7
+                for j, node in enumerate(gen):
+                    pos[node] = (-delta / 2 + delta * j / (k - 1), -layer)
+    
+        # ------------------------------------------------------------------
+        # Plot
+        # ------------------------------------------------------------------
+        if ax is None:
+            _, ax = plt.subplots()
+    
+        color_map = {
+            -1: "#aaaaaa",  # inputs
+             0: "#555555",  # transient
+             1: "#ffaaaa",  # outputs
+             2: "#ff7777",  # feedback / SCCs
+        }
+    
+        node_colors = [color_map[types[n]] for n in dag.nodes()]
+        node_sizes = 200 * np.log(1.3 * scc_sizes[list(dag.nodes())])
+    
+        labels = None
+        if node_labels:
+            labels = {
+                n: str(scc_sizes[n]) if scc_sizes[n] > 1 else ""
+                for n in dag.nodes()
+            }
+    
+        nx.draw_networkx(
+            dag,
+            pos=pos,
+            ax=ax,
+            node_color=node_colors,
+            node_size=node_sizes,
+            labels=labels,
+            with_labels=node_labels,
+            font_size=8,
+        )
+    
+        ax.set_axis_off()
+    
+        if show:
+            plt.show()
+    
+        return ax
+    
+    def plot_raw(
+        self,
+        ax=None,
+        show=True,
+        node_labels: bool = True,
+    ):
+        """
+        Plot the raw wiring diagram as a directed graph.
+    
+        Each node corresponds to a variable in the wiring diagram, and each
+        directed edge represents a regulatory interaction. Constants (if present)
+        are ignored.
+    
+        The layout is hierarchical and deterministic: input nodes (in-degree 0)
+        appear at the top, output nodes (out-degree 0) at the bottom, and all other
+        nodes in between.
+    
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes, optional
+            Axis to draw on. If None, a new figure and axis are created.
+        show : bool, default=True
+            Whether to call ``plt.show()`` after plotting.
+        node_labels : bool, default=True
+            Whether to label nodes by their index.
+    
+        Returns
+        -------
+        ax : matplotlib.axes.Axes
+            The axis containing the plot.
+        """
+    
+        N = self.N
+        I = self.I
+    
+        # ------------------------------------------------------------------
+        # Build directed graph
+        # ------------------------------------------------------------------
+        g = nx.DiGraph()
+        g.add_nodes_from(range(N))
+    
+        for target, regulators in enumerate(I):
+            for r in regulators:
+                if r < N:  # ignore constants
+                    g.add_edge(r, target)
+    
+        # ------------------------------------------------------------------
+        # Compute node classes
+        # ------------------------------------------------------------------
+        in_deg = dict(g.in_degree())
+        out_deg = dict(g.out_degree())
+    
+        inputs = [v for v in g.nodes if in_deg[v] == 0]
+        outputs = [v for v in g.nodes if out_deg[v] == 0]
+        internal = [v for v in g.nodes if v not in inputs and v not in outputs]
+    
+        # ------------------------------------------------------------------
+        # Assign layers
+        # ------------------------------------------------------------------
+        layer = {}
+        for v in inputs:
+            layer[v] = 0
+    
+        # Forward propagation for remaining nodes
+        changed = True
+        while changed:
+            changed = False
+            for v in internal:
+                preds = list(g.predecessors(v))
+                if preds and all(p in layer for p in preds):
+                    new_layer = 1 + max(layer[p] for p in preds)
+                    if v not in layer or layer[v] != new_layer:
+                        layer[v] = new_layer
+                        changed = True
+    
+        max_layer = max(layer.values(), default=0)
+        for v in outputs:
+            layer[v] = max_layer + 1
+    
+        # ------------------------------------------------------------------
+        # Build positions (deterministic)
+        # ------------------------------------------------------------------
+        pos = {}
+        layers = {}
+        for v, l in layer.items():
+            layers.setdefault(l, []).append(v)
+    
+        for l, nodes in layers.items():
+            nodes = sorted(nodes)
+            k = len(nodes)
+            if k == 1:
+                pos[nodes[0]] = (0.0, -l)
+            else:
+                delta = min(k, 7) / 7
+                for j, v in enumerate(nodes):
+                    pos[v] = (-delta / 2 + delta * j / (k - 1), -l)
+    
+        # ------------------------------------------------------------------
+        # Plot
+        # ------------------------------------------------------------------
+        if ax is None:
+            _, ax = plt.subplots()
+    
+        colors = []
+        for v in g.nodes:
+            if v in inputs:
+                colors.append("#aaaaaa")   # inputs
+            elif v in outputs:
+                colors.append("#ffaaaa")   # outputs
+            else:
+                colors.append("#555555")   # internal
+    
+        nx.draw_networkx(
+            g,
+            pos=pos,
+            ax=ax,
+            node_color=colors,
+            node_size=600,
+            labels={v: str(v) for v in g.nodes} if node_labels else None,
+            with_labels=node_labels,
+            font_size=9,
+        )
+    
+        ax.set_axis_off()
+    
+        if show:
+            plt.show()
+    
+        return ax
+    
+    def plot(
+        self,
+        max_expanded_sccs: int = 4,
+        min_scc_size: int = 2,
+        show: bool = True,
+    ):
+        """
+        Plot an integrated overview of the wiring diagram.
+    
+        The plot consists of:
+          1) A top panel showing the modular structure of the network as a DAG of
+             strongly connected components (SCCs).
+          2) Bottom panels showing the internal wiring of selected SCCs using a
+             circular layout.
+    
+        By default, the largest SCCs of size >= ``min_scc_size`` are expanded,
+        up to ``max_expanded_sccs``.
+    
+        Parameters
+        ----------
+        max_expanded_sccs : int, default=4
+            Maximum number of SCCs to expand and show in detail.
+        min_scc_size : int, default=2
+            Minimum SCC size to be eligible for expansion.
+        show : bool, default=True
+            Whether to call ``plt.show()`` at the end.
+    
+        Returns
+        -------
+        fig : matplotlib.figure.Figure
+            The created figure.
+        """
+    
+        N = self.N
+        I = self.I
+    
+        # ------------------------------------------------------------
+        # Build full directed graph
+        # ------------------------------------------------------------
+        g = nx.DiGraph()
+        g.add_nodes_from(range(N))
+        for target, regulators in enumerate(I):
+            for r in regulators:
+                if r < N:  # ignore constants
+                    g.add_edge(r, target)
+    
+        # ------------------------------------------------------------
+        # Compute SCCs
+        # ------------------------------------------------------------
+        sccs = list(nx.strongly_connected_components(g))
+        sccs = [sorted(scc) for scc in sccs]
+    
+        # Select SCCs to expand
+        expandable = [scc for scc in sccs if len(scc) >= min_scc_size]
+        expandable.sort(key=len, reverse=True)
+        expanded_sccs = expandable[:max_expanded_sccs]
+    
+        n_expanded = len(expanded_sccs)
+    
+        # ------------------------------------------------------------
+        # Figure and GridSpec
+        # ------------------------------------------------------------
+        if n_expanded == 0:
+            fig = plt.figure(figsize=(8, 4))
+            gs = fig.add_gridspec(1, 1)
+            ax_top = fig.add_subplot(gs[0, 0])
+        else:
+            fig = plt.figure(figsize=(4 * n_expanded, 6))
+            gs = fig.add_gridspec(
+                2,
+                n_expanded,
+                height_ratios=[2.2, 1.5],
+            )
+            ax_top = fig.add_subplot(gs[0, :])
+    
+        # ------------------------------------------------------------
+        # Top panel: modular structure
+        # ------------------------------------------------------------
+        self.plot_modular_structure(ax=ax_top, show=False)
+        ax_top.set_title("Modular structure (SCC DAG)")
+    
+        # ------------------------------------------------------------
+        # Bottom panels: internal SCC structure
+        # ------------------------------------------------------------
+        for j, scc in enumerate(expanded_sccs):
+            ax = fig.add_subplot(gs[1, j])
+    
+            subg = g.subgraph(scc).copy()
+    
+            pos = nx.circular_layout(subg)
+    
+            # Color nodes: all feedback (same SCC)
+            node_colors = ["#ff7777"] * subg.number_of_nodes()
+    
+            nx.draw_networkx(
+                subg,
+                pos=pos,
+                ax=ax,
+                node_color=node_colors,
+                node_size=600,
+                labels={v: str(v) for v in subg.nodes()},
+                font_size=9,
+                with_labels=True,
+            )
+    
+            ax.set_title(f"SCC (size {len(scc)})")
+            ax.set_axis_off()
+    
+        fig.tight_layout()
+    
+        if show:
+            plt.show()
+    
+        return fig
