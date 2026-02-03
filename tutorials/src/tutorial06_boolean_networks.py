@@ -1,5 +1,5 @@
 # %% [markdown]
-# # BoolForge Tutorial 6: Working with Boolean Networks
+# # #6: Working with Boolean Networks
 #
 # While previous tutorials focused on individual Boolean functions, this tutorial
 # introduces Boolean networks, which combine multiple Boolean functions into a

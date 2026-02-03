@@ -1,5 +1,5 @@
 # %% [markdown]
-# # BoolForge Tutorial 5: Example Use Cases of the Random Function Generator
+# # #5: Example Use Cases of the Random Function Generator
 #
 # In this tutorial, we explore example use cases of BoolForge’s random Boolean
 # function generator. This functionality allows generating large ensembles of

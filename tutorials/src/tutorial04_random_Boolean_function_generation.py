@@ -1,5 +1,5 @@
 # %% [markdown]
-# # BoolForge Tutorial 4: Random Boolean Function Generation
+# # #4: Random Boolean Function Generation
 #
 # This tutorial focuses on the random generation of Boolean functions with
 # prescribed properties, enabling large-scale computational studies.

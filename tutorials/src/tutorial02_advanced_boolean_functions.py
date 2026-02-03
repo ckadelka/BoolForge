@@ -1,5 +1,5 @@
 # %% [markdown]
-# # BoolForge Tutorial 2: Advanced Concepts for Boolean Functions
+# # #2: Advanced Concepts for Boolean Functions
 #
 # Understanding the structure of a Boolean function is essential for analyzing
 # the behavior of the Boolean networks they define. In this tutorial, we move

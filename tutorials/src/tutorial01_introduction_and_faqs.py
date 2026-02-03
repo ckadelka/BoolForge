@@ -1,5 +1,5 @@
 # %% [markdown]
-# # BoolForge Tutorial 1: Working with Boolean Functions
+# # #1: Working with Boolean Functions
 #
 # Boolean functions are the building blocks of Boolean network models used to 
 # represent gene regulatory networks, signaling pathways, and other biological 
@@ -90,7 +90,7 @@ print("f3:", f3)
 # %%
 g = boolforge.BooleanFunction("(A AND B) OR (NOT A AND C)")
 h = boolforge.BooleanFunction("(x + y + z) % 2 == 0")
-k = boolforge.BooleanFunction("x + y - z > 0")
+k = boolforge.BooleanFunction("(-1) * x + y + z > 0")
 
 labels = ["g", "h", "k"]
 boolforge.display_truth_table(g, h, k, labels=labels)
