@@ -332,12 +332,17 @@ class WiringDiagram(object):
     
         return G
         
+    def __str__(self):
+        return (
+            f"WiringDiagram(N={self.N}, "
+            f"indegrees={self.indegrees.tolist()})"
+        )
 
     def __getitem__(self, index):
         return self.I[index]
 
     def __repr__(self):
-        return f"WiringDiagram(N={self.N})"    
+        return f"{type(self).__name__}(N={self.N})"
 
     def get_outdegrees(self) -> np.ndarray:
         """
