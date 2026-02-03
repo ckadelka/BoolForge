@@ -145,7 +145,7 @@ def display_truth_table(*functions : "BooleanFunction", labels : Sequence[str] |
         raise ValueError("All BooleanFunction objects must have the same number of variables.")
     f = functions[0]
     if isinstance(labels,str):
-        labels = list(labels)
+        labels = [labels]
     if labels is not None and len(labels)!=len(functions):
         raise ValueError("The number of labels (if provided) must equal the number of functions.")
         
