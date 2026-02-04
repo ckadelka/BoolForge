@@ -1,0 +1,2366 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BoolForge Tutorial 7: Dynamics of Boolean Networks &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks" href="tutorial08_stability_analysis.html" />
+    <link rel="prev" title="BoolForge Tutorial 6: Working with Boolean Networks" href="tutorial06_boolean_networks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">BoolForge Tutorial 3: Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04_random_Boolean_function_generation.html">BoolForge Tutorial 4: Random Boolean Function Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05_use_cases_random_function_generator.html">BoolForge Tutorial 5: Example Use Cases of the Random Function Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06_boolean_networks.html">BoolForge Tutorial 6: Working with Boolean Networks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BoolForge Tutorial 7: Dynamics of Boolean Networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#0.-Setup">0. Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#1.-State-space-of-a-Boolean-network">1. State space of a Boolean network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Dynamics-of-synchronous-Boolean-networks">2. Dynamics of synchronous Boolean networks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#2.1-Exact-computation">2.1 Exact computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Exhaustive-attractor-computation">Exhaustive attractor computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#2.2-Monte-Carlo-simulation">2.2 Monte Carlo simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Dynamics-of-asynchronous-Boolean-networks">3. Dynamics of asynchronous Boolean networks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#3.1-Steady-states-under-general-asynchronous-update">3.1 Steady states under general asynchronous update</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Monte-Carlo-approximation">Monte Carlo approximation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Sampling-from-a-fixed-initial-condition">Sampling from a fixed initial condition</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary-and-outlook">Summary and outlook</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_stability_analysis.html">BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">BoolForge Tutorial 7: Dynamics of Boolean Networks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial07_boolean_network_dynamics.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="BoolForge-Tutorial-7:-Dynamics-of-Boolean-Networks">
+<h1>BoolForge Tutorial 7: Dynamics of Boolean Networks<a class="headerlink" href="#BoolForge-Tutorial-7:-Dynamics-of-Boolean-Networks" title="Link to this heading"></a></h1>
+<p>In this tutorial, we study the <em>dynamics</em> of Boolean networks. Building on the construction and structural analysis from previous tutorials, we now focus on how Boolean networks evolve over time and how their long-term behavior can be characterized.</p>
+<p>You will learn how to:</p>
+<ul class="simple">
+<li><p>simulate Boolean network dynamics under different updating schemes,</p></li>
+<li><p>compute and classify attractors,</p></li>
+<li><p>analyze basins of attraction,</p></li>
+<li><p>relate network structure to dynamical behavior.</p></li>
+</ul>
+<hr class="docutils" />
+<section id="0.-Setup">
+<h2>0. Setup<a class="headerlink" href="#0.-Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="1.-State-space-of-a-Boolean-network">
+<h2>1. State space of a Boolean network<a class="headerlink" href="#1.-State-space-of-a-Boolean-network" title="Link to this heading"></a></h2>
+<p>A Boolean network with <span class="math notranslate nohighlight">\(N\)</span> nodes defines a dynamical system on the discrete state space <span class="math notranslate nohighlight">\(\{0,1\}^N\)</span>.</p>
+<p>Each state is a binary vector</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x} = (x_0, \ldots, x_{N-1}) \in \{0,1\}^N,\]</div>
+<p>where <span class="math notranslate nohighlight">\(x_i\)</span> denotes the state of node <span class="math notranslate nohighlight">\(i\)</span>.</p>
+<p>We use a small Boolean network as a running example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">x = y</span>
+<span class="s2">y = x OR z</span>
+<span class="s2">z = y</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">bn</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;N:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.I:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.F:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Variables: [&#39;x&#39; &#39;y&#39; &#39;z&#39;]
+N: 3
+bn.I: [array([1]), array([0, 2]), array([1])]
+bn.F: [BooleanFunction(f=[0, 1]), BooleanFunction(f=[0, 1, 1, 1]), BooleanFunction(f=[0, 1])]
+</pre></div></div>
+</div>
+<p>All state vectors follow the variable order given by <code class="docutils literal notranslate"><span class="pre">bn.variables</span></code>. For small networks, we can enumerate all <span class="math notranslate nohighlight">\(2^N\)</span> states explicitly.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">all_states</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">all_states</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">bn</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>x</th>
+      <th>y</th>
+      <th>z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="2.-Dynamics-of-synchronous-Boolean-networks">
+<h2>2. Dynamics of synchronous Boolean networks<a class="headerlink" href="#2.-Dynamics-of-synchronous-Boolean-networks" title="Link to this heading"></a></h2>
+<p>Under <em>synchronous updating</em>, all nodes are updated simultaneously, defining a deterministic update map</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}(t+1) = F(\mathbf{x}(t)).\]</div>
+<section id="2.1-Exact-computation">
+<h3>2.1 Exact computation<a class="headerlink" href="#2.1-Exact-computation" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">all_states</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;--&gt;&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">update_network_synchronously</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[0 0 0] --&gt; [0 0 0]
+[0 0 1] --&gt; [0 1 0]
+[0 1 0] --&gt; [1 0 1]
+[0 1 1] --&gt; [1 1 1]
+[1 0 0] --&gt; [0 1 0]
+[1 0 1] --&gt; [0 1 0]
+[1 1 0] --&gt; [1 1 1]
+[1 1 1] --&gt; [1 1 1]
+</pre></div></div>
+</div>
+<p>This output matches the synchronous truth table representation:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bn</span><span class="o">.</span><span class="n">to_truth_table</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>x(t)</th>
+      <th>y(t)</th>
+      <th>z(t)</th>
+      <th>x(t+1)</th>
+      <th>y(t+1)</th>
+      <th>z(t+1)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Each state has exactly one successor, so the dynamics consist of transient trajectories leading into <em>attractors</em> (steady states or cycles).</p>
+<p>In this example, the network has:</p>
+<ul class="simple">
+<li><p>two steady states: <span class="math notranslate nohighlight">\((0,0,0)\)</span> and <span class="math notranslate nohighlight">\((1,1,1)\)</span>,</p></li>
+<li><p>one cyclic attractor of length 2: <span class="math notranslate nohighlight">\((0,1,0) \leftrightarrow (1,0,1)\)</span>.</p></li>
+</ul>
+</section>
+<section id="Exhaustive-attractor-computation">
+<h3>Exhaustive attractor computation<a class="headerlink" href="#Exhaustive-attractor-computation" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dict_dynamics</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_attractors_synchronous_exact</span><span class="p">()</span>
+<span class="n">dict_dynamics</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;Attractors&#39;: [[0], [2, 5], [7]],
+ &#39;NumberOfAttractors&#39;: 3,
+ &#39;BasinSizes&#39;: array([0.125, 0.5  , 0.375]),
+ &#39;AttractorID&#39;: array([0, 1, 1, 2, 1, 1, 2, 2], dtype=int32),
+ &#39;STG&#39;: array([0, 2, 5, 7, 2, 2, 7, 7])}
+</pre></div></div>
+</div>
+<p>The returned dictionary contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">STG</span></code>: the synchronous state transition graph,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NumberOfAttractors</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Attractors</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AttractorDict</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BasinSizes</span></code>.</p></li>
+</ul>
+<p>The state transition graph can be decoded as follows:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">next_state</span> <span class="o">=</span> <span class="n">dict_dynamics</span><span class="p">[</span><span class="s2">&quot;STG&quot;</span><span class="p">][</span><span class="n">state</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="n">state</span><span class="p">,</span>
+        <span class="s2">&quot;=&quot;</span><span class="p">,</span>
+        <span class="n">boolforge</span><span class="o">.</span><span class="n">dec2bin</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">),</span>
+        <span class="s2">&quot;--&gt;&quot;</span><span class="p">,</span>
+        <span class="n">next_state</span><span class="p">,</span>
+        <span class="s2">&quot;=&quot;</span><span class="p">,</span>
+        <span class="n">boolforge</span><span class="o">.</span><span class="n">dec2bin</span><span class="p">(</span><span class="n">next_state</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">),</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0 = [0, 0, 0] --&gt; 0 = [0, 0, 0]
+1 = [0, 0, 1] --&gt; 2 = [0, 1, 0]
+2 = [0, 1, 0] --&gt; 5 = [1, 0, 1]
+3 = [0, 1, 1] --&gt; 7 = [1, 1, 1]
+4 = [1, 0, 0] --&gt; 2 = [0, 1, 0]
+5 = [1, 0, 1] --&gt; 2 = [0, 1, 0]
+6 = [1, 1, 0] --&gt; 7 = [1, 1, 1]
+7 = [1, 1, 1] --&gt; 7 = [1, 1, 1]
+</pre></div></div>
+</div>
+<p>Attractors can be printed in binary representation:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">attractor</span> <span class="ow">in</span> <span class="n">dict_dynamics</span><span class="p">[</span><span class="s2">&quot;Attractors&quot;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attractor of length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">attractor</span><span class="p">)</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">attractor</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">dec2bin</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Attractor of length 1:
+0 [0, 0, 0]
+
+Attractor of length 2:
+2 [0, 1, 0]
+5 [1, 0, 1]
+
+Attractor of length 1:
+7 [1, 1, 1]
+
+</pre></div></div>
+</div>
+<p>Basin sizes count how many states flow into each attractor. They always sum to <span class="math notranslate nohighlight">\(2^N\)</span>.</p>
+</section>
+<section id="2.2-Monte-Carlo-simulation">
+<h3>2.2 Monte Carlo simulation<a class="headerlink" href="#2.2-Monte-Carlo-simulation" title="Link to this heading"></a></h3>
+<p>For larger networks, exhaustive enumeration is infeasible. Monte Carlo simulation approximates the attractor landscape.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dict_dynamics</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_attractors_synchronous</span><span class="p">(</span><span class="n">nsim</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">dict_dynamics</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;Attractors&#39;: [[2, 5], [7], [0]],
+ &#39;NumberOfAttractors&#39;: 3,
+ &#39;BasinSizes&#39;: [62, 28, 10],
+ &#39;AttractorDict&#39;: {2: 0, 5: 0, 4: 0, 1: 0, 7: 1, 3: 1, 6: 1, 0: 2},
+ &#39;InitialSamplePoints&#39;: [1,
+  4,
+  4,
+  2,
+  1,
+  6,
+  2,
+  3,
+  2,
+  5,
+  1,
+  2,
+  2,
+  2,
+  2,
+  7,
+  4,
+  3,
+  7,
+  6,
+  4,
+  4,
+  6,
+  1,
+  0,
+  0,
+  1,
+  4,
+  2,
+  5,
+  4,
+  4,
+  7,
+  2,
+  0,
+  7,
+  4,
+  0,
+  1,
+  6,
+  4,
+  1,
+  1,
+  0,
+  5,
+  5,
+  2,
+  4,
+  0,
+  2,
+  7,
+  4,
+  7,
+  2,
+  6,
+  1,
+  5,
+  7,
+  5,
+  7,
+  2,
+  2,
+  5,
+  1,
+  0,
+  5,
+  3,
+  3,
+  7,
+  0,
+  1,
+  0,
+  2,
+  5,
+  2,
+  7,
+  6,
+  6,
+  4,
+  6,
+  2,
+  1,
+  0,
+  5,
+  2,
+  2,
+  3,
+  1,
+  5,
+  6,
+  6,
+  7,
+  2,
+  2,
+  5,
+  5,
+  4,
+  3,
+  6,
+  4],
+ &#39;STG&#39;: {1: 2, 4: 2, 2: 5, 6: 7, 3: 7, 5: 2, 7: 7, 0: 0},
+ &#39;NumberOfTimeouts&#39;: 0}
+</pre></div></div>
+</div>
+<p>The simulation returns additional information:</p>
+<ul class="simple">
+<li><p>sampled initial states,</p></li>
+<li><p>the number of timeouts (trajectories not reaching an attractor in time).</p></li>
+</ul>
+<p>If an attractor has relative basin size <span class="math notranslate nohighlight">\(q\)</span>, the probability that it is found after <span class="math notranslate nohighlight">\(m\)</span> random initializations is <span class="math notranslate nohighlight">\(1 - (1-q)^m\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>
+<span class="n">ms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qs</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">q</span><span class="p">)</span> <span class="o">**</span> <span class="n">ms</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$q$&quot;</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;number of initial states ($m$)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;probability attractor is found&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial07_boolean_network_dynamics_22_0.png" src="../_images/tutorials_tutorial07_boolean_network_dynamics_22_0.png" />
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="3.-Dynamics-of-asynchronous-Boolean-networks">
+<h2>3. Dynamics of asynchronous Boolean networks<a class="headerlink" href="#3.-Dynamics-of-asynchronous-Boolean-networks" title="Link to this heading"></a></h2>
+<p>Synchronous updating is computationally convenient but biologically unrealistic. Asynchronous updating assumes that only one node is updated at a time.</p>
+<section id="3.1-Steady-states-under-general-asynchronous-update">
+<h3>3.1 Steady states under general asynchronous update<a class="headerlink" href="#3.1-Steady-states-under-general-asynchronous-update" title="Link to this heading"></a></h3>
+<p>BoolForge can compute steady states under general asynchronous updating.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dict_dynamics</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_steady_states_asynchronous_exact</span><span class="p">()</span>
+<span class="n">dict_dynamics</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;SteadyStates&#39;: [0, 7],
+ &#39;NumberOfSteadyStates&#39;: 2,
+ &#39;BasinSizes&#39;: array([0.33333333, 0.66666667]),
+ &#39;STGAsynchronous&#39;: {0: {0: np.float64(1.0)},
+  1: {1: np.float64(0.3333333333333333),
+   3: np.float64(0.3333333333333333),
+   0: np.float64(0.3333333333333333)},
+  2: {6: np.float64(0.3333333333333333),
+   0: np.float64(0.3333333333333333),
+   3: np.float64(0.3333333333333333)},
+  3: {7: np.float64(0.3333333333333333), 3: np.float64(0.6666666666666666)},
+  4: {0: np.float64(0.3333333333333333),
+   6: np.float64(0.3333333333333333),
+   4: np.float64(0.3333333333333333)},
+  5: {1: np.float64(0.3333333333333333),
+   7: np.float64(0.3333333333333333),
+   4: np.float64(0.3333333333333333)},
+  6: {6: np.float64(0.6666666666666666), 7: np.float64(0.3333333333333333)},
+  7: {7: np.float64(1.0)}},
+ &#39;FinalTransitionProbabilities&#39;: array([[1.        , 0.        ],
+        [0.5       , 0.5       ],
+        [0.33333333, 0.66666667],
+        [0.        , 1.        ],
+        [0.5       , 0.5       ],
+        [0.33333333, 0.66666667],
+        [0.        , 1.        ],
+        [0.        , 1.        ]])}
+</pre></div></div>
+</div>
+<p>This reveals the same two steady states as in the synchronous case. In addition, the full asynchronous transition graph and absorption probabilities are returned.</p>
+<p>BoolForge currently does not detect complex cyclic attractors under asynchronous updating; for those, specialized tools such as <code class="docutils literal notranslate"><span class="pre">pystablemotifs</span></code> are recommended.</p>
+</section>
+<section id="Monte-Carlo-approximation">
+<h3>Monte Carlo approximation<a class="headerlink" href="#Monte-Carlo-approximation" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dict_dynamics</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_steady_states_asynchronous</span><span class="p">(</span><span class="n">nsim</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">dict_dynamics</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;SteadyStates&#39;: [0, 7],
+ &#39;NumberOfSteadyStates&#39;: 2,
+ &#39;BasinSizes&#39;: [161, 339],
+ &#39;STGAsynchronous&#39;: {(2, 1): 0,
+  (0, 1): 0,
+  (0, 0): 0,
+  (0, 2): 0,
+  (1, 2): 0,
+  (6, 1): 6,
+  (6, 0): 6,
+  (6, 2): 7,
+  (7, 2): 7,
+  (7, 0): 7,
+  (7, 1): 7,
+  (1, 1): 3,
+  (3, 1): 3,
+  (3, 0): 7,
+  (2, 0): 6,
+  (4, 1): 6,
+  (3, 2): 3,
+  (2, 2): 3,
+  (5, 1): 7,
+  (4, 0): 0,
+  (4, 2): 4,
+  (1, 0): 1,
+  (5, 2): 4,
+  (5, 0): 1},
+ &#39;InitialSamplePoints&#39;: [2,
+  1,
+  6,
+  1,
+  2,
+  2,
+  4,
+  7,
+  6,
+  7,
+  2,
+  2,
+  2,
+  0,
+  1,
+  3,
+  0,
+  2,
+  2,
+  2,
+  2,
+  2,
+  5,
+  6,
+  0,
+  4,
+  2,
+  7,
+  4,
+  1,
+  4,
+  1,
+  2,
+  3,
+  7,
+  2,
+  2,
+  1,
+  3,
+  6,
+  0,
+  4,
+  3,
+  3,
+  3,
+  6,
+  6,
+  5,
+  5,
+  6,
+  3,
+  7,
+  4,
+  7,
+  5,
+  2,
+  5,
+  1,
+  7,
+  4,
+  1,
+  4,
+  4,
+  3,
+  6,
+  6,
+  4,
+  6,
+  7,
+  7,
+  0,
+  2,
+  7,
+  0,
+  1,
+  7,
+  5,
+  4,
+  5,
+  1,
+  3,
+  7,
+  6,
+  5,
+  6,
+  5,
+  4,
+  1,
+  6,
+  0,
+  7,
+  3,
+  4,
+  0,
+  4,
+  5,
+  0,
+  6,
+  2,
+  6,
+  0,
+  7,
+  2,
+  1,
+  6,
+  4,
+  6,
+  1,
+  1,
+  2,
+  5,
+  1,
+  6,
+  4,
+  2,
+  0,
+  4,
+  2,
+  1,
+  4,
+  7,
+  0,
+  3,
+  4,
+  7,
+  2,
+  7,
+  1,
+  2,
+  5,
+  5,
+  7,
+  2,
+  6,
+  5,
+  5,
+  4,
+  0,
+  5,
+  0,
+  3,
+  6,
+  5,
+  1,
+  0,
+  6,
+  0,
+  0,
+  4,
+  7,
+  4,
+  7,
+  1,
+  4,
+  3,
+  6,
+  6,
+  1,
+  2,
+  1,
+  4,
+  0,
+  6,
+  7,
+  2,
+  2,
+  6,
+  4,
+  0,
+  6,
+  6,
+  2,
+  4,
+  2,
+  5,
+  2,
+  5,
+  3,
+  0,
+  0,
+  4,
+  1,
+  5,
+  3,
+  6,
+  3,
+  7,
+  2,
+  3,
+  4,
+  2,
+  7,
+  0,
+  4,
+  1,
+  0,
+  7,
+  6,
+  2,
+  7,
+  5,
+  1,
+  1,
+  1,
+  7,
+  6,
+  3,
+  0,
+  2,
+  4,
+  7,
+  2,
+  5,
+  7,
+  0,
+  1,
+  5,
+  2,
+  0,
+  3,
+  2,
+  6,
+  7,
+  3,
+  6,
+  3,
+  3,
+  0,
+  0,
+  3,
+  2,
+  7,
+  2,
+  5,
+  0,
+  0,
+  3,
+  1,
+  3,
+  2,
+  6,
+  0,
+  1,
+  4,
+  0,
+  4,
+  0,
+  2,
+  3,
+  1,
+  7,
+  5,
+  7,
+  2,
+  0,
+  3,
+  1,
+  2,
+  2,
+  5,
+  7,
+  1,
+  1,
+  4,
+  4,
+  7,
+  4,
+  6,
+  1,
+  7,
+  3,
+  1,
+  1,
+  5,
+  0,
+  7,
+  5,
+  3,
+  6,
+  2,
+  0,
+  4,
+  5,
+  0,
+  1,
+  2,
+  6,
+  2,
+  2,
+  0,
+  7,
+  7,
+  6,
+  4,
+  5,
+  3,
+  5,
+  2,
+  1,
+  7,
+  6,
+  3,
+  4,
+  7,
+  5,
+  3,
+  6,
+  0,
+  7,
+  6,
+  2,
+  6,
+  7,
+  4,
+  4,
+  2,
+  6,
+  1,
+  5,
+  1,
+  0,
+  6,
+  5,
+  3,
+  6,
+  7,
+  4,
+  1,
+  1,
+  5,
+  5,
+  4,
+  2,
+  3,
+  1,
+  1,
+  7,
+  0,
+  5,
+  2,
+  0,
+  3,
+  2,
+  5,
+  6,
+  7,
+  7,
+  6,
+  1,
+  7,
+  3,
+  3,
+  4,
+  0,
+  3,
+  0,
+  3,
+  3,
+  2,
+  6,
+  2,
+  2,
+  5,
+  7,
+  2,
+  5,
+  2,
+  3,
+  5,
+  3,
+  5,
+  4,
+  0,
+  0,
+  7,
+  3,
+  3,
+  5,
+  3,
+  5,
+  5,
+  3,
+  2,
+  4,
+  1,
+  5,
+  4,
+  4,
+  6,
+  6,
+  1,
+  0,
+  2,
+  4,
+  3,
+  3,
+  5,
+  4,
+  5,
+  7,
+  6,
+  1,
+  0,
+  1,
+  5,
+  5,
+  7,
+  5,
+  6,
+  6,
+  7,
+  4,
+  6,
+  3,
+  0,
+  6,
+  2,
+  6,
+  0,
+  1,
+  4,
+  5,
+  5,
+  5,
+  3,
+  7,
+  5,
+  5,
+  4,
+  6,
+  3,
+  4,
+  2,
+  1,
+  4,
+  2,
+  5,
+  4,
+  6,
+  5,
+  0,
+  2,
+  6,
+  6,
+  6,
+  3,
+  7,
+  2,
+  1,
+  0,
+  3,
+  7,
+  2,
+  0,
+  5,
+  1,
+  4,
+  1,
+  0,
+  7,
+  7,
+  3,
+  1,
+  6,
+  7,
+  2,
+  3,
+  1,
+  5,
+  0,
+  7,
+  0,
+  2,
+  2,
+  7,
+  5,
+  2,
+  4,
+  2,
+  2,
+  4,
+  0,
+  1,
+  3,
+  4,
+  5,
+  6,
+  7,
+  6,
+  1,
+  4,
+  5,
+  7,
+  3,
+  3,
+  4,
+  1,
+  3,
+  3,
+  7]}
+</pre></div></div>
+</div>
+<p>The simulation provides:</p>
+<ul class="simple">
+<li><p>a lower bound on the number of steady states,</p></li>
+<li><p>approximate basin size distributions,</p></li>
+<li><p>samples of the asynchronous state transition graph.</p></li>
+</ul>
+</section>
+<section id="Sampling-from-a-fixed-initial-condition">
+<h3>Sampling from a fixed initial condition<a class="headerlink" href="#Sampling-from-a-fixed-initial-condition" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dict_dynamics</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_steady_states_asynchronous_given_one_initial_condition</span><span class="p">(</span>
+    <span class="n">initial_condition</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">nsim</span><span class="o">=</span><span class="mi">500</span>
+<span class="p">)</span>
+<span class="n">dict_dynamics</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;SteadyStates&#39;: [7, 0],
+ &#39;NumberOfSteadyStates&#39;: 2,
+ &#39;BasinSizes&#39;: [252, 248],
+ &#39;TransientTimes&#39;: [[2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2],
+  [1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1]],
+ &#39;STGAsynchronous&#39;: {(1, 0): 1,
+  (1, 1): 3,
+  (3, 1): 3,
+  (3, 0): 7,
+  (7, 0): 7,
+  (7, 1): 7,
+  (7, 2): 7,
+  (1, 2): 0,
+  (0, 2): 0,
+  (0, 1): 0,
+  (0, 0): 0,
+  (3, 2): 3},
+ &#39;UpdateQueues&#39;: [[1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0],
+  [1, 0],
+  [1, 3, 7],
+  [1, 0]]}
+</pre></div></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="Summary-and-outlook">
+<h2>Summary and outlook<a class="headerlink" href="#Summary-and-outlook" title="Link to this heading"></a></h2>
+<p>In this tutorial you learned how to:</p>
+<ul class="simple">
+<li><p>simulate Boolean network dynamics,</p></li>
+<li><p>compute synchronous attractors exactly and approximately,</p></li>
+<li><p>analyze basin sizes,</p></li>
+<li><p>compute steady states under asynchronous updating.</p></li>
+</ul>
+<p>This concludes the function- and network-level analysis. Subsequent work focuses on large-scale dynamical analysis, perturbations, and stability in Boolean network models.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial06_boolean_networks.html" class="btn btn-neutral float-left" title="BoolForge Tutorial 6: Working with Boolean Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial08_stability_analysis.html" class="btn btn-neutral float-right" title="BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -14,8 +14,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=8d563738"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -50,6 +50,7 @@
 <li class="toctree-l2"><a class="reference internal" href="boolean_network.html">Boolean Network</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generate.html">Generate</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Bio Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.bio_models.get_content_in_remote_folder"><code class="docutils literal notranslate"><span class="pre">get_content_in_remote_folder()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.bio_models.fetch_file"><code class="docutils literal notranslate"><span class="pre">fetch_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.bio_models.fetch_file_bytes"><code class="docutils literal notranslate"><span class="pre">fetch_file_bytes()</span></code></a></li>
@@ -93,8 +94,49 @@
 <h1>Bio Models<a class="headerlink" href="#bio-models" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p id="module-boolforge.bio_models">Created on Fri Sep 22 11:48:48 2025</p>
-<p>&#64;author: ckadelka</p>
+<p id="module-boolforge.bio_models">This module provides functionality for retrieving, parsing, and loading
+biological Boolean network models from public online repositories.</p>
+<p>The <a class="reference internal" href="#module-boolforge.bio_models" title="boolforge.bio_models"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bio_models</span></code></a> module allows users to programmatically access
+and import published Boolean and logical gene regulatory network models from
+GitHub repositories such as:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>expert-curated (ckadelka)</cite> — manually curated models from the
+<em>Design Principles of Gene Regulatory Networks</em> repository.</p></li>
+<li><p><cite>pystablemotifs (jcrozum)</cite> — models accompanying the PyStableMotifs
+library.</p></li>
+<li><p><cite>biodivine (sybila)</cite> — models from the Sybila Biodivine Boolean Models
+repository.</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>Functions are provided to:</dt><dd><ul class="simple">
+<li><p>Recursively list and download files from GitHub folders using the REST API.</p></li>
+<li><p>Fetch raw text or byte content from remote sources.</p></li>
+<li><p>Parse Boolean network models directly into
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BooleanNetwork</span></code> objects.</p></li>
+<li><p>Batch-download and convert all models from supported repositories.</p></li>
+</ul>
+</dd>
+</dl>
+<p>All network parsing routines use pure Python and standard libraries only.
+No external dependencies (such as Numba) are required for functionality, though
+BoolForge’s Boolean network analysis methods can benefit from Numba-based JIT
+acceleration when installed.</p>
+<p>This module is intended to facilitate reproducible research by providing
+direct access to real-world Boolean GRN models for simulation, comparison, and
+benchmarking.</p>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">boolforge</span><span class="w"> </span><span class="kn">import</span> <span class="n">bio_models</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bns</span><span class="p">,</span> <span class="n">ok</span><span class="p">,</span> <span class="n">failed</span> <span class="o">=</span> <span class="n">bio_models</span><span class="o">.</span><span class="n">get_bio_models_from_repository</span><span class="p">(</span><span class="s1">&#39;expert-curated (ckadelka)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">bns</span><span class="p">)</span>
+<span class="go">122</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">variables</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="go">[&#39;GeneA&#39;, &#39;GeneB&#39;, &#39;GeneC&#39;, &#39;GeneD&#39;, &#39;GeneE&#39;]</span>
+</pre></div>
+</div>
+</section>
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.bio_models.get_content_in_remote_folder">
 <span class="sig-prename descclassname"><span class="pre">boolforge.bio_models.</span></span><span class="sig-name descname"><span class="pre">get_content_in_remote_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/bio_models.html#get_content_in_remote_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.bio_models.get_content_in_remote_folder" title="Link to this definition"></a></dt>

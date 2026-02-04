@@ -1,0 +1,875 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BoolForge Tutorial 5: Example Use Cases of the Random Function Generator &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BoolForge Tutorial 6: Working with Boolean Networks" href="tutorial06_boolean_networks.html" />
+    <link rel="prev" title="BoolForge Tutorial 4: Random Boolean Function Generation" href="tutorial04_random_Boolean_function_generation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">BoolForge Tutorial 3: Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04_random_Boolean_function_generation.html">BoolForge Tutorial 4: Random Boolean Function Generation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BoolForge Tutorial 5: Example Use Cases of the Random Function Generator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#0.-Setup">0. Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Prevalence-of-canalization">1. Prevalence of canalization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Restricting-to-canalizing-functions">Restricting to canalizing functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Collective-canalization-vs-degree">2. Collective canalization vs degree</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Stratification-by-canalizing-depth">Stratification by canalizing depth</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Correlation-between-canalizing-strength-and-input-redundancy">Correlation between canalizing strength and input redundancy</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Correlation-between-canalization-and-bias">3. Correlation between canalization and bias</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Degeneracy-vs-bias">Degeneracy vs bias</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Analyzing-functions-with-specific-canalizing-layer-structure">4. Analyzing functions with specific canalizing layer structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#5.-Summary-and-outlook">5. Summary and outlook</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06_boolean_networks.html">BoolForge Tutorial 6: Working with Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07_boolean_network_dynamics.html">BoolForge Tutorial 7: Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_stability_analysis.html">BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">BoolForge Tutorial 5: Example Use Cases of the Random Function Generator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial05_use_cases_random_function_generator.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="BoolForge-Tutorial-5:-Example-Use-Cases-of-the-Random-Function-Generator">
+<h1>BoolForge Tutorial 5: Example Use Cases of the Random Function Generator<a class="headerlink" href="#BoolForge-Tutorial-5:-Example-Use-Cases-of-the-Random-Function-Generator" title="Link to this heading"></a></h1>
+<p>In this tutorial, we explore example use cases of BoolForge’s random Boolean function generator. This functionality allows generating large ensembles of Boolean functions with prescribed structural properties and studying their statistical and dynamical characteristics.</p>
+<section id="What-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
+<p>In this tutorial you will learn how to:</p>
+<ul class="simple">
+<li><p>compute the prevalence of canalization, <span class="math notranslate nohighlight">\(k\)</span>-canalization, and nested canalization,</p></li>
+<li><p>determine distributions of canalizing strength and normalized input redundancy,</p></li>
+<li><p>investigate correlations between absolute bias and canalization,</p></li>
+<li><p>generate and analyze dynamically distinct nested canalizing functions.</p></li>
+</ul>
+<p>It is strongly recommended to complete the previous tutorials first.</p>
+</section>
+<hr class="docutils" />
+<section id="0.-Setup">
+<h2>0. Setup<a class="headerlink" href="#0.-Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">stats</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="1.-Prevalence-of-canalization">
+<h2>1. Prevalence of canalization<a class="headerlink" href="#1.-Prevalence-of-canalization" title="Link to this heading"></a></h2>
+<p>Using random sampling, we estimate how frequently Boolean functions of degree <span class="math notranslate nohighlight">\(n\)</span> exhibit a given canalizing depth.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nsim</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">ns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+<span class="n">canalizing_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">count_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">count_depths</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">count_depths</span> <span class="o">/=</span> <span class="n">nsim</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">depth</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">canalizing_depths</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+        <span class="n">ns</span><span class="p">,</span>
+        <span class="n">count_depths</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span>
+        <span class="n">bottom</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">count_depths</span><span class="p">[:,</span> <span class="p">:</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">depth</span><span class="p">),</span>
+    <span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">),</span>
+    <span class="n">ncol</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;canalizing depth&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Number of essential variables&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Proportion of functions&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">count_depths</span><span class="p">,</span>
+    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;n=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ns</span><span class="p">],</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;k=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">canalizing_depths</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial05_use_cases_random_function_generator_3_0.png" src="../_images/tutorials_tutorial05_use_cases_random_function_generator_3_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k=0</th>
+      <th>k=1</th>
+      <th>k=2</th>
+      <th>k=3</th>
+      <th>k=4</th>
+      <th>k=5</th>
+      <th>k=6</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>n=2</th>
+      <td>0.221</td>
+      <td>0.000</td>
+      <td>0.779</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>n=3</th>
+      <td>0.608</td>
+      <td>0.103</td>
+      <td>0.000</td>
+      <td>0.289</td>
+      <td>0.000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>n=4</th>
+      <td>0.952</td>
+      <td>0.030</td>
+      <td>0.003</td>
+      <td>0.000</td>
+      <td>0.015</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>n=5</th>
+      <td>1.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>n=6</th>
+      <td>1.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>We see that hardly any Boolean function with <span class="math notranslate nohighlight">\(n\geq 5\)</span> inputs is canalizing, let alone nested canalizing. This makes the finding that most Boolean functions in published Boolean gene regulatory network models are nested canalizing very surprising (Kadelka et al., Science Advances, 2024).</p>
+<p>To zoom in on the few functions that are canalizing for higher <span class="math notranslate nohighlight">\(n\)</span>, we can simply require <code class="docutils literal notranslate"><span class="pre">depth=1</span></code> and repeat the above analysis.</p>
+<section id="Restricting-to-canalizing-functions">
+<h3>Restricting to canalizing functions<a class="headerlink" href="#Restricting-to-canalizing-functions" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">count_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">count_depths</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">count_depths</span> <span class="o">/=</span> <span class="n">nsim</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">depth</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">canalizing_depths</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+        <span class="n">ns</span><span class="p">,</span>
+        <span class="n">count_depths</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span>
+        <span class="n">bottom</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">count_depths</span><span class="p">[:,</span> <span class="p">:</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">depth</span><span class="p">),</span>
+    <span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">),</span>
+    <span class="n">ncol</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;canalizing depth&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Number of essential variables&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Proportion of functions&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">count_depths</span><span class="p">,</span>
+    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;n=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ns</span><span class="p">],</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;k=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">canalizing_depths</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial05_use_cases_random_function_generator_6_0.png" src="../_images/tutorials_tutorial05_use_cases_random_function_generator_6_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k=0</th>
+      <th>k=1</th>
+      <th>k=2</th>
+      <th>k=3</th>
+      <th>k=4</th>
+      <th>k=5</th>
+      <th>k=6</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>n=2</th>
+      <td>0.0</td>
+      <td>0.000</td>
+      <td>1.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>n=3</th>
+      <td>0.0</td>
+      <td>0.195</td>
+      <td>0.000</td>
+      <td>0.805</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>n=4</th>
+      <td>0.0</td>
+      <td>0.575</td>
+      <td>0.113</td>
+      <td>0.000</td>
+      <td>0.312</td>
+      <td>0.000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>n=5</th>
+      <td>0.0</td>
+      <td>0.948</td>
+      <td>0.033</td>
+      <td>0.005</td>
+      <td>0.000</td>
+      <td>0.014</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>n=6</th>
+      <td>0.0</td>
+      <td>1.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>This analysis reveals that among Boolean functions of degree <span class="math notranslate nohighlight">\(n\geq 5\)</span>, functions with few conditionally canalizing variables are much more abundant than functions with more conditionally canalizing variables, which is mathematically obvious due to the recursive nature of the definition of k-canalization.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="2.-Collective-canalization-vs-degree">
+<h2>2. Collective canalization vs degree<a class="headerlink" href="#2.-Collective-canalization-vs-degree" title="Link to this heading"></a></h2>
+<p>Using a similar setup, we can investigate if and how the various measures of collective canalization, specifically canalizing strength (Kadelka et al., Adv in Appl Math, 2023) and the normalized input redundancy (Gates et al., PNAS, 2021), change when the degree of the functions changes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nsim</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">ns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+
+<span class="n">canalizing_strengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">),</span> <span class="n">nsim</span><span class="p">))</span>
+<span class="n">input_redundancies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">),</span> <span class="n">nsim</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">canalizing_strengths</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">()</span>
+        <span class="n">input_redundancies</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">get_input_redundancy</span><span class="p">()</span>
+
+<span class="n">width</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span>
+    <span class="n">canalizing_strengths</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+    <span class="n">positions</span><span class="o">=</span><span class="n">ns</span> <span class="o">-</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">widths</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+    <span class="n">showmeans</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">showextrema</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;canalizing strength&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span>
+    <span class="n">input_redundancies</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+    <span class="n">positions</span><span class="o">=</span><span class="n">ns</span> <span class="o">+</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">widths</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+    <span class="n">showmeans</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">showextrema</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;normalized input redundancy&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">),</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Number of essential variables&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial05_use_cases_random_function_generator_9_0.png" src="../_images/tutorials_tutorial05_use_cases_random_function_generator_9_0.png" />
+</div>
+</div>
+<p>Both measures decrease with increasing degree, but canalizing strength declines more sharply.</p>
+<p>If we stratify this analysis by canalizing depth (exact canalizing depth using <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=True</span></code> or minimal canalizing depth using the default <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=False</span></code>), we can confirm that functions with more conditionally canalizing variables tend to also have higher average collective canalization, irrespective of how it is measured. In other words, the various measures of canalization are all highly correlated.</p>
+<section id="Stratification-by-canalizing-depth">
+<h3>Stratification by canalizing depth<a class="headerlink" href="#Stratification-by-canalizing-depth" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nsim</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">EXACT_DEPTH</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">ns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+
+<span class="n">max_depth</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
+
+<span class="n">canalizing_strengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">),</span> <span class="n">max_depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nsim</span><span class="p">))</span>
+<span class="n">input_redundancies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">),</span> <span class="n">max_depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nsim</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">depth</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">n</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">depth</span><span class="p">,</span> <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="n">EXACT_DEPTH</span><span class="p">)</span>
+            <span class="n">canalizing_strengths</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">()</span>
+            <span class="n">input_redundancies</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">get_input_redundancy</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">base_gap</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">intra_gap</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mf">0.28</span>
+
+<span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+    <span class="nb">zip</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">canalizing_strengths</span><span class="p">,</span> <span class="n">input_redundancies</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;canalizing strength&quot;</span><span class="p">,</span> <span class="s2">&quot;normalized input redundancy&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+<span class="p">):</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">group_centers</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">current_x</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+        <span class="n">depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="o">-</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">intra_gap</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">intra_gap</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">group_positions</span> <span class="o">=</span> <span class="n">current_x</span> <span class="o">+</span> <span class="n">offsets</span>
+        <span class="n">positions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">group_positions</span><span class="p">)</span>
+        <span class="n">group_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_x</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">depths</span><span class="p">:</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;C&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+
+        <span class="n">group_width</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depths</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">intra_gap</span>
+        <span class="n">current_x</span> <span class="o">+=</span> <span class="n">group_width</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">base_gap</span> <span class="o">+</span> <span class="n">width</span> <span class="o">+</span> <span class="n">intra_gap</span>
+
+    <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
+        <span class="n">vp</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="n">pos</span><span class="p">],</span> <span class="n">widths</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">showmeans</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">showextrema</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">vp</span><span class="p">[</span><span class="s2">&quot;bodies&quot;</span><span class="p">]:</span>
+            <span class="n">body</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">body</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.85</span><span class="p">)</span>
+        <span class="n">vp</span><span class="p">[</span><span class="s2">&quot;cmeans&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">])</span>
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Number of essential variables (n)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">group_centers</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
+
+<span class="n">depth_handles</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">lw</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">handles</span><span class="o">=</span><span class="n">depth_handles</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper center&quot;</span><span class="p">,</span>
+    <span class="n">ncol</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;exact canalizing depth&quot;</span> <span class="k">if</span> <span class="n">EXACT_DEPTH</span> <span class="k">else</span> <span class="s2">&quot;minimal canalizing depth&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial05_use_cases_random_function_generator_12_0.png" src="../_images/tutorials_tutorial05_use_cases_random_function_generator_12_0.png" />
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="Correlation-between-canalizing-strength-and-input-redundancy">
+<h3>Correlation between canalizing strength and input redundancy<a class="headerlink" href="#Correlation-between-canalizing-strength-and-input-redundancy" title="Link to this heading"></a></h3>
+<p>We can generate all (non-degenerate) Boolean functions of a certain degree <span class="math notranslate nohighlight">\(n\)</span> (only feasible up to <span class="math notranslate nohighlight">\(n=4\)</span>) and compare canalizing strength and input redundancy.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">ALLOW_DEGENERATE_FUNCTIONS</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">degenerate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+<span class="n">strengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">))</span>
+<span class="n">redundancies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fvec</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">boolforge</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">)):</span>
+    <span class="n">bf</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="n">fvec</span><span class="p">)</span>
+    <span class="n">strengths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">()</span>
+    <span class="n">redundancies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">get_input_redundancy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">:</span>
+        <span class="n">degenerate</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="p">:</span>
+    <span class="n">which</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">which</span> <span class="o">=</span> <span class="o">~</span><span class="n">degenerate</span>
+
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">strengths</span><span class="p">[</span><span class="n">which</span><span class="p">],</span> <span class="n">redundancies</span><span class="p">[</span><span class="n">which</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Canalizing strength&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Normalized input redundancy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n = </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">stats</span><span class="o">.</span><span class="n">spearmanr</span><span class="p">(</span><span class="n">strengths</span><span class="p">[</span><span class="n">which</span><span class="p">],</span> <span class="n">redundancies</span><span class="p">[</span><span class="n">which</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial05_use_cases_random_function_generator_14_0.png" src="../_images/tutorials_tutorial05_use_cases_random_function_generator_14_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+SignificanceResult(statistic=np.float64(0.9700304760700043), pvalue=np.float64(1.0759731607818433e-134))
+</pre></div></div>
+</div>
+<p>Both measures are highly correlated but markedly not the same. Some functions possess relatively high canalizing strength but low input redundancy, and vice versa. It remains an open question what drives this behavior.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="3.-Correlation-between-canalization-and-bias">
+<h2>3. Correlation between canalization and bias<a class="headerlink" href="#3.-Correlation-between-canalization-and-bias" title="Link to this heading"></a></h2>
+<p>Basically all metrics used to assess the sensitivity of Boolean functions (canalization, absolute bias, average sensitivity) are correlated. For example, functions with higher absolute bias are more likely to be canalizing.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">nsim</span> <span class="o">=</span> <span class="mi">3000</span>
+<span class="n">bias_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span>
+
+<span class="n">count_canalizing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">bias_values</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">bias</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bias_values</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">():</span>
+                <span class="n">count_canalizing</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bias_values</span><span class="p">,</span> <span class="n">count_canalizing</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">nsim</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;n=</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">xticks</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">xticks</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="mi">200</span><span class="o">*</span><span class="nb">abs</span><span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mf">0.5</span><span class="p">))</span><span class="si">}</span><span class="s2">%)&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">xticks</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;bias (absolute bias)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;probability canalizing&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">),</span>
+    <span class="n">ncol</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial05_use_cases_random_function_generator_17_0.png" src="../_images/tutorials_tutorial05_use_cases_random_function_generator_17_0.png" />
+</div>
+</div>
+<section id="Degeneracy-vs-bias">
+<h3>Degeneracy vs bias<a class="headerlink" href="#Degeneracy-vs-bias" title="Link to this heading"></a></h3>
+<p>Similarly, the probability that a function is degenerate (i.e., that it does not depend on all its variables) also increases as the absolute bias increases.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">count_degenerate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">bias_values</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">bias</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bias_values</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
+                <span class="n">count_degenerate</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ns</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bias_values</span><span class="p">,</span> <span class="n">count_degenerate</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">nsim</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;n=</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">xticks</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="mi">200</span><span class="o">*</span><span class="nb">abs</span><span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mf">0.5</span><span class="p">))</span><span class="si">}</span><span class="s2">%)&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">xticks</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;bias (absolute bias)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;probability degenerate&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">),</span>
+    <span class="n">ncol</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial05_use_cases_random_function_generator_19_0.png" src="../_images/tutorials_tutorial05_use_cases_random_function_generator_19_0.png" />
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="4.-Analyzing-functions-with-specific-canalizing-layer-structure">
+<h2>4. Analyzing functions with specific canalizing layer structure<a class="headerlink" href="#4.-Analyzing-functions-with-specific-canalizing-layer-structure" title="Link to this heading"></a></h2>
+<p>The average sensitivity of the Boolean functions governing the updates in a Boolean network, determines the stability of the network to perturbations. More generally, it determines the dynamical regime of the network (see Tutorial 8). The ability to generate canalizing functions with a specific canalizing layer structure enables us to investigate the link between layer structure and average sensitivity, as well as other properties, such as canalizing strength or effective degree.</p>
+<p>For nested canalizing functions of a given degree <span class="math notranslate nohighlight">\(n\)</span>, there exists a bijection between their absolute bias and their canalizing layer structure (Kadelka et al., Physica D, 2017). The function <code class="docutils literal notranslate"><span class="pre">boolforge.get_layer_structure_of_an_NCF_given_its_Hamming_weight(degree,hamming_weight)</span></code> implements this. NCFs with the same layer structure have the same dynamical properties. That is, they have the same average sensitivity, canalizing strength and the same effective degree. Iterating over all
+possible absolute biases (parametrized by the possible Hamming weights), we can thus generate all dynamically different types of n-input NCFs and investigate their average sensitivity, which we can compute exactly for relatively low degree.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">all_hamming</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">all_abs_bias</span> <span class="o">=</span> <span class="n">all_hamming</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">avg_sens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">can_strength</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">avg_sens</span><span class="p">)</span>
+<span class="n">eff_degree</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">avg_sens</span><span class="p">)</span>
+<span class="n">layer_structures</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_hamming</span><span class="p">):</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">get_layer_structure_of_an_NCF_given_its_Hamming_weight</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+    <span class="n">layer_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layer_structure</span><span class="o">=</span><span class="n">layer</span><span class="p">)</span>
+    <span class="n">avg_sens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">get_average_sensitivity</span><span class="p">(</span><span class="n">EXACT</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">NORMALIZED</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">can_strength</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">()</span>
+    <span class="n">eff_degree</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">get_effective_degree</span><span class="p">()</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;Hamming weight&quot;</span><span class="p">:</span> <span class="n">all_hamming</span><span class="p">,</span>
+        <span class="s2">&quot;Absolute bias&quot;</span><span class="p">:</span> <span class="n">all_abs_bias</span><span class="p">,</span>
+        <span class="s2">&quot;Layer structure&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">layer_structures</span><span class="p">)),</span>
+        <span class="s2">&quot;Number of layers&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">layer_structures</span><span class="p">)),</span>
+        <span class="s2">&quot;Average sensitivity&quot;</span><span class="p">:</span> <span class="n">avg_sens</span><span class="p">,</span>
+        <span class="s2">&quot;Canalizing strength&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">can_strength</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="s2">&quot;Effective degree&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">eff_degree</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+   Hamming weight  Absolute bias Layer structure  Number of layers  Average sensitivity  Canalizing strength  Effective degree
+0               1         0.0625             [5]                 1               0.3125               1.0000            1.1250
+1               3         0.1875          [3, 2]                 2               0.6875               0.7705            1.3984
+2               5         0.3125       [2, 1, 2]                 3               0.9375               0.6369            1.5938
+3               7         0.4375          [2, 3]                 2               1.0625               0.5993            1.5833
+4               9         0.5625       [1, 1, 3]                 3               1.1875               0.5033            1.7266
+5              11         0.6875    [1, 1, 1, 2]                 4               1.3125               0.4657            1.8021
+6              13         0.8125       [1, 2, 2]                 3               1.3125               0.4657            1.7708
+7              15         0.9375          [1, 4]                 2               1.1875               0.5033            1.6094
+</pre></div></div>
+</div>
+<p>We notice that nested canalizing functions with higher absolute bias tend to be more sensitive to input changes and also less canalizing. However, the relationship between absolute bias and these other metrics is far from monotonic. Further, we notice that there is a perfect correlation between the average sensitivity of a nested canalizing function and its canalizing strength, and a near perfect correlation between average sensitivity and effective degree.</p>
+<p>To investigate the non-monotonic behavior further, we can vary the degree and create line plots that reveal a clear pattern, as shown in Kadelka et al., Physica D, 2017.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ns</span><span class="p">:</span>
+    <span class="n">all_hamming</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">all_abs_bias</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">all_hamming</span><span class="o">/</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">avg_sens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_hamming</span><span class="p">):</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">get_layer_structure_of_an_NCF_given_its_Hamming_weight</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layer_structure</span><span class="o">=</span><span class="n">layer</span><span class="p">)</span>
+        <span class="n">avg_sens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">get_average_sensitivity</span><span class="p">(</span><span class="n">EXACT</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">NORMALIZED</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">all_abs_bias</span><span class="p">,</span> <span class="n">avg_sens</span><span class="p">,</span> <span class="s2">&quot;x--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;n=</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Absolute bias&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Average sensitivity&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial05_use_cases_random_function_generator_23_0.png" src="../_images/tutorials_tutorial05_use_cases_random_function_generator_23_0.png" />
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="5.-Summary-and-outlook">
+<h2>5. Summary and outlook<a class="headerlink" href="#5.-Summary-and-outlook" title="Link to this heading"></a></h2>
+<p>This tutorial illustrated how ensembles of Boolean functions generated under explicit constraints reveal systematic relationships between canalization, bias, redundancy, and sensitivity.</p>
+<p>The key findings include:</p>
+<ol class="arabic simple">
+<li><p>Canalization is rare in random functions but common in biology.</p></li>
+<li><p>Canalizing strength and input redundancy both decrease with degree.</p></li>
+<li><p>Functions with high absolute bias are more likely to be highly canalizing.</p></li>
+<li><p>For NCFs, layer structure is uniquely determined by bias.</p></li>
+<li><p>Average sensitivity varies systematically with layer structure.</p></li>
+</ol>
+<p>These relationships constrain the space of biologically plausible functions and suggest evolutionary optimization for robustness.</p>
+<p>We now move on to Boolean networks, where Boolean functions serve as node update rules and give rise to collective dynamical behavior.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial04_random_Boolean_function_generation.html" class="btn btn-neutral float-left" title="BoolForge Tutorial 4: Random Boolean Function Generation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial06_boolean_networks.html" class="btn btn-neutral float-right" title="BoolForge Tutorial 6: Working with Boolean Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

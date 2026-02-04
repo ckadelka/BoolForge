@@ -1,0 +1,526 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BoolForge Tutorial 3: Canalization &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BoolForge Tutorial 4: Random Boolean Function Generation" href="tutorial04_random_Boolean_function_generation.html" />
+    <link rel="prev" title="BoolForge Tutorial 2: Advanced Concepts for Boolean Functions" href="tutorial02_advanced_boolean_functions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BoolForge Tutorial 3: Canalization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#0.-Setup">0. Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Canalizing-variables-and-layers">1. Canalizing variables and layers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#1.1-Examples">1.1 Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#1.2-Canalizing-depth-and-nested-canalization">1.2 Canalizing depth and nested canalization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#1.3-Canalizing-layer-structure">1.3 Canalizing layer structure</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Collective-canalization">2. Collective canalization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#2.1-Canalizing-strength">2.1 Canalizing strength</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#2.2.-Distribution-of-canalizing-strength">2.2. Distribution of canalizing strength</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Canalization-as-a-measure-of-input-redundancy">3. Canalization as a measure of input redundancy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Summary-and-next-steps">4. Summary and next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04_random_Boolean_function_generation.html">BoolForge Tutorial 4: Random Boolean Function Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05_use_cases_random_function_generator.html">BoolForge Tutorial 5: Example Use Cases of the Random Function Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06_boolean_networks.html">BoolForge Tutorial 6: Working with Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07_boolean_network_dynamics.html">BoolForge Tutorial 7: Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_stability_analysis.html">BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">BoolForge Tutorial 3: Canalization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial03_canalization.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="BoolForge-Tutorial-3:-Canalization">
+<h1>BoolForge Tutorial 3: Canalization<a class="headerlink" href="#BoolForge-Tutorial-3:-Canalization" title="Link to this heading"></a></h1>
+<p>Canalization is a key property of biological Boolean functions that confers robustness: when a canalizing variable takes its canalizing value, the output is determined regardless of other inputs. This “buffering” mechanism is thought to protect organisms from genetic and environmental perturbations.</p>
+<p>Discovered by C.H. Waddington in 1942 in developmental biology, canalization has since been formalized in Boolean network theory and found to be prevalent in empirically-derived gene regulatory networks.</p>
+<section id="What-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
+<p>In this tutorial you will:</p>
+<ul class="simple">
+<li><p>determine if a Boolean function is canalizing, <span class="math notranslate nohighlight">\(k\)</span>-canalizing, and nested canalizing,</p></li>
+<li><p>compute the canalizing layer structure of any Boolean function,</p></li>
+<li><p>compute properties related to collective canalization, such as canalizing strength, effective degree and input redundancy.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="0.-Setup">
+<h2>0. Setup<a class="headerlink" href="#0.-Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="1.-Canalizing-variables-and-layers">
+<h2>1. Canalizing variables and layers<a class="headerlink" href="#1.-Canalizing-variables-and-layers" title="Link to this heading"></a></h2>
+<p>A Boolean function <span class="math notranslate nohighlight">\(f(x_1, \ldots, x_n)\)</span> is <em>canalizing</em> if there exists at least one <em>canalizing variable</em> <span class="math notranslate nohighlight">\(x_i\)</span> and a <em>canalizing input value</em> <span class="math notranslate nohighlight">\(a \in \{0,1\}\)</span> such that</p>
+<div class="math notranslate nohighlight">
+\[f(x_1,\ldots,x_i=a,\ldots,x_n)=b,\]</div>
+<p>where <span class="math notranslate nohighlight">\(b \in \{0,1\}\)</span> is a constant, the <em>canalized output</em>.</p>
+<p>A Boolean function is <em>k-canalizing</em> if it has at least k conditionally canalizing variables. This is checked recursively: after fixing a canalizing variable <span class="math notranslate nohighlight">\(x_i\)</span> to its non-canalizing input value <span class="math notranslate nohighlight">\(\bar a\)</span>, the subfunction <span class="math notranslate nohighlight">\(f(x_1,\ldots,x_{i-1},x_{i+1},\ldots,x_n)\)</span> must itself contain another canalizing variable, and so on. For a given function, the maximal possible value of k is defined as its <em>canalizing depth</em>. If all variables are conditionally canalizing (i.e., if the
+canalizing depth is <span class="math notranslate nohighlight">\(n\)</span>), the function is called a <em>nested canalizing</em> function (<em>NCF</em>). Biological networks are heavily enriched for NCFs as we explore in a later tutorial.</p>
+<p>Per (He and Macauley, Physica D, 2016), any Boolean function can be decomposed into a unique standard monomial form by recursively identifying and removing all conditionally canalizing variables (this set of variables is called a <em>canalizing layer</em>). Each variable of a Boolean function appears in exactly one layer, or (if it is not conditionally canalizing) it is part of the non-canalizing core function that has to be evaluated only if all conditionally canalizing variables receive their
+non-canalizing input value. The <em>canalizing layer structure</em> <span class="math notranslate nohighlight">\([k_1,\ldots,k_r]\)</span> describes the number of variables in each canalizing layer. We thus have <span class="math notranslate nohighlight">\(r\geq 0\)</span>, <span class="math notranslate nohighlight">\(k_i\geq 1\)</span> and <span class="math notranslate nohighlight">\(k_1+\cdots+k_r\)</span>.</p>
+<p>In the following code, we define four 3-input functions with different canalizing properties.</p>
+<section id="1.1-Examples">
+<h3>1.1 Examples<a class="headerlink" href="#1.1-Examples" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Non-canalizing XOR function</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(x0 + x1 + x2) % 2&quot;</span><span class="p">)</span>
+
+<span class="c1"># 1-canalizing function</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(x0 | (x1 &amp; x2 | ~x1 &amp; ~x2)) % 2&quot;</span><span class="p">)</span>
+
+<span class="c1"># Nested canalizing function with all variables in one layer</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;~x0 &amp; x1 &amp; x2&quot;</span><span class="p">)</span>
+
+<span class="c1"># Nested canalizing function with two canalizing layers</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;x0 | (x1 &amp; x2)&quot;</span><span class="p">)</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">]</span>
+<span class="n">boolforge</span><span class="o">.</span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x0      x1      x2      |       f       g       h       k
+---------------------------------------------------------
+0       0       0       |       0       1       0       0
+0       0       1       |       1       0       0       0
+0       1       0       |       1       0       0       0
+0       1       1       |       0       1       1       1
+1       0       0       |       1       1       0       1
+1       0       1       |       0       1       0       1
+1       1       0       |       0       1       0       1
+1       1       1       |       1       1       0       1
+</pre></div></div>
+</div>
+</section>
+<section id="1.2-Canalizing-depth-and-nested-canalization">
+<h3>1.2 Canalizing depth and nested canalization<a class="headerlink" href="#1.2-Canalizing-depth-and-nested-canalization" title="Link to this heading"></a></h3>
+<p>For each function, we can determine whether it is canalizing and/or nested canalizing. This is determined by the canalizing depth (the number of conditionally canalizing variables), which we can also directly compute. As a reminder, an <span class="math notranslate nohighlight">\(n\)</span>-input function is canalizing if its canalizing depth is non-zero and nested canalizing if its canalizing depth equals <span class="math notranslate nohighlight">\(n\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Canalizing depth of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> is canalizing:&quot;</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> is nested canalizing:&quot;</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="n">is_k_canalizing</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Canalizing depth of f: 0
+f is canalizing: False
+f is nested canalizing: False
+
+Canalizing depth of g: 1
+g is canalizing: True
+g is nested canalizing: False
+
+Canalizing depth of h: 3
+h is canalizing: True
+h is nested canalizing: True
+
+Canalizing depth of k: 3
+k is canalizing: True
+k is nested canalizing: True
+
+</pre></div></div>
+</div>
+</section>
+<section id="1.3-Canalizing-layer-structure">
+<h3>1.3 Canalizing layer structure<a class="headerlink" href="#1.3-Canalizing-layer-structure" title="Link to this heading"></a></h3>
+<p>The full canalizing layer structure includes canalizing input values, canalized output values, the order of canalizing variables, the layer structure, and the remaining non-canalizing core function.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_layer_structure</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Canalizing input values of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;CanalizingInputs&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Canalized output values of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;CanalizedOutputs&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Order of canalizing variables of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;OrderOfCanalizingVariables&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Layer structure of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;LayerStructure&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of layers of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;NumberOfLayers&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Core function of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;CoreFunction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Canalizing input values of f: []
+Canalized output values of f: []
+Order of canalizing variables of f: []
+Layer structure of f: []
+Number of layers of f: 0
+Core function of f: [0 1 1 0 1 0 0 1]
+
+Canalizing input values of g: [1]
+Canalized output values of g: [1]
+Order of canalizing variables of g: [0]
+Layer structure of g: [1]
+Number of layers of g: 1
+Core function of g: [1 0 0 1]
+
+Canalizing input values of h: [1 0 0]
+Canalized output values of h: [0 0 0]
+Order of canalizing variables of h: [0 1 2]
+Layer structure of h: [3]
+Number of layers of h: 1
+Core function of h: [1]
+
+Canalizing input values of k: [1 0 0]
+Canalized output values of k: [1 0 0]
+Order of canalizing variables of k: [0 1 2]
+Layer structure of k: [1, 2]
+Number of layers of k: 2
+Core function of k: [1]
+
+</pre></div></div>
+</div>
+<p>Consider, for example, the output for <code class="docutils literal notranslate"><span class="pre">k</span></code>. The canalizing input values corresponding to <span class="math notranslate nohighlight">\(x_0, x_1, x_2\)</span> are <span class="math notranslate nohighlight">\(1,0,0\)</span>, respectively, with the same canalized outputs. That is,</p>
+<ul class="simple">
+<li><p>Layer 1: <span class="math notranslate nohighlight">\(x_0\)</span> (if <span class="math notranslate nohighlight">\(x_0=1\)</span>, then <span class="math notranslate nohighlight">\(k=1\)</span>, regardless of <span class="math notranslate nohighlight">\(x_1\)</span> and <span class="math notranslate nohighlight">\(x_2\)</span>)</p></li>
+<li><p>Layer 2: <span class="math notranslate nohighlight">\(x_1, x_2\)</span> (if <span class="math notranslate nohighlight">\(x_0=0\)</span> and <span class="math notranslate nohighlight">\(x_1=0\)</span> or <span class="math notranslate nohighlight">\(x_2=0\)</span>, then <span class="math notranslate nohighlight">\(k=0\)</span>)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="2.-Collective-canalization">
+<h2>2. Collective canalization<a class="headerlink" href="#2.-Collective-canalization" title="Link to this heading"></a></h2>
+<p>Collective canalization treats canalization as a property of the function rather than individual variables (Reichhardt &amp; Bassler, J. Phys. A, 2007).</p>
+<p>A Boolean function is <em>:math:`k`-set canalizing</em> if there exists a set of <span class="math notranslate nohighlight">\(k\)</span> variables whose fixed values determine the output irrespective of the remaining inputs.</p>
+<p>Individual canalization asks: “Which single variables can determine output?” Collective canalization asks: “Which SETS of variables can determine output?”</p>
+<p>A 2-set canalizing example: If <span class="math notranslate nohighlight">\(k(x_0,x_1,x_2) = x_0 \| (x_1 \&amp; x_2)\)</span>,</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\{x_0,x_1\}\)</span> can determine the output: if <span class="math notranslate nohighlight">\((x_0,x_1)=(1,0)\)</span>, <span class="math notranslate nohighlight">\(k=1\)</span> (<span class="math notranslate nohighlight">\(x_2\)</span> irrelevant),</p></li>
+<li><p><span class="math notranslate nohighlight">\(\{x_1,x_2\}\)</span> can determine the output: if <span class="math notranslate nohighlight">\((x_1,x_2)=(1,1)\)</span>, <span class="math notranslate nohighlight">\(k=1\)</span> (<span class="math notranslate nohighlight">\(x_0\)</span> irrelevant)</p></li>
+</ul>
+<p>The proportion of such <span class="math notranslate nohighlight">\(k\)</span>-sets, the <span class="math notranslate nohighlight">\(k\)</span>-set canalizing proportion denoted <span class="math notranslate nohighlight">\(P_k(f)\)</span>, is used to define the canalizing strength. It is fairly obvious that</p>
+<ul class="simple">
+<li><p>nested canalizing functions of a single layer such as <code class="docutils literal notranslate"><span class="pre">h</span></code> are the non-degenerate functions with highest k-set canalizing proportion <span class="math notranslate nohighlight">\(P_k(f) = 1-1/2^k\)</span>, and</p></li>
+<li><p><span class="math notranslate nohighlight">\(P_{k-1}(f) \leq P_k(f)\)</span>, i.e., more knowledge about a function’s inputs cannot result in less knowledge about its output,</p></li>
+<li><p>the <span class="math notranslate nohighlight">\(n-1\)</span>-set canalizing proportion <span class="math notranslate nohighlight">\(P_{n-1}(f)\)</span> is 1 minus the function’s normalized average sensitivity.</p></li>
+</ul>
+<p>We can compute the <span class="math notranslate nohighlight">\(k\)</span>-set canalizing proportions for the four 3-input functions:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;1-set canalizing proportion of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">get_kset_canalizing_proportion</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;2-set canalizing proportion of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">get_kset_canalizing_proportion</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Normalized average sensitivity of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">get_average_sensitivity</span><span class="p">(</span><span class="n">EXACT</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;3-set canalizing proportion of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">get_kset_canalizing_proportion</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1-set canalizing proportion of f: 0.0
+2-set canalizing proportion of f: 0.0
+Normalized average sensitivity of f: 1.0
+3-set canalizing proportion of f: 1.0
+
+1-set canalizing proportion of g: 0.16666666666666666
+2-set canalizing proportion of g: 0.5
+Normalized average sensitivity of g: 0.5
+3-set canalizing proportion of g: 1.0
+
+1-set canalizing proportion of h: 0.5
+2-set canalizing proportion of h: 0.75
+Normalized average sensitivity of h: 0.25
+3-set canalizing proportion of h: 1.0
+
+1-set canalizing proportion of k: 0.16666666666666666
+2-set canalizing proportion of k: 0.5833333333333334
+Normalized average sensitivity of k: 0.4166666666666667
+3-set canalizing proportion of k: 1.0
+
+</pre></div></div>
+</div>
+<section id="2.1-Canalizing-strength">
+<h3>2.1 Canalizing strength<a class="headerlink" href="#2.1-Canalizing-strength" title="Link to this heading"></a></h3>
+<p>The <em>canalizing strength</em> summarizes collective canalization as a weighted average of the <span class="math notranslate nohighlight">\(k\)</span>-set canalizing proportions (Kadelka et al., Adv Appl Math, 2023). It ranges from:</p>
+<ul class="simple">
+<li><p>1 for maximally canalizing non-degenerate functions (namely, nested canalizing functions of a single canalizing layer such as <code class="docutils literal notranslate"><span class="pre">h</span></code>),</p></li>
+<li><p>0 for linear functions such as <code class="docutils literal notranslate"><span class="pre">f</span></code>,</p></li>
+</ul>
+<p>For all other non-degenerate Boolean functions it is within <span class="math notranslate nohighlight">\((0,1)\)</span>.</p>
+<p>It helps to consider the canalizing strength as a probability: Given that I know a random number of function inputs (drawn uniformly at random from <span class="math notranslate nohighlight">\(1,\ldots,n-1\)</span>), how likely am I to already know the function output?</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">strength</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Canalizing strength of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">strength</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Canalizing strength of f: 0.0
+
+Canalizing strength of g: 0.5
+
+Canalizing strength of h: 1.0
+
+Canalizing strength of k: 0.5555555555555556
+
+</pre></div></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="2.2.-Distribution-of-canalizing-strength">
+<h3>2.2. Distribution of canalizing strength<a class="headerlink" href="#2.2.-Distribution-of-canalizing-strength" title="Link to this heading"></a></h3>
+<p>An enumeration of all non-degenerate 3-input Boolean functions reveals the distribution of the canalizing strength. Note that this brute-force code can also run (in less than a minute) for all <span class="math notranslate nohighlight">\(2^{2^4}=2^{16}=65,536\)</span> 4-input functions but will take days for all <span class="math notranslate nohighlight">\(2^{2^5}=2^{32}=4,294,967,296\)</span> 5-input functions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">all_functions</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">canalizing_strengths</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">binary_vector</span> <span class="ow">in</span> <span class="n">all_functions</span><span class="p">:</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">binary_vector</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">func</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
+        <span class="n">canalizing_strengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">())</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">canalizing_strengths</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Canalizing strength&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial03_canalization_14_0.png" src="../_images/tutorials_tutorial03_canalization_14_0.png" />
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="3.-Canalization-as-a-measure-of-input-redundancy">
+<h2>3. Canalization as a measure of input redundancy<a class="headerlink" href="#3.-Canalization-as-a-measure-of-input-redundancy" title="Link to this heading"></a></h2>
+<p>Canalization, symmetry and redundancy are related concepts. A highly symmetry Boolean function with few (e.g., one) symmetry groups exhibits high input redundancy and is on average more canalizing, irrespective of the measure of canalization. Recently, it was shown that almost all Boolean functions (except the linear functions) exhibit some level of <em>input redundancy</em> (Gates et al., PNAS, 2021). The input redundancy of a variable is defined as 1 minus its <em>edge effectiveness</em>, which describes
+the proportion of times that this variable is needed to determine the output of the function. Edge effectiveness is very similar to the activity of a variable but is not the same (the difference is defined as <em>excess canalization</em>). The sum of all edge effectivenesses of the inputs of a function is known as its <em>effective degree</em>. The average input redundancy serves as a measure of the canalization in a function.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code>, all these quantities can be computed, however not directly. Instead, they are computed using the <code class="docutils literal notranslate"><span class="pre">CANA</span></code> package, which must be installed (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cana</span></code>) to enjoy this functionality. To exemplify this, we reconsider the four 3-input functions from above.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">edge_eff</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_edge_effectiveness</span><span class="p">()</span>
+    <span class="n">activities</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_activities</span><span class="p">()</span>
+    <span class="n">effective_degree</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_effective_degree</span><span class="p">()</span>
+    <span class="n">input_redundancy</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_input_redundancy</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Edge effectiveness of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">edge_eff</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Activities of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">activities</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Excess canalization of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">edge_eff</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">activities</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Effective degree of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">effective_degree</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average edge effectiveness of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">effective_degree</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">func</span><span class="o">.</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Normalized input redundancy of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">input_redundancy</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Edge effectiveness of f: [1.0, 1.0, 1.0]
+Activities of f: [1. 1. 1.]
+Excess canalization of f: [0. 0. 0.]
+Effective degree of f: 3.0
+Average edge effectiveness of f: 1.0
+Normalized input redundancy of f: 0.0
+
+Edge effectiveness of g: [0.625, 0.625, 0.625]
+Activities of g: [0.4949 0.499  0.499 ]
+Excess canalization of g: [0.1301 0.126  0.126 ]
+Effective degree of g: 1.875
+Average edge effectiveness of g: 0.625
+Normalized input redundancy of g: 0.375
+
+Edge effectiveness of h: [0.41666666666666663, 0.41666666666666663, 0.41666666666666663]
+Activities of h: [0.2501 0.2508 0.2408]
+Excess canalization of h: [0.16656667 0.16586667 0.17586667]
+Effective degree of h: 1.25
+Average edge effectiveness of h: 0.4166666666666667
+Normalized input redundancy of h: 0.5833333333333334
+
+Edge effectiveness of k: [0.8125, 0.375, 0.375]
+Activities of k: [0.7453 0.2533 0.2481]
+Excess canalization of k: [0.0672 0.1217 0.1269]
+Effective degree of k: 1.5625
+Average edge effectiveness of k: 0.5208333333333334
+Normalized input redundancy of k: 0.4791666666666667
+
+</pre></div></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="4.-Summary-and-next-steps">
+<h2>4. Summary and next steps<a class="headerlink" href="#4.-Summary-and-next-steps" title="Link to this heading"></a></h2>
+<p>In this tutorial you learned how to:</p>
+<ul class="simple">
+<li><p>compute canalizing depth and identify nested canalizing functions,</p></li>
+<li><p>compute the canalizing layer structure and interpret layers and core functions,</p></li>
+<li><p>quantify collective canalization via <span class="math notranslate nohighlight">\(k\)</span>-set canalizing proportions,</p></li>
+<li><p>summarize canalization via canalizing strength,</p></li>
+<li><p>relate canalization to redundancy-based measures such as edge effectiveness.</p></li>
+</ul>
+<p>Canalization provides a structural explanation for why many biological Boolean rules are robust to perturbations.</p>
+<p><strong>Next steps:</strong> Subsequent tutorials will explore random Boolean functions with prescribed canalization properties and the impact of canalization on Boolean network dynamics and robustness.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial02_advanced_boolean_functions.html" class="btn btn-neutral float-left" title="BoolForge Tutorial 2: Advanced Concepts for Boolean Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial04_random_Boolean_function_generation.html" class="btn btn-neutral float-right" title="BoolForge Tutorial 4: Random Boolean Function Generation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

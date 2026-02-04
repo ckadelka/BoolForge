@@ -13,8 +13,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=8d563738"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -75,10 +75,31 @@
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Created on Tue Jul 29 09:25:40 2025</span>
+<span class="sd">This module provides functions for generating random Boolean functions and</span>
+<span class="sd">Boolean networks with specified structural and dynamical properties.</span>
 
-<span class="sd">@author: Claus Kadelka, Benjamin Coberly</span>
+<span class="sd">The :mod:`~boolforge.generate` module enables the systematic creation of</span>
+<span class="sd">Boolean functions and networks that satisfy particular constraints, such as</span>
+<span class="sd">specified canalization depth, sensitivity range, bias, or connectivity.</span>
+<span class="sd">Generated instances can be used for statistical analysis, benchmarking, or</span>
+<span class="sd">simulation studies.</span>
+
+<span class="sd">Several generation routines leverage Numba acceleration for efficient sampling</span>
+<span class="sd">and evaluation of large function spaces. While Numba is **recommended** to</span>
+<span class="sd">achieve near-native performance, it is **not required** for functionality; all</span>
+<span class="sd">functions have pure Python fallbacks.</span>
+
+<span class="sd">This module complements :mod:`~boolforge.boolean_function` and</span>
+<span class="sd">:mod:`~boolforge.boolean_network` by facilitating reproducible generation of</span>
+<span class="sd">synthetic test cases and large ensembles of random networks.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">&gt;&gt;&gt; from boolforge import generate</span>
+<span class="sd">&gt;&gt;&gt; generate.random_function(n=3)</span>
+<span class="sd">&gt;&gt;&gt; str(generate.random_network(N=5, n=2))</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 
 <span class="c1">##Imports</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>

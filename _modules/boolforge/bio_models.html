@@ -13,8 +13,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=8d563738"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -75,9 +75,47 @@
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Created on Fri Sep 22 11:48:48 2025</span>
+<span class="sd">This module provides functionality for retrieving, parsing, and loading</span>
+<span class="sd">biological Boolean network models from public online repositories.</span>
 
-<span class="sd">@author: ckadelka</span>
+<span class="sd">The :mod:`~boolforge.bio_models` module allows users to programmatically access</span>
+<span class="sd">and import published Boolean and logical gene regulatory network models from</span>
+<span class="sd">GitHub repositories such as:</span>
+<span class="sd">    </span>
+<span class="sd">    - `expert-curated (ckadelka)` — manually curated models from the</span>
+<span class="sd">      *Design Principles of Gene Regulatory Networks* repository.</span>
+<span class="sd">      </span>
+<span class="sd">    - `pystablemotifs (jcrozum)` — models accompanying the PyStableMotifs</span>
+<span class="sd">      library.</span>
+<span class="sd">      </span>
+<span class="sd">    - `biodivine (sybila)` — models from the Sybila Biodivine Boolean Models</span>
+<span class="sd">      repository.</span>
+
+<span class="sd">Functions are provided to:</span>
+<span class="sd">    * Recursively list and download files from GitHub folders using the REST API.</span>
+<span class="sd">    * Fetch raw text or byte content from remote sources.</span>
+<span class="sd">    * Parse Boolean network models directly into</span>
+<span class="sd">      :class:`~boolforge.BooleanNetwork` objects.</span>
+<span class="sd">      </span>
+<span class="sd">    * Batch-download and convert all models from supported repositories.</span>
+
+<span class="sd">All network parsing routines use pure Python and standard libraries only.</span>
+<span class="sd">No external dependencies (such as Numba) are required for functionality, though</span>
+<span class="sd">BoolForge’s Boolean network analysis methods can benefit from Numba-based JIT</span>
+<span class="sd">acceleration when installed.</span>
+
+<span class="sd">This module is intended to facilitate reproducible research by providing</span>
+<span class="sd">direct access to real-world Boolean GRN models for simulation, comparison, and</span>
+<span class="sd">benchmarking.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">&gt;&gt;&gt; from boolforge import bio_models</span>
+<span class="sd">&gt;&gt;&gt; bns, ok, failed = bio_models.get_bio_models_from_repository(&#39;expert-curated (ckadelka)&#39;)</span>
+<span class="sd">&gt;&gt;&gt; len(bns)</span>
+<span class="sd">122</span>
+<span class="sd">&gt;&gt;&gt; bns[0].variables[:5]</span>
+<span class="sd">[&#39;GeneA&#39;, &#39;GeneB&#39;, &#39;GeneC&#39;, &#39;GeneD&#39;, &#39;GeneE&#39;]</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>

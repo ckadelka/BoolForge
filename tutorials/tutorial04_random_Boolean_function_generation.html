@@ -1,0 +1,603 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BoolForge Tutorial 4: Random Boolean Function Generation &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BoolForge Tutorial 5: Example Use Cases of the Random Function Generator" href="tutorial05_use_cases_random_function_generator.html" />
+    <link rel="prev" title="BoolForge Tutorial 3: Canalization" href="tutorial03_canalization.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">BoolForge Tutorial 3: Canalization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BoolForge Tutorial 4: Random Boolean Function Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#0.-Setup">0. Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Generating-random-Boolean-functions">1. Generating random Boolean functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Linear-functions">2. Linear functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Functions-with-prescribed-canalizing-properties">3. Functions with prescribed canalizing properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Allowing-degenerate-functions">4. Allowing degenerate functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#5.-Functions-with-prescribed-Hamming-weight">5. Functions with prescribed Hamming weight</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#6.-Biased-and-absolutely-biased-functions">6. Biased and absolutely biased functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#7.-Summary,-interpretation,-and-outlook">7. Summary, interpretation, and outlook</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#8.-Common-pitfalls">8. Common pitfalls</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05_use_cases_random_function_generator.html">BoolForge Tutorial 5: Example Use Cases of the Random Function Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06_boolean_networks.html">BoolForge Tutorial 6: Working with Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07_boolean_network_dynamics.html">BoolForge Tutorial 7: Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_stability_analysis.html">BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">BoolForge Tutorial 4: Random Boolean Function Generation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial04_random_Boolean_function_generation.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="BoolForge-Tutorial-4:-Random-Boolean-Function-Generation">
+<h1>BoolForge Tutorial 4: Random Boolean Function Generation<a class="headerlink" href="#BoolForge-Tutorial-4:-Random-Boolean-Function-Generation" title="Link to this heading"></a></h1>
+<p>This tutorial focuses on the random generation of Boolean functions with prescribed properties, enabling large-scale computational studies.</p>
+<p>Random Boolean function generation enables:</p>
+<ol class="arabic simple">
+<li><p>Null model comparisons: Are biological networks special?</p></li>
+<li><p>Ensemble studies: How do structural properties affect dynamics?</p></li>
+<li><p>Robustness testing: Sample the space of equivalent models</p></li>
+<li><p>Theoretical predictions: Derive expected values for network properties</p></li>
+</ol>
+<section id="What-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
+<p>In this tutorial you will learn how to generate random Boolean functions with:</p>
+<ul class="simple">
+<li><p>specified canalizing properties (depth, layer structure),</p></li>
+<li><p>bias, absolute bias, or a specific Hamming weight,</p></li>
+<li><p>linearity constraints,</p></li>
+<li><p>degeneracy constraints.</p></li>
+</ul>
+<p>It is strongly recommended to complete the previous tutorials first.</p>
+</section>
+<hr class="docutils" />
+<section id="0.-Setup">
+<h2>0. Setup<a class="headerlink" href="#0.-Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="1.-Generating-random-Boolean-functions">
+<h2>1. Generating random Boolean functions<a class="headerlink" href="#1.-Generating-random-Boolean-functions" title="Link to this heading"></a></h2>
+<p>The function <code class="docutils literal notranslate"><span class="pre">boolforge.random_function(n,</span> <span class="pre">*args)</span></code> generates a random <span class="math notranslate nohighlight">\(n\)</span>-input Boolean function subject to optional constraints. By default, it generates a <strong>non-degenerate</strong> function, meaning that all variables are essential.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">boolforge</span><span class="o">.</span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="s2">&quot;f_random_non_degenerate&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Is f degenerate?&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Activities of f:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_activities</span><span class="p">(</span><span class="n">EXACT</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Edge effectiveness of f:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_edge_effectiveness</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x0      x1      x2      |       f_random_non_degenerate
+-------------------------------------------------------
+0       0       0       |       1
+0       0       1       |       1
+0       1       0       |       0
+0       1       1       |       1
+1       0       0       |       1
+1       0       1       |       0
+1       1       0       |       1
+1       1       1       |       1
+Is f degenerate? False
+Activities of f: [0.5 0.5 0.5]
+Edge effectiveness of f: [0.75, 0.75, 0.75]
+</pre></div></div>
+</div>
+<p>The rest of this tutorial describes the various constraints. Each constraint defines a specific family of n-input Boolean functions, from which <code class="docutils literal notranslate"><span class="pre">boolforge.random_function(n,*args)</span></code> samples <em>uniformly at random</em>. That is, each function satisfying a given set of constraints is selected with equal probability.</p>
+</section>
+<hr class="docutils" />
+<section id="2.-Linear-functions">
+<h2>2. Linear functions<a class="headerlink" href="#2.-Linear-functions" title="Link to this heading"></a></h2>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">LINEAR=True</span></code> generates <em>linear</em> functions (also known as <em>parity</em> functions).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">LINEAR</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">boolforge</span><span class="o">.</span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="s2">&quot;f_linear&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Activities:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_activities</span><span class="p">(</span><span class="n">EXACT</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Edge effectiveness:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_edge_effectiveness</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Normalized average sensitivity:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_average_sensitivity</span><span class="p">(</span><span class="n">EXACT</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Canalizing strength:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_strength</span><span class="p">())</span>
+
+<span class="c1"># Linear functions are the only Boolean functions with activity 1 (for all variables),</span>
+<span class="c1"># normalized average sensitivity 1 and canalizing strength 0.</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x0      x1      x2      |       f_linear
+----------------------------------------
+0       0       0       |       1
+0       0       1       |       0
+0       1       0       |       0
+0       1       1       |       1
+1       0       0       |       0
+1       0       1       |       1
+1       1       0       |       1
+1       1       1       |       0
+Activities: [1. 1. 1.]
+Edge effectiveness: [1.0, 1.0, 1.0]
+Normalized average sensitivity: 1.0
+Canalizing strength: 0.0
+</pre></div></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="3.-Functions-with-prescribed-canalizing-properties">
+<h2>3. Functions with prescribed canalizing properties<a class="headerlink" href="#3.-Functions-with-prescribed-canalizing-properties" title="Link to this heading"></a></h2>
+<p>If <code class="docutils literal notranslate"><span class="pre">LINEAR=False</span></code> (default), the canalizing layer structure can be specified via <code class="docutils literal notranslate"><span class="pre">layer_structure</span></code>. This specifies the number of conditionally canalizing variables in each layer of the randomly generated function. If the optional argument <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=True</span></code> (default is False), then this describes the exact layer structure, i.e., the core function cannot be canalizing. If <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=False</span></code> (the default), it is possible that the core function is canalizing, meaning that the last
+described layer in <code class="docutils literal notranslate"><span class="pre">layer_structure</span></code> may have more conditionally canalizing variables, or that there are additional canalizing layers.</p>
+<p>Before generating any random function, <code class="docutils literal notranslate"><span class="pre">random_function()</span></code> goes through a number of checks ensuring that the provided optional arguments make sense. For example, it checks that the provided layer structure <span class="math notranslate nohighlight">\((k_1,\ldots,k_r)\)</span> satisfies</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k_i\geq 1\)</span>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(k_1 + \cdots + k_r \leq n\)</span>, and</p></li>
+<li><p>if <span class="math notranslate nohighlight">\(k_1 + \cdots + k_r = n\)</span>, then <span class="math notranslate nohighlight">\(k_r \geq 2\)</span> because the last layer of a nested canalizing function must always contain two or more variables.</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layer_structure</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layer_structure</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layer_structure</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layer_structure</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">]</span>
+<span class="n">boolforge</span><span class="o">.</span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">get_layer_structure</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Canalizing depth of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Layer structure of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;LayerStructure&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of layers of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;NumberOfLayers&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Core function of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;CoreFunction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x0      x1      x2      |       f       g       h       k
+---------------------------------------------------------
+0       0       0       |       1       0       0       1
+0       0       1       |       0       0       0       0
+0       1       0       |       1       1       0       1
+0       1       1       |       0       0       1       0
+1       0       0       |       1       0       0       1
+1       0       1       |       0       0       0       0
+1       1       0       |       1       0       0       1
+1       1       1       |       1       1       0       1
+Canalizing depth of f: 3
+Layer structure of f: [1, 2]
+Number of layers of f: 2
+Core function of f: [1]
+
+Canalizing depth of g: 1
+Layer structure of g: [1]
+Number of layers of g: 1
+Core function of g: [1 0 0 1]
+
+Canalizing depth of h: 3
+Layer structure of h: [3]
+Number of layers of h: 1
+Core function of h: [1]
+
+Canalizing depth of k: 3
+Layer structure of k: [1, 2]
+Number of layers of k: 2
+Core function of k: [1]
+
+</pre></div></div>
+</div>
+<p>Repeated evaluation of this block of code shows that the canalizing depth of <code class="docutils literal notranslate"><span class="pre">f</span></code> is either 1 or 3 (note that a canalizing depth of <span class="math notranslate nohighlight">\(n-1\)</span> is never possible for a non-degenerate function). On the contrary, the canalizing depth of <code class="docutils literal notranslate"><span class="pre">g</span></code> is always 1 because we set <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=True</span></code>. The 2-input core function of <code class="docutils literal notranslate"><span class="pre">g</span></code> is one of the two linear functions, each with 50% probability. Likewise, the core function for the other functions is simply [0] or [1], each with 50% probability. Functions
+<code class="docutils literal notranslate"><span class="pre">h</span></code> and <code class="docutils literal notranslate"><span class="pre">k</span></code> are nested canalizing, i.e., their canalizing depth is 3. Their layer structure is exactly as specified.</p>
+<p>If we do not care about the specific layer structure but only about the canalizing depth, we specify the optional argument <code class="docutils literal notranslate"><span class="pre">depth</span></code> instead of <code class="docutils literal notranslate"><span class="pre">layer_structure</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># any function has at least canalizing depth 0 so this is the same as boolforge.random_function(n)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">depth</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># a random non-canalizing function</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">depth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># a random canalizing function</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># a random nested canalizing function</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">depth</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">]</span>
+<span class="n">boolforge</span><span class="o">.</span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Canalizing depth of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x0      x1      x2      |       f       g       h       k
+---------------------------------------------------------
+0       0       0       |       1       1       1       0
+0       0       1       |       0       1       0       0
+0       1       0       |       0       0       1       0
+0       1       1       |       0       0       1       0
+1       0       0       |       0       0       0       1
+1       0       1       |       0       1       1       0
+1       1       0       |       1       1       1       0
+1       1       1       |       0       1       1       0
+Canalizing depth of f: 1
+
+Canalizing depth of g: 0
+
+Canalizing depth of h: 1
+
+Canalizing depth of k: 3
+
+</pre></div></div>
+</div>
+<p>Repeated evaluation of this block of code shows that the canalizing depth of <code class="docutils literal notranslate"><span class="pre">f</span></code> can be 0, 1, or 3. Note that specifying <code class="docutils literal notranslate"><span class="pre">depth=0</span></code> without <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=True</span></code> does not restrict the space of functions at all. On the contrary, the canalizing depth of <code class="docutils literal notranslate"><span class="pre">g</span></code> is always 0 (i.e., g does not contain any canalizing variables) because we set <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=True</span></code>. Function <code class="docutils literal notranslate"><span class="pre">h</span></code> is canalizing and may be nested canalizing (because we specified that the minimal canalizing depth is 1), and <code class="docutils literal notranslate"><span class="pre">k</span></code> is
+always nested canalizing (i.e., it has canalizing depth <span class="math notranslate nohighlight">\(n=3\)</span>).</p>
+<p>We remember: If <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=True</span></code>, <code class="docutils literal notranslate"><span class="pre">depth</span></code> is interpreted as exact canalizing depth. Otherwise (default), <code class="docutils literal notranslate"><span class="pre">depth</span></code> is interpreted as minimal canalizing depth. For example,</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">depth=1</span></code>: “At least 1-canalizing” (could be 2,3,…,n-canalizing)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depth=1,</span> <span class="pre">EXACT_DEPTH=True</span></code>: “Exactly 1-canalizing” (not 2,3,…,n-canalizing)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="4.-Allowing-degenerate-functions">
+<h2>4. Allowing degenerate functions<a class="headerlink" href="#4.-Allowing-degenerate-functions" title="Link to this heading"></a></h2>
+<p>It is possible that an n-input Boolean function does not depend on all its variables. For example, the function <span class="math notranslate nohighlight">\(f(x,y) = x\)</span> depends on <span class="math notranslate nohighlight">\(x\)</span> but not on <span class="math notranslate nohighlight">\(y\)</span>. By default, such degenerate functions are never generated by <code class="docutils literal notranslate"><span class="pre">boolforge.random_function()</span></code>. To enable the generation of possibly degenerate functions, we set <code class="docutils literal notranslate"><span class="pre">ALLOW_DEGENERATE_FUNCTIONS=True</span></code>. Although hardly of any practical value, we can even restrict the random generation to degenerate functions only, using
+<code class="docutils literal notranslate"><span class="pre">boolforge.random_degenerate_function(n,*args)</span></code>.</p>
+<p>Since degenerate functions occur much more frequently at low degree, we set <code class="docutils literal notranslate"><span class="pre">n=2</span></code>, generate a large number of random, possibly degenerate functions and compare a histogram of the observed number of essential variables to the expected proportions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">nsim</span> <span class="o">=</span> <span class="mi">10_000</span>
+
+<span class="n">count_essential</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">count_essential</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">get_number_of_essential_variables</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">expected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">4</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">10</span> <span class="o">/</span> <span class="mi">16</span><span class="p">])</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">count_essential</span> <span class="o">/</span> <span class="n">nsim</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;observed&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;expected&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Number of essential variables&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Proportion of </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">-input functions&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error:&quot;</span><span class="p">,</span> <span class="n">count_essential</span> <span class="o">/</span> <span class="n">nsim</span> <span class="o">-</span> <span class="n">expected</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Error: [ 0.0002  0.003  -0.0032]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial04_random_Boolean_function_generation_13_1.png" src="../_images/tutorials_tutorial04_random_Boolean_function_generation_13_1.png" />
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="5.-Functions-with-prescribed-Hamming-weight">
+<h2>5. Functions with prescribed Hamming weight<a class="headerlink" href="#5.-Functions-with-prescribed-Hamming-weight" title="Link to this heading"></a></h2>
+<p>The Hamming weight of a Boolean function is the number of ones in its truth table. BoolForge allows for the generation of random n-input functions with a specific Hamming weight <span class="math notranslate nohighlight">\(w\in\{0,1,\ldots,2^n\}\)</span>. The additional optional parameters <code class="docutils literal notranslate"><span class="pre">ALLOW_DEGENERATE_FUNCTIONS</span></code> and <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH</span></code> specify whether degenerate and canalizing functions are allowed. By default, canalizing functions are allowed, while degenerate functions are not. Since all functions with Hamming weight
+<span class="math notranslate nohighlight">\(w\in\{0,1,2^n-1,2^n\}\)</span> are canalizing, we require <span class="math notranslate nohighlight">\(2\leq w\leq 2^n-2\)</span> whenever canalizing functions are not permissible (i.e., whenever<code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=True</span></code>).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">EXACT_DEPTH</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">]</span>
+<span class="n">boolforge</span><span class="o">.</span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hamming weight of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Canalizing depth of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of essential variables of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">get_number_of_essential_variables</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x0      x1      x2      |       f       g       h
+-------------------------------------------------
+0       0       0       |       0       1       0
+0       0       1       |       1       1       0
+0       1       0       |       0       0       0
+0       1       1       |       0       1       1
+1       0       0       |       1       0       1
+1       0       1       |       1       1       0
+1       1       0       |       1       1       0
+1       1       1       |       1       0       0
+Hamming weight of f: 5
+Canalizing depth of f: 3
+Number of essential variables of f: 3
+
+Hamming weight of g: 5
+Canalizing depth of g: 0
+Number of essential variables of g: 3
+
+Hamming weight of h: 2
+Canalizing depth of h: 0
+Number of essential variables of h: 3
+
+</pre></div></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="6.-Biased-and-absolutely-biased-functions">
+<h2>6. Biased and absolutely biased functions<a class="headerlink" href="#6.-Biased-and-absolutely-biased-functions" title="Link to this heading"></a></h2>
+<p>While specifying the Hamming weight fixes the exact number of 1s in the truth table of a generated function, specifying the bias or absolute bias acts slightly differently. The bias <span class="math notranslate nohighlight">\(p\)</span> describes the probability of selecting a 1 at any position in the truth table and can be modified using the optional argument <code class="docutils literal notranslate"><span class="pre">bias</span></code>. Instead of specifying the bias, the absolute bias may also be specified. Unbiased functions generated using <span class="math notranslate nohighlight">\(p=0.5\)</span> have an absolute bias of <span class="math notranslate nohighlight">\(0\)</span>, the default.
+If, for example, we set <code class="docutils literal notranslate"><span class="pre">absolute_bias=0.5</span></code> and specify to use absolute bias (<code class="docutils literal notranslate"><span class="pre">USE_ABSOLUTE_BIAS=True</span></code>, default is False), the bias used to generate the function is either 0.25 or 0.75, both with probability 50%. Generally, if we set <code class="docutils literal notranslate"><span class="pre">USE_ABSOLUTE_BIAS=True;</span> <span class="pre">absolute_bias=a</span></code> for <span class="math notranslate nohighlight">\(a\in [0,1]\)</span>, the bias is either <span class="math notranslate nohighlight">\((1+a)/2\)</span> or <span class="math notranslate nohighlight">\((1-a)/2\)</span>, both with probability 50%.</p>
+<p>To display these different modes, we repeatedly generate random Boolean functions under three different constraints (<code class="docutils literal notranslate"><span class="pre">f</span></code> with bias <span class="math notranslate nohighlight">\(p=0.75\)</span>, <code class="docutils literal notranslate"><span class="pre">g</span></code> with absolute bias 0.5, and <code class="docutils literal notranslate"><span class="pre">h</span></code> an unbiased function, i.e., with bias <span class="math notranslate nohighlight">\(p=0.5\)</span>), and compare the empirical Hamming weight distribution of the three families of functions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">nsim</span> <span class="o">=</span> <span class="mi">10_000</span>
+
+<span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">absolute_bias</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">USE_ABSOLUTE_BIAS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">absolute_bias</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="n">counts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">counts</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">counts</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">h</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bias 0.75&quot;</span><span class="p">,</span> <span class="s2">&quot;absolute bias 0.5&quot;</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">width</span><span class="p">,</span> <span class="n">counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">nsim</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Hamming weight&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Proportion of </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">-input functions&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial04_random_Boolean_function_generation_17_0.png" src="../_images/tutorials_tutorial04_random_Boolean_function_generation_17_0.png" />
+</div>
+</div>
+<p>This plot exemplifies the difference between bias and absolute bias:</p>
+<ul class="simple">
+<li><p>Specifying the bias shifts the mode of the Hamming weight distribution to the value of <code class="docutils literal notranslate"><span class="pre">bias</span></code>.</p></li>
+<li><p>Specifying the absolute bias yields random functions with a bimodal Hamming weight distribution.</p></li>
+</ul>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">absolute_bias=0.5</span></code> is ignored in the generation of <code class="docutils literal notranslate"><span class="pre">h</span></code>. The desired use of absolute bias must be specified by <code class="docutils literal notranslate"><span class="pre">USE_ABSOLUTE_BIAS=True</span></code>.</p>
+<p>In the above plot, we notice a lack of functions with Hamming weight 0 and <span class="math notranslate nohighlight">\(16=2^n\)</span>. These constant functions are degenerate and thus not generated unless we set <code class="docutils literal notranslate"><span class="pre">ALLOW_DEGENERATE_FUNCTIONS=True</span></code>, which as we see below slightly modifies the resulting Hamming weight distributions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">counts</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsim</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">absolute_bias</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">USE_ABSOLUTE_BIAS</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">absolute_bias</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ALLOW_DEGENERATE_FUNCTIONS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">counts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">counts</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">counts</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">h</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">width</span><span class="p">,</span> <span class="n">counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">nsim</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Hamming weight&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Proportion of </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">-input functions&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial04_random_Boolean_function_generation_19_0.png" src="../_images/tutorials_tutorial04_random_Boolean_function_generation_19_0.png" />
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="7.-Summary,-interpretation,-and-outlook">
+<h2>7. Summary, interpretation, and outlook<a class="headerlink" href="#7.-Summary,-interpretation,-and-outlook" title="Link to this heading"></a></h2>
+<p>This tutorial demonstrated how BoolForge enables uniform random generation of Boolean functions under flexible structural and statistical constraints.</p>
+<p>Different constraints define fundamentally different ensembles, and being explicit about these choices is essential for a correct generation and interpretation of computational results.</p>
+<p><strong>Next steps:</strong> In the next tutorial, these function-level ensembles will be used to study how Boolean function structure influences sensitivity and canalizing properties.</p>
+</section>
+<hr class="docutils" />
+<section id="8.-Common-pitfalls">
+<h2>8. Common pitfalls<a class="headerlink" href="#8.-Common-pitfalls" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">absolute_bias</span></code> has no effect unless <code class="docutils literal notranslate"><span class="pre">USE_ABSOLUTE_BIAS=True</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depth=0</span></code> without <code class="docutils literal notranslate"><span class="pre">EXACT_DEPTH=True</span></code> does not restrict the function space.</p></li>
+<li><p>Constant functions are generated only if <code class="docutils literal notranslate"><span class="pre">ALLOW_DEGENERATE_FUNCTIONS=True</span></code>.</p></li>
+<li><p>For larger <span class="math notranslate nohighlight">\(n\)</span> (for sure whenever <span class="math notranslate nohighlight">\(n&gt;10\)</span>), set <code class="docutils literal notranslate"><span class="pre">ALLOW_DEGENERATE_FUNCTIONS=True</span></code> to avoid expensive degeneracy tests. Almost all functions in many variables are non-degenerate.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial03_canalization.html" class="btn btn-neutral float-left" title="BoolForge Tutorial 3: Canalization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial05_use_cases_random_function_generator.html" class="btn btn-neutral float-right" title="BoolForge Tutorial 5: Example Use Cases of the Random Function Generator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

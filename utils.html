@@ -14,8 +14,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=8d563738"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -51,6 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generate.html">Generate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bio_models.html">Bio Models</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.bin2dec"><code class="docutils literal notranslate"><span class="pre">bin2dec()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.dec2bin"><code class="docutils literal notranslate"><span class="pre">dec2bin()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.find_all_indices"><code class="docutils literal notranslate"><span class="pre">find_all_indices()</span></code></a></li>
@@ -61,6 +62,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.f_from_expression"><code class="docutils literal notranslate"><span class="pre">f_from_expression()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.flatten"><code class="docutils literal notranslate"><span class="pre">flatten()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight"><code class="docutils literal notranslate"><span class="pre">get_layer_structure_of_an_NCF_given_its_Hamming_weight()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.merge_state_representation"><code class="docutils literal notranslate"><span class="pre">merge_state_representation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.get_product_of_attractors"><code class="docutils literal notranslate"><span class="pre">get_product_of_attractors()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -98,8 +101,29 @@
 <h1>Utils<a class="headerlink" href="#utils" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p id="module-boolforge.utils">Created on Tue Jul 29 09:25:40 2025</p>
-<p>&#64;author: Claus Kadelka, Benjamin Coberly</p>
+<p id="module-boolforge.utils">This module provides utility functions and helper routines used throughout
+BoolForge.</p>
+<p>The <a class="reference internal" href="#module-boolforge.utils" title="boolforge.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code></a> module includes low-level operations for binary and
+decimal conversions, truth table manipulations, and combinatorial helper
+functions. These utilities are used internally by
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BooleanFunction</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">BooleanNetwork</span></code>
+classes to enable efficient representation and analysis of Boolean functions
+and networks.</p>
+<p>Several functions in this module can take advantage of Numba-based JIT
+compilation for significant speedups when processing large truth tables or
+performing repeated bit-level operations. Installation of Numba is therefore
+<strong>encouraged</strong> but <strong>optional</strong>; pure Python fallbacks are provided for all
+functions.</p>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">boolforge</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">utils</span><span class="o">.</span><span class="n">bin2dec</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">utils</span><span class="o">.</span><span class="n">dec2bin</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">array([1, 0, 1])</span>
+</pre></div>
+</div>
+</section>
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.utils.bin2dec">
 <span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">bin2dec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#bin2dec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.bin2dec" title="Link to this definition"></a></dt>
@@ -323,6 +347,60 @@ describing the number of variables in each layer.</p></li>
 of canalization on the robustness of Boolean networks. Physica D:
 Nonlinear Phenomena, 353, 39-47.</p></li>
 </ol>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.utils.merge_state_representation">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">merge_state_representation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#merge_state_representation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.merge_state_representation" title="Link to this definition"></a></dt>
+<dd><p>Combines two state representations <em>x</em> and <em>y</em> into a single decimal integer.</p>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>x (int | tuple[int, int]): The first decimal state representation to
+merge. Can either be an integer or a pair of integers.</p></li>
+<li><p>y (int | tuple[int, int]): The second decimal state representation to
+merge. Can either be an integer or a pair of integers.</p></li>
+<li><p>b (int | tuple[int, int]): The size of the state <em>y</em>, in bits.
+Must be the same dimension as <em>y</em> (if <em>y</em> is an int, <em>b</em> must be an
+int, or if <em>y</em> is a pair of ints, <em>b</em> must be a pair of ints).</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul>
+<li><p>int | tuple[int, int]: The combined state representation of <em>x</em> and <em>y</em>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If <em>x</em> and <em>y</em> are both ints, the merged state is returned as an int.</p></li>
+<li><p>Otherwise, returns the merged state as a pair of ints.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.utils.get_product_of_attractors">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">get_product_of_attractors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#get_product_of_attractors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.get_product_of_attractors" title="Link to this definition"></a></dt>
+<dd><p>Computes the product of two sets of attractors.</p>
+<p><strong>Parameters:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>attrs_1 (list[list[int]] | list[list[tuple[int, int]]]): The first
+set of attractors to combine.</p></li>
+<li><p>attrs_2 (list[list[int]] | list[list[tuple[int, int]]]): The second
+set of attractors to combine.</p></li>
+<li><p>bits (int | tuple[int, int]): The size of the states in <em>attrs_2</em>, in bits.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>list[list[int]] | list[list[tuple[int, int]]]: The set of attractors
+that is the product of <em>attrs_1</em> and <em>attrs_2</em>.</p></li>
+</ul>
 </div></blockquote>
 </dd></dl>
 

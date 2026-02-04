@@ -13,8 +13,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=8d563738"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
@@ -87,14 +87,11 @@
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
- | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.__add__">__add__() (boolforge.boolean_function.BooleanFunction method)</a>
-</li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.__and__">__and__() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.__call__">__call__() (boolforge.boolean_function.BooleanFunction method)</a>
@@ -107,12 +104,16 @@
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.__mul__">__mul__() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.__or__">__or__() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.__repr__">__repr__() (boolforge.boolean_function.BooleanFunction method)</a>
+
+      <ul>
+        <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.__repr__">(boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
+      </ul></li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.__rmul__">__rmul__() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.__str__">__str__() (boolforge.boolean_function.BooleanFunction method)</a>
@@ -121,8 +122,6 @@
         <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.__str__">(boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
       </ul></li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.__weakref__">__weakref__ (boolforge.boolean_network.WiringDiagram attribute)</a>
-</li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.__xor__">__xor__() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
   </ul></td>
@@ -224,7 +223,7 @@
         <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.from_cana">(boolforge.boolean_network.BooleanNetwork class method)</a>
 </li>
       </ul></li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.from_DiGraph">from_DiGraph() (boolforge.boolean_network.WiringDiagram class method)</a>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.from_DiGraph">from_DiGraph() (boolforge.boolean_network.BooleanNetwork class method)</a>
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.from_string">from_string() (boolforge.boolean_network.BooleanNetwork class method)</a>
 </li>
@@ -234,10 +233,6 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.generate_networkx_graph">generate_networkx_graph() (boolforge.boolean_network.WiringDiagram method)</a>
-</li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.generate_networkx_graph_from_edges">generate_networkx_graph_from_edges() (boolforge.boolean_network.WiringDiagram method)</a>
-</li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_absolute_bias">get_absolute_bias() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_activities">get_activities() (boolforge.boolean_function.BooleanFunction method)</a>
@@ -250,6 +245,10 @@
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact">get_attractors_synchronous_exact() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact_non_autonomous">get_attractors_synchronous_exact_non_autonomous() (boolforge.boolean_network.BooleanNetwork method)</a>
+</li>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact_with_external_inputs">get_attractors_synchronous_exact_with_external_inputs() (boolforge.boolean_network.BooleanNetwork method)</a>
+</li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_average_sensitivity">get_average_sensitivity() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="bio_models.html#boolforge.bio_models.get_bio_models_from_repository">get_bio_models_from_repository() (in module boolforge.bio_models)</a>
@@ -259,8 +258,6 @@
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_canalizing_strength">get_canalizing_strength() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_canalizing_strength_of_variables">get_canalizing_strength_of_variables() (boolforge.boolean_function.BooleanFunction method)</a>
-</li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_constants">get_constants() (boolforge.boolean_network.WiringDiagram method)</a>
 </li>
       <li><a href="bio_models.html#boolforge.bio_models.get_content_in_remote_folder">get_content_in_remote_folder() (in module boolforge.bio_models)</a>
 </li>
@@ -274,11 +271,11 @@
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_essential_variables">get_essential_variables() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_ffls">get_ffls() (boolforge.boolean_network.WiringDiagram method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_hamming_weight">get_hamming_weight() (boolforge.boolean_function.BooleanFunction method)</a>
+</li>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_identity_nodes">get_identity_nodes() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_input_redundancy">get_input_redundancy() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
@@ -292,31 +289,25 @@
 </li>
       <li><a href="utils.html#boolforge.utils.get_layer_structure_of_an_NCF_given_its_Hamming_weight">get_layer_structure_of_an_NCF_given_its_Hamming_weight() (in module boolforge.utils)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_modular_structure">get_modular_structure() (boolforge.boolean_network.WiringDiagram method)</a>
-</li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_network_with_edge_controls">get_network_with_edge_controls() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_network_with_fixed_source_nodes">get_network_with_fixed_source_nodes() (boolforge.boolean_network.BooleanNetwork method)</a>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_network_with_fixed_identity_nodes">get_network_with_fixed_identity_nodes() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_network_with_node_controls">get_network_with_node_controls() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables">get_number_of_essential_variables() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_outdegrees">get_outdegrees() (boolforge.boolean_network.WiringDiagram method)</a>
-</li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_source_nodes">get_source_nodes() (boolforge.boolean_network.BooleanNetwork method)</a>
+      <li><a href="utils.html#boolforge.utils.get_product_of_attractors">get_product_of_attractors() (in module boolforge.utils)</a>
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous">get_steady_states_asynchronous() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition">get_steady_states_asynchronous_given_one_initial_condition() (boolforge.boolean_network.BooleanNetwork method)</a>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_exact">get_steady_states_asynchronous_exact() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_strongly_connected_components">get_strongly_connected_components() (boolforge.boolean_network.WiringDiagram method)</a>
+      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition">get_steady_states_asynchronous_given_one_initial_condition() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_symmetry_groups">get_symmetry_groups() (boolforge.boolean_function.BooleanFunction method)</a>
 </li>
       <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.get_type_of_inputs">get_type_of_inputs() (boolforge.boolean_function.BooleanFunction method)</a>
-</li>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram.get_type_of_loop">get_type_of_loop() (boolforge.boolean_network.WiringDiagram method)</a>
 </li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.get_types_of_regulation">get_types_of_regulation() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
@@ -358,6 +349,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#boolforge.utils.merge_state_representation">merge_state_representation() (in module boolforge.utils)</a>
+</li>
       <li>
     module
 
@@ -428,6 +421,10 @@
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.simplify_functions">simplify_functions() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="boolean_function.html#boolforge.boolean_function.BooleanFunction.summary">summary() (boolforge.boolean_function.BooleanFunction method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
@@ -461,21 +458,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_network_SDDS">update_network_SDDS() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_network_synchronously">update_network_synchronously() (boolforge.boolean_network.BooleanNetwork method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_network_synchronously_many_times">update_network_synchronously_many_times() (boolforge.boolean_network.BooleanNetwork method)</a>
-</li>
       <li><a href="boolean_network.html#boolforge.boolean_network.BooleanNetwork.update_single_node">update_single_node() (boolforge.boolean_network.BooleanNetwork method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="W">W</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="boolean_network.html#boolforge.boolean_network.WiringDiagram">WiringDiagram (class in boolforge.boolean_network)</a>
 </li>
   </ul></td>
 </tr></table>

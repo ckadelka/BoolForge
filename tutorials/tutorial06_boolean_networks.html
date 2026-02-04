@@ -1,0 +1,769 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BoolForge Tutorial 6: Working with Boolean Networks &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BoolForge Tutorial 7: Dynamics of Boolean Networks" href="tutorial07_boolean_network_dynamics.html" />
+    <link rel="prev" title="BoolForge Tutorial 5: Example Use Cases of the Random Function Generator" href="tutorial05_use_cases_random_function_generator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">BoolForge Tutorial 3: Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04_random_Boolean_function_generation.html">BoolForge Tutorial 4: Random Boolean Function Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05_use_cases_random_function_generator.html">BoolForge Tutorial 5: Example Use Cases of the Random Function Generator</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BoolForge Tutorial 6: Working with Boolean Networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#0.-Setup">0. Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Boolean-network-theory">1. Boolean network theory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Wiring-diagrams">2. Wiring diagrams</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Example-with-constants-and-unequal-degrees">Example with constants and unequal degrees</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Creating-Boolean-networks">3. Creating Boolean networks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Creating-networks-from-strings">Creating networks from strings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Interoperability-with-CANA">Interoperability with CANA</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Boolean-networks-with-constants">4. Boolean networks with constants</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Effect-of-constant-value-=-1">Effect of constant value = 1</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#5.-Boolean-network-properties">5. Boolean network properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Outlook">Outlook</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07_boolean_network_dynamics.html">BoolForge Tutorial 7: Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_stability_analysis.html">BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">BoolForge Tutorial 6: Working with Boolean Networks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial06_boolean_networks.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="BoolForge-Tutorial-6:-Working-with-Boolean-Networks">
+<h1>BoolForge Tutorial 6: Working with Boolean Networks<a class="headerlink" href="#BoolForge-Tutorial-6:-Working-with-Boolean-Networks" title="Link to this heading"></a></h1>
+<p>While previous tutorials focused on individual Boolean functions, this tutorial introduces Boolean networks, which combine multiple Boolean functions into a dynamical system.</p>
+<section id="What-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
+<p>In this tutorial you will learn how to:</p>
+<ul class="simple">
+<li><p>create Boolean networks,</p></li>
+<li><p>compute basic properties of the wiring diagram,</p></li>
+<li><p>compute basic properties of Boolean networks.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="0.-Setup">
+<h2>0. Setup<a class="headerlink" href="#0.-Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="1.-Boolean-network-theory">
+<h2>1. Boolean network theory<a class="headerlink" href="#1.-Boolean-network-theory" title="Link to this heading"></a></h2>
+<p>A Boolean network <span class="math notranslate nohighlight">\(F = (f_1, \ldots, f_N)\)</span> is a dynamical system consisting of <span class="math notranslate nohighlight">\(N\)</span> Boolean update functions. Each node can be in one of two states, 0 or 1, often interpreted as OFF/ON in biological contexts.</p>
+<p>Under synchronous updating, all nodes update simultaneously, yielding a deterministic state transition graph on <span class="math notranslate nohighlight">\(\{0,1\}^N\)</span>.</p>
+<p>Under asynchronous updating, only one node is updated at a time, yielding a stochastic transition graph. BoolForge implements both schemes.</p>
+<p>Real biological networks are typically sparsely connected. The <strong>in-degree</strong> of a node is the number of essential inputs of its update function. The <strong>wiring diagram</strong> encodes which nodes regulate which others.</p>
+<p>Despite their simplicity, Boolean networks can:</p>
+<ul class="simple">
+<li><p>reproduce complex dynamics (oscillations, multistability),</p></li>
+<li><p>predict gene knockout effects,</p></li>
+<li><p>identify control strategies,</p></li>
+<li><p>scale to genome-wide networks (1000s of nodes).</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="2.-Wiring-diagrams">
+<h2>2. Wiring diagrams<a class="headerlink" href="#2.-Wiring-diagrams" title="Link to this heading"></a></h2>
+<p>We first construct wiring diagrams, which encode network structure independently of specific Boolean functions.</p>
+<p>Separating topology (I) from dynamics (F) allows:</p>
+<ul class="simple">
+<li><p>studying structural properties independent of specific Boolean rules,</p></li>
+<li><p>swapping different rule sets on the same topology,</p></li>
+<li><p>efficient storage (sparse I, local F vs dense full truth table).</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Wiring diagram of a 3-node network</span>
+<span class="n">I</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">WiringDiagram</span><span class="p">(</span><span class="n">I</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.N:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.variables:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.indegrees:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.outdegrees:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">outdegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.N_constants:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">N_constants</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.N_variables:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">N_variables</span><span class="p">)</span>
+
+<span class="n">DiGraph</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">to_DiGraph</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx</span><span class="p">(</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">arrows</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+W.N: 3
+W.variables: [&#39;x0&#39; &#39;x1&#39; &#39;x2&#39;]
+W.indegrees: [1 2 1]
+W.outdegrees: [1 2 1]
+W.N_constants: 0
+W.N_variables: 3
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial06_boolean_networks_4_1.png" src="../_images/tutorials_tutorial06_boolean_networks_4_1.png" />
+</div>
+</div>
+<p>The wiring diagram above uses default variable names <span class="math notranslate nohighlight">\(x_0, \ldots, x_{N-1}\)</span>. The vectors <code class="docutils literal notranslate"><span class="pre">indegrees</span></code> and <code class="docutils literal notranslate"><span class="pre">outdegrees</span></code> describe incoming and outgoing edges for each node.</p>
+<section id="Example-with-constants-and-unequal-degrees">
+<h3>Example with constants and unequal degrees<a class="headerlink" href="#Example-with-constants-and-unequal-degrees" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">I</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">WiringDiagram</span><span class="p">(</span><span class="n">I</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.N:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.variables:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.indegrees:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.outdegrees:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">outdegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.N_constants:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">N_constants</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.N_variables:&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">N_variables</span><span class="p">)</span>
+
+<span class="n">DiGraph</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">to_DiGraph</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx</span><span class="p">(</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">arrows</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+W.N: 3
+W.variables: [&#39;x0&#39; &#39;x1&#39; &#39;x2&#39;]
+W.indegrees: [0 2 1]
+W.outdegrees: [2 0 1]
+W.N_constants: 1
+W.N_variables: 2
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial06_boolean_networks_7_1.png" src="../_images/tutorials_tutorial06_boolean_networks_7_1.png" />
+</div>
+</div>
+<p>This wiring diagram encodes a <strong>feed-forward loop</strong>, one of the most common <em>network motifs</em> in transcriptional networks. It can:</p>
+<ul class="simple">
+<li><p>filter transient signals (coherent FFL with AND gate),</p></li>
+<li><p>accelerate response (incoherent FFL),</p></li>
+</ul>
+<p>See Mangan &amp; Alon, PNAS, 2003 for a detailed analysis. <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> enables the identification of all feed-forward loops:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W.get_ffls()&quot;</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="n">get_ffls</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+W.get_ffls() [[0, 2, 1]]
+</pre></div></div>
+</div>
+<p>This tells us that <code class="docutils literal notranslate"><span class="pre">W</span></code> contains one FFL, in which <span class="math notranslate nohighlight">\(x_0\)</span> regulates both <span class="math notranslate nohighlight">\(x_1\)</span> and <span class="math notranslate nohighlight">\(x_2\)</span>, while <span class="math notranslate nohighlight">\(x_1\)</span> is also regulated by <span class="math notranslate nohighlight">\(x_2\)</span>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> can also identify all feedback loops. For this, we consider another wiring diagram:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">I2</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">W2</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">WiringDiagram</span><span class="p">(</span><span class="n">I</span><span class="o">=</span><span class="n">I2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx</span><span class="p">(</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">arrows</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;W2.get_fbls()&quot;</span><span class="p">,</span> <span class="n">W2</span><span class="o">.</span><span class="n">get_fbls</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial06_boolean_networks_11_0.png" src="../_images/tutorials_tutorial06_boolean_networks_11_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+W2.get_fbls() [[0, 1, 2], [0, 1]]
+</pre></div></div>
+</div>
+<p>The function <code class="docutils literal notranslate"><span class="pre">.get_fbls()</span></code> identifies all simple cycles in the wiring diagram. In this case, there exists a 2-cycle <span class="math notranslate nohighlight">\(x_0 \leftrightarrow x_1\)</span> and a 3-cycle <span class="math notranslate nohighlight">\(x_0 \to x_1 \to x_2 \to x_0\)</span>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="3.-Creating-Boolean-networks">
+<h2>3. Creating Boolean networks<a class="headerlink" href="#3.-Creating-Boolean-networks" title="Link to this heading"></a></h2>
+<p>To create a Boolean network, we must specify:</p>
+<ol class="arabic simple">
+<li><p>A wiring diagram <code class="docutils literal notranslate"><span class="pre">I</span></code>, describing who regulates whom.</p></li>
+<li><p>A list <code class="docutils literal notranslate"><span class="pre">F</span></code> of Boolean update functions (or truth tables), one per node.</p></li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">I</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">F</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">bn</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span><span class="o">=</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="o">=</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">bn</span><span class="o">.</span><span class="n">to_truth_table</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>x0(t)</th>
+      <th>x1(t)</th>
+      <th>x2(t)</th>
+      <th>x0(t+1)</th>
+      <th>x1(t+1)</th>
+      <th>x2(t+1)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="line-block">
+<div class="line">The full truth table of a Boolean network has size <span class="math notranslate nohighlight">\(N \times 2^N\)</span> and therefore grows exponentially with the number of nodes.</div>
+<div class="line">In practice, however, <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> never stores this object explicitly. Instead, a Boolean network is represented internally by its wiring diagram <code class="docutils literal notranslate"><span class="pre">I</span></code> and the list of update functions <code class="docutils literal notranslate"><span class="pre">F</span></code>, which is far more memory-efficient – especially for sparse networks with few regulators per node.</div>
+</div>
+<p>When a Boolean network is constructed from <code class="docutils literal notranslate"><span class="pre">F</span></code> and <code class="docutils literal notranslate"><span class="pre">I</span></code>, <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> automatically performs a series of consistency checks to guard against common modeling errors. For example, it verifies that each update function has the correct length, namely <span class="math notranslate nohighlight">\(2^n\)</span>, where <span class="math notranslate nohighlight">\(n\)</span> is the number of regulators of the corresponding node as specified in <code class="docutils literal notranslate"><span class="pre">I</span></code>. If any of these checks fail, an informative error is raised immediately, helping ensure that the resulting network is well-defined.</p>
+<section id="Creating-networks-from-strings">
+<h3>Creating networks from strings<a class="headerlink" href="#Creating-networks-from-strings" title="Link to this heading"></a></h3>
+<p>Alternatively,</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">x = y</span>
+<span class="s2">y = x OR z</span>
+<span class="s2">z = y</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">bn_str</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+<span class="n">bn_str</span><span class="o">.</span><span class="n">to_truth_table</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>x(t)</th>
+      <th>y(t)</th>
+      <th>z(t)</th>
+      <th>x(t+1)</th>
+      <th>y(t+1)</th>
+      <th>z(t+1)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>This flexible interface enables loading Boolean networks from standard formats such as <code class="docutils literal notranslate"><span class="pre">.bnet</span></code> files, by first loading the string stored in the file and then loading the Boolean network.</p>
+</section>
+<section id="Interoperability-with-CANA">
+<h3>Interoperability with CANA<a class="headerlink" href="#Interoperability-with-CANA" title="Link to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cana_bn</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">to_cana</span><span class="p">()</span>
+<span class="n">bn_from_cana</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">from_cana</span><span class="p">(</span><span class="n">cana_bn</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">f</span> <span class="o">==</span> <span class="n">bn_from_cana</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">)])</span>
+    <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">bn_from_cana</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">)])</span>
+    <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">variables</span> <span class="o">==</span> <span class="n">bn_from_cana</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="p">),</span> <span class="s2">&quot;BooleanNetwork CANA conversion failed&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="4.-Boolean-networks-with-constants">
+<h2>4. Boolean networks with constants<a class="headerlink" href="#4.-Boolean-networks-with-constants" title="Link to this heading"></a></h2>
+<p>Nodes may be:</p>
+<ul class="simple">
+<li><p><strong>source nodes</strong> (no regulators),</p></li>
+<li><p><strong>constant nodes</strong> (fixed to 0 or 1),</p></li>
+<li><p><strong>regular nodes</strong> (regulated by others).</p></li>
+</ul>
+<p>Constant nodes are removed internally, and their values are propagated.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">F</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>  <span class="c1"># regular</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>  <span class="c1"># regular</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>        <span class="c1"># source</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">],</span>           <span class="c1"># constant</span>
+<span class="p">]</span>
+
+<span class="n">I</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+    <span class="p">[],</span>
+<span class="p">]</span>
+
+<span class="n">bn</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.variables:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.constants:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">constants</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.F:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.I:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+bn.variables: [np.str_(&#39;x0&#39;), np.str_(&#39;x1&#39;), np.str_(&#39;x2&#39;)]
+bn.constants: {np.str_(&#39;x3&#39;): {&#39;value&#39;: 0, &#39;regulatedNodes&#39;: [np.str_(&#39;x1&#39;)]}}
+bn.F: [BooleanFunction(f=[0, 0, 0, 1]), BooleanFunction(f=[0, 1]), BooleanFunction(f=[0, 1])]
+bn.I: [array([1, 2]), array([0]), array([2])]
+</pre></div></div>
+</div>
+<p>The constant node is removed, and its value is propagated into downstream update functions.</p>
+<section id="Effect-of-constant-value-=-1">
+<h3>Effect of constant value = 1<a class="headerlink" href="#Effect-of-constant-value-=-1" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">F</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">I</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+    <span class="p">[],</span>
+<span class="p">]</span>
+
+<span class="n">bn</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.F:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.I:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.variables:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+bn.F: [BooleanFunction(f=[0, 0, 0, 1]), BooleanFunction(f=[1, 1]), BooleanFunction(f=[0, 1])]
+bn.I: [array([1, 2]), array([0]), array([2])]
+bn.variables: [np.str_(&#39;x0&#39;), np.str_(&#39;x1&#39;), np.str_(&#39;x2&#39;)]
+</pre></div></div>
+</div>
+<p>Although <span class="math notranslate nohighlight">\(x_1\)</span> becomes fixed at 1 after one update, it is not treated as a constant node because <span class="math notranslate nohighlight">\(x_1 = 0\)</span> remains a valid initial condition.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="5.-Boolean-network-properties">
+<h2>5. Boolean network properties<a class="headerlink" href="#5.-Boolean-network-properties" title="Link to this heading"></a></h2>
+<p>The class <code class="docutils literal notranslate"><span class="pre">BooleanNetwork</span></code> inherits all properties of <code class="docutils literal notranslate"><span class="pre">WiringDiagram</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.N:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.indegrees:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.outdegrees:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">outdegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.N_constants:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">N_constants</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.N_variables:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">N_variables</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+bn.N: 3
+bn.indegrees: [np.int64(2), np.int64(1), np.int64(1)]
+bn.outdegrees: [np.int64(1), np.int64(1), np.int64(2)]
+bn.N_constants: 1
+bn.N_variables: 3
+</pre></div></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="Outlook">
+<h2>Outlook<a class="headerlink" href="#Outlook" title="Link to this heading"></a></h2>
+<p>In the remaining tutorials, we build on this foundation to study the dynamical behavior of Boolean networks, including attractors, basins of attraction, and stability under perturbations.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial05_use_cases_random_function_generator.html" class="btn btn-neutral float-left" title="BoolForge Tutorial 5: Example Use Cases of the Random Function Generator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial07_boolean_network_dynamics.html" class="btn btn-neutral float-right" title="BoolForge Tutorial 7: Dynamics of Boolean Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
