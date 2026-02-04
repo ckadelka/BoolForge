@@ -2150,7 +2150,7 @@ def random_null_model(
     rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
         Random number generator or seed specification. Passed to
         ``utils._coerce_rng``.
-    **kwargs
+    \*\*kwargs
         Additional keyword arguments forwarded to the wiring-diagram
         randomization routine:
     

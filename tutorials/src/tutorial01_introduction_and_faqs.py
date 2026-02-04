@@ -280,7 +280,8 @@ print(type(cana_object))
 # BoolForge supports conversion between representations (e.g., truth table to/from polynomial form) and is compatible with external packages such as **CANA** for
 # advanced analysis.  
 # This makes it easy to move between analytical frameworks and reuse models.
-#
+
+# %% [markdown]
 # ---
 #
 # Together, these concepts provide the foundation for understanding canalization,

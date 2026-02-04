@@ -1811,6 +1811,7 @@ class BooleanNetwork(WiringDiagram):
         tol : float, optional
             Convergence tolerance for the infinity norm of probability updates.
         s
+        
         Returns
         -------
         dict
