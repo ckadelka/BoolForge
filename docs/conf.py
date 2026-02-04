@@ -21,21 +21,12 @@ release = open("../boolforge/_version.py", "rt").read().split('\'')[1]
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    "sphinx.ext.mathjax",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "nbsphinx",
-    "sphinxcontrib.collections"
 ]
-
-collections = {
-    "tutorials": {
-        "driver": "copy_folder",
-        "source": "../tutorials",
-        "target": "tutorials/",
-        "ignore": ["*.py", "*.sh"],
-    }
-}
 
 autodoc_member_order = 'bysource'
 
