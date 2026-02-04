@@ -785,10 +785,6 @@ class BooleanNetwork(WiringDiagram):
         if len(F) != self.N:
             raise ValueError("len(F) must match the number of nodes in the wiring diagram")
     
-        # ---- BooleanNetwork invariant: do not expose these -------------------
-        del self.N_variables
-        del self.N_constants
-    
         # ---- Initialize Boolean functions -----------------------------------
         self.F = []
     

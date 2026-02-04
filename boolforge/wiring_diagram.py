@@ -8,8 +8,9 @@ the directed regulatory topology of a Boolean network independently of any
 Boolean update functions.
 
 A wiring diagram specifies, for each node, the set of regulating nodes
-(predecessors). Nodes with no regulators are interpreted as constants within
-the Boolean-network formalism.
+(predecessors). Nodes with no regulators are source nodes in the wiring diagram.
+Whether such nodes act as constants or identity nodes in Boolean networks
+can only be determined after Boolean update functions are assigned.
 """
 
 from collections import defaultdict
@@ -31,8 +32,9 @@ class WiringDiagram(object):
     listing, for each node, the indices of its regulators (incoming edges).
     It does not encode Boolean update functions or dynamical rules.
 
-    Nodes with zero indegree are interpreted as constant nodes in the Boolean
-    network formalism.
+    Nodes with zero indegree are source nodes. Whether a source node represents
+    a constant, an identity node, or a dynamic variable is determined only after
+    Boolean update functions are assigned.
 
     Parameters
     ----------
@@ -57,11 +59,7 @@ class WiringDiagram(object):
     variables : np.ndarray[str]
         Names of variables corresponding to each node.
     N : int
-        Total number of nodes, including constants.
-    N_variables : int
-        Number of non-constant variables.
-    N_constants : int
-        Number of constant nodes (nodes with zero indegree).
+        Total number of nodes, including source nodes.
     indegrees : np.ndarray[int]
         Indegree of each node.
     outdegrees : np.ndarray[int]
@@ -72,32 +70,28 @@ class WiringDiagram(object):
     Notes
     -----
     - Node indices are zero-based.
-    - Constant nodes are identified solely by indegree.
+    - Source nodes are identified solely by indegree == 0.
     - The wiring diagram encodes topology only and does not define dynamics.
 
     Examples
     --------
-    Nodes with zero indegree are interpreted as constants.
+    Nodes with zero indegree are interpreted as source nodes.
     
     >>> from boolforge import WiringDiagram
     >>> I = [
-    ...     [],        # node 0 has no regulators -> constant
-    ...     [0],       # node 1 is regulated by node 0
-    ...     [0, 1],    # node 2 is regulated by nodes 0 and 1
-    ... ]
-    >>> wd = WiringDiagram(I)
+            [],        # node 0 has no regulators -> source node
+            [0],       # node 1 is regulated by node 0
+            [0, 1],    # node 2 is regulated by nodes 0 and 1
+        ]
+    >>> W = WiringDiagram(I)
     
-    >>> wd.N
+    >>> W.N
     3
-    >>> wd.N_constants
-    1
-    >>> wd.N_variables
-    2
     
-    >>> wd.get_constants(AS_DICT=True)
+    >>> W.get_source_nodes(AS_DICT=True)
     {0: True, 1: False, 2: False}
     
-    >>> wd.get_constants(AS_DICT=False)
+    >>> W.get_source_nodes(AS_DICT=False)
     array([0])
     
     See Also
@@ -144,7 +138,7 @@ class WiringDiagram(object):
     
         Notes
         -----
-        Constant nodes are identified automatically as nodes with zero indegree.
+        Source nodes are identified automatically as nodes with zero indegree.
         """
         if not isinstance(I, Sequence) or isinstance(I, (str, bytes)):
             raise TypeError("I must be a sequence of sequences of int")
@@ -159,9 +153,6 @@ class WiringDiagram(object):
         
         if variables is None:
             variables = ['x'+str(i) for i in range(self.N)]
-        
-        self.N_constants = len(self.get_constants(False))
-        self.N_variables = self.N - self.N_constants
         
         self.variables = np.array(variables, dtype=str)
         
@@ -225,7 +216,7 @@ class WiringDiagram(object):
           ``nx_DiGraph.nodes``.
         - Regulator lists are constructed from incoming edges
           (graph predecessors).
-        - Edge weights are only stored if *all* edges define a ``'weight'``
+        - Edge weights are only stored if all edges define a ``'weight'``
           attribute.
     
         Examples
@@ -237,7 +228,7 @@ class WiringDiagram(object):
         >>> W = WiringDiagram.from_DiGraph(G)
         >>> W.I
         [array([], dtype=int64), array([0]), array([1])]
-        >>> W.get_constants()
+        >>> W.get_source_nodes()
         {0: True, 1: False, 2: False}
         """
         if not isinstance(nx_DiGraph, nx.DiGraph):
@@ -285,8 +276,7 @@ class WiringDiagram(object):
         """
         Convert the wiring diagram into a NetworkX directed graph.
         
-        Each node in the resulting graph represents a variable or constant in the
-        wiring diagram. A directed edge ``u -> v`` indicates that node ``u``
+        A directed edge ``u -> v`` indicates that node ``u``
         regulates node ``v``.
         
         Parameters
@@ -364,32 +354,38 @@ class WiringDiagram(object):
         return outdegrees
 
 
-    def get_constants(self, AS_DICT: bool = True) -> dict[int, bool] | np.ndarray:
+    def get_source_nodes(
+        self, 
+        AS_DICT: bool = True
+    ) -> dict[int, bool] | np.ndarray:
         """
-        Identify constant nodes in the wiring diagram.
+        Identify source nodes in the wiring diagram.
     
-        A node is considered a constant if it has no regulators, i.e.,
-        if its indegree is zero.
+        A source node is a node with zero indegree. Source nodes represent
+        inputs to the wiring diagram; whether they act as constants or
+        identity nodes in Boolean networks depends on the associated
+        Boolean update functions and is not determined at the wiring-diagram
+        level.
     
         Parameters
         ----------
         AS_DICT : bool, optional
             If True (default), return a dictionary mapping node indices to
-            Boolean values indicating whether each node is a constant.
-            If False, return an array of indices corresponding to constant nodes.
+            Boolean values indicating whether each node is a source node.
+            If False, return an array of indices corresponding to source nodes.
     
         Returns
         -------
         dict[int, bool] or np.ndarray
             If ``AS_DICT`` is True, a dictionary where keys are node indices and
-            values indicate whether the node is a constant.
+            values indicate whether the node is a source node.
             If ``AS_DICT`` is False, a one-dimensional array containing the
-            indices of constant nodes.
+            indices of source nodes.
         """
-        is_constant = self.indegrees == 0
+        is_source = self.indegrees == 0
         if AS_DICT:
-            return dict(enumerate(is_constant.tolist()))
-        return np.where(is_constant)[0]
+            return dict(enumerate(is_source.tolist()))
+        return np.where(is_source)[0]
 
 
     def get_strongly_connected_components(self) -> list:
@@ -720,9 +716,8 @@ class WiringDiagram(object):
         outdegrees = np.zeros(N, dtype=int)
         for target, regulators in enumerate(I):
             for r in regulators:
-                if r < N:  # ignore constants
-                    g_full.add_edge(r, target)
-                    outdegrees[r] += 1
+                g_full.add_edge(r, target)
+                outdegrees[r] += 1
     
         # ------------------------------------------------------------------
         # Compute SCCs and mapping node -> SCC index
@@ -838,11 +833,7 @@ class WiringDiagram(object):
         """
         Plot the raw wiring diagram as a directed graph.
     
-        Each node corresponds to a variable in the wiring diagram, and each
-        directed edge represents a regulatory interaction. Constants (if present)
-        are ignored.
-    
-        The layout is hierarchical and deterministic: input nodes (in-degree 0)
+        The layout is hierarchical and deterministic: source nodes (in-degree 0)
         appear at the top, output nodes (out-degree 0) at the bottom, and all other
         nodes in between.
     
@@ -872,8 +863,7 @@ class WiringDiagram(object):
     
         for target, regulators in enumerate(I):
             for r in regulators:
-                if r < N:  # ignore constants
-                    g.add_edge(r, target)
+                g.add_edge(r, target)
     
         # ------------------------------------------------------------------
         # Compute node classes
@@ -1002,8 +992,7 @@ class WiringDiagram(object):
         g.add_nodes_from(range(N))
         for target, regulators in enumerate(I):
             for r in regulators:
-                if r < N:  # ignore constants
-                    g.add_edge(r, target)
+                g.add_edge(r, target)
     
         # ------------------------------------------------------------
         # Compute SCCs

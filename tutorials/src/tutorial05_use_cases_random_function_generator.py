@@ -456,12 +456,12 @@ ns = np.arange(5, 9)
 fig, ax = plt.subplots()
 
 for n in ns:
-    all_hamming = np.arange(1, 2 ** (n - 1), 2)
+    all_hamming_weights = np.arange(1, 2 ** (n - 1), 2)
     all_abs_bias = 2 * np.abs(all_hamming/2**n - 0.5)
     avg_sens = np.zeros(2 ** (n - 2))
 
-    for i, w in enumerate(all_hamming):
-        layer = boolforge.get_layer_structure_of_an_NCF_given_its_Hamming_weight(n, w)
+    for i, w in enumerate(all_hamming_weights):
+        layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
         f = boolforge.random_function(n, layer_structure=layer)
         avg_sens[i] = f.get_average_sensitivity(EXACT=True, NORMALIZED=False)
 
