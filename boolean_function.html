@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Boolean Function &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -199,7 +199,7 @@ values 0 and 1, representing the truth table of the Boolean function.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.from_cana">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_cana</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cana_BooleanNode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cana.boolean_node.BooleanNode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.from_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.from_cana" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_cana</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cana_BooleanNode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BooleanNode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.from_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.from_cana" title="Link to this definition"></a></dt>
 <dd><p>Construct a BoolForge BooleanFunction from a CANA BooleanNode.</p>
 <p>This compatibility method converts a
 <code class="docutils literal notranslate"><span class="pre">cana.boolean_node.BooleanNode</span></code> instance into a BoolForge
@@ -475,7 +475,7 @@ the output format is determined by the file extension.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.to_cana">
-<span class="sig-name descname"><span class="pre">to_cana</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">cana.boolean_node.BooleanNode</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_cana" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_cana</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BooleanNode</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_cana" title="Link to this definition"></a></dt>
 <dd><p>Convert the BooleanFunction to a CANA BooleanNode.</p>
 <p>This compatibility method constructs and returns a
 <code class="docutils literal notranslate"><span class="pre">cana.boolean_node.BooleanNode</span></code> instance corresponding to the
@@ -1217,7 +1217,7 @@ the corresponding output values of the provided Boolean functions.</p>
 <section id="id81">
 <h2>Parameters<a class="headerlink" href="#id81" title="Link to this heading"></a></h2>
 <dl class="simple">
-<dt><a href="#id82"><span class="problematic" id="id83">*</span></a>functions<span class="classifier">BooleanFunction</span></dt><dd><p>One or more BooleanFunction objects with the same number of input
+<dt>*functions<span class="classifier">BooleanFunction</span></dt><dd><p>One or more BooleanFunction objects with the same number of input
 variables.</p>
 </dd>
 <dt>labels<span class="classifier">Sequence[str] or None, optional</span></dt><dd><p>Column labels for the Boolean functions. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), labels
@@ -1225,8 +1225,8 @@ are generated automatically as <code class="docutils literal notranslate"><span 
 </dd>
 </dl>
 </section>
-<section id="id84">
-<h2>Raises<a class="headerlink" href="#id84" title="Link to this heading"></a></h2>
+<section id="id82">
+<h2>Raises<a class="headerlink" href="#id82" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>ValueError</dt><dd><p>If no Boolean functions are provided, if the functions do not all have
 the same number of variables, or if the number of labels does not match
@@ -1234,8 +1234,8 @@ the number of functions.</p>
 </dd>
 </dl>
 </section>
-<section id="id85">
-<h2>Examples<a class="headerlink" href="#id85" title="Link to this heading"></a></h2>
+<section id="id83">
+<h2>Examples<a class="headerlink" href="#id83" title="Link to this heading"></a></h2>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(x1 &amp; ~x2) | x3&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 </pre></div>
@@ -1250,16 +1250,16 @@ the number of functions.</p>
 <p>Consecutive identical canalized output values are grouped into the same
 canalizing layer. The size of each layer corresponds to the number of
 variables in that layer.</p>
-<section id="id86">
-<h2>Parameters<a class="headerlink" href="#id86" title="Link to this heading"></a></h2>
+<section id="id84">
+<h2>Parameters<a class="headerlink" href="#id84" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>can_outputs<span class="classifier">Sequence[int]</span></dt><dd><p>Sequence of canalized output values in the order in which canalizing
 variables are identified.</p>
 </dd>
 </dl>
 </section>
-<section id="id87">
-<h2>Returns<a class="headerlink" href="#id87" title="Link to this heading"></a></h2>
+<section id="id85">
+<h2>Returns<a class="headerlink" href="#id85" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>list[int]</dt><dd><p>List specifying the number of variables in each canalizing layer.</p>
 </dd>

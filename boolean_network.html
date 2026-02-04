@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Boolean Network &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -78,11 +78,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_synchronous()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.compute_synchronous_state_transition_graph"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.compute_synchronous_state_transition_graph()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_synchronous_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_transient_lengths_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_transient_lengths_exact()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_and_robustness_measures_synchronous()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_derrida_value"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_derrida_value()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact_non_autonomous"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_synchronous_exact_non_autonomous()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact_with_external_inputs"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_synchronous_exact_with_external_inputs()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -134,8 +133,8 @@ methods for constructing state transition graphs, identifying attractors,
 computing robustness and sensitivity measures, and exporting truth tables.</p>
 <p>Several computational routines—particularly those involving state space
 exploration, attractor detection, and robustness estimation—offer optional
-Numba-based just-in-time (JIT) acceleration. Installing Numba is <strong>recommended</strong>
-for optimal performance but <strong>not required</strong>; all features remain functional
+Numba-based just-in-time (JIT) acceleration. Installing Numba is recommended
+for optimal performance but not required; all features remain functional
 without it.</p>
 <p>This module serves as the central interface for dynamic Boolean network
 analysis within the BoolForge package.</p>
@@ -244,7 +243,7 @@ assigned a non-essential self-loop to preserve network structure.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.from_cana">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_cana</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cana_BooleanNetwork</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cana.boolean_network.BooleanNetwork</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.from_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.from_cana" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_cana</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cana_BooleanNetwork</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BooleanNetwork</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.from_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.from_cana" title="Link to this definition"></a></dt>
 <dd><p>Construct a BooleanNetwork from a <code class="docutils literal notranslate"><span class="pre">cana.BooleanNetwork</span></code> instance.</p>
 <p>This compatibility method converts a Boolean network defined using the
 <code class="docutils literal notranslate"><span class="pre">cana</span></code> package into a BoolForge <code class="docutils literal notranslate"><span class="pre">BooleanNetwork</span></code>.</p>
@@ -365,18 +364,21 @@ If present on all edges, weights are stored in the
 <code class="docutils literal notranslate"><span class="pre">nx_DiGraph.nodes</span></code>.</p></li>
 <li><p>Regulator lists are constructed from incoming edges
 (graph predecessors).</p></li>
-<li><p>Edge weights are only stored if <em>all</em> edges define a <code class="docutils literal notranslate"><span class="pre">'weight'</span></code>
+<li><p>Edge weights are only stored if all edges define a <code class="docutils literal notranslate"><span class="pre">'weight'</span></code>
 attribute.</p></li>
 </ul>
 </section>
 <section id="examples">
 <h3>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h3>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">boolforge</span><span class="w"> </span><span class="kn">import</span> <span class="n">WiringDiagram</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">WD</span> <span class="o">=</span> <span class="n">WiringDiagram</span><span class="o">.</span><span class="n">from_DiGraph</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">WD</span><span class="o">.</span><span class="n">I</span>
-<span class="go">[array([2]), array([0]), array([1])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">WiringDiagram</span><span class="o">.</span><span class="n">from_DiGraph</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span><span class="o">.</span><span class="n">I</span>
+<span class="go">[array([], dtype=int64), array([0]), array([1])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span><span class="o">.</span><span class="n">get_source_nodes</span><span class="p">()</span>
+<span class="go">{0: True, 1: False, 2: False}</span>
 </pre></div>
 </div>
 </section>
@@ -384,7 +386,7 @@ attribute.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.to_cana">
-<span class="sig-name descname"><span class="pre">to_cana</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">cana.boolean_network.BooleanNetwork</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.to_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.to_cana" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_cana</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BooleanNetwork</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.to_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.to_cana" title="Link to this definition"></a></dt>
 <dd><p>Export the Boolean network as a <code class="docutils literal notranslate"><span class="pre">cana.BooleanNetwork</span></code> instance.</p>
 <p>This compatibility method converts the current BooleanNetwork into an
 equivalent representation from the <code class="docutils literal notranslate"><span class="pre">cana</span></code> package. The exported network
@@ -776,12 +778,12 @@ probabilities before declaring non-convergence.</p>
 <dt>tol<span class="classifier">float, optional</span></dt><dd><p>Convergence tolerance for the infinity norm of probability updates.</p>
 </dd>
 </dl>
-<p>s
-Returns
-——-
-dict</p>
-<blockquote>
-<div><p>Dictionary with the following entries:</p>
+<p>s</p>
+</section>
+<section id="id40">
+<h3>Returns<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>dict</dt><dd><p>Dictionary with the following entries:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;SteadyStates&quot;</span></code> : list of int  
 Decimal representations of steady states.</p></li>
@@ -794,10 +796,11 @@ Asynchronous state transition graph represented as a Markov kernel.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;FinalTransitionProbabilities&quot;</span></code> : np.ndarray  
 Absorption probabilities from each state into each steady state.</p></li>
 </ul>
-</div></blockquote>
+</dd>
+</dl>
 </section>
-<section id="id40">
-<h3>Raises<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<section id="id41">
+<h3>Raises<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>RuntimeError</dt><dd><p>If the iterative solver does not converge within <code class="docutils literal notranslate"><span class="pre">max_iterations</span></code>.</p>
 </dd>
@@ -817,8 +820,8 @@ a maximum search depth is exceeded.</p>
 exhaustively explore the full state space and does not guarantee that all
 steady states will be found. It is intended for large networks where exact
 enumeration is infeasible.</p>
-<section id="id41">
-<h3>Parameters<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<section id="id42">
+<h3>Parameters<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>nsim<span class="classifier">int, optional</span></dt><dd><p>Number of asynchronous simulations to perform (default is 500).</p>
 </dd>
@@ -835,8 +838,8 @@ giving up on convergence (default is 50).</p>
 </dd>
 </dl>
 </section>
-<section id="id42">
-<h3>Returns<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<section id="id43">
+<h3>Returns<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with the following entries:</p>
 <ul class="simple">
@@ -857,8 +860,8 @@ explicitly or generated randomly).</p></li>
 </dd>
 </dl>
 </section>
-<section id="id43">
-<h3>Notes<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<section id="id44">
+<h3>Notes<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>This method detects only <em>steady states</em> (fixed points). If the
 asynchronous dynamics contain limit cycles, simulations may fail
@@ -883,8 +886,8 @@ or a maximum number of update steps is exceeded.</p>
 <p>The method is sampling-based and does <em>not</em> guarantee that all reachable
 steady states are found. It is intended for exploratory analysis and for
 networks where exhaustive asynchronous analysis is infeasible.</p>
-<section id="id44">
-<h3>Parameters<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
+<section id="id45">
+<h3>Parameters<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>initial_condition<span class="classifier">int or sequence of int, optional</span></dt><dd><p>Initial network state. If an integer is provided, it is interpreted as
 the decimal encoding of a Boolean state. If a sequence is provided, it
@@ -904,8 +907,8 @@ internally. If None (default), nodes are updated uniformly at random.</p>
 </dd>
 </dl>
 </section>
-<section id="id45">
-<h3>Returns<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
+<section id="id46">
+<h3>Returns<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with the following entries:</p>
 <ul class="simple">
@@ -928,8 +931,8 @@ For each simulation, the sequence of visited states (in decimal form).</p></li>
 </dd>
 </dl>
 </section>
-<section id="id46">
-<h3>Notes<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<section id="id47">
+<h3>Notes<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Only steady states (fixed points) are detected. If the asynchronous
 dynamics contain limit cycles, simulations may fail to converge within
@@ -953,8 +956,8 @@ are found. Basin sizes are lower-bound estimates based on the sampled
 initial conditions.</p>
 <p>If Numba is available and <code class="docutils literal notranslate"><span class="pre">USE_NUMBA=True</span></code>, synchronous updates are
 accelerated using a compiled kernel.</p>
-<section id="id47">
-<h3>Parameters<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<section id="id48">
+<h3>Parameters<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>nsim<span class="classifier">int, optional</span></dt><dd><p>Number of initial conditions to simulate (default is 500). Ignored if
 <code class="docutils literal notranslate"><span class="pre">initial_sample_points</span></code> is provided.</p>
@@ -976,8 +979,8 @@ synchronous update kernel.</p>
 </dd>
 </dl>
 </section>
-<section id="id48">
-<h3>Returns<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<section id="id49">
+<h3>Returns<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with the following entries:</p>
 <ul class="simple">
@@ -1002,8 +1005,8 @@ Number of simulations that did not converge within
 </dd>
 </dl>
 </section>
-<section id="id49">
-<h3>Notes<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
+<section id="id50">
+<h3>Notes<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>This method is intended for networks with long transient dynamics, where
 exhaustive synchronous analysis is infeasible.</p></li>
@@ -1022,8 +1025,8 @@ as exact proportions of the state space.</p></li>
 state reached from state <code class="docutils literal notranslate"><span class="pre">x</span></code> under synchronous updating.</p>
 <p>This computation is exact and requires memory proportional to <code class="docutils literal notranslate"><span class="pre">2**N</span></code>.
 It is therefore intended for small-to-moderate networks only.</p>
-<section id="id50">
-<h3>Parameters<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
+<section id="id51">
+<h3>Parameters<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>USE_NUMBA<span class="classifier">bool, optional</span></dt><dd><p>If True (default) and Numba is available, use a compiled kernel to
 accelerate computation.</p>
@@ -1042,16 +1045,16 @@ their basin sizes, and the attractor reached from each state are determined
 exactly.</p>
 <p>This computation requires memory and time proportional to <code class="docutils literal notranslate"><span class="pre">2**N</span></code> and is
 intended for small-to-moderate networks only.</p>
-<section id="id51">
-<h3>Parameters<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
+<section id="id52">
+<h3>Parameters<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>USE_NUMBA<span class="classifier">bool, optional</span></dt><dd><p>If True (default) and Numba is available, use a compiled kernel for
 attractor detection.</p>
 </dd>
 </dl>
 </section>
-<section id="id52">
-<h3>Returns<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<section id="id53">
+<h3>Returns<a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with keys:</p>
 <ul class="simple">
@@ -1087,33 +1090,59 @@ attractor detection.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_transient_lengths_exact">
+<span class="sig-name descname"><span class="pre">get_transient_lengths_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USE_NUMBA</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_transient_lengths_exact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_transient_lengths_exact" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Compute exact transient length using:</dt><dd><ul class="simple">
+<li><p>Full STG from get_attractors_synchronous_exact()</p></li>
+<li><p>Attractors (cycle states) from get_attractors_synchronous_exact()</p></li>
+</ul>
+</dd>
+</dl>
+<p>This avoids indegree-pruning because cycle states are given explicitly.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact">
-<span class="sig-name descname"><span class="pre">get_attractors_and_robustness_measures_synchronous_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USE_NUMBA</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact" title="Link to this definition"></a></dt>
-<dd><p>Compute the attractors and exact robustness measures of a synchronously
+<span class="sig-name descname"><span class="pre">get_attractors_and_robustness_measures_synchronous_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USE_NUMBA</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GET_STRATIFIED_COHERENCES</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_measures_synchronous_exact" title="Link to this definition"></a></dt>
+<dd><p>Compute attractors and exact robustness measures of a synchronously
 updated Boolean network.</p>
-<p>This method computes the exact synchronous state transition graph (STG)
-and analyzes it as a functional graph on <code class="docutils literal notranslate"><span class="pre">2**N</span></code> states. All attractors
-(cycles), their basin sizes, and the attractor reached from each state
-are determined exactly. Based on this decomposition, exact coherence
-and fragility measures are computed for the full network, for each basin
-of attraction, and for each attractor.</p>
-<p>This computation requires memory and time proportional to <code class="docutils literal notranslate"><span class="pre">2**N</span></code> and is
-intended for small-to-moderate networks only.</p>
-<section id="id53">
-<h3>Parameters<a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<p>This method constructs the exact synchronous state transition graph
+(STG) on <code class="docutils literal notranslate"><span class="pre">2**N</span></code> states and analyzes it as a functional graph. All
+attractors (cycles), basin sizes, and the attractor reached from each
+state are determined exactly. Based on this decomposition, exact
+coherence and fragility measures are computed for the full network,
+for each basin of attraction, and for each attractor.</p>
+<p>Optionally, coherence can be stratified by the transient length
+(distance from the attractor) of each state, allowing robustness to be
+analyzed as a function of how far states lie from their eventual
+attractor.</p>
+<p>This computation requires memory and time proportional to <code class="docutils literal notranslate"><span class="pre">2**N</span></code> and
+is intended for small-to-moderate networks. When Numba is enabled,
+exact and stratified robustness measures remain feasible up to
+moderate values of <code class="docutils literal notranslate"><span class="pre">N</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">≈</span> <span class="pre">20</span></code> on typical hardware).</p>
+<section id="id54">
+<h3>Parameters<a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>USE_NUMBA<span class="classifier">bool, optional</span></dt><dd><p>If True (default) and Numba is available, use a compiled kernel for
-robustness computation.</p>
+<dt>USE_NUMBA<span class="classifier">bool, optional</span></dt><dd><p>If True (default) and Numba is available, compiled kernels are used
+for robustness and transient-length computations, resulting in
+substantial speedups.</p>
+</dd>
+<dt>GET_STRATIFIED_COHERENCES<span class="classifier">bool, optional</span></dt><dd><p>If True, coherence is additionally computed as a function of the
+transient length (distance to the attractor) of each state.
+When Numba is enabled, this option incurs only modest additional
+computational cost. Default is False.</p>
 </dd>
 </dl>
 </section>
-<section id="id54">
-<h3>Returns<a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>Dictionary with keys:</p>
+<section id="id55">
+<h3>Returns<a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
+<dl>
+<dt>dict</dt><dd><p>Dictionary with the following keys:</p>
 <ul class="simple">
 <li><dl class="simple">
-<dt>Attractors<span class="classifier">list[list[int]]</span></dt><dd><p>Each attractor represented as a list of decimal states forming a cycle.</p>
+<dt>Attractors<span class="classifier">list[list[int]]</span></dt><dd><p>Each attractor represented as a list of decimal states forming
+a cycle.</p>
 </dd>
 </dl>
 </li>
@@ -1123,12 +1152,13 @@ robustness computation.</p>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>BasinSizes<span class="classifier">np.ndarray[float]</span></dt><dd><p>Fraction of all states belonging to each attractor basin.</p>
+<dt>BasinSizes<span class="classifier">np.ndarray of float</span></dt><dd><p>Fraction of all states belonging to each attractor basin.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>AttractorID<span class="classifier">np.ndarray[int]</span></dt><dd><p>For each of the <code class="docutils literal notranslate"><span class="pre">2**N</span></code> states, the index of the attractor it reaches.</p>
+<dt>AttractorID<span class="classifier">np.ndarray of int</span></dt><dd><p>For each of the <code class="docutils literal notranslate"><span class="pre">2**N</span></code> states, the index of the attractor it
+eventually reaches.</p>
 </dd>
 </dl>
 </li>
@@ -1143,22 +1173,42 @@ robustness computation.</p>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>BasinCoherence<span class="classifier">np.ndarray[float]</span></dt><dd><p>Exact coherence of each basin of attraction.</p>
+<dt>BasinCoherence<span class="classifier">np.ndarray of float</span></dt><dd><p>Exact coherence of each basin of attraction.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>BasinFragility<span class="classifier">np.ndarray[float]</span></dt><dd><p>Exact fragility of each basin of attraction.</p>
+<dt>BasinFragility<span class="classifier">np.ndarray of float</span></dt><dd><p>Exact fragility of each basin of attraction.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>AttractorCoherence<span class="classifier">np.ndarray[float]</span></dt><dd><p>Exact coherence of each attractor.</p>
+<dt>AttractorCoherence<span class="classifier">np.ndarray of float</span></dt><dd><p>Exact coherence of each attractor.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>AttractorFragility<span class="classifier">np.ndarray[float]</span></dt><dd><p>Exact fragility of each attractor.</p>
+<dt>AttractorFragility<span class="classifier">np.ndarray of float</span></dt><dd><p>Exact fragility of each attractor.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">GET_STRATIFIED_COHERENCES</span></code> is True, the dictionary additionally
+contains:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>StratifiedCoherences<span class="classifier">np.ndarray of float</span></dt><dd><p>Coherence values stratified by attractor and transient length.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>DistanceFromAttractorCount<span class="classifier">np.ndarray of int</span></dt><dd><p>Number of state–hypercube-edge incidences contributing to each
+stratified coherence entry.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>DistanceFromAttractor<span class="classifier">np.ndarray of int</span></dt><dd><p>Transient length (distance to attractor) for each state.</p>
 </dd>
 </dl>
 </li>
@@ -1178,8 +1228,8 @@ It returns Monte-Carlo approximations of global coherence, fragility, and a
 final Hamming-distance-based measure, along with per-basin approximations.
 Optionally, it additionally estimates attractor-level coherence and fragility
 by perturbing attractor states found during sampling.</p>
-<section id="id55">
-<h3>Notes<a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
+<section id="id56">
+<h3>Notes<a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>The attractor set returned is a <em>lower bound</em> on the true number of
 attractors, because only the sampled portion of state space is explored.</p></li>
@@ -1187,8 +1237,8 @@ attractors, because only the sampled portion of state space is explored.</p></li
 this method uses bitstrings (type <code class="docutils literal notranslate"><span class="pre">str</span></code>) as state identifiers.</p></li>
 </ul>
 </section>
-<section id="id56">
-<h3>Parameters<a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
+<section id="id57">
+<h3>Parameters<a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>number_different_IC<span class="classifier">int, optional</span></dt><dd><p>Number of random initial conditions to sample (default is 500). For each
 IC, the method also simulates one randomly chosen single-bit perturbation.</p>
@@ -1201,8 +1251,8 @@ by perturbing attractor states found during sampling.</p>
 </dd>
 </dl>
 </section>
-<section id="id57">
-<h3>Returns<a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
+<section id="id58">
+<h3>Returns<a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with keys:</p>
 <ul class="simple">
@@ -1297,8 +1347,8 @@ dynamics to small perturbations.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">EXACT</span></code> is True, the Derrida value is computed exactly as the mean
 (unnormalized) average sensitivity of the Boolean update functions.
 Otherwise, it is approximated via Monte Carlo simulation.</p>
-<section id="id58">
-<h3>Parameters<a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
+<section id="id59">
+<h3>Parameters<a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>nsim<span class="classifier">int, optional</span></dt><dd><p>Number of Monte Carlo simulations to perform (default is 1000).
 Ignored if <code class="docutils literal notranslate"><span class="pre">EXACT</span></code> is True.</p>
@@ -1313,97 +1363,20 @@ Monte Carlo simulation.</p>
 </dd>
 </dl>
 </section>
-<section id="id59">
-<h3>Returns<a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
+<section id="id60">
+<h3>Returns<a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>float</dt><dd><p>The Derrida value, defined as the average Hamming distance after
 one synchronous update following a single-bit perturbation.</p>
 </dd>
 </dl>
 </section>
-<section id="id60">
-<h3>References<a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
+<section id="id61">
+<h3>References<a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
 <p>Derrida, B., &amp; Pomeau, Y. (1986).
 Random networks of automata: a simple annealed approximation.
 <em>Europhysics Letters</em>, 1(2), 45.</p>
 </section>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact_non_autonomous">
-<span class="sig-name descname"><span class="pre">get_attractors_synchronous_exact_non_autonomous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">non_periodic_component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic_component</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_attractors_synchronous_exact_non_autonomous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact_non_autonomous" title="Link to this definition"></a></dt>
-<dd><p>desc.</p>
-<p><strong>Parameters:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>non_periodic_component (list | np.array): desc.</p></li>
-<li><p>periodic_component (list | np.array): desc.</p></li>
-</ul>
-</div></blockquote>
-<p><strong>Returns:</strong></p>
-<blockquote>
-<div><ul>
-<li><p>dict[str:Variant]: A dictionary containing:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Attractors (list[list[tuple[int, int]]]): List of attractors
-where each attractor is repesented as a list of integer pairs
-forming the cycle. The first value in each pair represents
-the decimal value of the input pattern, and the second value
-represents the decimal value of the state.</p></li>
-<li><p>NumberOfAttractors (int): Total number of unique attractors.</p></li>
-<li><p>BasinSizes (list[int]): List of counts for each attractor.</p></li>
-<li><p>AttractorDict (dict[tuple[int, int]:int]): Dictionary mapping
-each state value pair (in decimal) to its attractor index.</p></li>
-<li><p>STG (dict[int:int]): The state transition graph as a dictionary,
-with each state represented by its decimal pair representation.</p></li>
-<li><p>InitialStatesPeriodic (list[int]): The set of unique initial
-states in decimal format after evaluating the non-periodic
-component of the input sequence. Used as initial states for
-the evaluation of the periodic component.</p></li>
-<li><p>FormattedAttractors (list[list[list[int]]]): List of attractors
-represented as a list of binary vectors. The values of the
-attractor decimal pairs are concatenated into a single vector.</p></li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact_with_external_inputs">
-<span class="sig-name descname"><span class="pre">get_attractors_synchronous_exact_with_external_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">input_patterns:</span> <span class="pre">[&lt;class</span> <span class="pre">'list'&gt;,</span> <span class="pre">&lt;built-in</span> <span class="pre">function</span> <span class="pre">array&gt;],</span> <span class="pre">starting_states:</span> <span class="pre">[&lt;class</span> <span class="pre">'list'&gt;,</span> <span class="pre">&lt;built-in</span> <span class="pre">function</span> <span class="pre">array&gt;,</span> <span class="pre">None]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_network.html#BooleanNetwork.get_attractors_synchronous_exact_with_external_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous_exact_with_external_inputs" title="Link to this definition"></a></dt>
-<dd><p>desc.</p>
-<p><strong>Parameters:</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>input_patterns (list | np.array): desc.</p></li>
-<li><p>starting_states (list | np.array | None, optional): desc.</p></li>
-</ul>
-</div></blockquote>
-<p><strong>Returns:</strong></p>
-<blockquote>
-<div><ul>
-<li><p>dict[str:Variant]: A dictionary containing:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Attractors (list[list[tuple[int, int]]]): List of attractors
-(each attractor is repesented as a list of integer pairs
-forming the cycle). The first value in each pair represents
-the decimal value of the input pattern, and the second value
-represents the decimal value of the state.</p></li>
-<li><p>NumberOfAttractors (int): Total number of unique attractors.</p></li>
-<li><p>BasinSizes (list[int]): List of counts for each attractor.</p></li>
-<li><p>AttractorDict (dict[tuple[int, int]:int]): Dictionary mapping
-each state value pair (in decimal) to its attractor index.</p></li>
-<li><p>STG (dict[int:int]): The state transition graph as a dictionary,
-with each state represented by its decimal pair representation.</p></li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
-</div></blockquote>
 </dd></dl>
 
 </section>

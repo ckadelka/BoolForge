@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutorials &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -20,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="BoolForge Tutorial 2: Advanced Concepts for Boolean Functions" href="tutorials/tutorial02_advanced_boolean_functions.html" />
+    <link rel="next" title="#1: Working with Boolean Functions" href="tutorials/tutorial01_introduction_and_faqs.html" />
     <link rel="prev" title="Utils" href="utils.html" /> 
 </head>
 
@@ -47,6 +47,8 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html">#1: Working with Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Frequently-Asked-Questions-(FAQ)">Frequently Asked Questions (FAQ)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html">BoolForge Tutorial 3: Canalization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html">BoolForge Tutorial 4: Random Boolean Function Generation</a></li>
@@ -87,6 +89,29 @@
 <h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html">#1: Working with Boolean Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#0.-Setup">0. Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#1.-Create-a-Boolean-function">1. Create a Boolean function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#1.1-Create-Boolean-functions-from-a-truth-table">1.1 Create Boolean functions from a truth table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#1.2-Create-Boolean-functions-from-text">1.2 Create Boolean functions from text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#1.3-Combining-BooleanFunction-objects">1.3 Combining BooleanFunction objects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#2.-Attributes-of-BooleanFunction">2. Attributes of BooleanFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#3.-Basic-properties-of-Boolean-functions">3. Basic properties of Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#4.-Logical-and-polynomial-representations">4. Logical and polynomial representations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#5.-Summary-of-Key-Concepts">5. Summary of Key Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Boolean-functions"><strong>Boolean functions</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Representations-of-Boolean-functions"><strong>Representations of Boolean functions</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Variable-names-and-ordering"><strong>Variable names and ordering</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Basic-properties-of-Boolean-functions"><strong>Basic properties of Boolean functions</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Conversions-and-interoperability"><strong>Conversions and interoperability</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Frequently-Asked-Questions-(FAQ)">Frequently Asked Questions (FAQ)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#What-you-will-learn">What you will learn</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#0.-Setup">0. Setup</a></li>
@@ -217,7 +242,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="utils.html" class="btn btn-neutral float-left" title="Utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tutorials/tutorial02_advanced_boolean_functions.html" class="btn btn-neutral float-right" title="BoolForge Tutorial 2: Advanced Concepts for Boolean Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tutorials/tutorial01_introduction_and_faqs.html" class="btn btn-neutral float-right" title="#1: Working with Boolean Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

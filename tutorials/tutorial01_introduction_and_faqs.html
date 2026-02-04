@@ -1,0 +1,707 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>#1: Working with Boolean Functions &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BoolForge Tutorial 2: Advanced Concepts for Boolean Functions" href="tutorial02_advanced_boolean_functions.html" />
+    <link rel="prev" title="Tutorials" href="../tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">#1: Working with Boolean Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#0.-Setup">0. Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Create-a-Boolean-function">1. Create a Boolean function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#1.1-Create-Boolean-functions-from-a-truth-table">1.1 Create Boolean functions from a truth table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#1.2-Create-Boolean-functions-from-text">1.2 Create Boolean functions from text</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#1.3-Combining-BooleanFunction-objects">1.3 Combining BooleanFunction objects</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Attributes-of-BooleanFunction">2. Attributes of BooleanFunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Basic-properties-of-Boolean-functions">3. Basic properties of Boolean functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Logical-and-polynomial-representations">4. Logical and polynomial representations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#5.-Summary-of-Key-Concepts">5. Summary of Key Concepts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Boolean-functions"><strong>Boolean functions</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Representations-of-Boolean-functions"><strong>Representations of Boolean functions</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Variable-names-and-ordering"><strong>Variable names and ordering</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Basic-properties-of-Boolean-functions"><strong>Basic properties of Boolean functions</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Conversions-and-interoperability"><strong>Conversions and interoperability</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Frequently-Asked-Questions-(FAQ)">Frequently Asked Questions (FAQ)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">BoolForge Tutorial 3: Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04_random_Boolean_function_generation.html">BoolForge Tutorial 4: Random Boolean Function Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05_use_cases_random_function_generator.html">BoolForge Tutorial 5: Example Use Cases of the Random Function Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06_boolean_networks.html">BoolForge Tutorial 6: Working with Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07_boolean_network_dynamics.html">BoolForge Tutorial 7: Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_stability_analysis.html">BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">#1: Working with Boolean Functions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial01_introduction_and_faqs.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="#1:-Working-with-Boolean-Functions">
+<h1>#1: Working with Boolean Functions<a class="headerlink" href="##1:-Working-with-Boolean-Functions" title="Link to this heading"></a></h1>
+<p>Boolean functions are the building blocks of Boolean network models used to represent gene regulatory networks, signaling pathways, and other biological control systems. Understanding how to create and analyze individual Boolean functions is essential before studying network-level dynamics.</p>
+<p>In this tutorial, we explore the <code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code> class — the foundation of BoolForge. Boolean functions form the regulatory rules in Boolean network models of gene regulation, so understanding their structure is essential before studying networks.</p>
+<section id="What-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
+<p>In this tutorial you will:</p>
+<ul class="simple">
+<li><p>create Boolean functions from truth tables and from textual expressions,</p></li>
+<li><p>inspect core attributes such as degree, variable names, and stored properties,</p></li>
+<li><p>compute basic structural properties (essential variables, Hamming weight, bias),</p></li>
+<li><p>convert Boolean functions into logical and polynomial representations,</p></li>
+<li><p>and interface with CANA objects.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="0.-Setup">
+<h2>0. Setup<a class="headerlink" href="#0.-Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="1.-Create-a-Boolean-function">
+<h2>1. Create a Boolean function<a class="headerlink" href="#1.-Create-a-Boolean-function" title="Link to this heading"></a></h2>
+<p>Boolean functions can be described in logical form, as polynomials, or as truth tables. BoolForge treats Boolean functions as binary vectors of length <span class="math notranslate nohighlight">\(2^n\)</span>, where <span class="math notranslate nohighlight">\(n\)</span> is the number of inputs. The vectors describe the <em>right side</em> of the truth table. The left side of the truth table is not stored because it is the same for any function with n inputs. For example, the function</p>
+<div class="math notranslate nohighlight">
+\[f(A,B) = A \land B\]</div>
+<p>is stored as <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1]</span></code>, corresponding to:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+<th class="head"><p>f(A,B)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+<section id="1.1-Create-Boolean-functions-from-a-truth-table">
+<h3>1.1 Create Boolean functions from a truth table<a class="headerlink" href="#1.1-Create-Boolean-functions-from-a-truth-table" title="Link to this heading"></a></h3>
+<p>An instance of <code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code> can be generated by specifying the right side of the truth table, i.e., by providing a binary vector of length <span class="math notranslate nohighlight">\(2^n\)</span> for any <span class="math notranslate nohighlight">\(n\geq 0\)</span>. For example, to create the AND function above, we can write</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;f_AND&quot;</span><span class="p">)</span> <span class="c1">#name is optional</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Truth table of f:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">to_truth_table</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+f: [0 0 0 1]
+Truth table of f:
+    x0  x1  f_AND
+0   0   0      0
+1   0   1      0
+2   1   0      0
+3   1   1      1
+</pre></div></div>
+</div>
+<div class="line-block">
+<div class="line">Any Boolean function is stored as right side of the truth table. That is, the outputs are ordered by the binary representation of inputs: Position 0 → (A,B) = (0,0) Position 1 → (A,B) = (0,1)</div>
+<div class="line">Position 2 → (A,B) = (1,0) Position 3 → (A,B) = (1,1)</div>
+</div>
+</section>
+<section id="1.2-Create-Boolean-functions-from-text">
+<h3>1.2 Create Boolean functions from text<a class="headerlink" href="#1.2-Create-Boolean-functions-from-text" title="Link to this heading"></a></h3>
+<p>Boolean functions can also be created from textual expressions. For example, to define the same function as f, we can write</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f2</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;A and B&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f2:&quot;</span><span class="p">,</span> <span class="n">f2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+f2: [0 0 0 1]
+</pre></div></div>
+</div>
+<p>The text processor is fairly versatile. For example, we can define the same function as f also by writing</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f3</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;A + B &gt; 1&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f3:&quot;</span><span class="p">,</span> <span class="n">f3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+f3: [0 0 0 0]
+</pre></div></div>
+</div>
+<p>Some examples of more complicated functions include:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">g</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(A AND B) OR (NOT A AND C)&quot;</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(x + y + z) % 2 == 0&quot;</span><span class="p">)</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(-1) * x + y + z &gt; 0&quot;</span><span class="p">)</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">]</span>
+<span class="n">boolforge</span><span class="o">.</span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x1      x2      x3      |       g       h       k
+-------------------------------------------------
+0       0       0       |       0       1       0
+0       0       1       |       1       0       1
+0       1       0       |       0       0       1
+0       1       1       |       1       0       1
+1       0       0       |       0       0       0
+1       0       1       |       0       0       0
+1       1       0       |       1       0       0
+1       1       1       |       1       0       1
+</pre></div></div>
+</div>
+</section>
+<section id="1.3-Combining-BooleanFunction-objects">
+<h3>1.3 Combining BooleanFunction objects<a class="headerlink" href="#1.3-Combining-BooleanFunction-objects" title="Link to this heading"></a></h3>
+<p>New Boolean functions can be constructed by combining existing ones using Boolean algebra operations. This is useful when building larger rules from simpler components.</p>
+<p>Supported operations include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">~</span></code> NOT</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&amp;</span></code> AND</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">|</span></code> OR</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">^</span></code> XOR</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;X + Y == 1&quot;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;X OR Y&quot;</span><span class="p">)</span>
+
+<span class="n">not_a</span> <span class="o">=</span> <span class="o">~</span><span class="n">a</span>
+<span class="n">a_and_b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&amp;</span> <span class="n">b</span>
+<span class="n">a_or_b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">|</span> <span class="n">b</span>
+<span class="n">a_xor_b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">^</span> <span class="n">b</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;NOT a&quot;</span><span class="p">,</span> <span class="s2">&quot;a AND b&quot;</span><span class="p">,</span> <span class="s2">&quot;a OR b&quot;</span><span class="p">,</span> <span class="s2">&quot;a XOR b&quot;</span><span class="p">]</span>
+<span class="n">boolforge</span><span class="o">.</span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">not_a</span><span class="p">,</span> <span class="n">a_and_b</span><span class="p">,</span> <span class="n">a_or_b</span><span class="p">,</span> <span class="n">a_xor_b</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x1      x2      |       a       b       NOT a   a AND b a OR b  a XOR b
+-----------------------------------------------------------------------
+0       0       |       0       0       1       0       0       0
+0       1       |       1       1       0       1       1       0
+1       0       |       1       1       0       1       1       0
+1       1       |       1       1       0       1       1       0
+</pre></div></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="2.-Attributes-of-BooleanFunction">
+<h2>2. Attributes of BooleanFunction<a class="headerlink" href="#2.-Attributes-of-BooleanFunction" title="Link to this heading"></a></h2>
+<p>Each <code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code> instance has the following attributes:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>attribute</p></th>
+<th class="head"><p>type</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">f</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code></p></td>
+<td><p>truth table (right side)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>number of variables</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">variables</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code></p></td>
+<td><p>variable names</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>optional name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">properties</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dict</span></code></p></td>
+<td><p>cached properties</p></td>
+</tr>
+</tbody>
+</table>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f.f:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f.n:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f.variables:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f.name:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f.properties:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+f.f: [0 0 0 1]
+f.n: 2
+f.variables: [&#39;x0&#39; &#39;x1&#39;]
+f.name: f_AND
+f.properties: {}
+</pre></div></div>
+</div>
+<p>When a function is created from a truth table, variable names default to <code class="docutils literal notranslate"><span class="pre">x0,</span> <span class="pre">x1,</span> <span class="pre">...</span></code>. When created from text, variable names are inferred.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f2.variables:&quot;</span><span class="p">,</span> <span class="n">f2</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f3.variables:&quot;</span><span class="p">,</span> <span class="n">f3</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;g.variables:&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;h.variables:&quot;</span><span class="p">,</span> <span class="n">h</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+f2.variables: [&#39;A&#39; &#39;B&#39;]
+f3.variables: [&#39;A&#39; &#39;B&#39;]
+g.variables: [&#39;A&#39; &#39;B&#39; &#39;C&#39;]
+h.variables: [&#39;x&#39; &#39;y&#39; &#39;z&#39;]
+</pre></div></div>
+</div>
+<p>The variable order is determined by first occurrence in the expression. See e.g.,</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(x + y + z) % 2 == 0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(y + z + x) % 2 == 0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;x&#39; &#39;y&#39; &#39;z&#39;]
+[&#39;y&#39; &#39;z&#39; &#39;x&#39;]
+</pre></div></div>
+</div>
+<p>The variable order determines how the truth table is indexed. For example, for variables [x,y,z], the entry in position i corresponds to the binary expansion of i over (x,y,z). Therefore, the same expression with a different variable order results in a different right-side truth table ordering. This becomes important when combining functions inside networks or importing networks from text files.</p>
+</section>
+<hr class="docutils" />
+<section id="3.-Basic-properties-of-Boolean-functions">
+<h2>3. Basic properties of Boolean functions<a class="headerlink" href="#3.-Basic-properties-of-Boolean-functions" title="Link to this heading"></a></h2>
+<p>We can inspect various properties of a Boolean function. The degree, i.e., the number of inputs, is readily available via ‘f.n’. Other properties can be computed.</p>
+<ul class="simple">
+<li><p>‘.is_constant()’ checks if the function is constant,</p></li>
+<li><p>‘.is_degenerate()’ checks if the function contains non-essential variables,</p></li>
+<li><p>‘.get_essential_variables()’ provides the indices (Python: starting at 0!) of the essential variables,</p></li>
+<li><p>‘.get_type_of_inputs()’ describes the type of each input (‘positive’, ‘negative’, ‘conditional’, or ‘non-essential’).</p></li>
+<li><p>The Hamming weight is the number of 1s in the right side of the truth table.</p></li>
+<li><p>The absolute bias is <span class="math notranslate nohighlight">\(|\text{\#ones} - \text{\#zeros}| / 2^n\)</span>. It equals 1 for constant functions and 0 for unbiased functions.</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of variables:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Is constant?&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">is_constant</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Is degenerate?&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Essential variables:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_essential_variables</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Type of inputs:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_type_of_inputs</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hamming weight:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Absolute bias:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_absolute_bias</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of variables: 2
+Is constant? False
+Is degenerate? False
+Essential variables: [0, 1]
+Type of inputs: [&#39;positive&#39; &#39;positive&#39;]
+Hamming weight: 1
+Absolute bias: 0.5
+</pre></div></div>
+</div>
+<p>Repeating this for <code class="docutils literal notranslate"><span class="pre">g</span></code> illustrates how properties differ.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of variables:&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Is constant?&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">is_constant</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Is degenerate?&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Essential variables:&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">get_essential_variables</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Type of inputs:&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">get_type_of_inputs</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hamming weight:&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Absolute bias:&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">get_absolute_bias</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of variables: 3
+Is constant? False
+Is degenerate? False
+Essential variables: [0, 1, 2]
+Type of inputs: [&#39;positive&#39; &#39;positive&#39; &#39;conditional&#39;]
+Hamming weight: 4
+Absolute bias: 0.0
+</pre></div></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">.summary()</span></code> method prints a human-readable overview of basic properties. If more advanced properties have already been computed, e.g., by <code class="docutils literal notranslate"><span class="pre">.get_layer_structure()</span></code> or <code class="docutils literal notranslate"><span class="pre">get_type_of_inputs()</span></code>, they are also displayed (or if the optional keyword <code class="docutils literal notranslate"><span class="pre">COMPUTE_ALL</span></code> is set to True, default False).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">boolforge</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(A and B) OR NOT C&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1"># Trigger computation of more advanced properties</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">COMPUTE_ALL</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+BooleanFunction summary
+----------------------------------------
+Number of variables:        3
+Hamming Weight:             5
+Bias:                       0.625
+Absolute bias:              0.250
+Variables:                  [&#39;A&#39; &#39;B&#39; &#39;C&#39;]
+
+BooleanFunction summary
+----------------------------------------
+Number of variables:        3
+Hamming Weight:             5
+Bias:                       0.625
+Absolute bias:              0.250
+Variables:                  [&#39;A&#39; &#39;B&#39; &#39;C&#39;]
+CanalizingDepth:            3
+NumberOfLayers:             2
+CanalizingInputs:           [0 0 0]
+CanalizedOutputs:           [1 0 0]
+CoreFunction:               [1]
+OrderOfCanalizingVariables: [2 0 1]
+LayerStructure:             [1, 2]
+InputTypes:                 [&#39;negative&#39; &#39;positive&#39; &#39;positive&#39;]
+</pre></div></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="4.-Logical-and-polynomial-representations">
+<h2>4. Logical and polynomial representations<a class="headerlink" href="#4.-Logical-and-polynomial-representations" title="Link to this heading"></a></h2>
+<p>While Boolean functions are stored as truth tables, they can be expressed in logical and polynomial format.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Logical form of </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">to_logical</span><span class="p">(</span><span class="n">AND</span><span class="o">=</span><span class="s2">&quot; ∧ &quot;</span><span class="p">,</span> <span class="n">OR</span><span class="o">=</span><span class="s2">&quot; ∨ &quot;</span><span class="p">,</span> <span class="n">NOT</span><span class="o">=</span><span class="s2">&quot; ¬&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Polynomial form of </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">to_polynomial</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Logical form of : ( ¬A) ∧ ( ¬B) ∧ ( ¬C) ∨ ( ¬A) ∧ B ∧ ( ¬C) ∨ A ∧ ( ¬B) ∧ ( ¬C) ∨ A ∧ B ∧ ( ¬C) ∨ A ∧ B ∧ C
+Polynomial form of : (1 - A) * (1 - B) * (1 - C) + (1 - A) * B * (1 - C) + A * (1 - B) * (1 - C) + A * B * (1 - C) + A * B * C
+</pre></div></div>
+</div>
+<p>In addition, an instance of <code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code> can be turned into an instance of <code class="docutils literal notranslate"><span class="pre">BooleanNode</span></code> from the <a class="reference external" href="https:www.github.com">CANA package</a>. This requires the optional CANA package to be installed.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cana_object</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">to_cana</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">cana_object</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;class &#39;cana.boolean_node.BooleanNode&#39;&gt;
+</pre></div></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="5.-Summary-of-Key-Concepts">
+<h2>5. Summary of Key Concepts<a class="headerlink" href="#5.-Summary-of-Key-Concepts" title="Link to this heading"></a></h2>
+<p>Before moving on to more advanced topics, here is a short summary of the fundamental ideas introduced in this tutorial:</p>
+<section id="Boolean-functions">
+<h3><strong>Boolean functions</strong><a class="headerlink" href="#Boolean-functions" title="Link to this heading"></a></h3>
+<p>A Boolean function maps a set of binary inputs (0/1) to a single binary output. BoolForge represents Boolean functions internally by their truth table, i.e., the list of outputs in lexicographic order of the input combinations.</p>
+</section>
+<section id="Representations-of-Boolean-functions">
+<h3><strong>Representations of Boolean functions</strong><a class="headerlink" href="#Representations-of-Boolean-functions" title="Link to this heading"></a></h3>
+<p>Boolean functions can be created from:</p>
+<ul class="simple">
+<li><p>a truth table (list of 0s and 1s),</p></li>
+<li><p>a logical expression written in Python syntax,</p></li>
+<li><p>algebraic combinations of existing BooleanFunction objects using operations such as
+<code class="docutils literal notranslate"><span class="pre">+</span></code> (OR), <code class="docutils literal notranslate"><span class="pre">*</span></code> (AND), <code class="docutils literal notranslate"><span class="pre">^</span></code> (XOR), and other supported Boolean operations.</p></li>
+</ul>
+<p>Each representation produces an equivalent internal truth-table-based object.</p>
+</section>
+<section id="Variable-names-and-ordering">
+<h3><strong>Variable names and ordering</strong><a class="headerlink" href="#Variable-names-and-ordering" title="Link to this heading"></a></h3>
+<div class="line-block">
+<div class="line">BoolForge automatically infers variable names from the order of first appearance in expressions.</div>
+<div class="line">This order determines the indexing of the truth table and therefore affects how the function interacts with larger Boolean networks.</div>
+</div>
+</section>
+<section id="Basic-properties-of-Boolean-functions">
+<h3><strong>Basic properties of Boolean functions</strong><a class="headerlink" href="#Basic-properties-of-Boolean-functions" title="Link to this heading"></a></h3>
+<p>BoolForge can compute structural properties, including:</p>
+<ul class="simple">
+<li><p>the number of variables (<code class="docutils literal notranslate"><span class="pre">n</span></code>),</p></li>
+<li><p>the Hamming weight (number of 1s in the truth table),</p></li>
+<li><p>absolute bias (imbalance between 0s and 1s),</p></li>
+<li><p>essential and non-essential variables,</p></li>
+<li><p>positive/negative influence of each input.</p></li>
+</ul>
+<p>These properties help characterize the function’s behavior and are used throughout later tutorials.</p>
+</section>
+<section id="Conversions-and-interoperability">
+<h3><strong>Conversions and interoperability</strong><a class="headerlink" href="#Conversions-and-interoperability" title="Link to this heading"></a></h3>
+<div class="line-block">
+<div class="line">BoolForge supports conversion between representations (e.g., truth table to/from polynomial form) and is compatible with external packages such as <strong>CANA</strong> for advanced analysis.</div>
+<div class="line">This makes it easy to move between analytical frameworks and reuse models.</div>
+</div>
+<hr class="docutils" />
+<p>Together, these concepts provide the foundation for understanding canalization, random Boolean function generation, and eventually the construction and analysis of full Boolean networks.</p>
+</section>
+</section>
+</section>
+<section id="Frequently-Asked-Questions-(FAQ)">
+<h1>Frequently Asked Questions (FAQ)<a class="headerlink" href="#Frequently-Asked-Questions-(FAQ)" title="Link to this heading"></a></h1>
+<p>The order in which variables appear determines the ordering of the truth table. For a function with variables <code class="docutils literal notranslate"><span class="pre">[A,</span> <span class="pre">B,</span> <span class="pre">C]</span></code>, the entry at position <code class="docutils literal notranslate"><span class="pre">i</span></code> corresponds to the binary representation of <code class="docutils literal notranslate"><span class="pre">i</span></code> over <code class="docutils literal notranslate"><span class="pre">(A,</span> <span class="pre">B,</span> <span class="pre">C)</span></code>.</p>
+<p>If two equivalent expressions list variables in different orders, their truth tables will be indexed differently.</p>
+<p>To ensure reproducibility, always use consistent variable names and ordering.</p>
+<p>Short answer: It does not matter. Both methods produce identical internal representations.</p>
+<p>Slightly longer answer: Use a <strong>textual expression</strong> if:</p>
+<ul class="simple">
+<li><p>you know the natural logical description of your function (e.g., <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">and</span> <span class="pre">B</span></code>),</p></li>
+<li><p>the function is part of a Boolean network stored in some text file.</p></li>
+</ul>
+<p>Use a <strong>truth table</strong> if:</p>
+<ul class="simple">
+<li><p>you generated the table programmatically (e.g., using <code class="docutils literal notranslate"><span class="pre">boolforge.random_function</span></code>).</p></li>
+</ul>
+<p>The method <code class="docutils literal notranslate"><span class="pre">get_type_of_inputs()</span></code> classifies each input variable individually according to how it influences the output:</p>
+<ul class="simple">
+<li><p>positively increasing,</p></li>
+<li><p>negatively increasing,</p></li>
+<li><p>conditional,</p></li>
+<li><p>or non-essential.</p></li>
+</ul>
+<p>Monotonicity, by contrast, is a <strong>global property</strong> of the Boolean function. A function is monotone if <strong>all</strong> essential variables influence the output in a consistent direction.</p>
+<p>A function can therefore be non-monotone even if individual inputs have a well-defined influence type.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Task</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Create from truth table</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BooleanFunction([0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1])</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Create from expression</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BooleanFunction(&quot;A</span> <span class="pre">and</span> <span class="pre">B&quot;)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Combine with operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">f</span> <span class="pre">&amp;</span> <span class="pre">g,</span> <span class="pre">f</span> <span class="pre">\|</span> <span class="pre">g,</span> <span class="pre">~f,</span> <span class="pre">f</span> <span class="pre">^</span> <span class="pre">g</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Check properties</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">f.is_constant()</span></code>, <code class="docutils literal notranslate"><span class="pre">f.is_degenerate()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Get variable info</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">f.variables</span></code>, <code class="docutils literal notranslate"><span class="pre">f.n</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Convert representations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">f.to_logical()</span></code>, <code class="docutils literal notranslate"><span class="pre">f.to_polynomial()</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tutorial.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial02_advanced_boolean_functions.html" class="btn btn-neutral float-right" title="BoolForge Tutorial 2: Advanced Concepts for Boolean Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
