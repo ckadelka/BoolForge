@@ -119,7 +119,7 @@ def display_truth_table(*functions : "BooleanFunction", labels : Sequence[str] |
 
     Parameters
     ----------
-    *functions : BooleanFunction
+    \*functions : BooleanFunction
         One or more BooleanFunction objects with the same number of input
         variables.
     labels : Sequence[str] or None, optional
