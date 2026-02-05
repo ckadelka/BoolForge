@@ -14,9 +14,9 @@ can only be determined after Boolean update functions are assigned.
 """
 
 import warnings
+
 from collections import defaultdict
 from collections.abc import Sequence
-
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -686,9 +686,10 @@ class WiringDiagram(object):
     
         The wiring diagram is first condensed into its strongly connected components (SCCs),
         yielding a directed acyclic graph (DAG). Each node in the plot represents one SCC.
+        The size of a node scales with the size of the SCC.
     
         The layout is hierarchical (top-to-bottom) using topological generations, making
-        feed-forward structure visually apparent, while condensing feedback loops.
+        feed-forward structure and feedback loops visually apparent.
     
         Parameters
         ----------
@@ -1090,7 +1091,6 @@ class WiringDiagram(object):
         max_expanded_sccs: int = 4,
         min_scc_size: int = 2,
         show: bool = True,
-        curviness: float = 0.25,
     ):
         """
         Plot an integrated overview of the wiring diagram.
@@ -1112,9 +1112,7 @@ class WiringDiagram(object):
             Minimum SCC size to be eligible for expansion.
         show : bool, default=True
             Whether to call ``plt.show()`` at the end.
-        curviness : float, default=0.25
-            Curvature of edges spanning multiple layers in the modular graph (0 = straight).
-            
+    
         Returns
         -------
         fig : matplotlib.figure.Figure
@@ -1183,7 +1181,7 @@ class WiringDiagram(object):
         # Top panel: modular structure
         # ------------------------------------------------------------
         if len(sccs)>1:
-            self.plot_modular_structure(ax=ax_top, show=False,curviness=curviness)
+            self.plot_modular_structure(ax=ax_top, show=False)
             ax_top.set_title("Modular structure (DAG of SCCs)")
     
         # ------------------------------------------------------------

@@ -840,11 +840,13 @@ class BooleanNetwork(WiringDiagram):
           assigned a non-essential self-loop to preserve network structure.
         """
         # Identify constant nodes from topology
-        indices_constants = self.get_constants(AS_DICT=False)
+        # In this model, source nodes (indegree 0) are exactly the semantic constants
+        # at initialization time.
+        indices_constants = self.get_source_nodes(AS_DICT=False)
         if len(indices_constants) == 0:
             return
     
-        dict_constants = self.get_constants(AS_DICT=True)
+        dict_constants = self.get_source_nodes(AS_DICT=True)
         values_constants = [int(self.F[c][0]) for c in indices_constants]
     
         # Propagate constant values downstream
@@ -1191,8 +1193,8 @@ class BooleanNetwork(WiringDiagram):
     
         This compatibility method returns a string representation of the Boolean
         network in the BNET format used by tools such as BoolNet and PyBoolNet,
-        with one line per variable of the form ``variable <separator> function``.
-    
+        with one line per variable of the form ``variable <separator> function.
+        
         Parameters
         ----------
         separator : str, optional
@@ -1206,14 +1208,16 @@ class BooleanNetwork(WiringDiagram):
         -------
         str
             A string containing the BNET representation of the network.
+            
+        Notes
+        -----
+        This method exports the reduced Boolean network, i.e. after semantic
+        constants have been removed during initialization.
         """
         lines = []
-        constants_indices = self.get_constants(AS_DICT=True)
     
         for i in range(self.N):
-            if constants_indices.get(i, False):
-                function = str(self.F[i].f[0])
-            elif AS_POLYNOMIAL:
+            if AS_POLYNOMIAL:
                 function = utils.bool_to_poly(
                     self.F[i],
                     self.variables[self.I[i]].tolist(),
@@ -1224,7 +1228,6 @@ class BooleanNetwork(WiringDiagram):
             lines.append(f"{self.variables[i]}{separator}{function}")
     
         return "\n".join(lines)
-
     
     
     def to_truth_table(
@@ -1493,6 +1496,7 @@ class BooleanNetwork(WiringDiagram):
     
         for identity_node, value in zip(indices_identity_nodes, values_identity_nodes):
             F[identity_node].f = np.array([value], dtype=int)
+            F[identity_node].n = 0
             I[identity_node] = np.array([], dtype=int)
     
         bn = self.__class__(F, I, self.variables)
@@ -1558,9 +1562,10 @@ class BooleanNetwork(WiringDiagram):
             else:
                 # Structural constant (to be removed)
                 F[node].f = np.array([value], dtype=int)
+                F[node].n = 0
                 I[node] = np.array([], dtype=int)
     
-        bn = self.__class__(F, I, self.variables)
+        bn = self.__class__(F, I, self.variables) #__init__ removes fixated control nodes
     
         # Preserve previously removed constants if controlled nodes are eliminated
         if not KEEP_CONTROLLED_NODES:
@@ -1574,6 +1579,7 @@ class BooleanNetwork(WiringDiagram):
         control_targets: Sequence[int],
         control_sources: Sequence[int],
         values_edge_controls: Sequence[int] | None = None,
+        KEEP_FULLY_CONTROLLED_NODES: bool = True
     ) -> "BooleanNetwork":
         """
         Construct a Boolean network with specified regulatory edges controlled.
@@ -1593,7 +1599,11 @@ class BooleanNetwork(WiringDiagram):
         values_edge_controls : sequence of int, optional
             Fixed values (0 or 1) imposed on each controlled edge. If None, all
             controlled edges are fixed to 0.
-    
+        KEEP_FULLY_CONTROLLED_NODES : bool, optional
+            If True (default), nodes without any remaining regulation are retained
+            in the network as identity nodes with self-loops. 
+            If False, fully controlled nodes are eliminated as constants.
+            
         Returns
         -------
         BooleanNetwork
@@ -1637,7 +1647,7 @@ class BooleanNetwork(WiringDiagram):
                 )
     
             idx_reg = list(I_new[target]).index(source)
-            n_inputs = self.indegrees[target]
+            n_inputs = F_new[target].n
     
             truth_indices = np.arange(2**n_inputs, dtype=np.uint32)
             mask = ((truth_indices >> (n_inputs - 1 - idx_reg)) & 1) == fixed_value
@@ -1648,6 +1658,16 @@ class BooleanNetwork(WiringDiagram):
     
             # Remove regulator
             I_new[target] = np.delete(I_new[target], idx_reg)
+            
+            # ---- NEW LOGIC: fully controlled node -----------------------------
+            if F_new[target].n == 0:
+                if KEEP_FULLY_CONTROLLED_NODES:
+                    value = int(F_new[target].f[0])
+                    # Identity-clamped node
+                    F_new[target].f = np.array([value, value], dtype=int)
+                    F_new[target].n = 1
+                    I_new[target] = np.array([target], dtype=int)
+
     
         return self.__class__(F_new, I_new, self.variables)
 
@@ -2641,7 +2661,7 @@ class BooleanNetwork(WiringDiagram):
         attractors = attractor_info["Attractors"]   # list of cycles
         
         if __LOADED_NUMBA__ and USE_NUMBA:
-            is_attr_mask = np.full(2**self.N, dtype=np.uint8)
+            is_attr_mask = np.full(2**self.N, 0, dtype=np.uint8)
         
             for i, states in enumerate(attractors):
                 states_arr = np.asarray(states, dtype=np.int64)
