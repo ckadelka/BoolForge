@@ -254,7 +254,6 @@ def random_function(
             n,
             layer_structure,
             EXACT_DEPTH=EXACT_DEPTH,
-            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
             rng=rng,
         )
 
@@ -270,7 +269,6 @@ def random_function(
             min(depth, n),
             EXACT_DEPTH=EXACT_DEPTH,
             UNIFORM_STRUCTURE=UNIFORM_STRUCTURE,
-            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
             rng=rng,
         )
 
