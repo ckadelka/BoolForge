@@ -1,5 +1,6 @@
 from boolforge.utils import *
 from boolforge.generate import *
+from boolforge.wiring_diagram import *
 from boolforge.boolean_function import *
 from boolforge.boolean_network import *
 from boolforge.bio_models import *

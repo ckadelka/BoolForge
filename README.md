@@ -20,9 +20,16 @@ Note that *BoolForge* uses [*networkx*](https://networkx.org/). You may addition
 
 ### Extended Functionality
 
-*BoolForge* has a handful of methods that make use of the [*CANA*](https://github.com/CASCI-lab/CANA) package. However, as these methods are not integral to the functionality of this package, *CANA* is not considered a dependency. To access these methods, install *CANA*:
+*BoolForge* has a handful of methods that make use of the [*CANA*](https://github.com/CASCI-lab/CANA) package. 
+However, as these methods are not integral to the functionality of this package, *CANA* is not considered a dependency. 
+To access these methods, install *CANA*:
 
 `pip install cana`
+
+Moreover, *BoolForge* contains capabilities to plot wiring diagrams of Boolean networks.
+To enable this, ensure the [*matplotlib*](https://matplotlib.org/stable/install/index.html) package is installed:
+
+`pip install matplotlib`
 
 ### Compatability
 

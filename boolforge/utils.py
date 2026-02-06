@@ -17,10 +17,10 @@ the stable public API.
 
 Examples
 --------
->>> from boolforge import utils
->>> utils.bin2dec([1, 0, 1])
+>>> import boolforge
+>>> boolforge.bin2dec([1, 0, 1])
 5
->>> utils.dec2bin(5, 3)
+>>> boolforge.dec2bin(5, 3)
 array([1, 0, 1])
 """
 
@@ -40,6 +40,17 @@ __all__ = [
     "get_left_side_of_truth_table",
     "left_side_of_truth_tables",
 ]
+
+def _require_cana():
+    try:
+        import cana.boolean_node
+        return cana.boolean_node
+    except ModuleNotFoundError as e:
+        raise ImportError(
+            "This functionality requires CANA. "
+            "Install it with `pip install cana`."
+        ) from e
+        
 
 def _coerce_rng(
     rng : int | _NPGen | _NPRandomState | _py_random.Random | None = None

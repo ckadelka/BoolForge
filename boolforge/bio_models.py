@@ -28,22 +28,17 @@ and benchmarking.
 
 Example
 -------
->>> from boolforge import bio_models
->>> result = bio_models.get_bio_models_from_repository('expert-curated (ckadelka)')
+>>> import boolforge
+>>> result = boolforge.get_bio_models_from_repository('')
 >>> len(result['BooleanNetworks'])
 122
->>> result['BooleanNetworks'][0].variables[:5]
-['GeneA', 'GeneB', 'GeneC', 'GeneD', 'GeneE']
 """
 
 import requests
 import pickle
 import io
 
-try:
-    from boolforge.boolean_network import BooleanNetwork
-except ModuleNotFoundError:
-    from boolean_network import BooleanNetwork
+from boolforge.boolean_network import BooleanNetwork
 
 def _get_content_in_remote_folder(
     url: str,

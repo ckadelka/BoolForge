@@ -23,7 +23,7 @@ setup(
           "Programming Language :: Python :: 3",
       ],
       
-      python_requires = ">=3.8",
+      python_requires = ">=3.10",
       
       install_requires = [
           "numpy",
@@ -33,6 +33,6 @@ setup(
       ],
       
       extras_require = {
-          "Extension" : ["pyeda", "cana", "numba"]
+          "Extension" : ["pyeda", "cana", "numba", "matplotlib"]
       }
 )

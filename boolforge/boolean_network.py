@@ -36,25 +36,25 @@ from copy import deepcopy
 import numpy as np
 import networkx as nx
 import pandas as pd
+from typing import TYPE_CHECKING
 
-try:
-    import boolforge.utils as utils
-    from boolforge.boolean_function import BooleanFunction
-    from boolforge.wiring_diagram import WiringDiagram
-except ModuleNotFoundError:
-    import utils as utils
-    from boolean_function import BooleanFunction
-    from wiring_diagram import WiringDiagram
+import boolforge.utils as utils
+from boolforge.boolean_function import BooleanFunction
+from boolforge.wiring_diagram import WiringDiagram
+
+
+if TYPE_CHECKING:
+    try:
+        import cana.boolean_node
+    except ModuleNotFoundError:
+        pass
     
+# load optional but desirable package
 try:
-    import cana.boolean_network
-    __LOADED_CANA__ = True
-except ModuleNotFoundError:
-    __LOADED_CANA__ = False
-
-try:
-    from numba import njit, int64
+    import numba
     from numba.typed import List
+    njit = numba.njit
+    int64 = numba.int64
     __LOADED_NUMBA__ = True
 except ModuleNotFoundError:
     __LOADED_NUMBA__ = False

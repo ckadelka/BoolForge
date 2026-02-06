@@ -19,8 +19,6 @@ from collections.abc import Sequence
 
 import numpy as np
 import networkx as nx
-import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse, FancyArrowPatch
 
 
 __all__ = [
@@ -708,6 +706,9 @@ class WiringDiagram(object):
         ax : matplotlib.axes.Axes
             The axis containing the plot.
         """
+        import matplotlib.pyplot as plt
+        from matplotlib.patches import Ellipse, FancyArrowPatch
+        
         
         def _ellipse_boundary_point(x0, y0, x1, y1, a, b):
             """
@@ -1120,6 +1121,7 @@ class WiringDiagram(object):
         fig : matplotlib.figure.Figure
             The created figure.
         """
+        import matplotlib.pyplot as plt
     
         N = self.N
         I = self.I

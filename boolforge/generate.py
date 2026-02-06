@@ -21,9 +21,9 @@ synthetic test cases and large ensembles of random networks.
 
 Example
 -------
->>> from boolforge import generate
->>> generate.random_function(n=3)
->>> str(generate.random_network(N=5, n=2))
+>>> import boolforge
+>>> boolforge.random_function(n=3)
+>>> boolforge.random_network(N=5, n=2)
 """
 
 
@@ -32,17 +32,11 @@ import math
 
 import numpy as np
 import networkx as nx
-
 from collections.abc import Sequence
 
-try:
-    from boolforge.boolean_function import BooleanFunction
-    from boolforge.boolean_network import BooleanNetwork, WiringDiagram
-    import boolforge.utils as utils
-except ModuleNotFoundError:
-    from boolean_function import BooleanFunction
-    from boolean_network import BooleanNetwork, WiringDiagram
-    import utils
+from boolforge.boolean_function import BooleanFunction
+from boolforge.boolean_network import BooleanNetwork, WiringDiagram
+from boolforge import utils
 
 
 ## Random function generation
