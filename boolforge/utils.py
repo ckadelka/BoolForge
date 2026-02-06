@@ -38,7 +38,7 @@ __all__ = [
     "f_from_expression",
     "hamming_weight_to_ncf_layer_structure",
     "get_left_side_of_truth_table",
-    "left_side_of_truth_tables"
+    "left_side_of_truth_tables",
 ]
 
 def _coerce_rng(
@@ -649,4 +649,3 @@ def hamming_weight_to_ncf_layer_structure(
 
     layer_structure_NCF[-1] += 1
     return layer_structure_NCF
-

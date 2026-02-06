@@ -28,6 +28,8 @@ Example
 
 
 ##Imports
+import math
+
 import numpy as np
 import networkx as nx
 
@@ -880,7 +882,6 @@ def random_k_canalizing_function(
     k: int,
     EXACT_DEPTH: bool = False,
     UNIFORM_STRUCTURE: bool = True,
-    ALLOW_DEGENERATE_FUNCTIONS: bool = False,
     *,
     rng=None,
 ) -> BooleanFunction:
@@ -903,20 +904,19 @@ def random_k_canalizing_function(
         If True, enforce that the canalizing depth is exactly ``k``.
         If False (default), the depth is at least ``k``.
     UNIFORM_STRUCTURE : bool, optional
-        If True (default), canalized outputs are sampled uniformly over
-        canalizing layer structures. Specifically, layer structures
-        ``(k_1, ..., k_r)`` are sampled with probability proportional to
-        ``1 / (k_1! ... k_r!)``, removing the bias toward symmetric
-        structures induced by independent sampling.
-        If ``k == n``, the nested canalizing constraint that the final
-        layer has size at least 2 is enforced.
-        If False, canalized outputs are sampled independently and
-        uniformly as a bitstring, which biases the distribution toward
-        more symmetric layer structures.
-    ALLOW_DEGENERATE_FUNCTIONS : bool, optional
-        If True, the non-canalizing core function may be degenerate.
-        If False (default), non-degenerate core functions are enforced
-        whenever possible.
+        If True (default), the function is sampled uniformly at random
+        from the set of Boolean functions consistent with the specified
+        constraints (n, k, EXACT_DEPTH).
+        
+        Internally, this is achieved by a rejection sampling scheme that
+        compensates for all combinatorial multiplicities arising from
+        symmetric canalizing layers and possible merges between the
+        outer canalizing layers and the core function.
+    
+        If False, canalized outputs are sampled independently as a bitstring,
+        and no rejection correction is applied. In this case, the resulting
+        distribution is biased toward Boolean functions with more symmetric
+        canalizing structures.
     rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
         Random number generator or seed specification. Passed to
         ``utils._coerce_rng``.
@@ -938,10 +938,14 @@ def random_k_canalizing_function(
 
     Notes
     -----
-    For fixed parameter values, this function samples uniformly at random
-    from the ensemble of Boolean functions consistent with the specified
-    constraints. Non-uniformity arises only when
-    ``UNIFORM_STRUCTURE=False``.
+    When UNIFORM_STRUCTURE=True, this function samples uniformly from the
+    space of Boolean functions with the specified canalizing properties.
+    As a consequence, different canalizing layer structures generally
+    occur with different frequencies, reflecting the fact that they
+    support different numbers of Boolean functions.
+    
+    Uniformity over canalizing layer structures is not enforced and is
+    not expected.
 
     The construction follows the standard decomposition of a k-canalizing
     function into canalizing variables, canalizing inputs and outputs, and
@@ -967,35 +971,84 @@ def random_k_canalizing_function(
         "k, the canalizing depth, must satisfy 0 <= k <= n."
     )
 
-    num_values = 2**n
-    aas = rng.integers(2, size=k)  # canalizing inputs
-    if UNIFORM_STRUCTURE:
-        bbs = sample_canalized_outputs_uniform_structure(
-            k,
-            _get_uniform_structure_weights(k, NCF = k>=n),
-            rng=rng
-        )
-    else:
-        bbs = rng.integers(2, size=k)  # canalized outputs
-
+    # Step 1: canalizing inputs and variables
+    aas = rng.integers(2, size=k)
     can_vars = rng.choice(n, k, replace=False)
-    f = np.zeros(num_values, dtype=int)
-    if k < n:
-        core_function = random_function(
-            n=n - k,
-            depth=0,
-            EXACT_DEPTH=EXACT_DEPTH,
-            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
-            rng=rng,
-        )
-    else:
-        core_function = [1 - bbs[-1]]
 
+    while True: 
+        #include the generation of canalized outputs in the rejection sampling scheme
+        #because some output vectors `bbs` may give rise to more distinct functions than others
+        
+        # Step 2: canalized outputs, determining layers
+        if UNIFORM_STRUCTURE:
+            bbs = sample_canalized_outputs_uniform_structure(
+                k,
+                _get_uniform_structure_weights(k, NCF=(k >= n)),
+                rng=rng,
+            )
+        else:
+            bbs = rng.integers(2, size=k)
+            
+        # Step 3: sample core function using efficient rejection sampling
+        if k < n:
+            core_function = random_function(
+                n=n - k,
+                depth=0,
+                EXACT_DEPTH=EXACT_DEPTH,#True if EXACT_DEPTH or UNIFORM_STRUCTURE else False,
+                ALLOW_DEGENERATE_FUNCTIONS=False,
+                rng=rng,
+            )
+            
+            if EXACT_DEPTH or k==0 or not UNIFORM_STRUCTURE:
+                break
+            else:
+                #check if the core function is canalizing and correct for combinatorial
+                #bias in the selection of the final functions
+                
+                #compute canalizing info of core_function, stored in f.properties
+                core_function.get_layer_structure() 
+                if core_function.properties['CanalizingDepth'] == 0:
+                    break
+                else: #rejection sampling is efficient because it happens with probability <= 50%
+                    bbs_core = core_function.properties['CanalizedOutputs']
+                    if bbs_core[0] != bbs[-1]:  
+                        #no combinatorial explosion, the core varaibles start a new layer
+                        break
+                    else: 
+                        # merge occurs: last layer grows
+                        
+                        # determine size of last outer layer in bbs
+                        s = 1
+                        for i in range(k - 1, 0, -1):
+                            if bbs[i] == bbs[i - 1]:
+                                s += 1
+                            else:
+                                break
+                            
+                        # determine number of additional variables in the same layer
+                        s_core = 1
+                        for i in range(core_function.properties['CanalizingDepth'] - 1):
+                            if bbs_core[i] == bbs_core[i + 1]:
+                                s_core += 1
+                            else:
+                                break                    
+                        
+                        accept_prob = 1 / math.comb(s + s_core, s)
+                        
+                        if rng.random() <= accept_prob:
+                            break
+        else:
+            core_function = [1 - bbs[-1]]
+            break
+        
+    # Step 4: build truth table and return canalizing Boolean function
     left_side_of_truth_table = utils.get_left_side_of_truth_table(n)
     f = np.full(2**n, -1, dtype=np.int8)
+    
     for j in range(k):
         mask = (left_side_of_truth_table[:, can_vars[j]] == aas[j]) & (f < 0)
         f[mask] = bbs[j]
+        
     # fill remaining with core truth table
     f[f < 0] = np.asarray(core_function, dtype=np.int8)
 
@@ -1006,7 +1059,6 @@ def random_k_canalizing_function_with_specific_layer_structure(
     n: int,
     layer_structure: list,
     EXACT_DEPTH: bool = False,
-    ALLOW_DEGENERATE_FUNCTIONS: bool = False,
     *,
     rng=None,
 ) -> BooleanFunction:
@@ -1034,10 +1086,6 @@ def random_k_canalizing_function_with_specific_layer_structure(
         If True, enforce that the canalizing depth is exactly
         ``sum(layer_structure)``. If False (default), additional canalizing
         variables may occur in the core function.
-    ALLOW_DEGENERATE_FUNCTIONS : bool, optional
-        If True, the non-canalizing core function may be degenerate.
-        If False (default), non-degenerate core functions are enforced
-        whenever possible.
     rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
         Random number generator or seed specification. Passed to
         ``utils._coerce_rng``.
@@ -1046,7 +1094,7 @@ def random_k_canalizing_function_with_specific_layer_structure(
     -------
     BooleanFunction
         A Boolean function on ``n`` variables with the prescribed canalizing
-        layer structure.
+        layer structure, plus potentially more canalizing variables (if EXACT_DEPTH=True).
 
     Raises
     ------
@@ -1115,7 +1163,7 @@ def random_k_canalizing_function_with_specific_layer_structure(
             n=n - depth,
             depth=0,
             EXACT_DEPTH=EXACT_DEPTH,
-            ALLOW_DEGENERATE_FUNCTIONS=ALLOW_DEGENERATE_FUNCTIONS,
+            ALLOW_DEGENERATE_FUNCTIONS=False,
             rng=rng,
         )
     else:
@@ -2150,7 +2198,7 @@ def random_null_model(
     rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
         Random number generator or seed specification. Passed to
         ``utils._coerce_rng``.
-    \*\*kwargs
+    kwargs
         Additional keyword arguments forwarded to the wiring-diagram
         randomization routine:
     

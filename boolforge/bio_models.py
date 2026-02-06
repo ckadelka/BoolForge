@@ -189,6 +189,7 @@ def load_model(
         If the model cannot be parsed.
     """
     string = fetch_file(download_url)
+
     if IGNORE_FIRST_LINE:
         string = string[string.index('\n') + 1:]
 
