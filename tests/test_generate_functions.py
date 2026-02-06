@@ -180,23 +180,23 @@ def test_random_non_canalizing_non_degenerate_function():
     )
 
 
-def test_random_linear_function_average_sensitivity():
+def test_random_parity_function_average_sensitivity():
     """
-    Linear (XOR-type) Boolean functions must have normalized
+    Parity (XOR-type) Boolean functions must have normalized
     average sensitivity exactly equal to 1.
     """
     rng = np.random.default_rng(8)
 
     n = 6
 
-    bf = boolforge.random_linear_function(
+    bf = boolforge.random_parity_function(
         n=n,
         rng=rng,
     )
 
     avg_sens = bf.get_average_sensitivity(EXACT=True)
     assert avg_sens == 1, (
-        "Linear function does not have average sensitivity equal to 1"
+        "Parity function does not have average sensitivity equal to 1"
     )
     
     
