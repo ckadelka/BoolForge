@@ -28,15 +28,22 @@ and benchmarking.
 
 Example
 -------
->>> import boolforge
->>> result = boolforge.get_bio_models_from_repository('')
+>>> from boolforge import bio_models
+>>> result = bio_models.get_bio_models_from_repository('')
 >>> len(result['BooleanNetworks'])
 122
 """
 
-import requests
 import pickle
 import io
+
+try:
+    import requests
+except ImportError as e:
+    raise ImportError(
+        "The optional dependency 'requests' is required for bio_models. "
+        "Install it with `pip install requests`."
+    ) from e
 
 from boolforge.boolean_network import BooleanNetwork
 

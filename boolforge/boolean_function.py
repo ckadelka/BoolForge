@@ -703,8 +703,8 @@ class BooleanFunction(object):
         """
         cana_boolean_node = utils._require_cana()
         return cana_boolean_node.BooleanNode(k=self.n, outputs=self.f)
+        
 
-    
     def to_logical(
         self,
         AND: str = "&",
@@ -1745,6 +1745,7 @@ class BooleanFunction(object):
             CANA: a python package for quantifying control and canalization in
             Boolean networks. *Frontiers in Physiology*, 9, 1046.
         """
+        utils._require_cana()
         return self.to_cana().input_redundancy()
         
     def get_edge_effectiveness(self) -> list[float]:
@@ -1781,6 +1782,7 @@ class BooleanFunction(object):
             CANA: a python package for quantifying control and canalization in
             Boolean networks. *Frontiers in Physiology*, 9, 1046.
         """
+        utils._require_cana()
         return self.to_cana().edge_effectiveness()
     
     def get_effective_degree(self) -> float:
@@ -1815,6 +1817,7 @@ class BooleanFunction(object):
             CANA: a python package for quantifying control and canalization in
             Boolean networks. *Frontiers in Physiology*, 9, 1046.
         """
+        utils._require_cana()
         return float(sum(self.get_edge_effectiveness()))
 
 

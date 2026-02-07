@@ -45,7 +45,7 @@ from boolforge.wiring_diagram import WiringDiagram
 
 if TYPE_CHECKING:
     try:
-        import cana.boolean_node
+        import cana.boolean_network
     except ModuleNotFoundError:
         pass
     
@@ -946,11 +946,15 @@ class BooleanNetwork(WiringDiagram):
     
         Raises
         ------
+        ImportError
+            If the CANA package is not installed.
         TypeError
             If the input object does not appear to be a valid CANA BooleanNetwork.
         KeyError
             If required fields are missing from the CANA logic specification.
         """
+        utils._require_cana()
+        
         try:
             logic = cana_BooleanNetwork.logic
         except AttributeError as e:

@@ -2,9 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pytest
+
 import boolforge
 
+try:
+    import cana
+    HAS_CANA = True
+except ImportError:
+    HAS_CANA = False
 
+@pytest.mark.skipif(not HAS_CANA, reason="CANA not installed")
 def test_boolean_function_cana_bijection():
     """
     Generate a random Boolean function, convert it to cana format and back,
@@ -22,7 +30,7 @@ def test_boolean_function_cana_bijection():
         "BooleanFunction.to_cana / from_cana roundtrip failed"
     )
 
-
+@pytest.mark.skipif(not HAS_CANA, reason="CANA not installed")
 def test_boolean_network_cana_bijection():
     """
     Generate a random Boolean network, convert it to cana format and back,
