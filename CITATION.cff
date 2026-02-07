@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use BoolForge in your research, please cite the following paper."
+title: "BoolForge: Random Generation and Analysis of Boolean Functions and Networks in Python"
+authors:
+  - family-names: Kadelka
+    given-names: Claus
+  - family-names: Coberly
+    given-names: Benjamin
+version: 1.0.0
+date-released: 2026-02-XX
+license: MIT
+
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Kadelka
+      given-names: Claus
+    - family-names: Coberly
+      given-names: Benjamin
+  title: "BoolForge: Random Generation and Analysis of Boolean Functions and Networks in Python"
+  year: 2025
+  archive: arXiv
+  arxiv: 2509.02496
+  url: "https://arxiv.org/abs/2509.02496"
