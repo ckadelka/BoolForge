@@ -99,6 +99,8 @@ To enable symbolic functionality:
 pip install boolforge[symbolic]
 ```
 
+---
+
 ### Biological model retrieval
 
 The retrival and loading of hundreds of published biological Boolean
