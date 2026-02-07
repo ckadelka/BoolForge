@@ -106,7 +106,7 @@ def test_random_network_single_layer_ncf():
 def test_random_network_linear_update_rules():
     """
     PARITY=True must generate linear (XOR-type) update rules,
-    whose effective degree equals n.
+    whose average sensitivities must all equal n.
     """
     rng = np.random.default_rng(5)
 
@@ -115,9 +115,9 @@ def test_random_network_linear_update_rules():
 
     bn = boolforge.random_network(N, n, PARITY=True, rng=rng)
 
-    eff_degrees = [bf.get_effective_degree() for bf in bn]
-    assert min(eff_degrees) == n, (
-        "Failed to create linear BN with correct effective degree"
+    average_sensitivities = [bf.get_average_sensitivity(EXACT=True,NORMALIZED=False) for bf in bn]
+    assert min(average_sensitivities) == n, (
+        "Failed to create linear BN. Not all average sensitivites equal n."
     )
 
 
