@@ -158,7 +158,7 @@ def display_truth_table(*functions : "BooleanFunction", labels : Sequence[str] |
         print(f"{inputs_str}\t|\t{outputs_str}")
 
 def get_layer_structure_from_canalized_outputs(
-        can_outputs : Sequence[int]
+        outputs : Sequence[int]
     ) -> list:
     """
     Compute the canalizing layer structure from canalized outputs.
@@ -169,7 +169,7 @@ def get_layer_structure_from_canalized_outputs(
 
     Parameters
     ----------
-    can_outputs : Sequence[int]
+    outputs : Sequence[int]
         Sequence of canalized output values in the order in which canalizing
         variables are identified.
 
@@ -178,13 +178,13 @@ def get_layer_structure_from_canalized_outputs(
     list[int]
         List specifying the number of variables in each canalizing layer.
     """
-    canalizing_depth = len(can_outputs)
+    canalizing_depth = len(outputs)
     if canalizing_depth == 0:
         return []
     size_of_layer = 1
     layer_structure = []
     for i in range(1, canalizing_depth):
-        if can_outputs[i] == can_outputs[i - 1]:
+        if outputs[i] == outputs[i - 1]:
             size_of_layer += 1
         else:
             layer_structure.append(size_of_layer)

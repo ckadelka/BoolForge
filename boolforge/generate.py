@@ -34,9 +34,29 @@ import numpy as np
 import networkx as nx
 from collections.abc import Sequence
 
-from boolforge.boolean_function import BooleanFunction
-from boolforge.boolean_network import BooleanNetwork, WiringDiagram
-from boolforge import utils
+from .boolean_function import BooleanFunction
+from .boolean_network import BooleanNetwork, WiringDiagram
+from . import utils
+
+__all__ = [
+    "random_function",
+    "random_function_with_bias",
+    "random_function_with_exact_hamming_weight",
+    "random_degenerate_function",
+    "random_non_degenerate_function",
+    "random_non_canalizing_function",
+    "random_non_canalizing_non_degenerate_function",
+    "random_parity_function",
+    "random_k_canalizing_function",
+    "random_k_canalizing_function_with_specific_layer_structure",
+    "random_NCF",
+    "random_network",
+    "random_null_model",
+    "random_wiring_diagram",
+    "random_edge_list",
+    "random_degrees",
+    "rewire_wiring_diagram",
+]
 
 
 ## Random function generation
@@ -2137,7 +2157,7 @@ def random_null_model(
     Generate a randomized Boolean network (null model) from an existing
     Boolean network while preserving selected structural and dynamical
     properties.
-    
+        
     The returned network has the same number of nodes as ``bn``. Depending
     on the selected options, the wiring diagram and/or the Boolean update
     rules are randomized subject to specified invariants.

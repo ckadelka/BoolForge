@@ -38,9 +38,9 @@ import networkx as nx
 import pandas as pd
 from typing import TYPE_CHECKING
 
-import boolforge.utils as utils
-from boolforge.boolean_function import BooleanFunction
-from boolforge.wiring_diagram import WiringDiagram
+from . import utils
+from .boolean_function import BooleanFunction
+from .wiring_diagram import WiringDiagram
 
 
 if TYPE_CHECKING:
@@ -68,7 +68,7 @@ __all__ = [
 dict_weights = {'non-essential' : np.nan, 'conditional' : 0, 'positive' : 1, 'negative' : -1}
 
 def get_entropy_of_basin_size_distribution(
-    basin_sizes: Sequence[int] | np.ndarray
+    basin_sizes: Sequence[float]
 ) -> float:
     """
     Compute the Shannon entropy of a basin size distribution.
@@ -82,9 +82,10 @@ def get_entropy_of_basin_size_distribution(
 
     Parameters
     ----------
-    basin_sizes : Sequence[int] or np.ndarray
-        Sizes of the basins of attraction, where each entry corresponds to
-        the number of initial conditions that converge to a given attractor.
+    basin_sizes : Sequence[float]
+        Sizes of the basins of attraction (raw counts or normalized weights),
+        where each entry gives the number or proportion of initial conditions
+        that converge to a given attractor.
 
     Returns
     -------

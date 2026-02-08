@@ -45,7 +45,7 @@ except ImportError as e:
         "Install it with `pip install requests`."
     ) from e
 
-from boolforge.boolean_network import BooleanNetwork
+from .boolean_network import BooleanNetwork
 
 def _get_content_in_remote_folder(
     url: str,
