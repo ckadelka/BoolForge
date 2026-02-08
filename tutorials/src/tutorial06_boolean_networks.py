@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #6: Working with Boolean Networks
+# # #06: Working with Boolean Networks
 #
 # While previous tutorials focused on individual Boolean functions, this tutorial
 # introduces Boolean networks, which combine multiple Boolean functions into a
@@ -72,14 +72,8 @@ print("W.N:", W.N)
 print("W.variables:", W.variables)
 print("W.indegrees:", W.indegrees)
 print("W.outdegrees:", W.outdegrees)
-print("W.N_constants:", W.N_constants)
-print("W.N_variables:", W.N_variables)
 
-DiGraph = W.to_DiGraph()
-plt.figure()
-nx.draw_networkx(DiGraph, with_labels=True, arrows=True)
-plt.axis("off")
-plt.show()
+W.plot();
 
 
 # %% [markdown]
@@ -104,14 +98,8 @@ print("W.N:", W.N)
 print("W.variables:", W.variables)
 print("W.indegrees:", W.indegrees)
 print("W.outdegrees:", W.outdegrees)
-print("W.N_constants:", W.N_constants)
-print("W.N_variables:", W.N_variables)
 
-DiGraph = W.to_DiGraph()
-plt.figure()
-nx.draw_networkx(DiGraph, with_labels=True, arrows=True)
-plt.axis("off")
-plt.show()
+W.plot();
 
 
 # %% [markdown]
@@ -140,10 +128,7 @@ I2 = [
 ]
 
 W2 = boolforge.WiringDiagram(I=I2)
-plt.figure()
-nx.draw_networkx(DiGraph, with_labels=True, arrows=True)
-plt.axis("off")
-plt.show()
+W2.plot();
 
 print("W2.get_fbls()", W2.get_fbls())
 
@@ -195,8 +180,16 @@ bn.to_truth_table()
 
 # %% [markdown]
 # ### Creating networks from strings
-
-Alternatively, 
+#
+# Alternatively, Boolean networks can be specified using a human-readable
+# string representation, where each line defines the update rule of one node.
+# This format closely mirrors the way Boolean models are written in the literature
+# and is often more convenient than manually specifying wiring diagrams and
+# truth tables.
+#
+# In the example below, each line has the form $x_i = f_i(\text{regulators of } x_i),$
+# where Boolean operators such as `AND`, `OR`, and `NOT` can be used to define
+# the update functions.
 
 # %%
 string = """
@@ -208,14 +201,47 @@ z = y
 bn_str = boolforge.BooleanNetwork.from_string(string, separator="=")
 bn_str.to_truth_table()
 
-
 # %% [markdown]
-# This flexible interface enables loading Boolean networks from standard formats
-# such as `.bnet` files, by first loading the string stored in the file and then loading the Boolean network.
+# Here, the update rule `x = y` specifies that node `x` copies the state of `y`,
+# while `y = x OR z` indicates that node `y` is regulated by both `x` and `z`.
+# From this symbolic description, `BoolForge` automatically:
+#
+# - extracts the wiring diagram,
+# - determines the regulators of each node,
+# - constructs the corresponding Boolean update functions.
+#
+# Internally, the string representation is converted into the same `(F, I)`
+# representation used throughout the package. As a result, Boolean networks
+# created from strings behave identically to those created explicitly from
+# wiring diagrams and truth tables.
+#
+# This interface is particularly useful for loading Boolean network models from
+# external sources, such as `.bnet` files, or for quickly prototyping models in
+# an interactive setting.
+
 
 
 # %% [markdown]
 # ### Interoperability with CANA
+#
+# `BoolForge` provides native interoperability with
+# the `CANA` package for the analysis of Boolean functions and Boolean networks.
+# Existing `BoolForge` networks can be converted into CANA objects and back
+# without loss of information.
+#
+# In the example below, we convert a `BoolForge` Boolean network into its CANA
+# representation using `to_cana()`, and then reconstruct a new `BoolForge`
+# Boolean network from that CANA object.
+#
+# The final assertion verifies that this round-trip conversion preserves:
+#
+# - the Boolean update functions,
+# - the wiring diagram,
+# - and the variable names.
+#
+# This guarantees that `BoolForge` and CANA can be used interchangeably within
+# a workflow, allowing users to leverage CANA’s analytical tools while
+# continuing to build and manipulate models using `BoolForge`.
 
 # %%
 cana_bn = bn.to_cana()
@@ -230,29 +256,38 @@ assert (
 
 # %% [markdown]
 # ---
-# ## 4. Boolean networks with constants
+# ## 4. Types of nodes in Boolean networks
 #
-# Nodes may be:
+# Nodes in a Boolean network can be classified as follows:
 #
-# - **source nodes** (no regulators),
-# - **constant nodes** (fixed to 0 or 1),
-# - **regular nodes** (regulated by others).
+# - **Constant nodes**  
+#   Nodes with constant update functions (always 0 or always 1).
+#   These nodes act as parameters and are removed internally, with their values
+#   propagated through the network.
 #
-# Constant nodes are removed internally, and their values are propagated.
+# - **Identity nodes**  
+#   Nodes whose update function is the identity, i.e., $f(x_i) = x_i.$
+#   Their value is determined by the initial condition and remains constant over time.
+#   Identity nodes are retained as part of the Boolean network state. 
+#   They may be viewed as nodes with a self-loop and no other incoming edges.
+# 
+#
+# - **Regulated nodes**  
+#   Nodes whose update functions depend on one or more other nodes.
 
 # %%
 F = [
-    [0, 0, 0, 1],  # regular
-    [0, 1, 1, 1],  # regular
-    [0, 1],        # source
+    [0, 0, 0, 1],  # regulated
+    [0, 1, 1, 1],  # regulated
+    [0, 1],        # identity
     [0],           # constant
 ]
 
 I = [
-    [1, 2],
-    [0, 3],
-    [2],
-    [],
+    [1, 2],        # regulated
+    [0, 3],        # regulated
+    [2],           # identity
+    [],            # constant
 ]
 
 bn = boolforge.BooleanNetwork(F, I)
@@ -266,10 +301,18 @@ print("bn.I:", bn.I)
 # %% [markdown]
 # The constant node is removed, and its value is propagated into downstream
 # update functions.
-
-
-# %% [markdown]
-# ### Effect of constant value = 1
+#
+# If we now change the value of the constant node from 0 to 1, the network is
+# constructed in the same way, and the constant value 1 is substituted directly
+# into all downstream update functions, before removal of the constant node.
+#
+# As a result, the Boolean update functions of downstream nodes may simplify,
+# potentially reducing the number of regulators or changing the logical form
+# of the function. This illustrates how constant nodes act as parameters whose
+# values influence the effective dynamics of the network.
+#
+# Importantly, this simplification is performed symbolically at construction
+# time and does not depend on the dynamical evolution of the network.
 
 # %%
 F = [
@@ -295,22 +338,46 @@ print("bn.variables:", bn.variables)
 
 # %% [markdown]
 # Although $x_1$ becomes fixed at 1 after one update, it is not treated as a
-# constant node because $x_1 = 0$ remains a valid initial condition.
+# constant node. In `BoolForge`, constant nodes are identified by their update
+# functions (always 0 or always 1), not by their long-term dynamical behavior.
+# Since $x_1 = 0$ remains a valid initial condition, the node is retained as part
+# of the network state.
 
 
 # %% [markdown]
 # ---
 # ## 5. Boolean network properties
 #
-# The class `BooleanNetwork` inherits all properties of `WiringDiagram`.
+# The class `BooleanNetwork` inherits basic structural properties and methods
+# from `WiringDiagram`. In particular, all graph-theoretic attributes of the
+# wiring diagram -- such as the number of nodes, in-degrees, and out-degrees -- are
+# directly accessible on a Boolean network object.
+#
+# Moreover, `BooleanNetwork` inherits visualization utilities from
+# `WiringDiagram`, including methods for plotting the wiring diagram and its
+# modular structure, using `.plot()`. This allows users to inspect the topology of a Boolean
+# network independently of the specific update functions.
+#
+# Beyond these inherited features, `BooleanNetwork` provides a rich collection
+# of additional methods for analyzing the dynamics, structure, and control
+# properties of Boolean networks. These include functionality for:
+#
+# - computing fixed points and attractors,
+# - analyzing transient dynamics and state transition graphs,
+# - studying robustness and sensitivity to perturbations,
+# - performing node and edge interventions.
+#
+# Many of these methods will be introduced and discussed in detail in the
+# following tutorials. Here, we focus only on a few basic and commonly used
+# properties.
 
 # %%
 print("bn.N:", bn.N)
 print("bn.indegrees:", bn.indegrees)
 print("bn.outdegrees:", bn.outdegrees)
-print("bn.N_constants:", bn.N_constants)
-print("bn.N_variables:", bn.N_variables)
+print("bn.variables:", bn.variables)
 
+bn.plot();
 
 # %% [markdown]
 # ---

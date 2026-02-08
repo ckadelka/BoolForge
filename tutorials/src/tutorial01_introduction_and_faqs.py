@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #1: Working with Boolean Functions
+# # #01: Working with Boolean Functions
 #
 # Boolean functions are the building blocks of Boolean network models used to 
 # represent gene regulatory networks, signaling pathways, and other biological 

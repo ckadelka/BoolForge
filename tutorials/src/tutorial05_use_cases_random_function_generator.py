@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #5: Example Use Cases of the Random Function Generator
+# # #05: Example Use Cases of the Random Function Generator
 #
 # In this tutorial, we explore example use cases of BoolForge’s random Boolean
 # function generator. This functionality allows generating large ensembles of
@@ -457,7 +457,7 @@ fig, ax = plt.subplots()
 
 for n in ns:
     all_hamming_weights = np.arange(1, 2 ** (n - 1), 2)
-    all_abs_bias = 2 * np.abs(all_hamming/2**n - 0.5)
+    all_abs_bias = 2 * np.abs(all_hamming_weights/2**n - 0.5)
     avg_sens = np.zeros(2 ** (n - 2))
 
     for i, w in enumerate(all_hamming_weights):

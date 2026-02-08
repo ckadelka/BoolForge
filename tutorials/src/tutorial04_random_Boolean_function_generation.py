@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #4: Random Boolean Function Generation
+# # #04: Random Boolean Function Generation
 #
 # This tutorial focuses on the random generation of Boolean functions with
 # prescribed properties, enabling large-scale computational studies.
@@ -57,12 +57,12 @@ print("Edge effectiveness of f:", f.get_edge_effectiveness())
 
 # %% [markdown]
 # ---
-# ## 2. Linear functions
+# ## 2. Parity functions
 #
-# Setting `LINEAR=True` generates *linear* functions (also known as *parity* functions).
+# Setting `PARITY=True` generates *parity* functions (also known as *linear* functions).
 
 # %%
-f = boolforge.random_function(n, LINEAR=True)
+f = boolforge.random_function(n, PARITY=True)
 
 boolforge.display_truth_table(f, labels="f_linear")
 
@@ -71,7 +71,7 @@ print("Edge effectiveness:", f.get_edge_effectiveness())
 print("Normalized average sensitivity:", f.get_average_sensitivity(EXACT=True))
 print("Canalizing strength:", f.get_canalizing_strength())
 
-# Linear functions are the only Boolean functions with activity 1 (for all variables),
+# Parity functions are the only Boolean functions with activity 1 (for all variables),
 # normalized average sensitivity 1 and canalizing strength 0.
 
 
@@ -79,7 +79,7 @@ print("Canalizing strength:", f.get_canalizing_strength())
 # ---
 # ## 3. Functions with prescribed canalizing properties
 #
-# If `LINEAR=False` (default), the canalizing layer structure can be specified
+# If `PARITY=False` (default), the canalizing layer structure can be specified
 # via `layer_structure`. This specifies the number of conditionally canalizing variables in each layer of the randomly generated function. 
 # If the optional argument `EXACT_DEPTH=True` (default is False), 
 # then this describes the exact layer structure, i.e., the core function cannot be canalizing.
@@ -116,7 +116,7 @@ for func, label in zip([f, g, h, k], labels):
 # Repeated evaluation of this block of code shows that the canalizing depth of `f` is either 1 or 3
 # (note that a canalizing depth of $n-1$ is never possible for a non-degenerate function). 
 # On the contrary, the canalizing depth of `g` is always 1 because we set `EXACT_DEPTH=True`. 
-# The 2-input core function of `g` is one of the two linear functions, each with 50% probability. 
+# The 2-input core function of `g` is one of the two parity functions, each with 50% probability. 
 # Likewise, the core function for the other functions is simply [0] or [1], each with 50% probability. 
 # Functions `h` and `k` are nested canalizing, i.e., their canalizing depth is 3. 
 # Their layer structure is exactly as specified.

@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #8: Perturbation and sensitivity analysis of Boolean networks
+# # #08: Perturbation and sensitivity analysis of Boolean networks
 #
 # In this tutorial, we study how Boolean networks respond to perturbations.
 # Rather than implementing perturbations manually, we leverage BoolForge’s

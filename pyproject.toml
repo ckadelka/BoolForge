@@ -7,14 +7,13 @@ name = "boolforge"
 version = "1.0.0"
 description = "Methods to generate and analyze random Boolean functions and Boolean networks, with a focus on canalization."
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
+requires-python = ">=3.10"
 
 authors = [
     { name = "Claus Kadelka", email = "ckadelka@iastate.edu" },
     { name = "Benjamin Coberly" }
 ]
-
-requires-python = ">=3.10"
 
 dependencies = [
     "numpy",
@@ -24,10 +23,11 @@ dependencies = [
 
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering :: Mathematics",
 ]
+
+[tool.setuptools.packages.find]
+include = ["boolforge*"]
 
 [project.urls]
 Homepage = "https://ckadelka.github.io/BoolForge/"
@@ -41,6 +41,13 @@ bio = ["requests"]
 plot = ["matplotlib"]
 speed = ["numba"]
 symbolic = ["pyeda"]
+dev = [
+    "jupytext",
+    "jupyterlab",
+    "cana",
+    "matplotlib",
+    "requests",
+]
 
 # convenience meta-extra
 all = [
