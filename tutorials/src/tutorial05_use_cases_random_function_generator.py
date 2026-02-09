@@ -1,5 +1,5 @@
 # %% [markdown]
-# # BoolForge Tutorial 5: Example Use Cases of the Random Function Generator
+# # #05: Example Use Cases of the Random Function Generator
 #
 # In this tutorial, we explore example use cases of BoolForge’s random Boolean
 # function generator. This functionality allows generating large ensembles of
@@ -402,7 +402,7 @@ plt.show()
 
 # For nested canalizing functions of a given degree $n$, there exists a bijection 
 # between their absolute bias and their canalizing layer structure (Kadelka et al., Physica D, 2017).
-# The function `boolforge.get_layer_structure_of_an_NCF_given_its_Hamming_weight(degree,hamming_weight)` implements this.
+# The function `boolforge.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
 # NCFs with the same layer structure have the same dynamical properties. 
 # That is, they have the same average sensitivity, canalizing strength and the same effective degree.
 # Iterating over all possible absolute biases (parametrized by the possible Hamming weights), 
@@ -420,7 +420,7 @@ eff_degree = np.zeros_like(avg_sens)
 layer_structures = []
 
 for i, w in enumerate(all_hamming):
-    layer = boolforge.get_layer_structure_of_an_NCF_given_its_Hamming_weight(n, w)
+    layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
     layer_structures.append(layer)
     f = boolforge.random_function(n, layer_structure=layer)
     avg_sens[i] = f.get_average_sensitivity(EXACT=True, NORMALIZED=False)
@@ -456,12 +456,12 @@ ns = np.arange(5, 9)
 fig, ax = plt.subplots()
 
 for n in ns:
-    all_hamming = np.arange(1, 2 ** (n - 1), 2)
-    all_abs_bias = 2 * np.abs(all_hamming/2**n - 0.5)
+    all_hamming_weights = np.arange(1, 2 ** (n - 1), 2)
+    all_abs_bias = 2 * np.abs(all_hamming_weights/2**n - 0.5)
     avg_sens = np.zeros(2 ** (n - 2))
 
-    for i, w in enumerate(all_hamming):
-        layer = boolforge.get_layer_structure_of_an_NCF_given_its_Hamming_weight(n, w)
+    for i, w in enumerate(all_hamming_weights):
+        layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
         f = boolforge.random_function(n, layer_structure=layer)
         avg_sens[i] = f.get_average_sensitivity(EXACT=True, NORMALIZED=False)
 

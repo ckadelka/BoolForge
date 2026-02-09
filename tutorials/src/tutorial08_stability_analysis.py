@@ -1,5 +1,5 @@
 # %% [markdown]
-# # BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks
+# # #08: Perturbation and sensitivity analysis of Boolean networks
 #
 # In this tutorial, we study how Boolean networks respond to perturbations.
 # Rather than implementing perturbations manually, we leverage BoolForge’s
@@ -88,10 +88,10 @@ df_attractors = pd.DataFrame({
 })
 
 print("Basin-level robustness:")
-display(df_basins)
+print(df_basins)
 
 print("Attractor-level robustness:")
-display(df_attractors)
+print(df_attractors)
 
 # %% [markdown]
 # Interpretation:

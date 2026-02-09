@@ -37,29 +37,20 @@ import warnings
 import numpy as np
 import pandas as pd
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
+import boolforge.utils as utils
+
+if TYPE_CHECKING:
+    try:
+        import cana.boolean_node
+    except ModuleNotFoundError:
+        pass
+
+# load optional but desirable package
 try:
-    import boolforge.utils as utils
-except ModuleNotFoundError:
-    import utils
-
-
-# load optional packages
-try:
-    from pyeda.inter import exprvar, Or, And, espresso_exprs
-    from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
-    __LOADED_PyEDA__ = True
-except ModuleNotFoundError:
-    __LOADED_PyEDA__ = False
-
-try:
-    import cana.boolean_node
-    __LOADED_CANA__ = True
-except ModuleNotFoundError:
-    __LOADED_CANA__ = False
-
-try:
-    from numba import njit
+    import numba
+    njit = numba.njit
     __LOADED_NUMBA__ = True
 except ModuleNotFoundError:
     __LOADED_NUMBA__ = False
@@ -119,7 +110,7 @@ def display_truth_table(*functions : "BooleanFunction", labels : Sequence[str] |
 
     Parameters
     ----------
-    *functions : BooleanFunction
+    \*functions : BooleanFunction
         One or more BooleanFunction objects with the same number of input
         variables.
     labels : Sequence[str] or None, optional
@@ -145,7 +136,7 @@ def display_truth_table(*functions : "BooleanFunction", labels : Sequence[str] |
         raise ValueError("All BooleanFunction objects must have the same number of variables.")
     f = functions[0]
     if isinstance(labels,str):
-        labels = list(labels)
+        labels = [labels]
     if labels is not None and len(labels)!=len(functions):
         raise ValueError("The number of labels (if provided) must equal the number of functions.")
         
@@ -167,7 +158,7 @@ def display_truth_table(*functions : "BooleanFunction", labels : Sequence[str] |
         print(f"{inputs_str}\t|\t{outputs_str}")
 
 def get_layer_structure_from_canalized_outputs(
-        can_outputs : Sequence[int]
+        outputs : Sequence[int]
     ) -> list:
     """
     Compute the canalizing layer structure from canalized outputs.
@@ -178,7 +169,7 @@ def get_layer_structure_from_canalized_outputs(
 
     Parameters
     ----------
-    can_outputs : Sequence[int]
+    outputs : Sequence[int]
         Sequence of canalized output values in the order in which canalizing
         variables are identified.
 
@@ -187,13 +178,13 @@ def get_layer_structure_from_canalized_outputs(
     list[int]
         List specifying the number of variables in each canalizing layer.
     """
-    canalizing_depth = len(can_outputs)
+    canalizing_depth = len(outputs)
     if canalizing_depth == 0:
         return []
     size_of_layer = 1
     layer_structure = []
     for i in range(1, canalizing_depth):
-        if can_outputs[i] == can_outputs[i - 1]:
+        if outputs[i] == outputs[i - 1]:
             size_of_layer += 1
         else:
             layer_structure.append(size_of_layer)
@@ -710,12 +701,10 @@ class BooleanFunction(object):
         -----
         This method requires the CANA package to be installed.
         """
-        if not __LOADED_CANA__:
-            raise ImportError("CANA is required for to_cana()")
-    
-        return cana.boolean_node.BooleanNode(k=self.n, outputs=self.f)
-    
-    
+        cana_boolean_node = utils._require_cana()
+        return cana_boolean_node.BooleanNode(k=self.n, outputs=self.f)
+        
+
     def to_logical(
         self,
         AND: str = "&",
@@ -755,6 +744,13 @@ class BooleanFunction(object):
         If the PyEDA package is not installed, the method falls back to a
         non-minimized expression derived from the polynomial representation.
         """
+        try:
+            from pyeda.inter import exprvar, Or, And, espresso_exprs
+            from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
+            __LOADED_PyEDA__ = True
+        except ModuleNotFoundError:
+            __LOADED_PyEDA__ = False
+            
         if __LOADED_PyEDA__:
             variables = [exprvar(str(var)) for var in self.variables]
             minterms = [i for i in range(2**self.n) if self.f[i]]
@@ -791,14 +787,14 @@ class BooleanFunction(object):
                 return str(e)
     
             return __pyeda_to_string__(func_expr)
-    
-        # Fallback without PyEDA
-        return (
-            self.to_polynomial()
-            .replace(" * ", AND)
-            .replace(" + ", OR)
-            .replace("1 - ", NOT)
-        )
+        else:
+            # Fallback without PyEDA
+            return (
+                self.to_polynomial()
+                .replace(" * ", AND)
+                .replace(" + ", OR)
+                .replace("1 - ", NOT)
+            )
 
     
     def summary(self, *, AS_DICT: bool = False, COMPUTE_ALL: bool = False):
@@ -1749,11 +1745,7 @@ class BooleanFunction(object):
             CANA: a python package for quantifying control and canalization in
             Boolean networks. *Frontiers in Physiology*, 9, 1046.
         """
-        if not __LOADED_CANA__:
-            raise ImportError(
-                "get_input_redundancy requires the CANA package. "
-                "Install BoolForge with extended functionality to enable this method."
-            )
+        utils._require_cana()
         return self.to_cana().input_redundancy()
         
     def get_edge_effectiveness(self) -> list[float]:
@@ -1790,11 +1782,7 @@ class BooleanFunction(object):
             CANA: a python package for quantifying control and canalization in
             Boolean networks. *Frontiers in Physiology*, 9, 1046.
         """
-        if not __LOADED_CANA__:
-            raise ImportError(
-                "get_edge_effectiveness requires the CANA package. "
-                "Install BoolForge with extended functionality to enable this method."
-            )
+        utils._require_cana()
         return self.to_cana().edge_effectiveness()
     
     def get_effective_degree(self) -> float:
@@ -1829,11 +1817,7 @@ class BooleanFunction(object):
             CANA: a python package for quantifying control and canalization in
             Boolean networks. *Frontiers in Physiology*, 9, 1046.
         """
-        if not __LOADED_CANA__:
-            raise ImportError(
-                "get_effective_degree requires the CANA package. "
-                "Install BoolForge with extended functionality to enable this method."
-            )
+        utils._require_cana()
         return float(sum(self.get_edge_effectiveness()))
 
 

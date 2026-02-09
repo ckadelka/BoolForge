@@ -1,5 +1,5 @@
 # %% [markdown]
-# # BoolForge Tutorial 3: Canalization
+# # #03: Canalization
 #
 # Canalization is a key property of biological Boolean functions that confers
 # robustness: when a canalizing variable takes its canalizing value, the output
@@ -23,7 +23,6 @@
 
 # %%
 import boolforge
-import numpy as np
 import matplotlib.pyplot as plt
 
 

@@ -1,5 +1,5 @@
 # %% [markdown]
-# # BoolForge Tutorial 7: Dynamics of Boolean Networks
+# # #07: Dynamics of Boolean Networks
 #
 # In this tutorial, we study the *dynamics* of Boolean networks.
 # Building on the construction and structural analysis from previous tutorials,
