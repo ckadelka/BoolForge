@@ -982,6 +982,9 @@ def random_k_canalizing_function(
     assert isinstance(k, (int, np.integer)) and 0 <= k and k <= n, (
         "k, the canalizing depth, must satisfy 0 <= k <= n."
     )
+    
+    # if k==n-1 and n>1:
+    #     k=n
 
     # Step 1: canalizing inputs and variables
     aas = rng.integers(2, size=k)
@@ -995,7 +998,7 @@ def random_k_canalizing_function(
         if UNIFORM_STRUCTURE:
             bbs = sample_canalized_outputs_uniform_structure(
                 k,
-                _get_uniform_structure_weights(k, NCF=(k >= n)),
+                _get_uniform_structure_weights(k, NCF=(k >= n-1)),
                 rng=rng,
             )
         else:
