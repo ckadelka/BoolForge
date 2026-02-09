@@ -669,8 +669,8 @@ import math
 import matplotlib.pyplot as plt
 import networkx as nx
 
-def merge_state_representation(x : Union[int, tuple], y : Union[int, tuple],
-    b : Union[int, tuple]) -> Union[int, tuple]:
+def merge_state_representation(x : int | Sequence[int], y : int | Sequence[int],
+    b : int | Sequence[int]) -> int | Sequence[int]:
     """
     Combines two state representations *x* and *y* into a single decimal integer.
     
@@ -704,7 +704,7 @@ def merge_state_representation(x : Union[int, tuple], y : Union[int, tuple],
     return (x << b) | y
 
 def get_product_of_attractors(attrs_1 : list, attrs_2 : list,
-    bits : Union[int | tuple]) -> list:
+    bits : int | tuple) -> list:
     """
     Computes the product of two sets of attractors.
     
@@ -734,7 +734,8 @@ def get_product_of_attractors(attrs_1 : list, attrs_2 : list,
         attractors.append(attr)
     return attractors
 
-def compress_trajectories(trajectories : list, num_bits : [int, None] = None) -> nx.DiGraph:
+def compress_trajectories(trajectories : tuple[Sequence[int], int],
+    num_nodes : int | None = None) -> nx.DiGraph:
     # Helper method: determine the 'canon' ordering of a periodic pattern.
     # The canon ordering is the phase such that the lowest states come first
     # without changing the relative ordering of the states.
@@ -781,8 +782,8 @@ def compress_trajectories(trajectories : list, num_bits : [int, None] = None) ->
                 node_id = next_id
                 prefix_merge[signature] = node_id
                 G.add_node(next_id, StIn=(i == 0),
-                    NLbl=(str(dec2bin(states[i], num_bits)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
-                    if num_bits is not None else str(states[i])))
+                    NLbl=(str(dec2bin(states[i], num_nodes)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
+                    if num_nodes is not None else str(states[i])))
                 pref_ids.append(next_id)
                 next_id += 1
             pref_ids.append(node_id)
@@ -802,8 +803,8 @@ def compress_trajectories(trajectories : list, num_bits : [int, None] = None) ->
                 # predictable ordering in case we need to reference
                 # this cycle again for another trajectory
                 G.add_node(next_id, StIn=False,
-                    NLbl=(str(dec2bin(s, num_bits)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
-                    if num_bits is not None else str(s)))
+                    NLbl=(str(dec2bin(s, num_nodes)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
+                    if num_nodes is not None else str(s)))
                 ids.append(next_id)
                 next_id += 1
             # Once nodes are added, add in edges
@@ -814,7 +815,7 @@ def compress_trajectories(trajectories : list, num_bits : [int, None] = None) ->
         # For a trajectory without a prefix, mark the first state of the trajectory
         # within the cycle as an initial node
         if len_pref == 0:
-            G.nodes()[cycle_nodes[key][key.index(cycle[0])]]["StIn"] = True
+            G.nodes()[cycle_nodes[key][_cycle_offset_(cycle, key)]]["StIn"] = True
         # Otherwise, we need to add an edge between the prefix and cycle
         else:
             G.add_edge(pref_ids[-1], cycle_nodes[key][_cycle_offset_(cycle, key)])
