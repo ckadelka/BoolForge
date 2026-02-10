@@ -1166,7 +1166,7 @@ class BooleanNetwork(WiringDiagram):
             If the ``cana`` package is not installed.
         """
         try:
-            import cana
+            import cana.boolean_network
         except ImportError as e:
             raise ImportError(
                 "The 'cana' package is required for to_cana()."

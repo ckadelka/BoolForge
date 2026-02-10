@@ -59,10 +59,10 @@ print("Edge effectiveness of f:", f.get_edge_effectiveness())
 # ---
 # ## 2. Parity functions
 #
-# Setting `PARITY=True` generates *parity* functions (also known as *linear* functions).
+# Setting `parity=True` generates *parity* functions (also known as *linear* functions).
 
 # %%
-f = boolforge.random_function(n, PARITY=True)
+f = boolforge.random_function(n, parity=True)
 
 boolforge.display_truth_table(f, labels="f_linear")
 
