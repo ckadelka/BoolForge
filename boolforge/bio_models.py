@@ -47,6 +47,11 @@ except ImportError as e:
 
 from .boolean_network import BooleanNetwork
 
+__all__ = [
+    'load_model',
+    'get_bio_models_from_repository',
+]
+
 def _get_content_in_remote_folder(
     url: str,
     file_names: list,
@@ -158,7 +163,7 @@ def load_model(
     original_not: str = 'NOT',
     original_and: str = 'AND',
     original_or: str = 'OR',
-    IGNORE_FIRST_LINE: bool = False
+    ignore_first_line: bool = False
 ) -> BooleanNetwork:
     """
     Load and parse a Boolean network model from a remote text file.
@@ -177,7 +182,7 @@ def load_model(
         Logical AND operator used in the model file.
     original_or : str, optional
         Logical OR operator used in the model file.
-    IGNORE_FIRST_LINE : bool, optional
+    ignore_first_line : bool, optional
         If True, skip the first line of the file (default: False).
 
     Returns
@@ -192,7 +197,7 @@ def load_model(
     """
     string = fetch_file(download_url)
 
-    if IGNORE_FIRST_LINE:
+    if ignore_first_line:
         string = string[string.index('\n') + 1:]
 
     try:
@@ -338,7 +343,7 @@ def get_bio_models_from_repository(
                     original_and=" & ",
                     original_or=" | ",
                     original_not="!",
-                    IGNORE_FIRST_LINE=True,
+                    ignore_first_line=True,
                 )
                 successful_download_urls.append(download_url)
                 bns.append(bn)

@@ -157,7 +157,7 @@ for attractor in dict_dynamics["Attractors"]:
 # Monte Carlo simulation approximates the attractor landscape.
 
 # %%
-dict_dynamics = bn.get_attractors_synchronous(nsim=100)
+dict_dynamics = bn.get_attractors_synchronous(n_simulations=100)
 dict_dynamics
 
 
@@ -216,7 +216,7 @@ dict_dynamics
 # ### Monte Carlo approximation
 
 # %%
-dict_dynamics = bn.get_steady_states_asynchronous(nsim=500)
+dict_dynamics = bn.get_steady_states_asynchronous(n_simulations=500)
 dict_dynamics
 
 
@@ -233,7 +233,7 @@ dict_dynamics
 
 # %%
 dict_dynamics = bn.get_steady_states_asynchronous_given_one_initial_condition(
-    initial_condition=[0, 0, 1], nsim=500
+    initial_condition=[0, 0, 1], n_simulations=500
 )
 dict_dynamics
 

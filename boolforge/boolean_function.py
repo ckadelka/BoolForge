@@ -612,7 +612,7 @@ class BooleanFunction(object):
 
     def to_truth_table(
         self,
-        RETURN: bool = True,
+        return_output: bool = True,
         filename: str | None = None,
     ) -> pd.DataFrame | None:
         """
@@ -624,7 +624,7 @@ class BooleanFunction(object):
     
         Parameters
         ----------
-        RETURN : bool, optional
+        return_output : bool, optional
             Whether to return the truth table as a DataFrame. If ``False``, the
             truth table is only written to file when ``filename`` is provided.
             Default is ``True``.
@@ -636,7 +636,7 @@ class BooleanFunction(object):
         Returns
         -------
         pandas.DataFrame or None
-            The full truth table if ``RETURN=True``; otherwise ``None``.
+            The full truth table if ``return_output=True``; otherwise ``None``.
     
         Notes
         -----
@@ -673,7 +673,7 @@ class BooleanFunction(object):
             else:
                 truth_table.to_excel(filename)
     
-        if RETURN:
+        if return_output:
             return truth_table
         return None
 
@@ -707,10 +707,10 @@ class BooleanFunction(object):
 
     def to_logical(
         self,
-        AND: str = "&",
-        OR: str = "|",
-        NOT: str = "!",
-        MINIMIZE_EXPRESSION: bool = True,
+        and_op: str = "&",
+        or_op: str = "|",
+        not_op: str = "!",
+        minimize_expression: bool = True,
     ) -> str:
         """
         Convert the Boolean function to a logical expression.
@@ -723,13 +723,13 @@ class BooleanFunction(object):
     
         Parameters
         ----------
-        AND : str, optional
+        and_op : str, optional
             String used to represent the logical AND operator. Default is ``"&"``.
-        OR : str, optional
+        or_op : str, optional
             String used to represent the logical OR operator. Default is ``"|"``.
-        NOT : str, optional
+        not_op : str, optional
             String used to represent the logical NOT operator. Default is ``"!"``.
-        MINIMIZE_EXPRESSION : bool, optional
+        minimize_expression : bool, optional
             Whether to minimize the logical expression using the Espresso
             algorithm (via PyEDA). If ``False``, the expression is returned
             in non-minimized disjunctive normal form. Default is ``True``.
@@ -770,20 +770,20 @@ class BooleanFunction(object):
             if func_expr.is_zero():
                 return "0"
     
-            if MINIMIZE_EXPRESSION:
+            if minimize_expression:
                 func_expr, = espresso_exprs(func_expr)
     
             def __pyeda_to_string__(e):
                 if isinstance(e, OrOp):
-                    return "(" + f"){OR}(".join(
+                    return "(" + f"){or_op}(".join(
                         __pyeda_to_string__(arg) for arg in e.xs
                     ) + ")"
                 elif isinstance(e, AndOp):
-                    return AND.join(__pyeda_to_string__(arg) for arg in e.xs)
+                    return and_op.join(__pyeda_to_string__(arg) for arg in e.xs)
                 elif isinstance(e, NotOp):
-                    return f"{NOT}({__pyeda_to_string__(e.x)})"
+                    return f"{not_op}({__pyeda_to_string__(e.x)})"
                 elif isinstance(e, Complement):
-                    return f"({NOT}{str(e)[1:]})"
+                    return f"({not_op}{str(e)[1:]})"
                 return str(e)
     
             return __pyeda_to_string__(func_expr)
@@ -791,13 +791,13 @@ class BooleanFunction(object):
             # Fallback without PyEDA
             return (
                 self.to_polynomial()
-                .replace(" * ", AND)
-                .replace(" + ", OR)
-                .replace("1 - ", NOT)
+                .replace(" * ", and_op)
+                .replace(" + ", or_op)
+                .replace("1 - ", not_op)
             )
 
     
-    def summary(self, *, AS_DICT: bool = False, COMPUTE_ALL: bool = False):
+    def summary(self, *, as_dict: bool = False, compute_all: bool = False):
         """
         Return a concise summary of the Boolean function.
     
@@ -807,11 +807,11 @@ class BooleanFunction(object):
     
         Parameters
         ----------
-        AS_DICT : bool, optional
+        as_dict : bool, optional
             If ``True``, return the summary as a dictionary. If ``False`` (default),
             return a formatted string.
     
-        COMPUTE_ALL : bool, optional
+        compute_all : bool, optional
             If ``True``, additional properties are computed and included in the
             summary. These computations may be expensive. If ``False`` (default),
             only already available properties are included.
@@ -820,7 +820,7 @@ class BooleanFunction(object):
         -------
         str or dict
             Summary of the Boolean function, either as a formatted string or as
-            a dictionary depending on the value of ``AS_DICT``.
+            a dictionary depending on the value of ``as_dict``.
         """
     
         ones = sum(self.f)
@@ -836,13 +836,13 @@ class BooleanFunction(object):
         }
     
         # Optional properties (only if already computed / cached)
-        if COMPUTE_ALL:
+        if compute_all:
             self.get_layer_structure()
             self.get_type_of_inputs()
             
         summary.update(self.properties)
                 
-        if AS_DICT:
+        if as_dict:
             return summary
     
         # Pretty formatting
@@ -883,7 +883,7 @@ class BooleanFunction(object):
         """
         return bool(np.all(self.f == self.f[0]))
         
-    def is_degenerate(self, USE_NUMBA: bool = True) -> bool:
+    def is_degenerate(self, use_numba: bool = True) -> bool:
         """
         Determine whether the Boolean function is degenerate.
     
@@ -893,7 +893,7 @@ class BooleanFunction(object):
     
         Parameters
         ----------
-        USE_NUMBA : bool, optional
+        use_numba : bool, optional
             Whether to use Numba-accelerated computation when available.
             Default is ``True``.
     
@@ -903,7 +903,7 @@ class BooleanFunction(object):
             ``True`` if the Boolean function contains at least one
             non-essential variable, ``False`` if all variables are essential.
         """
-        if __LOADED_NUMBA__ and USE_NUMBA:
+        if __LOADED_NUMBA__ and use_numba:
             f = np.asarray(self.f, dtype=np.uint8)
             return bool(_is_degenerate_numba(f, self.n))
         else:
@@ -1232,7 +1232,7 @@ class BooleanFunction(object):
     def get_activities(
         self,
         nsim: int = 10000,
-        EXACT: bool = False,
+        exact: bool = False,
         *,
         rng=None
     ) -> np.ndarray:
@@ -1248,8 +1248,8 @@ class BooleanFunction(object):
         Parameters
         ----------
         nsim : int, optional
-            Number of random samples used when ``EXACT=False`` (default: 10000).
-        EXACT : bool, optional
+            Number of random samples used when ``exact=False`` (default: 10000).
+        exact : bool, optional
             If ``True``, compute activities exactly by enumerating all input states.
             If ``False``, estimate activities via sampling (default: ``False``).
         rng : None or numpy.random.Generator, optional
@@ -1262,7 +1262,7 @@ class BooleanFunction(object):
         """     
         size_state_space = 2**self.n
         activities = np.zeros(self.n,dtype=np.float64)
-        if EXACT:
+        if exact:
             # Compute all integer representations of inputs (0 .. 2^n - 1)
             X = np.arange(size_state_space, dtype=np.uint32)
         
@@ -1284,8 +1284,8 @@ class BooleanFunction(object):
     def get_average_sensitivity(
         self,
         nsim: int = 10000,
-        EXACT: bool = False,
-        NORMALIZED: bool = True,
+        exact: bool = False,
+        normalized: bool = True,
         *,
         rng=None
     ) -> float:
@@ -1293,7 +1293,7 @@ class BooleanFunction(object):
         Compute the average sensitivity of the Boolean function.
     
         The (unnormalized) average sensitivity equals the sum of the activities of
-        all variables. If ``NORMALIZED=True``, the result is divided by ``n``.
+        all variables. If ``normalized=True``, the result is divided by ``n``.
     
         The sensitivity can be computed exactly by enumerating all input states or
         estimated via Monte Carlo sampling.
@@ -1301,13 +1301,13 @@ class BooleanFunction(object):
         Parameters
         ----------
         nsim : int, optional
-            Number of random samples used when ``EXACT=False`` (default: 10000).
-        EXACT : bool, optional
+            Number of random samples used when ``exact=False`` (default: 10000).
+        exact : bool, optional
             If ``True``, compute the exact activities by enumerating all input states.
             If ``False``, estimate them via sampling (default: ``False``).
-        NORMALIZED : bool, optional
-            If ``True``, return the average sensitivity divided by ``n`` (default:
-            ``True``). If ``False``, return the sum of activities.
+        normalized : bool, optional
+            If ``True`` (default), return the average sensitivity divided by ``n``.
+            If ``False``, return the sum of activities.
         rng : None or numpy.random.Generator, optional
             Random number generator passed to ``utils._coerce_rng``.
     
@@ -1316,9 +1316,9 @@ class BooleanFunction(object):
         float
             The (optionally normalized) average sensitivity of the Boolean function.
         """      
-        activities = self.get_activities(nsim,EXACT,rng=rng)
+        activities = self.get_activities(nsim,exact,rng=rng)
         s = sum(activities)
-        if NORMALIZED:
+        if normalized:
             return float(s / self.n)
         else:
             return float(s)

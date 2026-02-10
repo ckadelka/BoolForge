@@ -56,7 +56,7 @@ print("Number of nodes:", bn.N)
 # in the Boolean hypercube and can be computed *exactly* for small networks.
 
 # %%
-results_exact = bn.get_attractors_and_robustness_measures_synchronous_exact()
+results_exact = bn.get_attractors_and_robustness_synchronous_exact()
 results_exact.keys()
 
 # %%
@@ -132,8 +132,8 @@ plt.show()
 # random initial conditions and perturbations.
 
 # %%
-results_approx = bn.get_attractors_and_robustness_measures_synchronous(
-    number_different_IC=500
+results_approx = bn.get_attractors_and_robustness_synchronous(
+    n_simulations=500
 )
 
 results_approx.keys()
@@ -158,8 +158,8 @@ print("Final Hamming distance approximation:",
 # differed in exactly one bit.
 
 # %%
-derrida_exact = bn.get_derrida_value(EXACT=True)
-derrida_approx = bn.get_derrida_value(nsim=2000)
+derrida_exact = bn.get_derrida_value(exact=True)
+derrida_approx = bn.get_derrida_value(n_simulations=2000)
 
 print("Exact Derrida value:", derrida_exact)
 print("Approximate Derrida value:", derrida_approx)

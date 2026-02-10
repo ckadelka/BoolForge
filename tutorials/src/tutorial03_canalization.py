@@ -133,7 +133,7 @@ for func, label in zip([f, g, h, k], labels):
 # whose fixed values determine the output irrespective of the remaining inputs.
 #
 # Individual canalization asks: "Which single variables can determine output?"
-# Collective canalization asks: "Which SETS of variables can determine output?"
+# Collective canalization asks: "Which *sets* of variables can determine output?"
 # 
 # A 2-set canalizing example: If $k(x_0,x_1,x_2) = x_0 \| (x_1 \& x_2)$,
 # - $\{x_0,x_1\}$ can determine the output: if $(x_0,x_1)=(1,0)$, $k=1$ ($x_2$ irrelevant),
@@ -152,7 +152,7 @@ for func, label in zip([f, g, h, k], labels):
 for func, label in zip([f, g, h, k], labels):
     print(f"1-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=1)}")
     print(f"2-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=2)}")
-    print(f"Normalized average sensitivity of {label}: {func.get_average_sensitivity(EXACT=True)}")
+    print(f"Normalized average sensitivity of {label}: {func.get_average_sensitivity(exact=True, normalized=True)}")
     print(f"3-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=3)}")
     print()
 

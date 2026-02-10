@@ -169,8 +169,8 @@ print("k.is_degenerate()", k.is_degenerate())
 #
 # ### 3.3 Exact vs Monte Carlo computation
 #
-# - Exact (`EXACT=True`) computation enumerates all $2^n$ states; feasible for small $n$.
-# - Monte Carlo (`EXACT=False`, default) simulation approximates using random samples; scalable
+# - Exact (`exact=True`) computation enumerates all $2^n$ states; feasible for small $n$.
+# - Monte Carlo (`exact=False`, default) simulation approximates using random samples; scalable
 #   to large $n$.
 #
 # Computational cost guide:
@@ -179,8 +179,7 @@ print("k.is_degenerate()", k.is_degenerate())
 # 
 # Recommendation:
 # - $n \leq 10$: Use exact methods (fast, deterministic)
-# - $10 < n 
-\leq 20$: Use exact if possible, Monte Carlo if repeated computation needed
+# - $10 < n \leq 20$: Use exact if possible, Monte Carlo if repeated computation needed
 # - n > 20: Use Monte Carlo (exact is infeasible)
 #
 # ### 3.4 Computing activities and sensitivities
@@ -189,13 +188,14 @@ print("k.is_degenerate()", k.is_degenerate())
 # we work with the linear function `f` from above, as well as with the function `g`.
 
 # %%
-EXACT = True
+exact = True
+normalized = True
 
-print("Activities of f:", f.get_activities(EXACT=EXACT))
-print("Activities of g:", g.get_activities(EXACT=EXACT))
+print("Activities of f:", f.get_activities(exact=exact))
+print("Activities of g:", g.get_activities(exact=exact))
 
-print("Normalized average sensitivity of f:", f.get_average_sensitivity(EXACT=EXACT))
-print("Normalized average sensitivity of g:", g.get_average_sensitivity(EXACT=EXACT))
+print("Normalized average sensitivity of f:", f.get_average_sensitivity(exact=exact, normalized=normalized))
+print("Normalized average sensitivity of g:", g.get_average_sensitivity(exact=exact, normalized=normalized))
 
 # %% [markdown]
 # **Interpretation**
@@ -211,19 +211,19 @@ print("Normalized average sensitivity of g:", g.get_average_sensitivity(EXACT=EX
 #
 # ### Example: random 25-input function
 #
-# When generating such a large function randomly (see Tutorial 4) it not recommended to require that all inputs are essential, as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input $x_i$ is given $1/2^{n-1}$), and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus set `ALLOW_DEGENERATE_FUNCTIONS=True`. You find more on this and the `random_function` method in Tutorial 4. 
+# When generating such a large function randomly (see Tutorial 4) it not recommended to require that all inputs are essential, as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input $x_i$ is given $1/2^{n-1}$), and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus set `allow_degenerate_functions=True`. You find more on this and the `random_function` method in Tutorial 4. 
 
 # %%
-EXACT = False
+exact = False
 n = 25
 
-h = boolforge.random_function(n=n, ALLOW_DEGENERATE_FUNCTIONS=True)
+h = boolforge.random_function(n=n, allow_degenerate_functions=True)
 
-activities = h.get_activities(EXACT=EXACT)
+activities = h.get_activities(exact=exact)
 print(f"Mean activity: {np.mean(activities):.4f}")
 print(
     f"Normalized average sensitivity: "
-    f"{h.get_average_sensitivity(EXACT=EXACT):.4f}"
+    f"{h.get_average_sensitivity(exact=exact):.4f}"
 )
 
 # %% [markdown]

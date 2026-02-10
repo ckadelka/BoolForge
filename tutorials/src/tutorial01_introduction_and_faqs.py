@@ -215,7 +215,7 @@ print(f.summary())
 print()
 
 # Trigger computation of more advanced properties
-print(f.summary(COMPUTE_ALL=True))
+print(f.summary(compute_all=True))
 
 
 # %% [markdown]
@@ -225,7 +225,7 @@ print(f.summary(COMPUTE_ALL=True))
 # While Boolean functions are stored as truth tables, they can be expressed in logical and polynomial format.
 
 # %%
-print(f"Logical form of {f.name}:", f.to_logical(AND=" ∧ ", OR=" ∨ ", NOT=" ¬"))
+print(f"Logical form of {f.name}:", f.to_logical(and_op=" ∧ ", or_op=" ∨ ", not_op=" ¬"))
 print(f"Polynomial form of {f.name}:", f.to_polynomial())
 
 

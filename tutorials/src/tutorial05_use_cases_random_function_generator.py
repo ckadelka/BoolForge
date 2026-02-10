@@ -35,18 +35,18 @@ import scipy.stats as stats
 # exhibit a given canalizing depth.
 
 # %%
-nsim = 1000
+n_simulations = 1000
 ns = np.arange(2, 7)
 canalizing_depths = np.arange(max(ns) + 1)
 
 count_depths = np.zeros((len(ns), max(ns) + 1))
 
-for _ in range(nsim):
+for _ in range(n_simulations):
     for i, n in enumerate(ns):
         f = boolforge.random_function(n)
         count_depths[i, f.get_canalizing_depth()] += 1
 
-count_depths /= nsim
+count_depths /= n_simulations
 
 fig, ax = plt.subplots()
 for i, depth in enumerate(canalizing_depths):
@@ -89,12 +89,12 @@ pd.DataFrame(
 # %%
 count_depths = np.zeros((len(ns), max(ns) + 1))
 
-for _ in range(nsim):
+for _ in range(n_simulations):
     for i, n in enumerate(ns):
         f = boolforge.random_function(n, depth=1)
         count_depths[i, f.get_canalizing_depth()] += 1
 
-count_depths /= nsim
+count_depths /= n_simulations
 
 fig, ax = plt.subplots()
 for i, depth in enumerate(canalizing_depths):
@@ -137,13 +137,13 @@ pd.DataFrame(
 # change when the degree of the functions changes.
 
 # %%
-nsim = 100
+n_simulations = 100
 ns = np.arange(2, 8)
 
-canalizing_strengths = np.zeros((len(ns), nsim))
-input_redundancies = np.zeros((len(ns), nsim))
+canalizing_strengths = np.zeros((len(ns), n_simulations))
+input_redundancies = np.zeros((len(ns), n_simulations))
 
-for j in range(nsim):
+for j in range(n_simulations):
     for i, n in enumerate(ns):
         f = boolforge.random_function(n)
         canalizing_strengths[i, j] = f.get_canalizing_strength()
@@ -185,7 +185,7 @@ plt.show()
 # Both measures decrease with increasing degree, but canalizing strength declines more sharply.
 #
 # If we stratify this analysis by canalizing depth 
-# (exact canalizing depth using `EXACT_DEPTH=True` or minimal canalizing depth using the default `EXACT_DEPTH=False`),
+# (exact canalizing depth using `exact_depth=True` or minimal canalizing depth using the default `exact_depth=False`),
 # we can confirm that functions with more conditionally canalizing variables tend to also have higher average collective canalization, 
 # irrespective of how it is measured.
 # In other words, the various measures of canalization are all highly correlated.
@@ -194,19 +194,19 @@ plt.show()
 # ### Stratification by canalizing depth
 
 # %%
-nsim = 100
-EXACT_DEPTH = False
+n_simulations = 100
+exact_depth = False
 ns = np.arange(2, 7)
 
 max_depth = max(ns)
 
-canalizing_strengths = np.zeros((len(ns), max_depth + 1, nsim))
-input_redundancies = np.zeros((len(ns), max_depth + 1, nsim))
+canalizing_strengths = np.zeros((len(ns), max_depth + 1, n_simulations))
+input_redundancies = np.zeros((len(ns), max_depth + 1, n_simulations))
 
-for k in range(nsim):
+for k in range(n_simulations):
     for i, n in enumerate(ns):
         for depth in np.append(np.arange(n - 1), n):
-            f = boolforge.random_function(n, depth=depth, EXACT_DEPTH=EXACT_DEPTH)
+            f = boolforge.random_function(n, depth=depth, exact_depth=exact_depth)
             canalizing_strengths[i, depth, k] = f.get_canalizing_strength()
             input_redundancies[i, depth, k] = f.get_input_redundancy()
 
@@ -270,7 +270,7 @@ fig.legend(
     loc="upper center",
     ncol=7,
     frameon=False,
-    title="exact canalizing depth" if EXACT_DEPTH else "minimal canalizing depth",
+    title="exact canalizing depth" if exact_depth else "minimal canalizing depth",
 )
 plt.show()
 
@@ -284,7 +284,7 @@ plt.show()
 
 # %%
 n = 3
-ALLOW_DEGENERATE_FUNCTIONS = False
+allow_degenerate_functions = False
 degenerate = np.zeros(2 ** (2**n), dtype=bool)
 strengths = np.zeros(2 ** (2**n))
 redundancies = np.zeros(2 ** (2**n))
@@ -293,10 +293,10 @@ for i, fvec in enumerate(boolforge.get_left_side_of_truth_table(2**n)):
     bf = boolforge.BooleanFunction(fvec)
     strengths[i] = bf.get_canalizing_strength()
     redundancies[i] = bf.get_input_redundancy()
-    if not ALLOW_DEGENERATE_FUNCTIONS:
+    if not allow_degenerate_functions:
         degenerate[i] = bf.is_degenerate()
         
-if ALLOW_DEGENERATE_FUNCTIONS:
+if allow_degenerate_functions:
     which = np.ones(2 ** (2**n), dtype=bool)
 else:
     which = ~degenerate
@@ -326,21 +326,21 @@ stats.spearmanr(strengths[which], redundancies[which])
 
 # %%
 ns = np.arange(2, 6)
-nsim = 3000
+n_simulations = 3000
 bias_values = np.linspace(0, 1, 21)
 
 count_canalizing = np.zeros((len(ns), len(bias_values)), dtype=int)
 
 for i, n in enumerate(ns):
-    for _ in range(nsim):
+    for _ in range(n_simulations):
         for j, bias in enumerate(bias_values):
-            f = boolforge.random_function(n, bias=bias, ALLOW_DEGENERATE_FUNCTIONS=True)
+            f = boolforge.random_function(n, bias=bias, allow_degenerate_functions=True)
             if f.is_canalizing():
                 count_canalizing[i, j] += 1
 
 fig, ax = plt.subplots()
 for i, n in enumerate(ns):
-    ax.plot(bias_values, count_canalizing[i] / nsim, label=f"n={n}")
+    ax.plot(bias_values, count_canalizing[i] / n_simulations, label=f"n={n}")
 
 xticks = [0, 0.25, 0.5, 0.75, 1]
 ax.set_xticks(xticks)
@@ -367,15 +367,15 @@ plt.show()
 count_degenerate = np.zeros((len(ns), len(bias_values)), dtype=int)
 
 for i, n in enumerate(ns):
-    for _ in range(nsim):
+    for _ in range(n_simulations):
         for j, bias in enumerate(bias_values):
-            f = boolforge.random_function(n, bias=bias, ALLOW_DEGENERATE_FUNCTIONS=True)
+            f = boolforge.random_function(n, bias=bias, allow_degenerate_functions=True)
             if f.is_degenerate():
                 count_degenerate[i, j] += 1
 
 fig, ax = plt.subplots()
 for i, n in enumerate(ns):
-    ax.plot(bias_values, count_degenerate[i] / nsim, label=f"n={n}")
+    ax.plot(bias_values, count_degenerate[i] / n_simulations, label=f"n={n}")
 
 ax.set_xticks(xticks)
 ax.set_xticklabels([f"{p} ({round(200*abs(p-0.5))}%)" for p in xticks])
@@ -423,7 +423,7 @@ for i, w in enumerate(all_hamming):
     layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
     layer_structures.append(layer)
     f = boolforge.random_function(n, layer_structure=layer)
-    avg_sens[i] = f.get_average_sensitivity(EXACT=True, NORMALIZED=False)
+    avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
     can_strength[i] = f.get_canalizing_strength()
     eff_degree[i] = f.get_effective_degree()
 
@@ -463,7 +463,7 @@ for n in ns:
     for i, w in enumerate(all_hamming_weights):
         layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
         f = boolforge.random_function(n, layer_structure=layer)
-        avg_sens[i] = f.get_average_sensitivity(EXACT=True, NORMALIZED=False)
+        avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
 
     ax.plot(all_abs_bias, avg_sens, "x--", label=f"n={n}")
 

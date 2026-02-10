@@ -9,8 +9,8 @@ Created on Mon Feb  2 13:05:00 2026
 import pandas as pd
 import boolforge
 
-n = 3
-depth=2
+n = 4
+depth=3
 EXACT_DEPTH = False
 
 nsim = 100000
