@@ -26,7 +26,7 @@ from .utils import (
     get_left_side_of_truth_table,
 )
 
-from bio_models import get_bio_models_from_repository
+from .bio_models import get_bio_models_from_repository
 
 # Version
 try:
