@@ -2353,7 +2353,7 @@ class BooleanNetwork(WiringDiagram):
             - ``"BasinSizes"`` : list of int  
               Number of sampled initial conditions converging to each attractor.
     
-            - ``"AttractorDict"`` : dict  
+            - ``"AttractorID"`` : dict  
               Mapping from visited states (decimal) to attractor index.
     
             - ``"InitialSamplePoints"`` : list of int  
@@ -2373,6 +2373,7 @@ class BooleanNetwork(WiringDiagram):
           exhaustive synchronous analysis is infeasible.
         - Basin sizes are *sampling-based estimates* and should not be interpreted
           as exact proportions of the state space.
+        - There is no guarantee that all attractors are found. 
         """
         rng = utils._coerce_rng(rng)
     
@@ -2472,7 +2473,7 @@ class BooleanNetwork(WiringDiagram):
             "Attractors": attractors,
             "NumberOfAttractors": len(attractors),
             "BasinSizes": basin_sizes,
-            "AttractorDict": attr_dict,
+            "AttractorID": attr_dict,
             "InitialSamplePoints": (
                 sampled_points if initial_sample_points_empty else list(initial_sample_points)
             ),

@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #08: Perturbation and sensitivity analysis of Boolean networks
+# # Perturbation and sensitivity analysis of Boolean networks
 #
 # In this tutorial, we study how Boolean networks respond to perturbations.
 # Rather than implementing perturbations manually, we leverage BoolForge’s
@@ -14,8 +14,7 @@
 # These tools allow us to assess dynamical stability and resilience of Boolean
 # network models in a principled and computationally efficient way.
 #
-# ---
-# ## 0. Setup
+# ## Setup
 
 # %%
 import boolforge
@@ -24,8 +23,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # %% [markdown]
-# ---
-# ## 1. A running example Boolean network
+# ## A running example Boolean network
 #
 # We reuse the small Boolean network from the previous tutorial.
 
@@ -42,8 +40,7 @@ print("Variables:", bn.variables)
 print("Number of nodes:", bn.N)
 
 # %% [markdown]
-# ---
-# ## 2. Exact attractors and robustness measures
+# ## Exact attractors and robustness measures
 #
 # BoolForge provides a single method that computes:
 # - all attractors,
@@ -69,8 +66,7 @@ print("Overall coherence:", results_exact["Coherence"])
 print("Overall fragility:", results_exact["Fragility"])
 
 # %% [markdown]
-# ---
-# ## 3. Basin-level and attractor-level robustness
+# ## Basin-level and attractor-level robustness
 #
 # Robustness can be resolved at different structural levels.
 # We now inspect basin-specific and attractor-specific measures.
@@ -105,8 +101,7 @@ print(df_attractors)
 # a phenomenon explored in detail in Tutorial #10.
 
 # %% [markdown]
-# ---
-# ## 4. Visualization of basin robustness
+# ## Visualization of basin robustness
 
 # %%
 fig, ax = plt.subplots()
@@ -124,8 +119,7 @@ ax.set_ylim(0, 1)
 plt.show()
 
 # %% [markdown]
-# ---
-# ## 5. Approximate robustness for larger networks
+# ## Approximate robustness for larger networks
 #
 # For larger networks, exact enumeration of all 2^N states is infeasible.
 # BoolForge therefore provides a Monte Carlo approximation that samples
@@ -150,8 +144,7 @@ print("Final Hamming distance approximation:",
 # For larger networks, these approximations are often the only feasible option.
 
 # %% [markdown]
-# ---
-# ## 6. Derrida value: dynamical sensitivity
+# ## Derrida value: dynamical sensitivity
 #
 # The Derrida value measures how perturbations *propagate* after one synchronous update.
 # It is defined as the expected Hamming distance between updated states that initially
@@ -174,8 +167,7 @@ print("Approximate Derrida value:", derrida_approx)
 # and provide a complementary notion of robustness to basin-based measures.
 
 # %% [markdown]
-# ---
-# ## 7. Summary and outlook
+# ## Summary and outlook
 #
 # In this tutorial you learned how to:
 # - compute exact robustness measures for small Boolean networks,
@@ -184,6 +176,6 @@ print("Approximate Derrida value:", derrida_approx)
 # - assess dynamical sensitivity using the Derrida value.
 #
 # **Next steps:**
-# In Tutorial #9, we will move from global robustness measures to
+# In Tutorial 9, we will move from global robustness measures to
 # *trajectory-based* sensitivity analysis, including damage spreading,
 # Hamming distance dynamics, and time-resolved perturbation experiments.

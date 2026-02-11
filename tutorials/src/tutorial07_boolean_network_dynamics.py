@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #07: Dynamics of Boolean Networks
+# # Dynamics of Boolean Networks
 #
 # In this tutorial, we study the *dynamics* of Boolean networks.
 # Building on the construction and structural analysis from previous tutorials,
@@ -13,8 +13,7 @@
 # - analyze basins of attraction,
 # - relate network structure to dynamical behavior.
 #
-# ---
-# ## 0. Setup
+# ## Setup
 
 # %%
 import boolforge
@@ -24,8 +23,7 @@ import matplotlib.pyplot as plt
 
 
 # %% [markdown]
-# ---
-# ## 1. State space of a Boolean network
+# ## State space of a Boolean network
 #
 # A Boolean network with $N$ nodes defines a dynamical system on the discrete
 # state space $\{0,1\}^N$.
@@ -61,12 +59,11 @@ print("bn.F:", bn.F)
 
 # %%
 all_states = boolforge.get_left_side_of_truth_table(bn.N)
-pd.DataFrame(all_states, columns=bn.variables)
+print(pd.DataFrame(all_states, columns=bn.variables).to_string())
 
 
 # %% [markdown]
-# ---
-# ## 2. Dynamics of synchronous Boolean networks
+# ## Dynamics of synchronous Boolean networks
 #
 # Under *synchronous updating*, all nodes are updated simultaneously, defining
 # a deterministic update map
@@ -77,7 +74,7 @@ pd.DataFrame(all_states, columns=bn.variables)
 
 
 # %% [markdown]
-# ### 2.1 Exact computation
+# ### Exact computation
 
 # %%
 for state in all_states:
@@ -88,7 +85,7 @@ for state in all_states:
 # This output matches the synchronous truth table representation:
 
 # %%
-bn.to_truth_table()
+print(bn.to_truth_table().to_string())
 
 
 # %% [markdown]
@@ -106,7 +103,6 @@ bn.to_truth_table()
 
 # %%
 dict_dynamics = bn.get_attractors_synchronous_exact()
-dict_dynamics
 
 
 # %% [markdown]
@@ -115,7 +111,7 @@ dict_dynamics
 # - `STG`: the synchronous state transition graph,
 # - `NumberOfAttractors`,
 # - `Attractors`,
-# - `AttractorDict`,
+# - `AttractorID`,
 # - `BasinSizes`.
 #
 # The state transition graph can be decoded as follows:
@@ -133,6 +129,13 @@ for state in range(2 ** bn.N):
         boolforge.dec2bin(next_state, bn.N),
     )
 
+# %% [markdown]
+# After repeated updates, the system settles into periodic behavior. That is,
+# irrespective of the initial state, an attractor is reached. The list
+# of all attractors (in decimal representation) can be displayed. 
+
+# %%
+print(dict_dynamics['Attractors'])
 
 # %% [markdown]
 # Attractors can be printed in binary representation:
@@ -144,21 +147,31 @@ for attractor in dict_dynamics["Attractors"]:
         print(state, boolforge.dec2bin(state, bn.N))
     print()
 
+# %% [markdown]
+# The information which state transitions to which attractor is stored in a dictionary
+
+# %%
+print(dict_dynamics['AttractorID'])
+
 
 # %% [markdown]
-# Basin sizes count how many states flow into each attractor.
-# They always sum to $2^N$.
+# Finally, the basin size of each attractor is determined by the number of states that eventually transition to an attractor.
+# By definition, the sum of all basin sizes is always $2^N$.
+
+# %%
+print(dict_dynamics['BasinSizes'])
 
 
 # %% [markdown]
-# ### 2.2 Monte Carlo simulation
+# ### Monte Carlo simulation
 #
 # For larger networks, exhaustive enumeration is infeasible.
 # Monte Carlo simulation approximates the attractor landscape.
 
 # %%
 dict_dynamics = bn.get_attractors_synchronous(n_simulations=100)
-dict_dynamics
+print(dict_dynamics['Attractors'])
+print(dict_dynamics['BasinSizes'])
 
 
 # %% [markdown]
@@ -185,15 +198,14 @@ plt.show()
 
 
 # %% [markdown]
-# ---
-# ## 3. Dynamics of asynchronous Boolean networks
+# ## Dynamics of asynchronous Boolean networks
 #
 # Synchronous updating is computationally convenient but biologically unrealistic.
 # Asynchronous updating assumes that only one node is updated at a time.
 
 
 # %% [markdown]
-# ### 3.1 Steady states under general asynchronous update
+# ### Steady states under general asynchronous update
 #
 # BoolForge can compute steady states under general asynchronous updating.
 
@@ -239,7 +251,6 @@ dict_dynamics
 
 
 # %% [markdown]
-# ---
 # ## Summary and outlook
 #
 # In this tutorial you learned how to:

@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #05: Example Use Cases of the Random Function Generator
+# # Example Use Cases of the Random Function Generator
 #
 # In this tutorial, we explore example use cases of BoolForge’s random Boolean
 # function generator. This functionality allows generating large ensembles of
@@ -16,8 +16,7 @@
 #
 # It is strongly recommended to complete the previous tutorials first.
 #
-# ---
-# ## 0. Setup
+# ## Setup
 
 # %%
 import boolforge
@@ -28,8 +27,7 @@ import scipy.stats as stats
 
 
 # %% [markdown]
-# ---
-# ## 1. Prevalence of canalization
+# ## Prevalence of canalization
 #
 # Using random sampling, we estimate how frequently Boolean functions of degree $n$
 # exhibit a given canalizing depth.
@@ -69,11 +67,13 @@ ax.set_xlabel("Number of essential variables")
 ax.set_ylabel("Proportion of functions")
 plt.show()
 
-pd.DataFrame(
+out = pd.DataFrame(
     count_depths,
     index=["n=" + str(n) for n in ns],
     columns=["k=" + str(k) for k in canalizing_depths],
 )
+
+print(out.to_string())
 
 
 # %% [markdown]
@@ -117,11 +117,14 @@ ax.set_xlabel("Number of essential variables")
 ax.set_ylabel("Proportion of functions")
 plt.show()
 
-pd.DataFrame(
+out = pd.DataFrame(
     count_depths,
     index=["n=" + str(n) for n in ns],
     columns=["k=" + str(k) for k in canalizing_depths],
 )
+
+print(out.to_string())
+
 
 # %% [markdown]
 #This analysis reveals that among Boolean functions of degree $n\geq 5$, 
@@ -129,8 +132,7 @@ pd.DataFrame(
 # which is mathematically obvious due to the recursive nature of the definition of k-canalization.
 
 # %% [markdown]
-# ---
-# ## 2. Collective canalization vs degree
+# ## Collective canalization vs degree
 #
 # Using a similar setup, we can investigate if and how the various measures of collective canalization, 
 # specifically canalizing strength (Kadelka et al., Adv in Appl Math, 2023) and the normalized input redundancy (Gates et al., PNAS, 2021), 
@@ -276,7 +278,6 @@ plt.show()
 
 
 # %% [markdown]
-# ---
 # ### Correlation between canalizing strength and input redundancy
 #
 # We can generate all (non-degenerate) Boolean functions of a certain degree $n$ 
@@ -318,8 +319,7 @@ stats.spearmanr(strengths[which], redundancies[which])
 # It remains an open question what drives this behavior.
 
 # %% [markdown]
-# ---
-# ## 3. Correlation between canalization and bias
+# ## Correlation between canalization and bias
 #
 # Basically all metrics used to assess the sensitivity of Boolean functions (canalization, absolute bias, average sensitivity) are correlated. 
 # For example, functions with higher absolute bias are more likely to be canalizing.
@@ -391,8 +391,7 @@ plt.show()
 
 
 # %% [markdown]
-# ---
-# ## 4. Analyzing functions with specific canalizing layer structure
+# ## Analyzing functions with specific canalizing layer structure
 #
 # The average sensitivity of the Boolean functions governing the updates in a Boolean network, determines the stability of the network to perturbations. 
 # More generally, it determines the dynamical regime of the network (see Tutorial 8). 
@@ -432,7 +431,6 @@ df = pd.DataFrame(
         "Hamming weight": all_hamming,
         "Absolute bias": all_abs_bias,
         "Layer structure": list(map(str, layer_structures)),
-        "Number of layers": list(map(len, layer_structures)),
         "Average sensitivity": avg_sens,
         "Canalizing strength": np.round(can_strength, 4),
         "Effective degree": np.round(eff_degree, 4),
@@ -474,8 +472,7 @@ plt.show()
 
 
 # %% [markdown]
-# ---
-# ## 5. Summary and outlook
+# ## Summary and outlook
 #
 # This tutorial illustrated how ensembles of Boolean functions generated under
 # explicit constraints reveal systematic relationships between canalization,

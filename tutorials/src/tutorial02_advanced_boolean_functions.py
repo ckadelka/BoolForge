@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #02: Advanced Concepts for Boolean Functions
+# # Advanced Concepts for Boolean Functions
 #
 # Understanding the structure of a Boolean function is essential for analyzing
 # the behavior of the Boolean networks they define. In this tutorial, we move
@@ -21,8 +21,7 @@
 # - choose between exact and Monte Carlo computation,
 # - interpret these quantities in terms of robustness and redundancy.
 #
-# ---
-# ## 0. Setup
+# ## Setup
 
 # %%
 import boolforge
@@ -30,17 +29,15 @@ import numpy as np
 
 
 # %% [markdown]
-# ---
-# ## 1. Symmetries in Boolean Functions
+# ## Symmetries in Boolean Functions
 #
 # In gene regulation, symmetric variables might represent
 # redundant transcription factor binding sites or functionally equivalent 
 # repressors. Identifying symmetries can:
+#
 # - Reduce model complexity
 # - Suggest evolutionary mechanisms (gene duplication)
 # - Identify potential drug targets (symmetric inputs may compensate)
-#
-# ### 1.1 What is a symmetry?
 #
 # A symmetry of a Boolean function is a permutation of input variables that does
 # **not** change its output.
@@ -48,10 +45,7 @@ import numpy as np
 # - Inputs in the same symmetry group can be swapped freely.
 # - Inputs in different groups cannot.
 #
-# ### 1.2 Examples
-#
-# Below we define three Boolean functions demonstrating full, partial, and no
-# symmetry.
+# The following three Boolean functions exhibit full, partial, and no symmetry.
 
 # %%
 # Fully symmetric (parity / XOR)
@@ -86,13 +80,8 @@ for func, label in zip([f, g, h], labels):
 # canalizing layers, explored in later tutorials.
 
 
-
-
-
-
 # %% [markdown]
-# ---
-# ## 2. Degenerate functions
+# ## Degenerate functions
 #
 # A function is **degenerate** if one or more inputs do not matter at all. 
 
@@ -117,13 +106,12 @@ print("k.is_degenerate()", k.is_degenerate())
 
 
 # %% [markdown]
-# ---
-# ## 3. Activities and Sensitivities
+# ## Activities and Sensitivities
 #
 # Activities and sensitivity quantify how much each input affects the output of
 # a Boolean function.
 #
-# ### 3.1 Activity
+# ### Activity
 #
 # The activity of input $x_i$ is the probability that flipping $x_i$ changes the
 # function’s output:
@@ -137,7 +125,7 @@ print("k.is_degenerate()", k.is_degenerate())
 # - If $a = 0$: the variable is irrelevant (degenerate).
 # - In large random Boolean functions, $a \approx 0.5$ for all variables.
 #
-# ### 3.2 Average sensitivity
+# ### Average sensitivity
 #
 # The *average sensitivity* of a Boolean function describes 
 # how sensitive its output is to changes in its inputs, specifically to a random single-bit flip. 
@@ -167,22 +155,24 @@ print("k.is_degenerate()", k.is_degenerate())
 # networks (see later tutorials). It represents a balance between order and chaos. 
 # Operating at this "edge of chaos" may optimize information processing and evolvability.
 #
-# ### 3.3 Exact vs Monte Carlo computation
+# ### Exact vs Monte Carlo computation
 #
 # - Exact (`exact=True`) computation enumerates all $2^n$ states; feasible for small $n$.
 # - Monte Carlo (`exact=False`, default) simulation approximates using random samples; scalable
 #   to large $n$.
 #
 # Computational cost guide:
+#
 # - Exact methods: $O(2^n)$ time and space, where $n =$ number of inputs.
 # - Monte Carlo: $O(k)$ time, where $k =$ number of samples.
 # 
 # Recommendation:
+#
 # - $n \leq 10$: Use exact methods (fast, deterministic)
 # - $10 < n \leq 20$: Use exact if possible, Monte Carlo if repeated computation needed
 # - n > 20: Use Monte Carlo (exact is infeasible)
 #
-# ### 3.4 Computing activities and sensitivities
+# ### Computing activities and sensitivities
 #
 # To investigate how to compute the activities and the average sensitivity in `BoolForge`, 
 # we work with the linear function `f` from above, as well as with the function `g`.
@@ -208,8 +198,6 @@ print("Normalized average sensitivity of g:", g.get_average_sensitivity(exact=ex
 
 # Exact computation is infeasible for large $n$, so Monte Carlo simulation must
 # be used.
-#
-# ### Example: random 25-input function
 #
 # When generating such a large function randomly (see Tutorial 4) it not recommended to require that all inputs are essential, as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input $x_i$ is given $1/2^{n-1}$), and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus set `allow_degenerate_functions=True`. You find more on this and the `random_function` method in Tutorial 4. 
 
@@ -240,8 +228,7 @@ print(
 
 
 # %% [markdown]
-# ---
-# ## 4. Summary
+# ## Summary
 #
 # In this tutorial you learned:
 #
@@ -254,3 +241,4 @@ print(
 #
 # - canalization, the core concept of Tutorial 3,
 # - and the robustness of Boolean networks, explored in Tutorial 8.
+#

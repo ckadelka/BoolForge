@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #04: Random Boolean Function Generation
+# # Random Boolean Function Generation
 #
 # This tutorial focuses on the random generation of Boolean functions with
 # prescribed properties, enabling large-scale computational studies.
@@ -20,8 +20,7 @@
 #
 # It is strongly recommended to complete the previous tutorials first.
 #
-# ---
-# ## 0. Setup
+# ## Setup
 
 # %%
 import boolforge
@@ -30,8 +29,7 @@ import matplotlib.pyplot as plt
 
 
 # %% [markdown]
-# ---
-# ## 1. Generating random Boolean functions
+# ## Generating random Boolean functions
 #
 # The function `boolforge.random_function(n, *args)` generates a random $n$-input
 # Boolean function subject to optional constraints. By default, it generates a
@@ -56,10 +54,9 @@ print("Edge effectiveness of f:", f.get_edge_effectiveness())
 
 
 # %% [markdown]
-# ---
-# ## 2. Parity functions
+# ## Parity functions
 #
-# Setting `parity=True` generates *parity* functions (also known as *linear* functions).
+# Setting `parity=True` generates *parity* functions, also known as non-degenerate *linear* functions.
 
 # %%
 f = boolforge.random_function(n, parity=True)
@@ -76,10 +73,9 @@ print("Canalizing strength:", f.get_canalizing_strength())
 
 
 # %% [markdown]
-# ---
-# ## 3. Functions with prescribed canalizing properties
+# ## Functions with prescribed canalizing properties
 #
-# If `PARITY=False` (default), the canalizing layer structure can be specified
+# If `parity=False` (default), the canalizing layer structure can be specified
 # via `layer_structure`. This specifies the number of conditionally canalizing variables in each layer of the randomly generated function. 
 # If the optional argument `exact_depth=True` (default is False), 
 # then this describes the exact layer structure, i.e., the core function cannot be canalizing.
@@ -159,8 +155,7 @@ for func, label in zip([f, g, h, k], labels):
 # - `depth=1, exact_depth=True`: "Exactly 1-canalizing" (not 2,3,...,n-canalizing)
 
 # %% [markdown]
-# ---
-# ## 4. Allowing degenerate functions
+# ## Allowing degenerate functions
 #
 # It is possible that an n-input Boolean function does not depend on all its variables.
 # For example, the function $f(x,y) = x$ depends on $x$ but not on $y$. 
@@ -200,8 +195,7 @@ plt.show()
 
 
 # %% [markdown]
-# ---
-# ## 5. Functions with prescribed Hamming weight
+# ## Functions with prescribed Hamming weight
 #
 # The Hamming weight of a Boolean function is the number of ones in its truth table.
 # BoolForge allows for the generation of random n-input functions with a specific Hamming weight $w\in\{0,1,\ldots,2^n\}$.
@@ -209,7 +203,7 @@ plt.show()
 # specify whether degenerate and canalizing functions are allowed.
 # By default, canalizing functions are allowed, while degenerate functions are not. 
 # Since all functions with Hamming weight $w\in\{0,1,2^n-1,2^n\}$ are canalizing, 
-# we require $2\leq w\leq 2^n-2$ whenever canalizing functions are not permissible (i.e., whenever`exact_depth=True`).
+# we require $2\leq w\leq 2^n-2$ whenever canalizing functions are not permissible (i.e., whenever `exact_depth=True`).
 
 # %%
 n = 3
@@ -229,8 +223,7 @@ for func, label in zip([f, g, h], labels):
 
 
 # %% [markdown]
-# ---
-# ## 6. Biased and absolutely biased functions
+# ## Biased and absolutely biased functions
 #
 # While specifying the Hamming weight fixes the exact number of 1s in the truth table of a generated function, 
 # specifying the bias or absolute bias acts slightly differently. 
@@ -317,8 +310,7 @@ plt.show()
 
 
 # %% [markdown]
-# ---
-# ## 7. Summary, interpretation, and outlook
+# ## Summary
 #
 # This tutorial demonstrated how BoolForge enables uniform random generation of
 # Boolean functions under flexible structural and statistical constraints.
@@ -332,11 +324,10 @@ plt.show()
 
 
 # %% [markdown]
-# ---
-# ## 8. Common pitfalls
+# ## Common pitfalls
 #
 # - `absolute_bias` has no effect unless `use_absolute_bias=True`.
 # - `depth=0` without `exact_depth=True` does not restrict the function space.
-# - Constant functions are generated only if `allow_degenerate_functions=True`.
-# - For larger $n$ (for sure whenever $n>10$), set `allow_degenerate_functions=True` to avoid expensive degeneracy tests. 
-# Almost all functions in many variables are non-degenerate.
+# - Constant functions and other degenerate functions that do not depend on all inputs are only generated if `allow_degenerate_functions=True`.
+# - For larger $n$ (e.g., $n>5$), set `allow_degenerate_functions=True` to avoid expensive degeneracy tests. 
+#   Almost all functions in many variables are non-degenerate.

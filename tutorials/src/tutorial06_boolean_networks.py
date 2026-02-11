@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #06: Working with Boolean Networks
+# # Working with Boolean Networks
 #
 # While previous tutorials focused on individual Boolean functions, this tutorial
 # introduces Boolean networks, which combine multiple Boolean functions into a
@@ -12,17 +12,14 @@
 # - compute basic properties of the wiring diagram,
 # - compute basic properties of Boolean networks.
 #
-# ---
-# ## 0. Setup
+# ## Setup
 
 # %%
 import boolforge
 import numpy as np
 
-
 # %% [markdown]
-# ---
-# ## 1. Boolean network theory
+# ## Boolean network theory
 #
 # A Boolean network $F = (f_1, \ldots, f_N)$ is a dynamical system consisting of
 # $N$ Boolean update functions. Each node can be in one of two states, 0 or 1,
@@ -39,19 +36,20 @@ import numpy as np
 # **wiring diagram** encodes which nodes regulate which others.
 #
 # Despite their simplicity, Boolean networks can:
+#
 # - reproduce complex dynamics (oscillations, multistability),
 # - predict gene knockout effects,
 # - identify control strategies,
 # - scale to genome-wide networks (1000s of nodes).
 
 # %% [markdown]
-# ---
-# ## 2. Wiring diagrams
+# ## Wiring diagrams
 #
 # We first construct wiring diagrams, which encode network structure independently
 # of specific Boolean functions.
 #
 # Separating topology (I) from dynamics (F) allows:
+#
 # - studying structural properties independent of specific Boolean rules,
 # - swapping different rule sets on the same topology,
 # - efficient storage (sparse I, local F vs dense full truth table).
@@ -71,7 +69,7 @@ print("W.variables:", W.variables)
 print("W.indegrees:", W.indegrees)
 print("W.outdegrees:", W.outdegrees)
 
-W.plot();
+fig = W.plot(show=False);
 
 
 # %% [markdown]
@@ -97,12 +95,14 @@ print("W.variables:", W.variables)
 print("W.indegrees:", W.indegrees)
 print("W.outdegrees:", W.outdegrees)
 
-W.plot();
+fig = W.plot(show=False)
+
 
 
 # %% [markdown]
 # This wiring diagram encodes a **feed-forward loop**, one of the most common *network motifs* in 
 # transcriptional networks. It can:
+#
 # - filter transient signals (coherent FFL with AND gate),
 # - accelerate response (incoherent FFL),
 #
@@ -126,7 +126,9 @@ I2 = [
 ]
 
 W2 = boolforge.WiringDiagram(I=I2)
-W2.plot();
+fig = W2.plot(show=False)
+fig
+
 
 print("W2.get_fbls()", W2.get_fbls())
 
@@ -135,8 +137,7 @@ print("W2.get_fbls()", W2.get_fbls())
 # In this case, there exists a 2-cycle $x_0 \leftrightarrow x_1$ and a 3-cycle $x_0 \to x_1 \to x_2 \to x_0$.
 
 # %% [markdown]
-# ---
-# ## 3. Creating Boolean networks
+# ## Creating Boolean networks
 #
 # To create a Boolean network, we must specify:
 #
@@ -158,7 +159,7 @@ F = [
 
 bn = boolforge.BooleanNetwork(F=F, I=I)
 
-bn.to_truth_table()
+print(bn.to_truth_table().to_string())
 
 
 # %% [markdown]
@@ -197,7 +198,7 @@ z = y
 """
 
 bn_str = boolforge.BooleanNetwork.from_string(string, separator="=")
-bn_str.to_truth_table()
+print(bn_str.to_truth_table().to_string())
 
 # %% [markdown]
 # Here, the update rule `x = y` specifies that node `x` copies the state of `y`,
@@ -253,8 +254,7 @@ assert (
 
 
 # %% [markdown]
-# ---
-# ## 4. Types of nodes in Boolean networks
+# ## Types of nodes in Boolean networks
 #
 # Nodes in a Boolean network can be classified as follows:
 #
@@ -262,14 +262,11 @@ assert (
 #   Nodes with constant update functions (always 0 or always 1).
 #   These nodes act as parameters and are removed internally, with their values
 #   propagated through the network.
-#
 # - **Identity nodes**  
 #   Nodes whose update function is the identity, i.e., $f(x_i) = x_i.$
 #   Their value is determined by the initial condition and remains constant over time.
 #   Identity nodes are retained as part of the Boolean network state. 
 #   They may be viewed as nodes with a self-loop and no other incoming edges.
-# 
-#
 # - **Regulated nodes**  
 #   Nodes whose update functions depend on one or more other nodes.
 
@@ -343,8 +340,7 @@ print("bn.variables:", bn.variables)
 
 
 # %% [markdown]
-# ---
-# ## 5. Boolean network properties
+# ## Boolean network properties
 #
 # The class `BooleanNetwork` inherits basic structural properties and methods
 # from `WiringDiagram`. In particular, all graph-theoretic attributes of the
@@ -378,7 +374,6 @@ print("bn.variables:", bn.variables)
 bn.plot();
 
 # %% [markdown]
-# ---
 # ## Outlook
 #
 # In the remaining tutorials, we build on this foundation to study the dynamical
