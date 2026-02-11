@@ -6,66 +6,83 @@ the foundation of the BoolForge package.
 
 A :class:`BooleanFunction` represents a Boolean mapping
 :math:`f : \\{0,1\\}^n \\rightarrow \\{0,1\\}` and provides methods for
-evaluating, analyzing, and transforming Boolean functions. It supports a wide
-range of operations including algebraic manipulation, sensitivity and
-canalization analysis, truth table generation, and composition.
+evaluating, analyzing, and transforming Boolean functions. Supported operations
+include algebraic manipulation, sensitivity and canalization analysis, truth
+table generation, and function composition.
 
-Several computationally intensive methods are implemented with optional
-Numba-based just-in-time (JIT) acceleration to improve performance on large or
-repeated computations. Users are **encouraged but not required** to install
-Numba; all functionality remains available without it, albeit at reduced speed.
+Several computationally intensive methods support optional Numba-based
+just-in-time (JIT) acceleration to improve performance for large or repeated
+computations. All functionality remains available without Numba, although
+performance may be reduced.
 
-This module is part of the core BoolForge library and is designed for both
+This module is part of the core BoolForge library and is intended for both
 direct programmatic use and integration with higher-level Boolean network
 classes.
 
 Example
 -------
->>> from boolforge import BooleanFunction
->>> f = BooleanFunction("x1 | (x2 & x3)")
->>> f([1, 0, 1])
-1
+Basic usage::
+
+    >>> from boolforge import BooleanFunction
+    >>> f = BooleanFunction("x1 | (x2 & x3)")
+    >>> f([1, 0, 1])
+    1
 """
+
+# load required packages
+import itertools
+import math
+import warnings
 
 import numpy as np
 import pandas as pd
-import itertools
-import math
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-try:
-    from pyeda.inter import exprvar, Or, And, espresso_exprs
-    from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
-    __LOADED_PyEDA__ = True
-except:
-    __LOADED_PyEDA__ = False
+import boolforge.utils as utils
 
-from typing import Union
-from typing import Optional
+if TYPE_CHECKING:
+    try:
+        import cana.boolean_node
+    except ModuleNotFoundError:
+        pass
 
+# load optional but desirable package
 try:
-    import boolforge.utils as utils
+    import numba
+    njit = numba.njit
+    __LOADED_NUMBA__ = True
 except ModuleNotFoundError:
-    import utils
-    
-try:
-    import cana.boolean_node
-    __LOADED_CANA__=True
-except ModuleNotFoundError:
-    print("The module cana cannot be found. Ensure it is installed to use all functionality of this toolbox.")
-    __LOADED_CANA__=False
-    
-try:
-    from numba import njit
-    __LOADED_NUMBA__=True
-except ModuleNotFoundError:
-    print('The module numba cannot be found. Ensure it is installed to increase the run time of critical code in this toolbox.')
-    __LOADED_NUMBA__=False
+    __LOADED_NUMBA__ = False
+
+__all__ = [
+    "BooleanFunction",
+    "display_truth_table",
+    "get_layer_structure_from_canalized_outputs",
+]
 
 if __LOADED_NUMBA__:
     @njit
-    def _is_degenerate_numba(f: np.ndarray, n: int) -> bool:
+    def _is_degenerate_numba(f : np.ndarray, n : int) -> bool:
         """
-        Numba-accelerated check for non-essential variables in a Boolean function.
+        Check whether a Boolean function contains a non-essential variable.
+
+        This Numba-accelerated helper determines whether there exists at least
+        one input variable whose value can be flipped without affecting the
+        output of the Boolean function.
+
+        Parameters
+        ----------
+        f : np.ndarray
+            Truth table of the Boolean function, of length ``2**n``.
+        n : int
+            Number of input variables.
+
+        Returns
+        -------
+        bool
+            ``True`` if the function contains at least one non-essential
+            variable, ``False`` otherwise.
         """
         N = 1 << n  # 2**n
         for i in range(n):
@@ -84,23 +101,33 @@ if __LOADED_NUMBA__:
                 return True  # found non-essential variable
         return False
 
-def display_truth_table(*functions: "BooleanFunction", labels = None):
+def display_truth_table(*functions : "BooleanFunction", labels : Sequence[str] | None = None) -> None:
     """
-    Display the full truth table of a BooleanFunction in a formatted way.
+    Display the full truth table of one or more Boolean functions.
 
-    Each row shows the input combination (x1, x2, ..., xn)
-    and the corresponding output(s) f(x).
+    Each row displays an input configuration ``(x1, ..., xn)`` together with
+    the corresponding output values of the provided Boolean functions.
 
-    **Parameters:**
-    
-        - \\*functions (BooleanFunction): One or more BooleanFunction objects.
-        - labels (list[str], optional): Column labels for each function
-          (defaults to f1, f2, ...).
+    Parameters
+    ----------
+    \*functions : BooleanFunction
+        One or more BooleanFunction objects with the same number of input
+        variables.
+    labels : Sequence[str] or None, optional
+        Column labels for the Boolean functions. If ``None`` (default), labels
+        are generated automatically as ``f0, f1, ...``.
 
-    **Example:**
-    
-        >>> f = BooleanFunction("(x1 & ~x2) | x3")
-        >>> display_truth_table(f)
+    Raises
+    ------
+    ValueError
+        If no Boolean functions are provided, if the functions do not all have
+        the same number of variables, or if the number of labels does not match
+        the number of functions.
+
+    Examples
+    --------
+    >>> f = BooleanFunction("(x1 & ~x2) | x3")
+    >>> display_truth_table(f)
     """
     if not functions:
         raise ValueError("Please provide at least one BooleanFunction.")
@@ -124,32 +151,40 @@ def display_truth_table(*functions: "BooleanFunction", labels = None):
     print(header)
     print("-" * len(header.expandtabs()))
 
-    for inputs, outputs in zip(utils.get_left_side_of_truth_table(f.n), np.column_stack([f.f for f in functions])):
+    for inputs, outputs in zip(utils.get_left_side_of_truth_table(f.n), 
+                               np.column_stack([f.f for f in functions])):
         inputs_str = "\t".join(map(str, inputs))
         outputs_str = "\t".join(map(str, outputs))
         print(f"{inputs_str}\t|\t{outputs_str}")
 
-def get_layer_structure_from_canalized_outputs(can_outputs : list) -> list:
+def get_layer_structure_from_canalized_outputs(
+        outputs : Sequence[int]
+    ) -> list:
     """
-    Composes the layer structure when given canalized outputs.
-    
-    **Parameters**:
-        
-        - can_outputs (list[int] | np.array[int]): Array of canalized output
-          values.
-    
-    **Returns**:
-        
-        - list[int]: The composed layer structure for the provided canalized
-          outputs.
+    Compute the canalizing layer structure from canalized outputs.
+
+    Consecutive identical canalized output values are grouped into the same
+    canalizing layer. The size of each layer corresponds to the number of
+    variables in that layer.
+
+    Parameters
+    ----------
+    outputs : Sequence[int]
+        Sequence of canalized output values in the order in which canalizing
+        variables are identified.
+
+    Returns
+    -------
+    list[int]
+        List specifying the number of variables in each canalizing layer.
     """
-    canalizing_depth = len(can_outputs)
+    canalizing_depth = len(outputs)
     if canalizing_depth == 0:
         return []
     size_of_layer = 1
     layer_structure = []
     for i in range(1, canalizing_depth):
-        if can_outputs[i] == can_outputs[i - 1]:
+        if outputs[i] == outputs[i - 1]:
             size_of_layer += 1
         else:
             layer_structure.append(size_of_layer)
@@ -160,79 +195,199 @@ def get_layer_structure_from_canalized_outputs(can_outputs : list) -> list:
 
 class BooleanFunction(object):
     """
-    A class representing a Boolean function.
+    A Boolean function.
 
-    **Constructor Parameters:**
-        
-        - f (list[int] | np.array[int] | str): A list of length 2^n
-          representing the outputs of a Boolean function with n inputs, or a
-          string that can be properly evaluated, see utils.f_from_expression.
-        
-        - name (str, optional): The name of the node regulated by the Boolean
-          function (default '').
-        
-    **Members:**
-        
-        - f (np.array[int]): A numpy array of length 2^n representing the
-          outputs of a Boolean function with n inputs.
-          
-        - n (int): The number of inputs for the Boolean function.
-        - variables (np.array[str]): A numpy array of n strings with variable
-          names, default x0, ..., x_{n-1}.
-          
-        - name (str): The name of the node regulated by the Boolean function
-          (default '').
-          
-        - properties (dict[str:Variant]): Dynamically created dictionary with
-          additional information about the function (canalizing layer
-          structure, type of inputs, etc.).
+    This class represents a Boolean function
+    :math:`f : \\{0,1\\}^n \\to \\{0,1\\}` and stores its truth table together
+    with variable names and optional metadata.
+
+    Parameters
+    ----------
+    f : list[int] | np.ndarray | str
+        Truth table of length ``2**n`` representing the outputs of a Boolean
+        function with ``n`` inputs, or a Boolean expression string that can be
+        evaluated. Expression strings are parsed using
+        ``utils.f_from_expression``.
+    name : str, optional
+        Name of the node regulated by the Boolean function. Default is ``""``.
+    variables : list[str] | np.ndarray | None, optional
+        Names of the input variables, given in order. Must have length ``n``.
+        If ``None`` (default), variables are named ``x0, ..., x_{n-1}``.
+
+    Attributes
+    ----------
+    f : np.ndarray
+        NumPy array of dtype ``uint8`` and length ``2**n`` containing only the
+        values 0 and 1, representing the truth table of the Boolean function.
+    n : int
+        Number of input variables.
+    variables : np.ndarray
+        One-dimensional NumPy array of length ``n`` containing variable names.
+    name : str
+        Name of the node regulated by the Boolean function.
+    properties : dict
+        Dictionary for dynamically computed properties of the Boolean function
+        (e.g., canalizing structure, effective inputs, robustness measures).
     """
     
     __slots__ = ['f','n','variables','name','properties']
     
-    def __init__(self, f : Union[list, np.array, str], name : str = ""):
+    def __init__(
+            self, 
+            f : list[int] | np.ndarray | str,
+            variables : list[str] | np.ndarray | None = None,
+            name : str = ""
+    ):
+        """
+        Initialize a Boolean function.
+        
+        Parameters
+        ----------
+        f : list[int] or np.ndarray or str
+            Truth table of the Boolean function, given as a list or array
+            of length ``2**n``, or a Boolean expression as a string.
+        variables : list[str] or np.ndarray[str], optional
+            Names of the input variables. Must have length ``n`` if provided.
+            If None, default variable names x0, x1, ... are assigned.
+        name : str, optional
+            Optional name of the Boolean function.
+        
+        Notes
+        -----
+        - The number of inputs ``n`` is inferred from the length of ``f``.
+        """
         self.name = name
         if isinstance(f, str):
             f, self.variables = utils.f_from_expression(f)
-            self.n = len(self.variables)
+            
         else:
-            assert isinstance(f, (list, np.ndarray)), "f must be a list, numpy array or interpretable string"
-            assert len(f) > 0, "f cannot be empty"
+            if not isinstance(f, (list, np.ndarray)):
+                raise ValueError("f must be a list, numpy array or interpretable string")
+            if not len(f) > 0:
+                raise ValueError("f cannot be empty")
             
             _n = int(np.log2(len(f)))
-            assert abs(np.log2(len(f)) - _n) < 1e-6, "f must be of size 2^n, n >= 0"
-            self.n = _n
-            self.variables = np.array(['x%i' % i for i in range(self.n)])
+            if not abs(np.log2(len(f)) - _n) < 1e-9:
+                raise ValueError("f must be of size 2^n, n >= 0")
             
-        self.f = np.array(f, dtype=int)
+            if variables is None:
+                self.variables = np.array([f"x{i}" for i in range(_n)])
+            else:
+                self.variables = np.asarray(variables, dtype=str)
+                if self.variables.ndim != 1:
+                    raise ValueError("variables must be a 1D array of strings")
+                if len(self.variables) != _n:
+                    raise ValueError(
+                        f"variables must have length {_n}, got {len(self.variables)}"
+                    )
+        
+        self.n = len(self.variables)
+            
+        self.f = np.array(f, dtype=np.uint8)
+
+        if not np.all((self.f == 0) | (self.f == 1)):
+            raise ValueError("f must contain only the values 0 and 1.")
         
         self.properties = {}
 
     @classmethod
-    def from_cana(cls, cana_BooleanNode : "cana.boolean_node.BooleanNode")-> "BooleanFunction":
+    def _from_f_unchecked(
+        cls, 
+        f : list[int] | np.ndarray, 
+        *, 
+        variables : list[str] | np.ndarray | None = None, 
+        name : str =""
+    ) -> "BooleanFunction":
         """
-        **Compatability Method:**
-        
-            Converts an instance of cana.boolean_node.BooleanNode from the
-            cana module into a Boolforge BooleanFunction object.
-        
-        **Returns**:
-            
-                - A BooleanFunction object.
+        Construct a BooleanFunction directly from a truth table *without*
+        validating invariants.
+    
+        This internal constructor bypasses all safety checks and therefore
+        assumes that the input truth table already satisfies all BooleanFunction
+        invariants. In particular, it assumes that:
+    
+            - ``f`` has length ``2**n`` for some integer ``n``,
+            - all entries of ``f`` are in ``{0,1}``,
+            - ``f`` is already in a NumPy-compatible array-like format.
+    
+        This method exists for **performance-critical internal code paths**
+        such as random Boolean function generation, bulk construction, or
+        Numba-accelerated routines, where invariant checks would be prohibitively
+        expensive and correctness is guaranteed by construction.
+    
+        **Warning**
+        -------
+        This method must *never* be called on untrusted input.
         """
-        return cls(np.array(cana_BooleanNode.outputs,dtype=int))
+        obj = cls.__new__(cls)
+    
+        # Core data
+        obj.f = np.asarray(f, dtype=np.uint8)
+        obj.n = int(np.log2(len(obj.f)))
+    
+        # Metadata (match __init__ invariants)
+        obj.name = name
+        if variables is None:
+            obj.variables = np.array([f"x{i}" for i in range(obj.n)])
+        else:
+            obj.variables = np.asarray(variables)
+    
+        obj.properties = {}
+    
+        return obj
 
+    @classmethod
+    def from_cana(
+        cls,
+        cana_BooleanNode: "cana.boolean_node.BooleanNode",
+    ) -> "BooleanFunction":
+        """
+        Construct a BoolForge BooleanFunction from a CANA BooleanNode.
+    
+        This compatibility method converts a
+        ``cana.boolean_node.BooleanNode`` instance into a BoolForge
+        ``BooleanFunction`` by extracting its truth table representation.
+    
+        Parameters
+        ----------
+        cana_BooleanNode : cana.boolean_node.BooleanNode
+            Boolean node object from the CANA library.
+    
+        Returns
+        -------
+        BooleanFunction
+            A BoolForge BooleanFunction instance with the same truth table
+            as the input CANA BooleanNode.
+    
+        Notes
+        -----
+        This method is intended for interoperability with the CANA package.
+        """
+        return cls(np.asarray(cana_BooleanNode.outputs, dtype=np.uint8))
+    
     ## Magic methods:
     
     def __str__(self):
+        """
+        Return a human-readable string representation of the Boolean function.
+    
+        This method returns the underlying truth table as a NumPy array.
+        """
         return f"{self.f}"
         #return f"{self.f.tolist()}"
     
     def __repr__(self):
+        """
+        Return an unambiguous string representation of the BooleanFunction.
+    
+        For small functions (``n < 6``), the full truth table is shown.
+        For larger functions, only the number of inputs is displayed to
+        avoid excessive output.
+        """
         if self.n < 6:
             return f"{type(self).__name__}(f={self.f.tolist()})"
         else:
-            return f"{type(self).__name__}(f={self.f})"
+            return f"{type(self).__name__}(n={self.n})"
     
     def __len__(self):
         return 2**self.n
@@ -245,158 +400,183 @@ class BooleanFunction(object):
 
     def __setitem__(self, index, value):
         self.f[index] = value
-        
-    def __add__(self,value):
-        """
-        Element-wise Boolean addition: +.
-    
-        **Supports:**
-            
-            - BooleanFunction \\* BooleanFunction
-            - BooleanFunction \\* int (0 or 1)
-    
-        **Returns:**
-        
-            - BooleanFunction: The result of element-wise addition modulo 2.
-        """
-        if isinstance(value, int):
-            return self.__class__((self.f + value) % 2)
-        elif isinstance(value, BooleanFunction):
-            return self.__class__((self.f + value.f) % 2)
-        else:
-            raise TypeError(f"Unsupported operand type(s) for +: 'BooleanFunction' and '{type(value).__name__}'")
-         
     
     def __mul__(self, value):
         """
-        Element-wise Boolean multiplication (logical AND): \\*.
+        Element-wise Boolean multiplication (logical AND).
     
-        **Supports:**
-            
-            - BooleanFunction \\* BooleanFunction
-            - BooleanFunction \\* int (0 or 1)
+        This method implements logical AND between Boolean functions or between
+        a Boolean function and a scalar value in ``{0,1}``.
     
-        **Returns:**
-        
-            - BooleanFunction: The result of element-wise multiplication.
+        Parameters
+        ----------
+        value : BooleanFunction or int
+            BooleanFunction of the same size or an integer value (0 or 1).
+    
+        Returns
+        -------
+        BooleanFunction
+            Result of element-wise Boolean multiplication.
         """
         if isinstance(value, int):
-            assert value in (0, 1), "Integer multiplier must be 0 or 1 for Boolean functions."
+            if value not in (0, 1):
+                raise ValueError("Integer multiplier must be 0 or 1.")
             return self.__class__(self.f * value)
         elif isinstance(value, BooleanFunction):
             return self.__class__(self.f * value.f)
         else:
-            raise TypeError(f"Unsupported operand type(s) for *: 'BooleanFunction' and '{type(value).__name__}'")
+            raise TypeError(
+                f"Unsupported operand type(s) for *: "
+                f"'BooleanFunction' and '{type(value).__name__}'"
+            )
+
 
     def __rmul__(self, value):
         """
-        Element-wise Boolean multiplication (logical AND): \\*.
+        Right-hand element-wise Boolean multiplication (logical AND).
     
-        **Supports:**
-        
-            - BooleanFunction \\* BooleanFunction
-            - int (0 or 1) \\* BooleanFunction
+        This method enables expressions of the form ``value * BooleanFunction``
+        where ``value`` is an integer in ``{0,1}``.
     
-        **Returns:**
-        
-            - BooleanFunction: The result of element-wise multiplication.
+        Parameters
+        ----------
+        value : int
+            Integer value (0 or 1).
+    
+        Returns
+        -------
+        BooleanFunction
+            Result of element-wise Boolean multiplication.
         """
         return self.__mul__(value)
+
     
     def __and__(self, value):
         """
-        Element-wise logical AND: &.
+        Element-wise logical AND.
     
-        **Supports:**
-            
-            - BooleanFunction & BooleanFunction
-            - BooleanFunction & int (0 or 1)
+        This method implements element-wise logical AND between Boolean
+        functions or between a Boolean function and a scalar value in ``{0,1}``.
     
-        **Returns:**
-        
-            - BooleanFunction: The result of the logical AND.
+        Parameters
+        ----------
+        value : BooleanFunction or int
+            BooleanFunction of the same size or an integer value (0 or 1).
+    
+        Returns
+        -------
+        BooleanFunction
+            Result of element-wise logical AND.
         """
         if isinstance(value, int):
-            assert value in (0, 1), "Integer must be 0 or 1."
+            if value not in (0, 1):
+                raise ValueError("Integer must be 0 or 1.")
             return self.__class__(self.f & value)
         elif isinstance(value, BooleanFunction):
             return self.__class__(self.f & value.f)
         else:
-            raise TypeError(f"Unsupported operand type(s) for &: 'BooleanFunction' and '{type(value).__name__}'")
-    
+            raise TypeError(
+                f"Unsupported operand type(s) for &: "
+                f"'BooleanFunction' and '{type(value).__name__}'"
+            )
+
     def __or__(self, value):
         """
-        Element-wise logical OR: \\|.
+        Element-wise logical OR.
     
-        **Supports:**
-        
-            - BooleanFunction \\| BooleanFunction
-            - BooleanFunction \\| int (0 or 1)
+        This method implements element-wise logical OR between Boolean
+        functions or between a Boolean function and a scalar value in ``{0,1}``.
     
-        **Returns:**
-        
-            - BooleanFunction: The result of the logical OR.
+        Parameters
+        ----------
+        value : BooleanFunction or int
+            BooleanFunction of the same size or an integer value (0 or 1).
+    
+        Returns
+        -------
+        BooleanFunction
+            Result of element-wise logical OR.
         """
         if isinstance(value, int):
-            assert value in (0, 1), "Integer must be 0 or 1."
+            if value not in (0, 1):
+                raise ValueError("Integer must be 0 or 1.")
             return self.__class__(self.f | value)
         elif isinstance(value, BooleanFunction):
             return self.__class__(self.f | value.f)
         else:
-            raise TypeError(f"Unsupported operand type(s) for |: 'BooleanFunction' and '{type(value).__name__}'")
+            raise TypeError(
+                f"Unsupported operand type(s) for |: "
+                f"'BooleanFunction' and '{type(value).__name__}'"
+            )
+    
     
     def __xor__(self, value):
         """
-        Element-wise logical XOR: ^.
+        Element-wise logical XOR.
     
-        **Supports:**
-            - BooleanFunction ^ BooleanFunction
-            - BooleanFunction ^ int (0 or 1)
+        This method implements element-wise logical XOR between Boolean
+        functions or between a Boolean function and a scalar value in ``{0,1}``.
     
-        **Returns:**
-        
-            - BooleanFunction: The result of the logical XOR.
+        Parameters
+        ----------
+        value : BooleanFunction or int
+            BooleanFunction of the same size or an integer value (0 or 1).
+    
+        Returns
+        -------
+        BooleanFunction
+            Result of element-wise logical XOR.
         """
         if isinstance(value, int):
-            assert value in (0, 1), "Integer must be 0 or 1."
+            if value not in (0, 1):
+                raise ValueError("Integer must be 0 or 1.")
             return self.__class__(self.f ^ value)
         elif isinstance(value, BooleanFunction):
             return self.__class__(self.f ^ value.f)
         else:
-            raise TypeError(f"Unsupported operand type(s) for ^: 'BooleanFunction' and '{type(value).__name__}'")
-    
+            raise TypeError(
+                f"Unsupported operand type(s) for ^: "
+                f"'BooleanFunction' and '{type(value).__name__}'"
+            )
+
+
     def __invert__(self):
         """
-        Element-wise negation: ~.
+        Element-wise logical negation.
     
-        **Returns:**
-        
-            - BooleanFunction: The result of element-wise negation.
+        This method computes the logical NOT of the Boolean function by
+        flipping all truth table entries.
+    
+        Returns
+        -------
+        BooleanFunction
+            Result of element-wise logical negation.
         """
         return self.__class__(1 - self.f)
-        
-    def __call__(self, values : Union[list, tuple, np.array]):
-        """
-        Evaluate the Boolean function on a given binary input vector.
     
-        This method makes BooleanFunction instances callable. It returns the
-        function’s output value for a provided list or tuple of binary inputs.
+    
+    def __call__(self, values: list[int] | tuple[int, ...] | np.ndarray):
+        """
+        Evaluate the Boolean function on a given input vector.
+    
+        This method makes BooleanFunction instances callable and returns the
+        output value for a specified binary input configuration.
     
         Parameters
         ----------
-        values : list[int] | tuple[int] | np.array[int]
-            A sequence of binary values (0 or 1) of length `n`, where `n` is
-            the number of variables in the Boolean function.
+        values : list[int] | tuple[int, ...] | np.ndarray
+            Sequence of binary values (0 or 1) of length ``n``, where ``n`` is
+            the number of input variables of the Boolean function.
     
         Returns
         -------
         int
-            The output of the Boolean function (0 or 1) for the specified input.
+            Output value of the Boolean function (0 or 1) for the specified input.
     
         Raises
         ------
-        AssertionError
-            If the input length does not match `n`, or if non-binary values are
+        ValueError
+            If the input length does not match ``n`` or if non-binary values are
             provided.
     
         Examples
@@ -407,182 +587,329 @@ class BooleanFunction(object):
         >>> f([0, 1, 0])
         0
         """
-        assert len(values)==self.n, f"The argument must be of length {self.n}."
-        assert set(values) <= {0, 1}, "Binary values required."
+        if not len(values) == self.n:
+            raise ValueError(f"The argument must be of length {self.n}.")
+        if not set(values) <= {0, 1}:
+            raise ValueError("Binary values required.")
         return self.f[utils.bin2dec(values)].item()
-        
     ## Conversions:
-        
+    
+
     def to_polynomial(self) -> str:
         """
-        Returns the Boolean function converted into polynomial format in
-        non-reduced DNF.
-        
-        **Returns**:
-            
-            - str: Polynomial format in non-reduced DNF of the Boolean function.
+        Convert the Boolean function to a polynomial representation.
+    
+        This method returns a polynomial representation of the Boolean function
+        in non-reduced disjunctive normal form (DNF).
+    
+        Returns
+        -------
+        str
+            Polynomial representation of the Boolean function in non-reduced DNF.
         """
-        return utils.bool_to_poly(self.f,variables=self.variables)
+        return utils.bool_to_poly(self.f, variables=self.variables)
 
-    def to_truth_table(self, RETURN : bool = True,filename : str = None) -> pd.DataFrame:
+
+    def to_truth_table(
+        self,
+        RETURN: bool = True,
+        filename: str | None = None,
+    ) -> pd.DataFrame | None:
         """
-        Returns or saves the full truth table of the Boolean function as a pandas DataFrame.
+        Return or save the full truth table of the Boolean function.
     
-        Each row shows the input combination (x1, x2, ..., xn)
-        and the corresponding output f(x).
+        The truth table is represented as a pandas DataFrame in which each row
+        corresponds to an input configuration and the final column contains the
+        output value of the Boolean function.
     
-        **Parameters:**
-        
-            - RETURN (bool, optional): Whether to return the DataFrame (default: True).
-              If False, the function only writes the table to file when `filename` is provided.
-            - filename (str, optional): File name (including extension) to which the truth table
-              should be saved. Supported formats are 'csv', 'xls', and 'xlsx'.
-              If provided, the truth table is automatically saved in the specified format.
+        Parameters
+        ----------
+        RETURN : bool, optional
+            Whether to return the truth table as a DataFrame. If ``False``, the
+            truth table is only written to file when ``filename`` is provided.
+            Default is ``True``.
+        filename : str or None, optional
+            File name (including extension) to which the truth table is saved.
+            Supported formats are ``'csv'``, ``'xls'``, and ``'xlsx'``. If
+            provided, the truth table is automatically written to disk.
     
-        **Returns:**
-        
-            - pd.DataFrame: The full truth table, if `RETURN=True`.
-              Otherwise, nothing is returned.
+        Returns
+        -------
+        pandas.DataFrame or None
+            The full truth table if ``RETURN=True``; otherwise ``None``.
     
-        **Example:**
-        
-            >>> f = BooleanFunction("(x1 & ~x2) | x3")
-            >>> f.to_truth_table()
-                x1  x2  x3  f
-            0    0   0   0  0
-            1    0   0   1  1
-            2    0   1   0  0
-            3    0   1   1  1
-            4    1   0   0  1
-            5    1   0   1  1
-            6    1   1   0  0
-            7    1   1   1  1
+        Notes
+        -----
+        The column names correspond to the input variable names followed by the
+        function name if provided, or ``'f'`` otherwise. When saving to a file,
+        the output format is determined by the file extension.
     
-        **Notes:**
-        
-            - The column names correspond to the function's variables followed by its name.
-            - When saving to a file, the file extension determines the format.
+        Examples
+        --------
+        >>> f = BooleanFunction("(x1 & ~x2) | x3")
+        >>> f.to_truth_table()
+           x1  x2  x3  f
+        0   0   0   0  0
+        1   0   0   1  1
+        2   0   1   0  0
+        3   0   1   1  1
+        4   1   0   0  1
+        5   1   0   1  1
+        6   1   1   0  0
+        7   1   1   1  1
         """
-        
-        columns = np.append(self.variables,self.name if self.name != '' else 'f')
-        truth_table = pd.DataFrame(np.c_[utils.get_left_side_of_truth_table(self.n),self.f],
-                                   columns=columns)
+        columns = np.append(self.variables, self.name if self.name != "" else "f")
+        truth_table = pd.DataFrame(
+            np.c_[utils.get_left_side_of_truth_table(self.n), self.f],
+            columns=columns,
+        )
+    
         if filename is not None:
-            ending = filename.split('.')[-1]
-            assert ending in ['csv','xls','xlsx'],"filename must end in 'csv','xls', or 'xlsx'"
-            if ending == 'csv':
+            ending = filename.split(".")[-1]
+            if ending not in {"csv", "xls", "xlsx"}:
+                raise ValueError("filename must end in 'csv', 'xls', or 'xlsx'")
+            if ending == "csv":
                 truth_table.to_csv(filename)
             else:
                 truth_table.to_excel(filename)
+    
         if RETURN:
             return truth_table
-    
+        return None
+
+
     def to_cana(self) -> "cana.boolean_node.BooleanNode":
         """
-        **Compatability method:**
-            
-            Returns an instance of cana.boolean_node.BooleanNode from the
-            cana module.
-
-        **Returns:**
-            
-            - An instance of cana.boolean_node.BooleanNode.
-        """
-        if __LOADED_CANA__:
-            return cana.boolean_node.BooleanNode(k=self.n, outputs=self.f)
-        print('The method \'to_cana_BooleanNode\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
-        return None
+        Convert the BooleanFunction to a CANA BooleanNode.
     
-    def to_logical(self, AND : str = '&', OR : str = '|', NOT : str = '!',
-        MINIMIZE_EXPRESSION : bool = True) -> str:
+        This compatibility method constructs and returns a
+        ``cana.boolean_node.BooleanNode`` instance corresponding to the
+        Boolean function represented by this object.
+    
+        Returns
+        -------
+        cana.boolean_node.BooleanNode
+            Boolean node object from the CANA library representing the same
+            Boolean function.
+    
+        Raises
+        ------
+        ImportError
+            If the CANA package is not installed.
+    
+        Notes
+        -----
+        This method requires the CANA package to be installed.
         """
-        Transform a Boolean function from truth table format to logical expression format.
+        cana_boolean_node = utils._require_cana()
+        return cana_boolean_node.BooleanNode(k=self.n, outputs=self.f)
+        
 
-        **Parameters:**
-            
-            - AND (str, optional): Character(s) to use for the And operator.
-              Defaults to '&'.
-            
-            - OR (str, optional): Character(s) to use for the Or operator. Defaults
-              to '|'.
-            
-            - NOT (str, optional): Character(s) to use for the Not operator.
-              Defaults to '!'.
-            
-            - MINIMIZE_EXPRESSION (bool, optional): Whether or not to minimize
-              the expression using Espresso. If true, minimizes the expression.
-              If false, keeps the expression in DNF form. Defaults to true.
-
-        **Returns:**
-            
-            - str: A string representing the Boolean function.
+    def to_logical(
+        self,
+        AND: str = "&",
+        OR: str = "|",
+        NOT: str = "!",
+        MINIMIZE_EXPRESSION: bool = True,
+    ) -> str:
         """
+        Convert the Boolean function to a logical expression.
+    
+        This method converts the Boolean function from its truth table
+        representation to a logical expression. If the PyEDA package is
+        available, the expression can optionally be minimized using the
+        Espresso algorithm. Otherwise, a non-minimized expression is
+        generated as a fallback.
+    
+        Parameters
+        ----------
+        AND : str, optional
+            String used to represent the logical AND operator. Default is ``"&"``.
+        OR : str, optional
+            String used to represent the logical OR operator. Default is ``"|"``.
+        NOT : str, optional
+            String used to represent the logical NOT operator. Default is ``"!"``.
+        MINIMIZE_EXPRESSION : bool, optional
+            Whether to minimize the logical expression using the Espresso
+            algorithm (via PyEDA). If ``False``, the expression is returned
+            in non-minimized disjunctive normal form. Default is ``True``.
+    
+        Returns
+        -------
+        str
+            Logical expression representing the Boolean function.
+    
+        Notes
+        -----
+        If the PyEDA package is not installed, the method falls back to a
+        non-minimized expression derived from the polynomial representation.
+        """
+        try:
+            from pyeda.inter import exprvar, Or, And, espresso_exprs
+            from pyeda.boolalg.expr import OrOp, AndOp, NotOp, Complement
+            __LOADED_PyEDA__ = True
+        except ModuleNotFoundError:
+            __LOADED_PyEDA__ = False
+            
         if __LOADED_PyEDA__:
-            variables = [ exprvar(str(var)) for var in self.variables ]
-            minterms = [ i for i in range(2**self.n) if self.f[i] ]
+            variables = [exprvar(str(var)) for var in self.variables]
+            minterms = [i for i in range(2**self.n) if self.f[i]]
+    
             terms = []
             for m in minterms:
-                bits = [(variables[i] if (m >> (self.n - 1 - i)) & 1 else ~variables[i]) for i in range(self.n)]
+                bits = [
+                    variables[i]
+                    if (m >> (self.n - 1 - i)) & 1
+                    else ~variables[i]
+                    for i in range(self.n)
+                ]
                 terms.append(And(*bits))
+    
             func_expr = Or(*terms).to_dnf()
+    
             if func_expr.is_zero():
-                return '0'
+                return "0"
+    
             if MINIMIZE_EXPRESSION:
                 func_expr, = espresso_exprs(func_expr)
+    
             def __pyeda_to_string__(e):
                 if isinstance(e, OrOp):
-                    return '('+(")%s("%OR).join(__pyeda_to_string__(arg) for arg in e.xs)+')'
+                    return "(" + f"){OR}(".join(
+                        __pyeda_to_string__(arg) for arg in e.xs
+                    ) + ")"
                 elif isinstance(e, AndOp):
                     return AND.join(__pyeda_to_string__(arg) for arg in e.xs)
-                elif isinstance(e, (NotOp)):
-                    return "%s(%s)"%(NOT, __pyeda_to_string__(e.x))
+                elif isinstance(e, NotOp):
+                    return f"{NOT}({__pyeda_to_string__(e.x)})"
                 elif isinstance(e, Complement):
-                    return "(%s%s)"%(NOT, str(e)[1::])
+                    return f"({NOT}{str(e)[1:]})"
                 return str(e)
+    
             return __pyeda_to_string__(func_expr)
         else:
-            # something that works
-            return self.to_polynomial().replace(" * ", AND).replace(" + ", OR).replace("1 - ", NOT)
+            # Fallback without PyEDA
+            return (
+                self.to_polynomial()
+                .replace(" * ", AND)
+                .replace(" + ", OR)
+                .replace("1 - ", NOT)
+            )
+
     
+    def summary(self, *, AS_DICT: bool = False, COMPUTE_ALL: bool = False):
+        """
+        Return a concise summary of the Boolean function.
     
-    ## Methods with binary output: self.is_xxx(*args)
+        The summary includes basic structural and statistical properties of the
+        Boolean function and, optionally, additional properties that may require
+        nontrivial computation.
+    
+        Parameters
+        ----------
+        AS_DICT : bool, optional
+            If ``True``, return the summary as a dictionary. If ``False`` (default),
+            return a formatted string.
+    
+        COMPUTE_ALL : bool, optional
+            If ``True``, additional properties are computed and included in the
+            summary. These computations may be expensive. If ``False`` (default),
+            only already available properties are included.
+    
+        Returns
+        -------
+        str or dict
+            Summary of the Boolean function, either as a formatted string or as
+            a dictionary depending on the value of ``AS_DICT``.
+        """
+    
+        ones = sum(self.f)
+        bias = ones / 2**self.n
+        abs_bias = 2 * abs(bias-0.5)
+
+        summary = {
+            "Number of variables": self.n,
+            "Hamming Weight": int(ones),
+            "Bias": float(bias),
+            "Absolute bias": float(abs_bias),
+            "Variables": self.variables
+        }
+    
+        # Optional properties (only if already computed / cached)
+        if COMPUTE_ALL:
+            self.get_layer_structure()
+            self.get_type_of_inputs()
+            
+        summary.update(self.properties)
+                
+        if AS_DICT:
+            return summary
+    
+        # Pretty formatting
+        lines = [
+            "BooleanFunction summary",
+            "-" * 40,
+            f"Number of variables:        {summary['Number of variables']}",
+            f"Hamming Weight:             {summary['Hamming Weight']}",
+            f"Bias:                       {summary['Bias']:.3f}",
+            f"Absolute bias:              {summary['Absolute bias']:.3f}",
+            f"Variables:                  {summary['Variables']}"
+        ]
+    
+        for key in summary:
+            if key not in {
+                "Number of variables",
+                "Hamming Weight",
+                "Bias",
+                "Absolute bias",
+                "Variables"
+            }:
+                lines.append(f"{key}:"+(" "*(27-len(key)))+f"{summary[key]}")
+
+        return "\n".join(lines)
+
     
     def is_constant(self) -> bool:
         """
-        Check whether a Boolean function is constant.
-
-        **Returns:**
-            
-            - bool: True if f is constant (all outputs are 0 or all are 1),
-              False otherwise.
+        Check whether the Boolean function is constant.
+    
+        A Boolean function is constant if all entries of its truth table are
+        identical (all 0 or all 1).
+    
+        Returns
+        -------
+        bool
+            ``True`` if the Boolean function is constant, ``False`` otherwise.
         """
-        return np.all(self.f == self.f[0])
+        return bool(np.all(self.f == self.f[0]))
+        
+    def is_degenerate(self, USE_NUMBA: bool = True) -> bool:
+        """
+        Determine whether the Boolean function is degenerate.
     
-    if __LOADED_NUMBA__:
-        def is_degenerate(self) -> bool:
-            """
-            Determine if a Boolean function contains non-essential variables.
-            Numba-accelerated version.
-            """
+        A Boolean function is degenerate if it contains at least one
+        non-essential variable, i.e., a variable on which the function's
+        output does not depend.
+    
+        Parameters
+        ----------
+        USE_NUMBA : bool, optional
+            Whether to use Numba-accelerated computation when available.
+            Default is ``True``.
+    
+        Returns
+        -------
+        bool
+            ``True`` if the Boolean function contains at least one
+            non-essential variable, ``False`` if all variables are essential.
+        """
+        if __LOADED_NUMBA__ and USE_NUMBA:
             f = np.asarray(self.f, dtype=np.uint8)
-            return _is_degenerate_numba(f, self.n)
-    
-    else:
-        def is_degenerate(self) -> bool:
-            """
-            Determine if a Boolean function contains non-essential variables.
-    
-            A variable is non-essential if the function's output does not depend
-            on it.
-    
-            **Returns:**
-                
-                - bool: True if f contains at least one non-essential variable,
-                  False if all variables are essential.
-            """
+            return bool(_is_degenerate_numba(f, self.n))
+        else:
             for i in range(self.n):
-                dummy_add = (2**(self.n-1-i))
-                dummy = np.arange(2**self.n) % (2**(self.n-i)) // dummy_add
+                dummy_add = 2 ** (self.n - 1 - i)
+                dummy = np.arange(2**self.n) % (2 ** (self.n - i)) // dummy_add
                 depends_on_i = False
                 for j in range(2**self.n):
                     if dummy[j] == 1:
@@ -591,171 +918,178 @@ class BooleanFunction(object):
                         if self.f[j] != self.f[j + dummy_add]:
                             depends_on_i = True
                             break
-                if depends_on_i == False:
+                if not depends_on_i:
                     return True
             return False
-
+        
+        
     def is_monotonic(self) -> bool:
         """
-        Determine if a Boolean function is monotonic.
-
-        A Boolean function is monotonic if it is monotonic in each variable. 
-        That is, if for all i=1,...,n: f(x_1, ..., x_i=0, ..., x_n) >= f(x_1,
-        ..., x_i=1, ..., x_n) for all (x_1, ..., x_n) or f(x_1, ..., x_i=0,
-        ..., x_n) <= f(x_1, ..., x_i=1, ..., x_n) for all (x_1, ..., x_n).
-
-        **Returns:**
-            
-            - bool: True if f contains no conditional variables, False if at
-              least one variable is conditional.
-        """            
-        return 'conditional' not in self.get_type_of_inputs()
-
-
+        Determine whether the Boolean function is monotonic.
+    
+        A Boolean function is monotonic if it is monotonic in each variable,
+        i.e., for every variable the function is either non-decreasing or
+        non-increasing with respect to that variable.
+    
+        Returns
+        -------
+        bool
+            ``True`` if the Boolean function is monotonic, ``False`` otherwise.
+        """
+        return "conditional" not in self.get_type_of_inputs()
+    
+    
     def is_canalizing(self) -> bool:
         """
-        Determine if a Boolean function is canalizing.
-
-        A Boolean function f(x_1, ..., x_n) is canalizing if there exists at
-        least one variable x_i and a value a ∈ {0, 1} such that f(x_1, ...,
-        x_i = a, ..., x_n) is constant.
-
-        **Returns:**
-            
-            - bool: True if f is canalizing, False otherwise.
+        Determine whether the Boolean function is canalizing.
+    
+        A Boolean function is canalizing if there exists at least one variable
+        and a value in ``{0,1}`` such that fixing that variable to the given
+        value forces the output of the function to be constant.
+    
+        Returns
+        -------
+        bool
+            ``True`` if the Boolean function is canalizing, ``False`` otherwise.
         """
         indices = np.arange(2**self.n, dtype=np.uint32)
     
-        # Iterate over each variable
         for i in range(self.n):
-            mask = 1 << i #really this should be 1 << self.n-1-i but it's symmetric and faster as is
+            mask = 1 << i
             bit_is_0 = (indices & mask) == 0
             bit_is_1 = ~bit_is_0
     
-            # Restrict outputs where x_i = 0 or x_i = 1
             f0 = self.f[bit_is_0]
             f1 = self.f[bit_is_1]
     
-            # If any restriction is constant, function is canalizing
             if np.all(f0 == f0[0]) or np.all(f1 == f1[0]):
                 return True
     
         return False
-    
-    
-    def is_k_canalizing(self, k : int) -> bool:
+
+    def is_k_canalizing(self, k: int) -> bool:
         """
-        Determine if a Boolean function is k-canalizing.
-
-        A Boolean function is k-canalizing if it has at least k conditionally
-        canalizing variables. This is checked recursively: after fixing a
-        canalizing variable (with a fixed canalizing input that forces the
-        output), the subfunction must itself be canalizing for
-        the next variable, and so on.
-
-        **Parameters:**
-            
-            - k (int): The desired canalizing depth (0 ≤ k ≤ n).
-              Note: every function is 0-canalizing.
-
-        **Returns:**
-            
-            - bool: True if f is k-canalizing, False otherwise.
-
-        **References:**
-            
-            #. He, Q., & Macauley, M. (2016). Stratification and enumeration of
-               Boolean functions by canalizing depth. Physica D: Nonlinear
-               Phenomena, 314, 1-8.
-            
-            #. Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D.
-               (2022). Revealing the canalizing structure of Boolean functions:
-               Algorithms and applications. Automatica, 146, 110630.
+        Determine whether the Boolean function is k-canalizing.
+    
+        A Boolean function is k-canalizing if it has a sequence of at least
+        ``k`` canalizing variables. After fixing a canalizing variable to its
+        canalizing value, the resulting subfunction must itself be
+        (k−1)-canalizing, recursively.
+    
+        Parameters
+        ----------
+        k : int
+            Desired canalizing depth, with ``0 <= k <= n``. Every Boolean
+            function is trivially 0-canalizing.
+    
+        Returns
+        -------
+        bool
+            ``True`` if the Boolean function is k-canalizing, ``False`` otherwise.
+    
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
+    
+        References
+        ----------
+        He, Q., & Macauley, M. (2016).
+            Stratification and enumeration of Boolean functions by canalizing depth.
+            *Physica D: Nonlinear Phenomena*, 314, 1–8.
+    
+        Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D. (2022).
+            Revealing the canalizing structure of Boolean functions:
+            Algorithms and applications.
+            *Automatica*, 146, 110630.
         """
-
-        # Base cases
         if k > self.n:
             return False
         if k == 0:
             return True
-        if np.all(self.f == self.f[0]):  # constant function is by definition not canalizing
+        if np.all(self.f == self.f[0]):
             return False
     
-        # Precompute input indices for masking
         indices = np.arange(2**self.n, dtype=np.uint32)
     
-        # Try each variable to see if it is canalizing
         for i in range(self.n):
-            mask = 1 << i #really this should be 1 << self.n-1-i but it's symmetric and faster as is
+            mask = 1 << i
             bit_is_0 = (indices & mask) == 0
             bit_is_1 = ~bit_is_0
     
             f0, f1 = self.f[bit_is_0], self.f[bit_is_1]
     
-            # Case 1: x_i = 0 is canalizing
             if np.all(f0 == f0[0]):
-                if k == 1:
-                    return True
-                # recurse on subfunction with x_i fixed to 0 → drop that variable
-                return BooleanFunction(f1).is_k_canalizing(k - 1)
+                return True if k == 1 else BooleanFunction(f1).is_k_canalizing(k - 1)
     
-            # Case 2: x_i = 1 is canalizing
-            elif np.all(f1 == f1[0]):
-                if k == 1:
-                    return True
-                return BooleanFunction(f0).is_k_canalizing(k - 1)
+            if np.all(f1 == f1[0]):
+                return True if k == 1 else BooleanFunction(f0).is_k_canalizing(k - 1)
+    
         return False
 
-
-    def is_kset_canalizing(self, k : int) -> bool:
+    def is_kset_canalizing(self, k: int) -> bool:
         """
-        Determine if a Boolean function is k-set canalizing.
-
-        A Boolean function is k-set canalizing if there exists a set of k
-        variables such that setting these variables to specific values forces
-        the output of the function, irrespective of the other n - k inputs.
-
-        **Parameters:**
-            
-            - k (int): The size of the variable set (with 0 ≤ k ≤ n).
-
-        **Returns:**
-            
-            - bool: True if f is k-set canalizing, False otherwise.
-
-        **References:**
-            
-            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively
-               canalizing Boolean functions. Advances in Applied Mathematics,
-               145, 102475.
+        Determine whether the Boolean function is k-set canalizing.
+    
+        A Boolean function is k-set canalizing if there exists a set of ``k``
+        variables such that fixing these variables to specific values forces
+        the output of the function, regardless of the remaining ``n - k``
+        variables.
+    
+        Parameters
+        ----------
+        k : int
+            Size of the variable set, with ``0 <= k <= n``.
+    
+        Returns
+        -------
+        bool
+            ``True`` if the Boolean function is k-set canalizing, ``False`` otherwise.
+    
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
+    
+        References
+        ----------
+        Kadelka, C., Keilty, B., & Laubenbacher, R. (2023).
+            Collectively canalizing Boolean functions.
+            *Advances in Applied Mathematics*, 145, 102475.
         """
-        return self.get_kset_canalizing_proportion(k)>0
+        return self.get_kset_canalizing_proportion(k) > 0
 
 
     ## Methods with non-binary output
 
     def get_hamming_weight(self) -> int:
         """
-        Calculate the number of non-zero bits in the bit vector representing
-        a Boolean function.
-        
-        **Returns:**
-        
-            - int: The number of non-zero bits in the bit vector.
+        Compute the Hamming weight of the Boolean function.
+    
+        The Hamming weight is the number of input states for which the function
+        evaluates to ``1`` (i.e., the number of ones in the truth table).
+    
+        Returns
+        -------
+        int
+            The Hamming weight of the Boolean function.
         """
         return int(self.f.sum())
         
     
     def get_essential_variables(self) -> list:
         """
-        Determine the indices of essential variables in a Boolean function.
-
-        A variable is essential if changing its value (while holding the others
-        constant) can change the output of f.
-
-        **Returns:**
-            
-            - list[int]: List of indices corresponding to the essential variables.
+        Determine the essential variables of the Boolean function.
+    
+        A variable ``x_i`` is essential if there exists at least one assignment of
+        the remaining variables such that flipping ``x_i`` changes the output of
+        the function.
+    
+        Returns
+        -------
+        list[int]
+            Indices of all essential variables. If the truth table is empty, returns
+            an empty list.
         """
         if len(self.f) == 0:
             return []
@@ -777,23 +1111,34 @@ class BooleanFunction(object):
 
     def get_number_of_essential_variables(self) -> int:
         """
-        Count the number of essential variables in a Boolean function.
-
-        **Returns:**
-            
-            - int: The number of essential variables.
+        Count the number of essential variables of the Boolean function.
+    
+        Returns
+        -------
+        int
+            The number of essential variables.
         """
         return len(self.get_essential_variables())
     
     
     def get_type_of_inputs(self) -> np.ndarray:
         """
-        Determine for each input of the Boolean function whether it is
-        positive, negative, conditional or non-essential.
-
-        **Returns:**
-            
-            - np.ndarray[str]: The type of each input of the Boolean function.
+        Classify each input variable of the Boolean function.
+    
+        Each variable is classified as one of:
+    
+        - ``'positive'``: flipping the variable from 0 to 1 never decreases the output
+        - ``'negative'``: flipping the variable from 0 to 1 never increases the output
+        - ``'conditional'``: flipping the variable can both increase and decrease the output
+        - ``'non-essential'``: flipping the variable never changes the output
+    
+        The result is cached in ``self.properties['InputTypes']``.
+    
+        Returns
+        -------
+        np.ndarray
+            Array of shape ``(n,)`` with dtype ``str`` giving the type of each input
+            variable.
         """
 
         if 'InputTypes' in self.properties:
@@ -828,20 +1173,25 @@ class BooleanFunction(object):
 
 
     
-    def get_symmetry_groups(self) -> list:
+    def get_symmetry_groups(self) -> list[list[int]]:
         """
-        Determine all symmetry groups of input variables for a Boolean function.
-
-        Two variables are in the same symmetry group if swapping their values
-        does not change the output of the function for any input of the other
+        Identify symmetry groups of input variables.
+    
+        Two variables belong to the same symmetry group if swapping their values
+        leaves the Boolean function invariant for all assignments of the remaining
         variables.
-
-        **Returns:**
+    
+        Returns
+        -------
+        list[list[int]]
+            A list of symmetry groups, where each group is given by a list of
+            variable indices.
             
-            - list[list[int]]: A list of lists where each inner list contains
-              indices of variables that form a symmetry group.
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
         """
-        
         symmetry_groups = []
         left_to_check = np.ones(self.n)
         for i in range(self.n):
@@ -862,46 +1212,54 @@ class BooleanFunction(object):
     
     def get_absolute_bias(self) -> float:
         """
-        Compute the absolute bias of a Boolean function.
-
-        The absolute bias is defined as `|(self.get_hamming_weight() /
-        2^(n-1)) - 1|`, which quantifies how far the function's output
-        distribution deviates from being balanced.
-
-        **Returns:**
-            
-            - float: The absolute bias of the Boolean function.
+        Compute the absolute bias of the Boolean function.
+    
+        The absolute bias is defined as
+    
+        ``| (H / 2**(n-1)) - 1 |``,
+    
+        where ``H`` is the Hamming weight of the function. It measures how far the
+        output distribution deviates from being perfectly balanced.
+    
+        Returns
+        -------
+        float
+            The absolute bias of the Boolean function.
         """
-        return abs(self.get_hamming_weight() * 1.0 / 2**(self.n - 1) - 1)
+        return float(abs(self.get_hamming_weight() * 1.0 / 2**(self.n - 1) - 1))
 
 
-    def get_activities(self, 
-                       nsim : int = 10000, 
-                       EXACT : bool = False, 
-                       *, 
-                       rng = None) -> np.array:
+    def get_activities(
+        self,
+        nsim: int = 10000,
+        EXACT: bool = False,
+        *,
+        rng=None
+    ) -> np.ndarray:
         """
-        Compute the activities of all variables of a Boolean function.
-
-        This function can compute the activities  by exhaustively iterating
-        over all inputs (if EXACT is True) or estimate it via Monte Carlo sampling 
-        (if EXACT is False).
-
-        **Parameters:**
-            
-            - nsim (int, optional): Number of random samples (default is 10000,
-              used when EXACT is False).
-            
-            - EXACT (bool, optional): If True, compute the exact sensitivity by
-              iterating over all inputs; otherwise, use sampling (default).
-              
-            - rng (None, optional): Argument for the random number generator,
-              implemented in 'utils._coerce_rng'.
-
-        **Returns:**
-            
-            - np.array(float): The activities of the variables of the Boolean function.
-        """        
+        Compute the activities of all input variables.
+    
+        The activity of a variable is the probability that flipping this variable
+        (while keeping all others fixed) changes the output of the Boolean function.
+    
+        Activities can be computed exactly by enumerating all ``2**n`` input states
+        or estimated via Monte Carlo sampling.
+    
+        Parameters
+        ----------
+        nsim : int, optional
+            Number of random samples used when ``EXACT=False`` (default: 10000).
+        EXACT : bool, optional
+            If ``True``, compute activities exactly by enumerating all input states.
+            If ``False``, estimate activities via sampling (default: ``False``).
+        rng : None or numpy.random.Generator, optional
+            Random number generator passed to ``utils._coerce_rng``.
+    
+        Returns
+        -------
+        np.ndarray
+            Array of shape ``(n,)`` containing the activities of all variables.
+        """     
         size_state_space = 2**self.n
         activities = np.zeros(self.n,dtype=np.float64)
         if EXACT:
@@ -923,48 +1281,86 @@ class BooleanFunction(object):
             return activities / nsim
     
     
-    def get_average_sensitivity(self, nsim : int = 10000, EXACT : bool = False,
-        NORMALIZED : bool = True, *, rng = None) -> float:
+    def get_average_sensitivity(
+        self,
+        nsim: int = 10000,
+        EXACT: bool = False,
+        NORMALIZED: bool = True,
+        *,
+        rng=None
+    ) -> float:
         """
-        Compute the average sensitivity of a Boolean function.
-
-        The average sensitivity is equivalent to the Derrida value D(F,1) when
-        the update rule is sampled from the same space. This function can
-        compute the exact sensitivity by exhaustively iterating over all inputs
-        (if EXACT is True) or estimate it via Monte Carlo sampling (if EXACT
-        is False). The result can be normalized by the number of inputs.
-
-        **Parameters:**
-            
-            - nsim (int, optional): Number of random samples (default is 10000,
-              used when EXACT is False).
-            
-            - EXACT (bool, optional): If True, compute the exact sensitivity by
-              iterating over all inputs; otherwise, use sampling (default).
-              
-            - NORMALIZED (bool, optional): If True, return the normalized
-              sensitivity (divided by the number of function inputs);
-              otherwise, return the total count.
-              
-            - rng (None, optional): Argument for the random number generator,
-              implemented in 'utils._coerce_rng'.
-
-        **Returns:**
-            
-            - float: The (normalized) average sensitivity of the Boolean function.
-        """        
+        Compute the average sensitivity of the Boolean function.
+    
+        The (unnormalized) average sensitivity equals the sum of the activities of
+        all variables. If ``NORMALIZED=True``, the result is divided by ``n``.
+    
+        The sensitivity can be computed exactly by enumerating all input states or
+        estimated via Monte Carlo sampling.
+    
+        Parameters
+        ----------
+        nsim : int, optional
+            Number of random samples used when ``EXACT=False`` (default: 10000).
+        EXACT : bool, optional
+            If ``True``, compute the exact activities by enumerating all input states.
+            If ``False``, estimate them via sampling (default: ``False``).
+        NORMALIZED : bool, optional
+            If ``True``, return the average sensitivity divided by ``n`` (default:
+            ``True``). If ``False``, return the sum of activities.
+        rng : None or numpy.random.Generator, optional
+            Random number generator passed to ``utils._coerce_rng``.
+    
+        Returns
+        -------
+        float
+            The (optionally normalized) average sensitivity of the Boolean function.
+        """      
         activities = self.get_activities(nsim,EXACT,rng=rng)
         s = sum(activities)
         if NORMALIZED:
-            return s / self.n
+            return float(s / self.n)
         else:
-            return s
+            return float(s)
     
 
-    def _get_layer_structure(self, can_inputs, can_outputs, can_order,
-                             variables, depth, number_layers):
+    def _get_layer_structure(
+        self,
+        can_inputs,
+        can_outputs,
+        can_order,
+        variables,
+        depth,
+        number_layers
+    ):
         """
-        Faster internal version of _get_layer_structure using bitwise operations.
+        Internal recursive routine for computing the canalizing layer structure.
+    
+        This method identifies all canalizing variables at the current recursion
+        level using bitwise operations, removes them simultaneously, and recurses
+        on the resulting core function.
+    
+        Parameters
+        ----------
+        can_inputs : np.ndarray
+            Accumulated canalizing input values.
+        can_outputs : np.ndarray
+            Accumulated canalized output values.
+        can_order : np.ndarray
+            Accumulated order of canalizing variables.
+        variables : list[int]
+            Indices of variables remaining in the current subfunction.
+        depth : int
+            Current canalizing depth.
+        number_layers : int
+            Current number of identified canalizing layers.
+    
+        Returns
+        -------
+        tuple
+            A tuple containing the updated canalizing depth, number of layers,
+            canalizing inputs, canalized outputs, core Boolean function, and
+            canalizing variable order.
         """
 
         # base cases
@@ -1034,47 +1430,65 @@ class BooleanFunction(object):
     def get_layer_structure(self) -> dict:
         """
         Determine the canalizing layer structure of a Boolean function.
-
-        This function decomposes a Boolean function into its canalizing layers
+        
+        This method decomposes a Boolean function into its canalizing layers
         (standard monomial form) by recursively identifying and removing
-        conditionally canalizing variables. The output includes the canalizing
-        depth, the number of layers, the canalizing inputs and outputs, the
-        core function of the non-canalizing variables, and the order of the
-        canalizing variables.
-
-        **Returns:**
-            
-            - dict: A dictionary (self.properties) containing:
-                
-                - CanalizingDepth (int): Canalizing depth (number of
-                  conditionally canalizing variables).
-                
-                - NumberOfLayers (int): Number of distinct canalizing layers.
-                - CanalizingInputs (np.array[int]): Array of canalizing input
-                  values.
-                  
-                - CanalizedOutputs (np.array[int]): Array of canalized output
-                  values.
-                  
-                - CoreFunction (BooleanFunction): The core function (truth
-                  table) after removing canalizing variables. Inputs:
-                  non-canalizing variables.
-                  
-                - OrderOfCanalizingVariables (np.array[int]): Array of indices
-                  representing the order of canalizing variables.
-                  
-                - LayerStructure (np.array[int]): Indicates the number of
-                  variables in each canalizing layer.
-                
-        **References:**
-            
-            #. He, Q., & Macauley, M. (2016). Stratification and enumeration
-               of Boolean functions by canalizing depth. Physica D: Nonlinear
-               Phenomena, 314, 1-8.
-               
-            #. Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D.
-               (2022). Revealing the canalizing structure of Boolean functions:
-               Algorithms and applications. Automatica, 146, 110630.
+        canalizing variables. All variables that canalize the function at the
+        same recursion step form one canalizing layer and are removed
+        simultaneously.
+        
+        The decomposition yields the canalizing depth, the number of canalizing
+        layers, the canalizing inputs and outputs, the order of canalizing
+        variables, and the remaining non-canalizing core function.
+        
+        Returns
+        -------
+        dict
+            Dictionary containing the canalizing layer structure with the
+            following entries:
+        
+            - ``CanalizingDepth`` : int  
+              Total number of canalizing variables.
+        
+            - ``NumberOfLayers`` : int  
+              Number of distinct canalizing layers.
+        
+            - ``CanalizingInputs`` : np.ndarray  
+              Canalizing input value for each canalizing variable.
+        
+            - ``CanalizedOutputs`` : np.ndarray  
+              Output value forced by each canalizing variable.
+        
+            - ``CoreFunction`` : BooleanFunction  
+              Core Boolean function obtained after removing all canalizing
+              variables.
+        
+            - ``OrderOfCanalizingVariables`` : np.ndarray  
+              Order in which canalizing variables are identified.
+        
+            - ``LayerStructure`` : np.ndarray  
+              Number of canalizing variables in each layer.
+        
+        Notes
+        -----
+        The result is cached in ``self.properties`` and recomputed only if the
+        canalizing structure has not been computed previously.
+        
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        smaller Boolean functions.
+        
+        References
+        ----------
+        He, Q., & Macauley, M. (2016).
+            Stratification and enumeration of Boolean functions by canalizing depth.
+            *Physica D: Nonlinear Phenomena*, 314, 1–8.
+        
+        Dimitrova, E., Stigler, B., Kadelka, C., & Murrugarra, D. (2022).
+            Revealing the canalizing structure of Boolean functions:
+            Algorithms and applications.
+            *Automatica*, 146, 110630.
         """
         if "CanalizingDepth" not in self.properties:
             dummy = dict(zip(["CanalizingDepth", "NumberOfLayers", "CanalizingInputs", "CanalizedOutputs", "CoreFunction", "OrderOfCanalizingVariables"],
@@ -1089,12 +1503,15 @@ class BooleanFunction(object):
 
     def get_canalizing_depth(self) -> int:
         """
-        Returns the canalizing depth of the function.
-        
-        **Returns:**
-            
-            - int: The canalizing depth (number of conditionally canalizing
-              variables).
+        Return the canalizing depth of the Boolean function.
+    
+        The canalizing depth is the total number of canalizing variables identified
+        in the canalizing layer decomposition.
+    
+        Returns
+        -------
+        int
+            Canalizing depth of the Boolean function.
         """
         if "CanalizingDepth" not in self.properties:
             self.get_layer_structure()
@@ -1103,28 +1520,36 @@ class BooleanFunction(object):
     
     def get_kset_canalizing_proportion(self, k : int) -> float:
         """
-        Compute the proportion of k-set canalizing input sets for a Boolean
-        function.
-
-        For a given k, this function calculates the probability that a randomly
-        chosen set of k inputs canalizes the function, i.e., forces the output
-        regardless of the remaining variables.
-
-        **Parameters:**
+        Compute the proportion of k-set canalizing input sets.
+    
+        For a given ``k``, this method computes the probability that a randomly
+        chosen set of ``k`` variables canalizes the function, i.e., fixing those
+        variables to some values forces the output regardless of the remaining
+        variables.
+    
+        Parameters
+        ----------
+        k : int
+            Size of the variable set, with ``0 <= k <= n``.
+    
+        Returns
+        -------
+        float
+            Proportion of k-set canalizing input sets.
             
-            - k (int): The size of the variable set (0 ≤ k ≤ n).
-
-        **Returns:**
-            
-            - float: The proportion of k-set canalizing input sets.
-
-        **References:**
-            
-            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively
-               canalizing Boolean functions. Advances in Applied Mathematics,
-               145, 102475.
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
+    
+        References
+        ----------
+        Kadelka, C., Keilty, B., & Laubenbacher, R. (2023).
+            Collectively canalizing Boolean functions.
+            *Advances in Applied Mathematics*, 145, 102475.
         """
-        assert type(k)==int and 0<=k<=self.n, "k must be an integer and satisfy 0 <= k <= degree n"
+        if not (type(k)==int and 0<=k<=self.n):
+            raise ValueError("k must be an integer and satisfy 0 <= k <= degree n")
         
         # trivial case
         if k == 0:
@@ -1157,27 +1582,36 @@ class BooleanFunction(object):
 
     def get_kset_canalizing_proportion_of_variables(self, k : int) -> float:
         """
-        Compute the proportion of k-set canalizing input sets that contain a specific variable.
-
-        For a given k, this function calculates the probability that a randomly
-        chosen set of k inputs (including a specific variable) canalizes the function,
-        i.e., forces the output regardless of the remaining variables.
-
-        **Parameters:**
+        Compute the proportion of k-set canalizing input sets per variable.
+    
+        For a given ``k``, this method computes, for each variable, the proportion
+        of k-variable input sets containing that variable which canalize the
+        Boolean function.
+    
+        Parameters
+        ----------
+        k : int
+            Size of the variable set, with ``0 <= k <= n``.
+    
+        Returns
+        -------
+        np.ndarray
+            Array of length ``n`` giving the proportion of k-set canalizing input
+            sets containing each variable.
             
-            - k (int): The size of the variable set (0 ≤ k ≤ n).
-
-        **Returns:**
-            
-            - float: The proportion of k-set canalizing input sets.
-
-        **References:**
-            
-            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively
-               canalizing Boolean functions. Advances in Applied Mathematics,
-               145, 102475.
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
+    
+        References
+        ----------
+        Kadelka, C., Keilty, B., & Laubenbacher, R. (2023).
+            Collectively canalizing Boolean functions.
+            *Advances in Applied Mathematics*, 145, 102475.
         """
-        assert type(k)==int and 0<=k<=self.n, "k must be an integer and satisfy 0 <= k <= degree n"
+        if not (type(k)==int and 0<=k<=self.n):
+            raise ValueError("k must be an integer and satisfy 0 <= k <= degree n")
         
         # trivial case
         if k == 0:
@@ -1209,165 +1643,182 @@ class BooleanFunction(object):
 
     def get_canalizing_strength(self) -> tuple:
         """
-        Compute the canalizing strength of a Boolean function via exhaustive
-        enumeration.
+        Compute the canalizing strength of the Boolean function.
+    
+        The canalizing strength is defined as a weighted average of the proportions
+        of k-set canalizing inputs for ``k = 1, ..., n-1``. It equals 0 for minimally
+        canalizing functions (e.g., parity functions) and 1 for maximally canalizing
+        functions (e.g., nested canalizing functions with a single layer).
+    
+        Returns
+        -------
+        float
+            Canalizing strength of the Boolean function.
 
-        The canalizing strength is defined as a weighted average of the
-        proportions of k-set canalizing inputs for k = 1 to n-1. It is 0 for
-        minimally canalizing functions (e.g., Boolean parity functions) and 1
-        for maximally canalizing functions (e.g., nested canalizing functions
-        with one layer).
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
 
-        **Returns:**
-            
-            - The canalizing strength of f.
-
-        **References:**
-            
-            #. Kadelka, C., Keilty, B., & Laubenbacher, R. (2023). Collectively
-               canalizing Boolean functions. Advances in Applied Mathematics,
-               145, 102475.
+        References
+        ----------
+        Kadelka, C., Keilty, B., & Laubenbacher, R. (2023).
+            Collectively canalizing Boolean functions.
+            *Advances in Applied Mathematics*, 145, 102475.
         """
+
         if self.n==1:
-            print("Warning:\nCanalizing strength is only properly defined for Boolean functions with n > 1 inputs. Returned 1 for n==1.")
+            warnings.warn(
+                "Canalizing strength is only defined for Boolean functions with n > 1 inputs. "
+                "Returning 1 for n == 1.",
+                RuntimeWarning
+            )
             return 1.0
         res = []
         for k in range(1, self.n):
             res.append(self.get_kset_canalizing_proportion(k))
-        return np.mean(np.multiply(res, 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1)))
+        return float(np.mean(np.multiply(res, 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1))))
 
 
-    def get_canalizing_strength_of_variables(self) -> tuple:
+    def get_canalizing_strength_of_variables(self) -> np.ndarray:
         """
-        Compute the canalizing strength of each variable in a Boolean function 
-        via exhaustive enumeration.
+        Compute the canalizing strength of each variable.
+    
+        The canalizing strength of a variable is defined as a weighted average of
+        the proportions of k-set canalizing inputs containing that variable for
+        ``k = 1, ..., n-1``.
+    
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
 
-        The canalizing strength is defined as a weighted average of the
-        proportions of k-set canalizing inputs for k = 1 to n-1. It is 0 for
-        minimally canalizing functions (e.g., Boolean parity functions) and 1
-        for maximally canalizing functions (e.g., nested canalizing functions
-        with one layer).
-
-        **Returns:**
-            
-            - np.array(float): The canalizing strength of each variable of f.
-
+        Returns
+        -------
+        np.ndarray
+            Array of length ``n`` containing the canalizing strength of each
+            variable.
         """
         if self.n==1:
-            print("Warning:\nCanalizing strength is only properly defined for Boolean functions with n > 1 inputs. Returned 1 for n==1.")
+            warnings.warn(
+                "Canalizing strength is only defined for Boolean functions with n > 1 inputs. "
+                "Returning 1 for n == 1.",
+                RuntimeWarning
+            )
             return np.ones(1,dtype=np.float64)
         res = np.zeros((self.n-1,self.n))
         for k in range(1, self.n):
             res[k-1] = self.get_kset_canalizing_proportion_of_variables(k)
         multipliers = 2**np.arange(1, self.n) / (2**np.arange(1, self.n) - 1)
-        return np.mean(res * multipliers[:, np.newaxis],0)
-    
-    
-    
-    def get_input_redundancy(self) -> Optional[float]:
-        """
-        .. important::
-            This method requires an installation of CANA (See
-            `Extended Functionality`_). If CANA is not found, this method will
-            return None.
-        .. _Extended Functionality: https://ckadelka.github.io/BoolForge/install.html#extended-functionality
-
-        Compute the input redundancy of a Boolean function.
-
-        The input redundancy quantifies how many inputs are not required to
-        determine the function’s output. Constant functions have an input
-        redundancy of 1 (none of the inputs are needed), whereas parity
-        functions have an input redundancy of 0 (all inputs are necessary).
-
-        **Returns:**
-            
-            - float: Normalized input redundancy in the interval [0, 1].
-
-        **References:**
-            
-            #. Marques-Pita, M., & Rocha, L. M. (2013). Canalization and
-               control in automata networks: body segmentation in Drosophila
-               melanogaster. PloS One, 8(3), e55946.
-               
-            #. Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018).
-               CANA: a python package for quantifying control and canalization
-               in Boolean networks. Frontiers in Physiology, 9, 1046.
-        """
-        if __LOADED_CANA__:
-            return self.to_cana().input_redundancy()
-        print('The method \'get_input_redundancy\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
-        return None
-    
-    def get_edge_effectiveness(self) -> Optional[list]:
-        """
-        .. important::
-            This method requires an installation of CANA (See
-            `Extended Functionality`_). If CANA is not found, this method will
-            return None.
-        .. _Extended Functionality: https://ckadelka.github.io/BoolForge/install.html#extended-functionality
-
-        Compute the edge effectiveness for each regulator of a Boolean function.
-
-        Edge effectiveness measures how much flipping a given input (regulator)
-        influences the output. Non-essential inputs have an effectiveness of 0,
-        whereas inputs that always flip the output when toggled have an
-        effectiveness of 1.
+        return np.mean(res * multipliers[:, np.newaxis], axis = 0)
         
-        **Returns:**
-            
-            - list[float]: A list of n floats in [0, 1] representing the edge
-              effectiveness for each input.
-
-        **References:**
-            
-            #. Marques-Pita, M., & Rocha, L. M. (2013). Canalization and
-               control in automata networks: body segmentation in Drosophila
-               melanogaster. PloS One, 8(3), e55946.
-               
-            #. Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018).
-               CANA: a python package for quantifying control and canalization
-               in Boolean networks. Frontiers in Physiology, 9, 1046.
+    def get_input_redundancy(self) -> float:
         """
-        if __LOADED_CANA__:
-            return self.to_cana().edge_effectiveness()
-        print('The method \'get_edge_effectiveness\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
-        return None
-
-    def get_effective_degree(self) -> Optional[float]:
-        """
-        .. important::
-            This method requires an installation of CANA (See
-            `Extended Functionality`_). If CANA is not found, this method will
-            return None.
-        .. _Extended Functionality: https://ckadelka.github.io/BoolForge/install.html#extended-functionality
-        
-        Compute the effective degree, i.e., the sum of the edge effectivenesses
-        of each regulator, of a Boolean function.
-
-        Edge effectiveness measures how much flipping a given input (regulator)
-        influences the output. Non-essential inputs have an effectiveness of 0,
-        whereas inputs that always flip the output when toggled have an
-        effectiveness of 1.
-
-        **Returns:**
-            
-            - float: The sum of the edge effectiveness of each regulator.
-
-        **References:**
-
-            #. Marques-Pita, M., & Rocha, L. M. (2013). Canalization and
-               control in automata networks: body segmentation in Drosophila
-               melanogaster. PloS One, 8(3), e55946.
-               
-            #. Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018).
-               CANA: a python package for quantifying control and canalization
-               in Boolean networks. Frontiers in Physiology, 9, 1046.
-        """
-        if __LOADED_CANA__:
-            return sum(self.get_edge_effectiveness())
-        print('The method \'get_effective_degree\' requires the module cana, which cannot be found. Ensure it is installed to use this functionality.')
-        return None
+        Compute the input redundancy of the Boolean function.
     
+        Input redundancy quantifies the fraction of inputs that are not required
+        to determine the output. Constant functions have redundancy 1, whereas
+        parity functions have redundancy 0.
+    
+        Returns
+        -------
+        float
+            Normalized input redundancy in the interval ``[0, 1]``.
+    
+        Raises
+        ------
+        ImportError
+            If the CANA package is not installed.
+    
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
+
+        References
+        ----------
+        Marques-Pita, M., & Rocha, L. M. (2013).
+            Canalization and control in automata networks: body segmentation in
+            *Drosophila melanogaster*. *PLoS One*, 8(3), e55946.
+    
+        Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018).
+            CANA: a python package for quantifying control and canalization in
+            Boolean networks. *Frontiers in Physiology*, 9, 1046.
+        """
+        utils._require_cana()
+        return self.to_cana().input_redundancy()
+        
+    def get_edge_effectiveness(self) -> list[float]:
+        """
+        Compute the edge effectiveness of each input variable.
+    
+        Edge effectiveness measures how strongly flipping an input variable
+        influences the output. Non-essential inputs have effectiveness 0, whereas
+        inputs that always flip the output have effectiveness 1.
+    
+        Returns
+        -------
+        list[float]
+            List of length ``n`` containing edge effectiveness values in
+            ``[0, 1]``.
+    
+        Raises
+        ------
+        ImportError
+            If the CANA package is not installed.
+
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
+    
+        References
+        ----------
+        Marques-Pita, M., & Rocha, L. M. (2013).
+            Canalization and control in automata networks: body segmentation in
+            *Drosophila melanogaster*. *PLoS One*, 8(3), e55946.
+    
+        Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018).
+            CANA: a python package for quantifying control and canalization in
+            Boolean networks. *Frontiers in Physiology*, 9, 1046.
+        """
+        utils._require_cana()
+        return self.to_cana().edge_effectiveness()
+    
+    def get_effective_degree(self) -> float:
+        """
+        Compute the effective degree of the Boolean function.
+    
+        The effective degree is defined as the sum of the edge effectiveness
+        values of all input variables.
+    
+        Returns
+        -------
+        float
+            Effective degree of the Boolean function.
+    
+        Raises
+        ------
+        ImportError
+            If the CANA package is not installed.
+
+        Notes
+        -----
+        This method has exponential time complexity in ``n`` and is intended for
+        small Boolean functions.
+        
+        References
+        ----------
+        Marques-Pita, M., & Rocha, L. M. (2013).
+            Canalization and control in automata networks: body segmentation in
+            *Drosophila melanogaster*. *PLoS One*, 8(3), e55946.
+    
+        Correia, R. B., Gates, A. J., Wang, X., & Rocha, L. M. (2018).
+            CANA: a python package for quantifying control and canalization in
+            Boolean networks. *Frontiers in Physiology*, 9, 1046.
+        """
+        utils._require_cana()
+        return float(sum(self.get_edge_effectiveness()))
 
 
 

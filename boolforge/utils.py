@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This module provides utility functions and helper routines used throughout
-BoolForge.
+Utility functions used throughout BoolForge.
 
 The :mod:`~boolforge.utils` module includes low-level operations for binary and
 decimal conversions, truth table manipulations, and combinatorial helper
@@ -11,46 +10,84 @@ functions. These utilities are used internally by
 classes to enable efficient representation and analysis of Boolean functions
 and networks.
 
-Several functions in this module can take advantage of Numba-based JIT
-compilation for significant speedups when processing large truth tables or
-performing repeated bit-level operations. Installation of Numba is therefore
-**encouraged** but **optional**; pure Python fallbacks are provided for all
-functions.
+Notes
+-----
+Most functions in this module are intended for internal use and are not part of
+the stable public API.
 
-Example
--------
->>> from boolforge import utils
->>> utils.bin2dec([1, 0, 1])
+Examples
+--------
+>>> import boolforge
+>>> boolforge.bin2dec([1, 0, 1])
 5
->>> utils.dec2bin(5, 3)
+>>> boolforge.dec2bin(5, 3)
 array([1, 0, 1])
 """
 
 
 ##Imports
-from __future__ import annotations
 import numpy as np
 import random as _py_random
+from collections.abc import Sequence
 from numpy.random import Generator as _NPGen, RandomState as _NPRandomState, SeedSequence, default_rng
 
-from typing import Union
-from typing import Optional
+__all__ = [
+    "bin2dec",
+    "dec2bin",
+    "bool_to_poly",
+    "f_from_expression",
+    "hamming_weight_to_ncf_layer_structure",
+    "get_left_side_of_truth_table",
+    "left_side_of_truth_tables",
+]
 
-def _coerce_rng(rng : Union[int, _NPGen, _NPRandomState, _py_random.Random, None] = None) -> _NPGen:
+def _require_cana():
+    try:
+        import cana.boolean_node
+        return cana.boolean_node
+    except ModuleNotFoundError as e:
+        raise ImportError(
+            "This functionality requires CANA. "
+            "Install it with `pip install cana`."
+        ) from e
+        
+
+def _coerce_rng(
+    rng : int | _NPGen | _NPRandomState | _py_random.Random | None = None
+) -> _NPGen:
     """
-    Return a NumPy Generator given a variety of rng-like inputs.
+    Coerce a variety of RNG-like inputs to a NumPy ``Generator``.
 
-    **Accepts:**
-        
-      - None                -> default_rng()
-      - int (seed)          -> default_rng(seed)
-      - np.random.Generator -> returned as-is
-      - np.random.RandomState -> converted via SeedSequence
-      - random.Random       -> converted via SeedSequence
+    Parameters
+    ----------
+    rng : int | np.random.Generator | np.random.RandomState | random.Random | None, optional
+        Random number generator or seed specification.
 
-    **Raises:**
-        
-        - TypeError: for unsupported inputs.
+        - ``None``: return ``np.random.default_rng()``.
+        - ``int``: interpreted as a seed for ``default_rng``.
+        - ``np.random.Generator``: returned unchanged.
+        - ``np.random.RandomState``: converted via ``SeedSequence``.
+        - ``random.Random``: converted via ``SeedSequence``.
+
+    Returns
+    -------
+    np.random.Generator
+        A NumPy random number generator.
+
+    Raises
+    ------
+    TypeError
+        If ``rng`` is not one of the supported types.
+
+    Notes
+    -----
+    This function provides a unified RNG interface across BoolForge by
+    normalizing legacy and standard-library RNGs to the modern NumPy
+    ``Generator`` API.
+
+    Conversion from ``RandomState`` and ``random.Random`` is performed by
+    extracting entropy and initializing a ``SeedSequence``. This preserves
+    reproducibility while avoiding direct reliance on deprecated RNG APIs.
     """
     if rng is None:
         return default_rng()
@@ -68,24 +105,71 @@ def _coerce_rng(rng : Union[int, _NPGen, _NPRandomState, _py_random.Random, None
         return default_rng(SeedSequence(entropy))
     raise TypeError(f"Unsupported rng type: {type(rng)!r}")
 
-def is_float(element: any) -> bool:
+def is_float(element: object) -> bool:
+    """
+    Check whether an object can be coerced to a float.
+
+    Parameters
+    ----------
+    element : object
+        Object to test for float coercibility.
+
+    Returns
+    -------
+    bool
+        True if ``element`` can be converted to ``float`` without raising an
+        exception, False otherwise.
+
+    Notes
+    -----
+    This function tests coercibility, not type membership. For example,
+    numeric strings and integers return True.
+
+    Examples
+    --------
+    >>> is_float(3)
+    True
+    >>> is_float(3.14)
+    True
+    >>> is_float("2.7")
+    True
+    >>> is_float("abc")
+    False
+    >>> is_float(None)
+    False
+    """
     try:
         float(element)
         return True
-    except ValueError:
+    except (TypeError, ValueError):
         return False
 
-def bin2dec(binary_vector : list) -> int:
+def bin2dec(binary_vector: list[int]) -> int:
     """
     Convert a binary vector to an integer.
 
-    **Parameters:**
-        
-        - binary_vector (list[int]): List containing binary digits (0 or 1).
+    Parameters
+    ----------
+    binary_vector : list of int
+        Binary digits (0 or 1), ordered from most significant bit to least
+        significant bit.
 
-    **Returns:**
-        
-        - int: Integer value converted from the binary vector.
+    Returns
+    -------
+    int
+        Integer represented by the binary vector.
+
+    Notes
+    -----
+    No validation is performed to ensure that entries of ``binary_vector`` are
+    binary. Nonzero values are treated as 1 under bitwise conversion.
+
+    Examples
+    --------
+    >>> bin2dec([1, 0, 1])
+    5
+    >>> bin2dec([0, 0, 1, 1])
+    3
     """
     decimal = 0
     for bit in binary_vector:
@@ -93,198 +177,356 @@ def bin2dec(binary_vector : list) -> int:
     return int(decimal)
 
 
-def dec2bin(integer_value : int, num_bits : int) -> list:
+def dec2bin(integer_value: int, num_bits: int) -> list[int]:
     """
-    Convert an integer to a binary vector.
+    Convert a nonnegative integer to a binary vector.
 
-    **Parameters:**
-        
-        - integer_value (int): Integer value to be converted.
-        - num_bits (int): Number of bits in the binary representation.
+    Parameters
+    ----------
+    integer_value : int
+        Nonnegative integer to convert.
+    num_bits : int
+        Length of the binary representation.
 
-    **Returns:**
-        
-        - list[int]: List containing binary digits (0 or 1).
+    Returns
+    -------
+    list of int
+        Binary digits (0 or 1), ordered from most significant bit to least
+        significant bit.
+
+    Notes
+    -----
+    - If ``integer_value`` requires more than ``num_bits`` bits, the most
+      significant bits are truncated.
+    - No validation is performed for negative inputs.
+
+    Examples
+    --------
+    >>> dec2bin(5, 3)
+    [1, 0, 1]
+    >>> dec2bin(3, 5)
+    [0, 0, 0, 1, 1]
     """
     binary_string = bin(integer_value)[2:].zfill(num_bits)
     return [int(bit) for bit in binary_string]
 
+
 left_side_of_truth_tables = {}
 
-def get_left_side_of_truth_table(N):
+def get_left_side_of_truth_table(N: int) -> np.ndarray:
+    """
+    Return the left-hand side of a Boolean truth table.
+
+    The left-hand side is the binary representation of all ``2**N`` input
+    combinations for ``N`` Boolean variables, ordered lexicographically from
+    ``0`` to ``2**N - 1``.
+
+    Parameters
+    ----------
+    N : int
+        Number of Boolean variables.
+
+    Returns
+    -------
+    np.ndarray
+        Array of shape ``(2**N, N)`` with entries in ``{0, 1}``. Columns are
+        ordered from most significant bit to least significant bit.
+
+    Notes
+    -----
+    - The result is cached by ``N`` to avoid recomputation.
+    - Row ``i`` corresponds to the binary expansion of integer ``i``.
+    - The most significant bit appears in column 0.
+
+    Examples
+    --------
+    >>> get_left_side_of_truth_table(2)
+    array([[0, 0],
+           [0, 1],
+           [1, 0],
+           [1, 1]], dtype=uint8)
+    """
     if N in left_side_of_truth_tables:
         left_side_of_truth_table = left_side_of_truth_tables[N]
     else:
-        #left_side_of_truth_table = np.array(list(itertools.product([0, 1], repeat=self.N)))
-        vals = np.arange(2**N, dtype=np.uint64)[:, None]              # shape (2^n, 1)
-        masks = (1 << np.arange(N-1, -1, -1, dtype=np.uint64))[None]  # shape (1, n)
+        vals = np.arange(2**N, dtype=np.uint64)[:, None]
+        masks = (1 << np.arange(N-1, -1, -1, dtype=np.uint64))[None]
         left_side_of_truth_table = ((vals & masks) != 0).astype(np.uint8)
         left_side_of_truth_tables[N] = left_side_of_truth_table
     return left_side_of_truth_table
 
 
-def find_all_indices(arr,el):
-    '''
-    Given a list arr, this function returns a list of all the indices i where arr[i]==el.
-    If el not in arr, it raises a ValueError.
-    '''
-    res=[]
-    for i,a in enumerate(arr):
-        if a==el:
+def find_all_indices(arr: list, el: object) -> list[int]:
+    """
+    Find all indices of a given element in a sequence.
+
+    Parameters
+    ----------
+    arr : list
+        Sequence to search.
+    el : object
+        Element to locate.
+
+    Returns
+    -------
+    list of int
+        Indices ``i`` such that ``arr[i] == el``.
+
+    Raises
+    ------
+    ValueError
+        If ``el`` does not occur in ``arr``.
+
+    Examples
+    --------
+    >>> find_all_indices([1, 2, 1, 3], 1)
+    [0, 2]
+    >>> find_all_indices(['a', 'b', 'a'], 'a')
+    [0, 2]
+    """
+    res: list[int] = []
+    for i, a in enumerate(arr):
+        if a == el:
             res.append(i)
-    if res==[]:
-        raise ValueError('The element is not in the array at all')
+
+    if not res:
+        raise ValueError("Element not found in sequence")
+
     return res
 
 
-def check_if_empty(my_list : Union[list, np.ndarray]) -> bool:
+def check_if_empty(my_list: list | np.ndarray) -> bool:
     """
-    Check if the provided list or NumPy array is empty.
+    Check whether a list or NumPy array is empty.
 
-    **Parameters:**
-        
-        - my_list (list[Variant], np.ndarray[Variant]): The list or array
-          to check.
+    Parameters
+    ----------
+    my_list : list or np.ndarray
+        Sequence to check.
 
-    **Returns:**
-        
-        - bool: True if my_list is empty (or has size 0 for a NumPy array),
-          False otherwise.
+    Returns
+    -------
+    bool
+        True if ``my_list`` is empty, False otherwise.
+
+    Notes
+    -----
+    For NumPy arrays, emptiness is determined by ``size == 0``.
+    For Python lists, emptiness is determined by equality to ``[]``.
     """
     if isinstance(my_list, np.ndarray):
-        if my_list.size == 0:
-            return True
-    elif my_list == []:
-        return True
-    return False
+        return my_list.size == 0
+    return my_list == []
     
     
-def is_list_or_array_of_ints(x : Union[list, np.ndarray],
-    required_length : int = None) -> bool:
+def is_list_or_array_of_ints(
+    x: list | np.ndarray,
+    required_length: int | None = None,
+) -> bool:
     """
-    Determines if the array-like x contains elements of the 'integer' type.
-    
-    **Parameters**:
-        - x (list | np.ndarray): The array-like to check.
-        - required_length (int | None, optional): The exact length x must have
-          to return true. If None, this check is ignored.
-          
-    **Returns**:
-        - bool: True if x holds elements of type int or np.integer. If
-          required_length is not None, then the length of x must equal required_length
-          as well. Returns false otherwise.
-    """
-    # Case 1: Python list
-    if isinstance(x, list):
-        return (required_length is None or len(x) == required_length) and all(isinstance(el, (int, np.integer)) for el in x)
-    
-    # Case 2: NumPy array
-    if isinstance(x, np.ndarray):
-        return (required_length is None or x.shape == (required_length,)) and np.issubdtype(x.dtype, np.integer)
-    
-    return False
+    Check whether a list or NumPy array contains only integers.
 
-def is_list_or_array_of_floats(x : Union[list, np.ndarray],
-    required_length : int = None) -> bool:
-    """
-    Determines if the array-like x contains elements of the 'floating point' type.
-    
-    **Parameters**:
-        - x (list | np.ndarray): The array-like to check.
-        - required_length (int | None, optional): The exact length x must have
-          to return true. If None, this check is ignored.
-          
-    **Returns**:
-        - bool: True if x holds elements of type float or np.floating. If
-          required_length is not None, then the length of x must equal required_length
-          as well. Returns false otherwise.
+    Parameters
+    ----------
+    x : list or np.ndarray
+        Sequence to check.
+    required_length : int or None, optional
+        If provided, require that ``x`` has exactly this length.
+
+    Returns
+    -------
+    bool
+        True if ``x`` is a list of ``int`` / ``np.integer`` or a NumPy array
+        with integer dtype, and (if specified) has length ``required_length``.
+        False otherwise.
+
+    Notes
+    -----
+    - For Python lists, each element is checked individually.
+    - For NumPy arrays, the dtype is checked using ``np.issubdtype``.
+    - One-dimensional arrays are required when ``required_length`` is given.
     """
     # Case 1: Python list
     if isinstance(x, list):
-        return (required_length is None or len(x) == required_length) and all(isinstance(el, (float, np.floating)) for el in x)
-    
+        return (
+            (required_length is None or len(x) == required_length)
+            and all(isinstance(el, (int, np.integer)) for el in x)
+        )
+
     # Case 2: NumPy array
     if isinstance(x, np.ndarray):
-        return (required_length is None or x.shape == (required_length,)) and np.issubdtype(x.dtype, np.floating)
-    
+        return (
+            (required_length is None or x.shape == (required_length,))
+            and np.issubdtype(x.dtype, np.integer)
+        )
+
     return False
 
 
-def bool_to_poly(f : list, variables : Optional[list] = None,
-    prefix : str = '') -> str:
+def is_list_or_array_of_floats(
+    x: list | np.ndarray,
+    required_length: int | None = None,
+) -> bool:
     """
-    Transform a Boolean function from truth table format to polynomial format
-    in non-reduced DNF.
+    Check whether a list or NumPy array contains only floating-point numbers.
 
-    **Parameters:**
-        
-        - f (list[int]): Boolean function as a vector (list of length 2^n,
-          where n is the number of inputs).
-          
-        - variables (list[str] | None, optional): List of indices to use for
-          variable naming. If empty or not matching the required number,
-          defaults to list(range(n)).
-          
-        - prefix (str, optional): Prefix for variable names in the polynomial,
-          default ''.
+    Parameters
+    ----------
+    x : list or np.ndarray
+        Sequence to check.
+    required_length : int or None, optional
+        If provided, require that ``x`` has exactly this length.
 
-    **Returns:**
-        
-        - str: A string representing the Boolean function in disjunctive
-          normal form (DNF).
+    Returns
+    -------
+    bool
+        True if ``x`` is a list of ``float`` / ``np.floating`` or a NumPy array
+        with floating-point dtype, and (if specified) has length
+        ``required_length``. False otherwise.
+
+    Notes
+    -----
+    - For Python lists, each element is checked individually.
+    - For NumPy arrays, the dtype is checked using ``np.issubdtype``.
+    - One-dimensional arrays are required when ``required_length`` is given.
+    """
+    # Case 1: Python list
+    if isinstance(x, list):
+        return (
+            (required_length is None or len(x) == required_length)
+            and all(isinstance(el, (float, np.floating)) for el in x)
+        )
+
+    # Case 2: NumPy array
+    if isinstance(x, np.ndarray):
+        return (
+            (required_length is None or x.shape == (required_length,))
+            and np.issubdtype(x.dtype, np.floating)
+        )
+
+    return False
+
+
+def bool_to_poly(
+    f: list,
+    variables: list[str] | None = None,
+    prefix: str = '',
+) -> str:
+    """
+    Convert a Boolean function from truth-table form to disjunctive normal form.
+
+    The returned expression is a non-reduced disjunctive normal form (DNF),
+    expressed as a sum of monomials corresponding to truth-table entries where
+    the function evaluates to 1.
+
+    Parameters
+    ----------
+    f : list
+        Boolean function values ordered according to the standard truth-table
+        convention. The length of ``f`` must be ``2**n`` for some integer ``n``.
+    variables : list of str or None, optional
+        Variable names to use in the expression. If None or if the length does
+        not match the required number of variables, default names
+        ``['x0', 'x1', ..., 'x{n-1}']`` are used.
+    prefix : str, optional
+        Prefix for automatically generated variable names. Ignored if
+        ``variables`` is provided with the correct length.
+
+    Returns
+    -------
+    str
+        Boolean expression in non-reduced disjunctive normal form. Returns
+        ``'0'`` if the function is identically zero.
+
+    Notes
+    -----
+    - Variables are ordered from most significant bit to least significant bit.
+    - Each monomial corresponds to a single truth-table row where ``f == 1``.
+    - No simplification or reduction of the DNF is performed.
+
+    Examples
+    --------
+    >>> bool_to_poly([0, 1, 1, 0])
+    '(1 - x0) * x1 + x0 * (1 - x1)'
     """
     len_f = len(f)
     n = int(np.log2(len_f))
     if variables is None or len(variables) != n:
         prefix = 'x'
-        variables = [prefix+str(i) for i in range(n)]
+        variables = [prefix + str(i) for i in range(n)]
+
     left_side_of_truth_table = get_left_side_of_truth_table(n)
     num_values = 2 ** n
     text = []
+
     for i in range(num_values):
         if f[i] == True:
-            monomial = ' * '.join([('%s' % (v)) if entry == 1 else ('(1 - %s)' % (v)) 
-                                  for v, entry in zip(variables, left_side_of_truth_table[i])])
+            monomial = ' * '.join(
+                [
+                    v if entry == 1 else f'(1 - {v})'
+                    for v, entry in zip(variables, left_side_of_truth_table[i])
+                ]
+            )
             text.append(monomial)
-    if text != []:
+
+    if text:
         return ' + '.join(text)
-    else:
-        return '0'
+    return '0'
 
 
-def f_from_expression(expr : str, max_degree : int = 16) -> tuple:
+
+def f_from_expression(
+    expr: str,
+    max_degree: int = 16,
+) -> tuple[np.ndarray, np.ndarray]:
     """
-    Extract a Boolean function from a string expression.
-
-    The function converts an input expression into its truth table representation.
-    The expression can include Boolean operators and comparisons, and the order
-    of variables is determined by their first occurrence in the expression.
-
-    **Parameters:**
-        
-        - expr (str): A text string containing an evaluable Boolean expression.
-
-    **Returns:**
-        
-        - tuple[list[int], list[str]]:
-            
-            - f (list[int]): The right-hand side of the Boolean function
-              (truth table) as a list of length 2**n, where n is the number
-              of inputs.
-              
-            - var (list[str]): A list of variable names (of length n) in the
-              order they were encountered.
+    Construct a Boolean function from a string expression.
     
-    **Examples:**
-        
-        >>> f_from_expression('A AND NOT B') #nested canalizing function
-        ([0, 0, 1, 0], ['A', 'B'])
-        
-        >>> f_from_expression('x1 + x2 + x3 > 1') #threshold function
-        ([0, 0, 0, 1, 0, 1, 1, 1], ['x1', 'x2', 'x3'])
-        
-        >>> f_from_expression('(x1 + x2 + x3) % 2 == 0') % linear (XOR) function
-        ([1, 0, 0, 1, 0, 1, 1, 0], ['x1', 'x2', 'x3'])
+    The expression is evaluated symbolically over all Boolean input
+    combinations to produce the truth table of the corresponding Boolean
+    function. Variables are detected automatically based on their first
+    occurrence in the expression.
+    
+    Parameters
+    ----------
+    expr : str
+        Boolean expression to evaluate. The expression may contain logical
+        operators (``AND``, ``OR``, ``NOT`` or their lowercase equivalents),
+        arithmetic operators, and comparisons.
+    max_degree : int, optional
+        Maximum number of variables allowed. If the number of detected
+        variables exceeds ``max_degree``, an empty truth table is returned.
+    
+    Returns
+    -------
+    f : np.ndarray
+        Boolean function values as an array of shape ``(2**n,)`` with entries
+        in ``{0, 1}``, where ``n`` is the number of detected variables.
+    variables : np.ndarray
+        Variable names in the order they were first encountered in the
+        expression.
+    
+    Notes
+    -----
+    - Variables are ordered by first occurrence in ``expr``.
+    - Truth-table rows follow the standard lexicographic ordering with the
+      most significant bit first.
+    - The expression is evaluated using ``eval`` with restricted builtins.
+    - No syntactic or semantic validation of ``expr`` is performed beyond
+      basic parsing.
+    
+    Examples
+    --------
+    >>> f_from_expression('A AND NOT B')
+    (array([0, 0, 1, 0], dtype=uint8), array(['A', 'B'], dtype='<U1'))
+    
+    >>> f_from_expression('x1 + x2 + x3 > 1')
+    (array([0, 0, 0, 1, 0, 1, 1, 1], dtype=uint8),
+     array(['x1', 'x2', 'x3'], dtype='<U2'))
+    
+    >>> f_from_expression('(x1 + x2 + x3) % 2 == 0')
+    (array([1, 0, 0, 1, 0, 1, 1, 0], dtype=uint8),
+     array(['x1', 'x2', 'x3'], dtype='<U2'))
     """
 
     expr_mod = expr.replace('(', ' ( ').replace(')', ' ) ').replace('!','not ').replace('~','not ')
@@ -312,70 +554,406 @@ def f_from_expression(expr : str, max_degree : int = 16) -> tuple:
     
     if n_var <= max_degree:
         truth_table = get_left_side_of_truth_table(n_var)
-        local_dict = {var: truth_table[:, i] for i, var in enumerate(variables)}
+        local_dict = {var: truth_table[:, i].astype(bool) for i, var in enumerate(variables)}
         f = eval(expr_mod, {"__builtins__": None}, local_dict)
     else:
         f = []
-    return np.array(f,dtype=int), np.array(variables)
+    return np.array(f,dtype=np.uint8), np.array(variables)
 
 
-def flatten(l : Union[list, np.array]) -> list:
+def flatten(l: Sequence[Sequence[object]]) -> list[object]:
     """
-    Converts an array of arrays into an array containing the elements of each
-    subarray, effectively reducing the dimension of the array by 1.
-    
-    **Paramters**:
-        - l (list[list[Variant] | np.array[Variant]] | np.array[list[Variant]
-          | np.array[Variant]]): Array of arrays to reduce the dimension of.
-    
-    **Returns**:
-        - list[Variant]: Array with its dimensions reduced by 1.
+    Flatten a sequence of sequences by one level.
+
+    Parameters
+    ----------
+    l : list or np.ndarray
+        Sequence whose elements are themselves iterable.
+
+    Returns
+    -------
+    list
+        A flat list containing the elements of each sub-sequence in ``l``,
+        in order.
+
+    Notes
+    -----
+    This function performs a single-level flattening only. Nested sequences
+    deeper than one level are not recursively flattened.
+
+    Examples
+    --------
+    >>> flatten([[1, 2], [3, 4]])
+    [1, 2, 3, 4]
+    >>> flatten(np.array([[1, 2], [3, 4]]))
+    [1, 2, 3, 4]
     """
     return [item for sublist in l for item in sublist]
 
 
-def get_layer_structure_of_an_NCF_given_its_Hamming_weight(n : int, w : int) -> tuple:
+def hamming_weight_to_ncf_layer_structure(
+    n: int,
+    w: int,
+) -> list[int]:
     """
-    Compute the canalizing layer structure of a nested canalizing function
-    (NCF) given its Hamming weight.
+    Compute the canalizing layer structure of a nested canalizing function (NCF)
+    from its Hamming weight.
 
-    There exists a bijection between the Hamming weight (with w equivalent to
-    2^n - w) and the canalizing layer structure of an NCF. The layer structure
-    is represented as [k_1, ..., k_r], where each k_i ≥ 1 and, if n > 1, for
-    the last layer k_r ≥ 2.
+    For nested canalizing functions, there is a bijection between the (odd)
+    Hamming weight ``w`` and the canalizing layer structure, with ``w`` and
+    ``2**n - w`` corresponding to the same structure.
 
-    **Parameters:**
-        
-        - n (int): Number of inputs (variables) of the NCF.
-        - w (int): Odd Hamming weight of the NCF, i.e., the number of 1s in
-          the 2^n-vector representation of the function.
+    Parameters
+    ----------
+    n : int
+        Number of input variables of the NCF.
+    w : int
+        Odd Hamming weight of the NCF.
 
-    **Returns:**
-        
-        - layer_structure_NCF (list[int]): A list [k_1, ..., k_r]
-          describing the number of variables in each layer.
+    Returns
+    -------
+    list of int
+        Canalizing layer structure ``[k_1, ..., k_r]``.
 
-    **References:**
-        
-        #. Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). The influence
-           of canalization on the robustness of Boolean networks. Physica D:
-           Nonlinear Phenomena, 353, 39-47.
+    Raises
+    ------
+    TypeError
+        If ``w`` is not an integer.
+    ValueError
+        If ``w`` is outside ``[1, 2**n - 1]`` or if ``w`` is even.
+
+    Notes
+    -----
+    - All nested canalizing functions have odd Hamming weight.
+    - The binary expansion of ``w`` (with ``n`` bits) determines the layer
+      structure.
+      
+    References
+    ----------
+    Kadelka, C., Kuipers, J., & Laubenbacher, R. (2017). 
+    The influence of canalization on the robustness of Boolean networks. 
+    Physica D: Nonlinear Phenomena, 353, 39-47.
     """
+    if not isinstance(w, (int, np.integer)):
+        raise TypeError("Hamming weight w must be an integer")
+
+    if not (1 <= w <= 2**n - 1):
+        raise ValueError("Hamming weight w must satisfy 1 <= w <= 2**n - 1")
+
+    if w % 2 == 0:
+        raise ValueError("Hamming weight w must be odd for nested canalizing functions")
+
     if w == 1:
-        layer_structure_NCF = [n]
-    else:
-        assert type(w) == int or type(w) == np.int64, 'Hamming weight must be an integer'
-        assert 1 <= w <= 2**n - 1, 'Hamming weight w must satisfy 1 <= w <= 2^n - 1'
-        assert w % 2 == 1, 'Hamming weight must be an odd integer since all NCFs have an odd Hamming weight.'
-        w_bin = dec2bin(w, n)
-        current_el = w_bin[0]
-        layer_structure_NCF = [1]
-        for el in w_bin[1:-1]:
-            if el == current_el:
-                layer_structure_NCF[-1] += 1
-            else:
-                layer_structure_NCF.append(1)
-                current_el = el
-        layer_structure_NCF[-1] += 1
+        return [n]
+
+    w_bin = dec2bin(w, n)
+
+    current_el = w_bin[0]
+    layer_structure_NCF = [1]
+
+    for el in w_bin[1:-1]:
+        if el == current_el:
+            layer_structure_NCF[-1] += 1
+        else:
+            layer_structure_NCF.append(1)
+            current_el = el
+
+    layer_structure_NCF[-1] += 1
     return layer_structure_NCF
 
+# ===================== #
+#   Modular BoolForge   #
+# ===================== #
+
+import math
+import matplotlib.pyplot as plt
+import networkx as nx
+
+def merge_state_representation(x : int | Sequence[int], y : int | Sequence[int],
+    b : int | Sequence[int]) -> int | Sequence[int]:
+    """
+    Combine two state representations into a single decimal representation.
+    
+    Parameters
+    ----------
+    x : int or sequence of int
+        First state. Can be a single integer or a pair of integers.
+    
+    y : int or sequence of int
+        Second state. Can be a single integer or a pair of integers.
+    
+    b : int or sequence of int
+        Bit size of y. Must match the structure of y (int or pair of ints).
+    
+    Returns
+    -------
+    result : int or tuple of int
+        Combined state representation. Returns an int if both x and y
+        are integers. Returns a tuple of two ints if either x or y is a tuple/list.
+    """
+
+    is_pair_x = isinstance(x, Sequence)
+    is_pair_y = isinstance(y, Sequence)
+    if is_pair_x:
+        if is_pair_y:
+            return ((x[0] << b[0]) | y[0], (x[1] << b[1]) | y[1]) 
+        return (x[0], (x[1] << b) | y)
+    elif is_pair_y:
+        return (y[0], (x << b[1]) | y[1])
+    return (x << b) | y
+
+def get_product_of_attractors(attrs_1 : Sequence[Sequence[int | Sequence[int]]],
+    attrs_2 : Sequence[Sequence[int | Sequence[int]]],
+    bits : int | Sequence[int]) -> list:
+    """
+    Compute the product of two sets of attractors by combining their states.
+    
+    Parameters
+    ----------
+    attrs_1 : sequence of sequences of int or sequence of sequences of pairs of ints
+        First set of attractors. Each attractor is a list of states.
+    
+    attrs_2 : sequence of sequences of int or sequence of sequences of pairs of ints
+        Second set of attractors. Each attractor is a list of states.
+    
+    bits : int or pair of ints
+        Bit size of states in attrs_2. Used when merging states.
+    
+    Returns
+    -------
+    result : sequence of sequences of int or sequence of sequences of pairs of ints
+        Product set of attractors obtained by merging each attractor
+        from attrs_1 with each attractor from attrs_2.
+    """
+
+    attractors = []
+    for attr1 in attrs_1:
+        attr = []
+        for attr2 in attrs_2:
+            m = len(attr1)
+            n = len(attr2)
+            for i in range(math.lcm(*[m, n])):
+                attr.append(merge_state_representation(attr1[i % m], attr2[i % n], bits))
+        attractors.append(attr)
+    return attractors
+
+def compress_trajectories(trajectories : tuple[Sequence[int], int],
+    num_nodes : int) -> nx.DiGraph:
+    """
+    Compress multiple trajectories into a single directed graph.
+    
+    Each trajectory is represented by a prefix (non-periodic states)
+    and a cycle (periodic states). Nodes are merged when identical
+    prefixes or cycles occur across trajectories.
+    
+    Parameters
+    ----------
+    trajectories : tuple of (sequence of int, int)
+        List of trajectories. Each trajectory is a tuple containing
+        a list of decimal states and the length of its periodic cycle.
+    
+    num_nodes : int
+        Number of nodes in the network. Used to format node labels as binary strings.
+    
+    Returns
+    -------
+    G : networkx.DiGraph
+        Directed graph representing all merged trajectories.
+    """
+
+    # Helper method: determine the 'canon' ordering of a periodic pattern.
+    # The canon ordering is the phase such that the lowest states come first
+    # without changing the relative ordering of the states.
+    def _canon_cycle_(pattern):
+        return min([ tuple(pattern[i:] + pattern[:i]) for i in range(len(pattern)) ])
+    
+    # Helper method: determine which offset a given pattern is from the canon
+    # ordering. That is, how much the pattern has been phased relative to the
+    # canon ordering.
+    def _cycle_offset_(pattern, canon):
+        pattern = list(pattern)
+        canon = list(canon)
+        len_pattern = len(pattern)
+        for offset in range(len_pattern):
+            if canon[offset:] + canon[:offset] == pattern:
+                return offset
+        raise ValueError("Pattern does not match canonical rotations")
+    
+    G = nx.DiGraph()
+    next_id = 0
+    cycle_nodes = {}
+    prefix_merge = {}
+    for states, period in trajectories:
+        len_traj = len(states)
+        # First look through the non-periodic component of the trajectory,
+        # also referred to in this code as the 'prefix' of the trajectory
+        len_pref = len_traj - period
+        pref_ids = []
+        for i in range(len_pref):
+            # Determine if this prefix can be merged elsewhere into the graph
+            future = states[i:]
+            prefix_tail = future[:-period]
+            pattern = future[-period:]
+            canon = _canon_cycle_(pattern)
+            entry_offset = _cycle_offset_(pattern, canon)
+            signature = (tuple(prefix_tail), canon, entry_offset)
+            # If so, merge the it and mark the node as initial
+            if signature in prefix_merge:
+                node_id = prefix_merge[signature]
+                if i == 0:
+                    G.nodes[node_id]["StIn"] = True
+            # Otherwise, make a new initial node
+            else:
+                node_id = next_id
+                prefix_merge[signature] = node_id
+                G.add_node(next_id, StIn=(i == 0),
+                    NLbl=(str(dec2bin(states[i], num_nodes)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')))
+                pref_ids.append(next_id)
+                next_id += 1
+            pref_ids.append(node_id)
+        # Once prefix nodes are added, create edges
+        for i in range(len(pref_ids) - 1):
+            if pref_ids[i] != pref_ids[i+1]:
+                G.add_edge(pref_ids[i], pref_ids[i+1])
+        # Second look through the periodic component of the trajectory,
+        # also referred to in this code as the 'cycle' of the trajectory
+        cycle = states[-period:]
+        key = _canon_cycle_(cycle)
+        # If we have found a new cycle, add it to the graph
+        if key not in cycle_nodes:
+            ids = []
+            for s in key:
+                # Create nodes based off of the canon ordering to ensure
+                # predictable ordering in case we need to reference
+                # this cycle again for another trajectory
+                G.add_node(next_id, StIn=False,
+                    NLbl=(str(dec2bin(s, num_nodes)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')))
+                ids.append(next_id)
+                next_id += 1
+            # Once nodes are added, add in edges
+            for a, b in zip(ids, ids[1:]):
+                G.add_edge(a, b)
+            G.add_edge(ids[-1], ids[0])
+            cycle_nodes[key] = ids
+        # For a trajectory without a prefix, mark the first state of the trajectory
+        # within the cycle as an initial node
+        if len_pref == 0:
+            G.nodes()[cycle_nodes[key][_cycle_offset_(cycle, key)]]["StIn"] = True
+        # Otherwise, we need to add an edge between the prefix and cycle
+        else:
+            G.add_edge(pref_ids[-1], cycle_nodes[key][_cycle_offset_(cycle, key)])
+    return G
+
+def product_of_trajectories(compressed_trajectory_graph_1 : nx.DiGraph,
+    compressed_trajectory_graph_2 : nx.DiGraph) -> nx.DiGraph:
+    """
+    Compute the product of two compressed trajectory graphs, following the
+    premise of equal reachability.
+    
+    The resulting graph contains all combinations of nodes from
+    the two input graphs, with edges representing all possible
+    successor pairs.
+    
+    Parameters
+    ----------
+    compressed_trajectory_graph_1 : networkx.DiGraph
+        First compressed trajectory graph.
+    
+    compressed_trajectory_graph_2 : networkx.DiGraph
+        Second compressed trajectory graph.
+    
+    Returns
+    -------
+    G : networkx.DiGraph
+        Directed graph representing the product of the two input graphs.
+    """
+
+    _initial_1 = []
+    _initial_2 = []
+    for n in compressed_trajectory_graph_1.nodes:
+        if compressed_trajectory_graph_1.nodes[n]["StIn"]:
+            _initial_1.append(n)
+    for n in compressed_trajectory_graph_2.nodes:
+        if compressed_trajectory_graph_2.nodes[n]["StIn"]:
+            _initial_2.append(n)
+    G = nx.DiGraph()
+    starting = []
+    for n1 in _initial_1:
+        for n2 in _initial_2:
+            starting.append((n1, n2))
+            G.add_node((n1, n2), StIn=compressed_trajectory_graph_1.nodes[n1]["StIn"] and compressed_trajectory_graph_2.nodes[n2]["StIn"],
+                NLbl=f"{compressed_trajectory_graph_1.nodes[n1]['NLbl']}{compressed_trajectory_graph_2.nodes[n2]['NLbl']}")
+    stack = starting[:]
+    visited = set(starting)
+    while stack:
+        u1, u2 = stack.pop()
+        for v1 in compressed_trajectory_graph_1.successors(u1):
+            for v2 in compressed_trajectory_graph_2.successors(u2):
+                new_pair = (v1, v2)
+                if new_pair not in G:
+                    G.add_node(new_pair, StIn=False,
+                        NLbl=f"{compressed_trajectory_graph_1.nodes[v1]['NLbl']}{compressed_trajectory_graph_2.nodes[v2]['NLbl']}")
+                G.add_edge((u1, u2), new_pair)
+                if new_pair not in visited:
+                    visited.add(new_pair)
+                    stack.append(new_pair)
+    return G
+
+def plot_trajectory(compressed_trajectory_graph : nx.DiGraph) -> None:
+    """
+    Visualize a compressed trajectory graph using a layered layout.
+    
+    Initial states are highlighted with a box. Layers are computed
+    based on weakly connected components to improve readability.
+    
+    Parameters
+    ----------
+    compressed_trajectory_graph : networkx.DiGraph
+        Directed graph of compressed trajectories.
+    """
+
+    def assign_layers(G):
+        layer = {}
+        current_offset = 0
+        for comp in nx.weakly_connected_components(G):
+            sub = G.subgraph(comp)
+            roots = [n for n in sub.nodes if sub.in_degree(n) == 0]
+            if not roots:
+                roots = [next(iter(sub.nodes))]
+            local_layer = {}
+            queue = list(roots)
+            for r in roots:
+                local_layer[r] = 0
+            while queue:
+                parent = queue.pop(0)
+                for child in G.successors(parent):
+                    if child not in local_layer:
+                        local_layer[child] = local_layer[parent] + 1
+                        queue.append(child)
+            for n, l in local_layer.items():
+                layer[n] = l + current_offset
+            current_offset += max(local_layer.values()) + 2
+        return layer
+    
+    layers = assign_layers(compressed_trajectory_graph)
+    nx.set_node_attributes(compressed_trajectory_graph, layers, "GLyr")
+    pos = nx.multipartite_layout(compressed_trajectory_graph, subset_key="GLyr", align="vertical")
+
+    nx.draw_networkx_nodes(compressed_trajectory_graph, pos, node_size=150, node_color="white")
+    nx.draw_networkx_edges(compressed_trajectory_graph, pos, arrows=True, arrowstyle="->", arrowsize=10, width=0.5)
+    
+    normal = {}
+    boxed = {}
+    labels = nx.get_node_attributes(compressed_trajectory_graph, "NLbl")
+    initial = nx.get_node_attributes(compressed_trajectory_graph, "StIn")
+    for n in compressed_trajectory_graph.nodes():
+        if initial[n]:
+            boxed.update({n:labels[n]})
+        else:
+            normal.update({n:labels[n]})
+    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=normal, font_size=6)
+    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=boxed, font_size=6,
+        bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="black", lw=1))
+    
+    plt.axis("off")
+    plt.show()
