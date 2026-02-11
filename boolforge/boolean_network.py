@@ -38,6 +38,8 @@ import networkx as nx
 import pandas as pd
 from typing import TYPE_CHECKING
 
+import itertools
+
 from . import utils
 from .boolean_function import BooleanFunction
 from .wiring_diagram import WiringDiagram
@@ -3591,74 +3593,63 @@ class BooleanNetwork(WiringDiagram):
 # ===================== #
 #   Modular BoolForge   #
 # ===================== #
-
-# TODO: Product of Trajectories
-# TODO: Product of STG
-
-# 2.8
-# attr: [[(1, 0), (0, 0)], [(1, 1), (0, 2)]]
-# stg: {(1, 0): (0, 0),
-#       (0, 0): (1, 0),
-#       (1, 1): (0, 2),
-#       (0, 2): (1, 1),
-#       (1, 2): (0, 1),
-#       (0, 1): (1, 0),
-#       (1, 3): (0, 3),
-#       (0, 3): (1, 1)}
-
-# 2.9
-# attr: [[(1, 0), (0, 1), (1, 1), (0, 3)]]
-# stg: {(1, 0): (0, 1),
-#       (0, 1): (1, 1),
-#       (1, 1): (0, 3),
-#       (0, 3): (1, 0),
-#       (1, 2): (0, 0),
-#       (0, 0): (1, 1),
-#       (1, 3): (0, 2),
-#       (0, 2): (1, 0)}
-
-# 2.8 x 2.9
-# attr: [[(3, 0), (0, 1), (3, 1), (0, 3)],
-#       [(3, 4), (0, 9), (3, 5), (0, 11)]]
     
     def get_attractors_synchronous_exact_non_autonomous(self,
-        non_periodic_component, periodic_component) -> dict:
+        non_periodic_component : Sequence[Sequence[int]],
+        periodic_component : Sequence[Sequence[int]]) -> dict:
         """
-        desc.
+        Compute all attractors and basin sizes under synchronous updating
+        for a Boolean network driven by a non-autonomous input sequence.
         
-        **Parameters:**
-            
-            - non_periodic_component (list | np.array): desc.
-            
-            - periodic_component (list | np.array): desc.
-
-        **Returns:**
+        The input is split into a non-periodic component (applied once)
+        followed by a periodic component (repeated indefinitely). The
+        non-periodic component is first evaluated to determine a set of
+        initial states, which are then used to compute attractors under
+        the periodic component.
         
-            - dict[str:Variant]: A dictionary containing:
-                
-                - Attractors (list[list[tuple[int, int]]]): List of attractors
-                  where each attractor is repesented as a list of integer pairs
-                  forming the cycle. The first value in each pair represents
-                  the decimal value of the input pattern, and the second value
-                  represents the decimal value of the state.
-                  
-                - NumberOfAttractors (int): Total number of unique attractors.
-                - BasinSizes (list[int]): List of counts for each attractor.
-                - AttractorDict (dict[tuple[int, int]:int]): Dictionary mapping
-                  each state value pair (in decimal) to its attractor index.
-                  
-                - STG (dict[int:int]): The state transition graph as a dictionary,
-                  with each state represented by its decimal pair representation.
-                  
-                - InitialStatesPeriodic (list[int]): The set of unique initial
-                  states in decimal format after evaluating the non-periodic
-                  component of the input sequence. Used as initial states for
-                  the evaluation of the periodic component.
-                  
-                - FormattedAttractors (list[list[list[int]]]): List of attractors
-                  represented as a list of binary vectors. The values of the
-                  attractor decimal pairs are concatenated into a single vector.
-        """ #TODO: type hints, docstring
+        Parameters
+        ----------
+        non_periodic_component : sequence of sequence of int
+            External input values applied before the periodic regime.
+            Each inner sequence corresponds to one identity node and
+            contains binary values (0 or 1) over time.
+        
+        periodic_component : sequence of sequence of int
+            External input values defining the periodic regime.
+            Each inner sequence corresponds to one identity node and
+            contains binary values (0 or 1) forming a repeating pattern.
+        
+        Returns
+        -------
+        result : dict
+            Dictionary with the following keys:
+        
+            - Attractors : list
+                List of attractors. Each attractor is a list of pairs
+                (external_input_decimal, state_decimal) forming a cycle.
+        
+            - NumberOfAttractors : int
+                Total number of unique attractors.
+        
+            - BasinSizes : list of int
+                Number of initial states converging to each attractor.
+        
+            - AttractorDict : dict
+                Mapping from (external_input_decimal, state_decimal)
+                to attractor index.
+        
+            - STG : dict
+                State transition graph mapping
+                (external_input_decimal, state_decimal) to the next pair.
+        
+            - InitialStatesPeriodic : list of int
+                Initial state values (decimal) after applying the
+                non-periodic component.
+        
+            - FormattedAttractors : list
+                Attractors represented as binary vectors, where the
+                external input bits and state bits are concatenated.
+        """
         # Convert components into single argument? tuple|list|arr, str, etc.?
         N = self.N - len(self.get_identity_nodes(False))
         if len(non_periodic_component) > 0:
@@ -3700,36 +3691,50 @@ class BooleanNetwork(WiringDiagram):
         return attr_computation
     
     def get_attractors_synchronous_exact_with_external_inputs(self,
-        input_patterns : [list, np.array],
-        starting_states : [list, np.array, None] = None) -> dict:
+        input_patterns : Sequence[Sequence[int]],
+        starting_states : [Sequence[int], None] = None) -> dict:
         """
-        desc.
+        Compute all attractors and basin sizes under synchronous updating
+        for a Boolean network with periodic external inputs.
         
-        **Parameters:**
-            
-            - input_patterns (list | np.array): desc.
-            
-            - starting_states (list | np.array | None, optional): desc.
-
-        **Returns:**
+        The external inputs are treated as a periodic sequence. The state
+        transition graph is constructed over the combined space of
+        (network state, input phase), and attractors are detected exactly.
         
-            - dict[str:Variant]: A dictionary containing:
-                
-                - Attractors (list[list[tuple[int, int]]]): List of attractors
-                  (each attractor is repesented as a list of integer pairs
-                  forming the cycle). The first value in each pair represents
-                  the decimal value of the input pattern, and the second value
-                  represents the decimal value of the state.
-                  
-                - NumberOfAttractors (int): Total number of unique attractors.
-                - BasinSizes (list[int]): List of counts for each attractor.
-                - AttractorDict (dict[tuple[int, int]:int]): Dictionary mapping
-                  each state value pair (in decimal) to its attractor index.
-                  
-                - STG (dict[int:int]): The state transition graph as a dictionary,
-                  with each state represented by its decimal pair representation.
-        """ #TODO: docstring
-        import itertools
+        Parameters
+        ----------
+        input_patterns : sequence of sequence of int
+            Periodic external input patterns. Each inner sequence
+            corresponds to one identity node and contains binary
+            values (0 or 1).
+        
+        starting_states : sequence of int, optional
+            Optional list of initial network states in decimal form.
+            If None, all possible states are used.
+        
+        Returns
+        -------
+        result : dict
+            Dictionary with the following keys:
+        
+            - Attractors : list
+                List of attractors. Each attractor is a list of pairs
+                (external_input_decimal, state_decimal) forming a cycle.
+        
+            - NumberOfAttractors : int
+                Total number of unique attractors.
+        
+            - BasinSizes : list of int
+                Number of initial states converging to each attractor.
+        
+            - AttractorDict : dict
+                Mapping from (external_input_decimal, state_decimal)
+                to attractor index.
+        
+            - STG : dict
+                State transition graph mapping
+                (external_input_decimal, state_decimal) to the next pair.
+        """
         N = self.N - len(self.get_identity_nodes(False))
         
         if starting_states is None:
@@ -3807,8 +3812,45 @@ class BooleanNetwork(WiringDiagram):
                 "STG":stg }#, "StateSpace":state_space} # state space is not properly maintained, so it is not returned
     
     def get_trajectories(self,
-        non_periodic_component, periodic_component,
+        non_periodic_component : Sequence[Sequence[int]],
+        periodic_component : Sequence[Sequence[int]],
         MERGE_TRAJECTORIES : bool = True) -> [nx.DiGraph, list]:
+        """
+        Compute state trajectories of the Boolean network under
+        non-autonomous external inputs.
+        
+        Each trajectory consists of a non-periodic transient followed by
+        a periodic component. The periodic component corresponds to an
+        attractor of the system and is detected automatically.
+        
+        Parameters
+        ----------
+        non_periodic_component : sequence of sequence of int
+            External input values applied before the periodic regime.
+            Each inner sequence corresponds to one identity node.
+        
+        periodic_component : sequence of sequence of int
+            External input values defining the periodic regime.
+            Each inner sequence corresponds to one identity node and
+            is treated as repeating indefinitely.
+        
+        MERGE_TRAJECTORIES : bool, optional
+            If True, trajectories are merged into a directed graph
+            representation. If False, individual trajectories are
+            returned. Defaults to True.
+        
+        Returns
+        -------
+        result : object
+            If MERGE_TRAJECTORIES is True, returns a directed graph
+            representing merged trajectories.
+        
+            If MERGE_TRAJECTORIES is False, returns a list of tuples
+            (trajectory, cycle_length), where trajectory is a list of
+            state values in decimal form and cycle_length is the length
+            of the periodic component.
+        """
+
         N = self.N - len(self.get_identity_nodes(False))
         
         # Helper method: get the network with fixed source nodes

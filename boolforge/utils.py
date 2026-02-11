@@ -672,29 +672,28 @@ import networkx as nx
 def merge_state_representation(x : int | Sequence[int], y : int | Sequence[int],
     b : int | Sequence[int]) -> int | Sequence[int]:
     """
-    Combines two state representations *x* and *y* into a single decimal integer.
+    Combine two state representations into a single decimal representation.
     
-    **Parameters:**
-        
-        - x (int | tuple[int, int]): The first decimal state representation to
-          merge. Can either be an integer or a pair of integers.
-        
-        - y (int | tuple[int, int]): The second decimal state representation to
-          merge. Can either be an integer or a pair of integers.
-          
-        - b (int | tuple[int, int]): The size of the state *y*, in bits.
-          Must be the same dimension as *y* (if *y* is an int, *b* must be an
-          int, or if *y* is a pair of ints, *b* must be a pair of ints).
-
-    **Returns:**
+    Parameters
+    ----------
+    x : int or sequence of int
+        First state. Can be a single integer or a pair of integers.
     
-        - int | tuple[int, int]: The combined state representation of *x* and *y*.
-        
-            - If *x* and *y* are both ints, the merged state is returned as an int.
-            - Otherwise, returns the merged state as a pair of ints.
+    y : int or sequence of int
+        Second state. Can be a single integer or a pair of integers.
+    
+    b : int or sequence of int
+        Bit size of y. Must match the structure of y (int or pair of ints).
+    
+    Returns
+    -------
+    result : int or tuple of int
+        Combined state representation. Returns an int if both x and y
+        are integers. Returns a tuple of two ints if either x or y is a tuple/list.
     """
-    is_pair_x = isinstance(x, (tuple, list))
-    is_pair_y = isinstance(y, (tuple, list))
+
+    is_pair_x = isinstance(x, Sequence)
+    is_pair_y = isinstance(y, Sequence)
     if is_pair_x:
         if is_pair_y:
             return ((x[0] << b[0]) | y[0], (x[1] << b[1]) | y[1]) 
@@ -703,26 +702,30 @@ def merge_state_representation(x : int | Sequence[int], y : int | Sequence[int],
         return (y[0], (x << b[1]) | y[1])
     return (x << b) | y
 
-def get_product_of_attractors(attrs_1 : list, attrs_2 : list,
-    bits : int | tuple) -> list:
+def get_product_of_attractors(attrs_1 : Sequence[Sequence[int | Sequence[int]]],
+    attrs_2 : Sequence[Sequence[int | Sequence[int]]],
+    bits : int | Sequence[int]) -> list:
     """
-    Computes the product of two sets of attractors.
+    Compute the product of two sets of attractors by combining their states.
     
-    **Parameters:**
-        
-        - attrs_1 (list[list[int]] | list[list[tuple[int, int]]]): The first
-          set of attractors to combine.
-        
-        - attrs_2 (list[list[int]] | list[list[tuple[int, int]]]): The second
-          set of attractors to combine.
-          
-        - bits (int | tuple[int, int]): The size of the states in *attrs_2*, in bits.
+    Parameters
+    ----------
+    attrs_1 : sequence of sequences of int or sequence of sequences of pairs of ints
+        First set of attractors. Each attractor is a list of states.
+    
+    attrs_2 : sequence of sequences of int or sequence of sequences of pairs of ints
+        Second set of attractors. Each attractor is a list of states.
+    
+    bits : int or pair of ints
+        Bit size of states in attrs_2. Used when merging states.
+    
+    Returns
+    -------
+    result : sequence of sequences of int or sequence of sequences of pairs of ints
+        Product set of attractors obtained by merging each attractor
+        from attrs_1 with each attractor from attrs_2.
+    """
 
-    **Returns:**
-    
-        - list[list[int]] | list[list[tuple[int, int]]]: The set of attractors
-          that is the product of *attrs_1* and *attrs_2*.
-    """
     attractors = []
     for attr1 in attrs_1:
         attr = []
@@ -735,7 +738,29 @@ def get_product_of_attractors(attrs_1 : list, attrs_2 : list,
     return attractors
 
 def compress_trajectories(trajectories : tuple[Sequence[int], int],
-    num_nodes : int | None = None) -> nx.DiGraph:
+    num_nodes : int) -> nx.DiGraph:
+    """
+    Compress multiple trajectories into a single directed graph.
+    
+    Each trajectory is represented by a prefix (non-periodic states)
+    and a cycle (periodic states). Nodes are merged when identical
+    prefixes or cycles occur across trajectories.
+    
+    Parameters
+    ----------
+    trajectories : tuple of (sequence of int, int)
+        List of trajectories. Each trajectory is a tuple containing
+        a list of decimal states and the length of its periodic cycle.
+    
+    num_nodes : int
+        Number of nodes in the network. Used to format node labels as binary strings.
+    
+    Returns
+    -------
+    G : networkx.DiGraph
+        Directed graph representing all merged trajectories.
+    """
+
     # Helper method: determine the 'canon' ordering of a periodic pattern.
     # The canon ordering is the phase such that the lowest states come first
     # without changing the relative ordering of the states.
@@ -782,8 +807,7 @@ def compress_trajectories(trajectories : tuple[Sequence[int], int],
                 node_id = next_id
                 prefix_merge[signature] = node_id
                 G.add_node(next_id, StIn=(i == 0),
-                    NLbl=(str(dec2bin(states[i], num_nodes)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
-                    if num_nodes is not None else str(states[i])))
+                    NLbl=(str(dec2bin(states[i], num_nodes)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')))
                 pref_ids.append(next_id)
                 next_id += 1
             pref_ids.append(node_id)
@@ -803,8 +827,7 @@ def compress_trajectories(trajectories : tuple[Sequence[int], int],
                 # predictable ordering in case we need to reference
                 # this cycle again for another trajectory
                 G.add_node(next_id, StIn=False,
-                    NLbl=(str(dec2bin(s, num_nodes)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')
-                    if num_nodes is not None else str(s)))
+                    NLbl=(str(dec2bin(s, num_nodes)).replace(' ', '').replace(',', '').replace('[', '').replace(']', '')))
                 ids.append(next_id)
                 next_id += 1
             # Once nodes are added, add in edges
@@ -823,6 +846,28 @@ def compress_trajectories(trajectories : tuple[Sequence[int], int],
 
 def product_of_trajectories(compressed_trajectory_graph_1 : nx.DiGraph,
     compressed_trajectory_graph_2 : nx.DiGraph) -> nx.DiGraph:
+    """
+    Compute the product of two compressed trajectory graphs, following the
+    premise of equal reachability.
+    
+    The resulting graph contains all combinations of nodes from
+    the two input graphs, with edges representing all possible
+    successor pairs.
+    
+    Parameters
+    ----------
+    compressed_trajectory_graph_1 : networkx.DiGraph
+        First compressed trajectory graph.
+    
+    compressed_trajectory_graph_2 : networkx.DiGraph
+        Second compressed trajectory graph.
+    
+    Returns
+    -------
+    G : networkx.DiGraph
+        Directed graph representing the product of the two input graphs.
+    """
+
     _initial_1 = []
     _initial_2 = []
     for n in compressed_trajectory_graph_1.nodes:
@@ -855,6 +900,18 @@ def product_of_trajectories(compressed_trajectory_graph_1 : nx.DiGraph,
     return G
 
 def plot_trajectory(compressed_trajectory_graph : nx.DiGraph) -> None:
+    """
+    Visualize a compressed trajectory graph using a layered layout.
+    
+    Initial states are highlighted with a box. Layers are computed
+    based on weakly connected components to improve readability.
+    
+    Parameters
+    ----------
+    compressed_trajectory_graph : networkx.DiGraph
+        Directed graph of compressed trajectories.
+    """
+
     def assign_layers(G):
         layer = {}
         current_offset = 0
