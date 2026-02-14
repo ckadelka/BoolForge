@@ -1146,31 +1146,32 @@ class BooleanFunction(object):
     
         f = np.asarray(self.f, dtype=np.int8)
         n = self.n
+    
         types = np.empty(n, dtype=object)
-
-        for i in range(n):
-            bit = 1 << (n - 1 - i)
-        
-            idx0 = np.arange(n)[(np.arange(n) & bit) == 0]
-            idx1 = idx0 | bit
-        
-            diff = f[idx1] - f[idx0]
-        
-            min_diff = diff.min()
-            max_diff = diff.max()
-        
-            if min_diff == 0 and max_diff == 0:
-                types[i] = 'non-essential'
-            elif min_diff == -1 and max_diff == 1:
-                types[i] = 'conditional'
-            elif min_diff >= 0:
-                types[i] = 'positive'
-            else:
+    
+        # Compute all pairwise differences for each bit position simultaneously # Each variable toggles every 2**i entries in the truth table. 
+        for i in range(n): 
+            period = 2 ** (i + 1) 
+            half = period // 2 
+            
+            # Vectorized reshape pattern: consecutive blocks of 0...1 transitions 
+            f_reshaped = f.reshape(-1, period) 
+            diff = f_reshaped[:, half:] - f_reshaped[:, :half] 
+            min_diff = diff.min() 
+            max_diff = diff.max() 
+            if min_diff == 0 and max_diff == 0: 
+                types[i] = 'non-essential' 
+            elif min_diff == -1 and max_diff == 1: 
+                types[i] = 'conditional' 
+            elif min_diff >= 0 and max_diff == 1: 
+                types[i] = 'positive' 
+            elif min_diff == -1 and max_diff <= 0: 
                 types[i] = 'negative'
+                
         types = np.array(types, dtype=str)
         self.properties['InputTypes'] = types
-        return types
-    
+        return types[::-1] #flip because of BoolForge logic ordering
+        
     
     def get_symmetry_groups(self) -> list[list[int]]:
         """
