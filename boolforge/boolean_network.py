@@ -928,6 +928,7 @@ class BooleanNetwork(WiringDiagram):
     def from_cana(
         cls,
         cana_BooleanNetwork: "cana.boolean_network.BooleanNetwork",
+        simplify_functions: bool = False,
     ) -> "BooleanNetwork":
         """
         Construct a BooleanNetwork from a ``cana.BooleanNetwork`` instance.
@@ -939,7 +940,10 @@ class BooleanNetwork(WiringDiagram):
         ----------
         cana_BooleanNetwork : cana.boolean_network.BooleanNetwork
             A Boolean network instance from the ``cana`` package.
-    
+        simplify_functions : bool, optional
+            If True, Boolean update functions are simplified after initialization.
+            Default is False.  
+            
         Returns
         -------
         BooleanNetwork
@@ -981,9 +985,7 @@ class BooleanNetwork(WiringDiagram):
             I.append(list(entry["in"]))
             F.append(np.array(entry["out"], dtype=int))
     
-        return cls(F=F, I=I, variables=variables)
-
-
+        return cls(F=F, I=I, variables=variables, simplify_functions=simplify_functions)
 
 
     @classmethod
@@ -995,7 +997,8 @@ class BooleanNetwork(WiringDiagram):
         original_not: str | Sequence[str] = "NOT",
         original_and: str | Sequence[str] = "AND",
         original_or: str | Sequence[str] = "OR",
-        allow_truncation: bool = False
+        allow_truncation: bool = False,
+        simplify_functions: bool = False,
         ) -> "BooleanNetwork":
         """
         Construct a BooleanNetwork from a textual Boolean rule specification.
@@ -1024,7 +1027,10 @@ class BooleanNetwork(WiringDiagram):
             raise a ValueError. If True, such nodes are replaced by identity
             self-loops, allowing fast construction of large networks while
             ignoring high-degree functions.
-    
+        simplify_functions : bool, optional
+            If True, Boolean update functions are simplified after initialization.
+            Default is False.  
+            
         Returns
         -------
         BooleanNetwork
@@ -1135,7 +1141,7 @@ class BooleanNetwork(WiringDiagram):
             F.append(np.array([0, 1], dtype=int))
             I.append(np.array([len(var) + j]))
         
-        return cls(F, I, var+consts)
+        return cls(F, I, var+consts,simplify_functions=simplify_functions)
 
 
     @classmethod

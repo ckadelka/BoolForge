@@ -163,7 +163,8 @@ def load_model(
     original_not: str = 'NOT',
     original_and: str = 'AND',
     original_or: str = 'OR',
-    ignore_first_line: bool = False
+    ignore_first_line: bool = False,
+    simplify_functions: bool = False,
 ) -> BooleanNetwork:
     """
     Load and parse a Boolean network model from a remote text file.
@@ -184,7 +185,10 @@ def load_model(
         Logical OR operator used in the model file.
     ignore_first_line : bool, optional
         If True, skip the first line of the file (default: False).
-
+    simplify_functions : bool, optional
+        If True, Boolean update functions are simplified after initialization.
+        Default is False.
+        
     Returns
     -------
     BooleanNetwork
@@ -208,6 +212,7 @@ def load_model(
             original_not,
             original_and,
             original_or,
+            simplify_functions=simplify_functions
         )
     except Exception as e:
         raise ValueError(
@@ -219,6 +224,8 @@ def load_model(
 def get_bio_models_from_repository(
     repository: str = 'expert-curated (ckadelka)',
     download_urls_pystablemotifs: list[str] | None = None,
+    max_degree: int = 24,
+    simplify_functions: bool = False,
 ) -> dict:
     """
     Load Boolean network models from selected online repositories.
@@ -240,6 +247,11 @@ def get_bio_models_from_repository(
         Optional list of direct download URLs for PyStableMotifs models.
         If provided, these URLs are used instead of querying the GitHub API (faster).
         If None (default), model URLs are fetched dynamically from GitHub.
+    max_degree : int, optional
+        Maximum allowed in-degree for nodes (default: 24).
+    simplify_functions : bool, optional
+        If True, Boolean update functions are simplified after initialization.
+        Default is False.
 
     Returns
     -------
@@ -285,13 +297,17 @@ def get_bio_models_from_repository(
                         for i in range(len(constants)):
                             F.append([0, 1])
                             I.append([len(var) + i])
-                        bn = BooleanNetwork(F, I, var + constants)
+                        bn = BooleanNetwork(F, 
+                                            I, 
+                                            var + constants,
+                                            simplify_functions=simplify_functions)
                     else:
                         bn = load_model(
                             download_url,
                             original_and=" AND ",
                             original_or=" OR ",
                             original_not=" NOT ",
+                            simplify_functions=simplify_functions,
                         )
 
                     successful_download_urls.append(download_url)
@@ -316,6 +332,7 @@ def get_bio_models_from_repository(
                         original_and=[" and ", "&"],
                         original_or=[" or ", "|"],
                         original_not=[" not ", " !"],
+                        simplify_functions=simplify_functions,
                     )
                     successful_download_urls.append(download_url)
                     bns.append(bn)
@@ -344,6 +361,7 @@ def get_bio_models_from_repository(
                     original_or=" | ",
                     original_not="!",
                     ignore_first_line=True,
+                    simplify_functions=simplify_functions,
                 )
                 successful_download_urls.append(download_url)
                 bns.append(bn)

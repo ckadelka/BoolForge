@@ -251,7 +251,7 @@ print(type(cana_object))
 # ### Representations of Boolean functions
 # Boolean functions can be created from:
 #
-# - a truth table (list of 0s and 1s),
+# - a truth table (a sequence of 0s and 1s of length $2^n$ for some $n$),
 # - a logical expression written in Python syntax,
 # - algebraic combinations of existing BooleanFunction objects using operations such as  
 #   `+` (OR), `*` (AND), `^` (XOR), and other supported Boolean operations.
