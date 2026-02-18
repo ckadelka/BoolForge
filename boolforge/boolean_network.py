@@ -704,6 +704,13 @@ class BooleanNetwork(WiringDiagram):
         Interaction weights associated with the wiring diagram.
     STG : dict or None
         State transition graph, initialized to None and computed on demand.
+    fixation_layers : list of list of str or None
+        Sequential record of structural node fixations produced by recursive
+        constant propagation. Each inner list contains the variable names that
+        became fixed at the same propagation step. The first layer corresponds
+        to externally controlled nodes (if any), and subsequent layers represent
+        nodes that became constant due to earlier fixations. If no recursive
+        simplification was performed, this attribute is None.
     """
 
     def __init__(
@@ -854,9 +861,7 @@ class BooleanNetwork(WiringDiagram):
         values_constants = [int(self.F[c][0]) for c in indices_constants]
     
         # Propagate constant values downstream
-        for id_constant, value in zip(indices_constants, values_constants):
-            regulated_nodes = []
-    
+        for id_constant, value in zip(indices_constants, values_constants):    
             for i in range(self.N):
                 if dict_constants[i]:
                     continue
@@ -878,12 +883,8 @@ class BooleanNetwork(WiringDiagram):
                 self.indegrees[i] -= 1
                 self.F[i].n -= 1
     
-                regulated_nodes.append(str(self.variables[i]))
     
-            self.constants[str(self.variables[id_constant])] = {
-                "value": value,
-                "regulatedNodes": regulated_nodes,
-            }
+            self.constants[str(self.variables[id_constant])] = value
     
         # Ensure no remaining node loses all regulators
         for i in range(self.N):
@@ -1567,7 +1568,7 @@ class BooleanNetwork(WiringDiagram):
                 indices_fixation_layers.append(next_layer)
         
         fixation_layers = [
-            [self.variables[i] for i in layer]
+            [str(self.variables[i]) for i in layer]
             for layer in indices_fixation_layers
         ]
         
@@ -1689,7 +1690,7 @@ class BooleanNetwork(WiringDiagram):
     
         F = deepcopy(self.F)
         I = deepcopy(self.I)
-        controlled_variables = [self.variables[int(i)] for i in indices_controlled_nodes]
+        controlled_variables = [str(self.variables[int(i)]) for i in indices_controlled_nodes]
     
         for node, value in zip(indices_controlled_nodes, values_controlled_nodes):
             if keep_controlled_nodes:
