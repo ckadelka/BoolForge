@@ -1647,8 +1647,8 @@ class BooleanNetwork(WiringDiagram):
             )
     
         for node in indices_controlled_nodes:
-            if not isinstance(node, int) or node < 0 or node >= self.N:
-                raise ValueError(f"Invalid node index: {node}")
+            if not isinstance(node, (int, np.integer)) or node < 0 or node >= self.N:
+                raise ValueError(f"Invalid node index: {node, not isinstance(node, int), node < 0 , node >= self.N}")
     
         for v in values_controlled_nodes:
             if v not in (0, 1):
