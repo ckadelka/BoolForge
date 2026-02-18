@@ -180,16 +180,17 @@ $x_0, x_1, x_2$ are $1,0,0$, respectively, with the same canalized outputs. That
 ## Collective canalization
 
 Collective canalization treats canalization as a property of the function rather
-than individual variables (Reichhardt & Bassler, J. Phys. A, 2007).
+than individual variables (Reichhardt & Bassler, J. Phys. A, 2007). 
+Individual canalization asks: "Which *single* variables can determine output?"
+Collective canalization asks: "Which *sets* of variables can determine output?"
 
 A Boolean function is *$k$-set canalizing* if there exists a set of $k$ variables
 whose fixed values determine the output irrespective of the remaining inputs.
 
-Individual canalization asks: "Which single variables can determine output?"
-Collective canalization asks: "Which *sets* of variables can determine output?"
+Consider, for example, the function $k(x_0,x_1,x_2) = x_0 \vee (x_1 \wedge x_2)$.
+This function is 2-set canalizing because
 
-A 2-set canalizing example: If $k(x_0,x_1,x_2) = x_0 \| (x_1 \& x_2)$,
-- $\{x_0,x_1\}$ can determine the output: if $(x_0,x_1)=(1,0)$, $k=1$ ($x_2$ irrelevant),
+- $\{x_0,x_1\}$ can determine the output: if $(x_0,x_1)=(1,0)$, $k=1$ ($x_2$ irrelevant), or
 - $\{x_1,x_2\}$ can determine the output: if $(x_1,x_2)=(1,1)$, $k=1$ ($x_0$ irrelevant)
 
 The proportion of such $k$-sets, the $k$-set canalizing proportion denoted $P_k(f)$, is used to define the canalizing strength.
@@ -306,13 +307,12 @@ The input redundancy of a variable is defined as 1 minus its *edge effectiveness
 which describes the proportion of times that this variable is needed to determine the output of the function. 
 Edge effectiveness is very similar to the activity of a variable 
 but is not the same (the difference is defined as *excess canalization*).
-The sum of all edge effectivenesses of the inputs of a function is known as its *effective degree*.
+The sum of all edge effectiveness values of the inputs of a function is known as its *effective degree*.
 The average input redundancy serves as a measure of the canalization in a function.
 
-In `BoolForge`, all these quantities can be computed, however not directly.
-Instead, they are computed using the `CANA` package, 
-which must be installed (`pip install cana`) to enjoy this functionality. 
-To exemplify this, we reconsider the four 3-input functions from above.
+`BoolForge` can compute all these quantities. To use this functionality, 
+the optional `CANA` package must be installed (`pip install cana` or `pip install boolforge[cana]`). 
+To exemplify this, reconsider the four 3-input functions from above.
 
 
 ```python
@@ -332,29 +332,29 @@ for func, label in zip([f, g, h, k], labels):
 ```
 
     Edge effectiveness of f: [0.41666666666666663, 0.41666666666666663, 0.41666666666666663]
-    Activities of f: [0.2544 0.2649 0.2598]
-    Excess canalization of f: [0.16226667 0.15176667 0.15686667]
+    Activities of f: [0.2504 0.2444 0.2515]
+    Excess canalization of f: [0.16626667 0.17226667 0.16516667]
     Effective degree of f: 1.25
     Average edge effectiveness of f: 0.4166666666666667
     Normalized input redundancy of f: 0.5833333333333334
     
     Edge effectiveness of g: [0.625, 0.625, 0.625]
-    Activities of g: [0.4948 0.4878 0.4878]
-    Excess canalization of g: [0.1302 0.1372 0.1372]
+    Activities of g: [0.5015 0.4986 0.4986]
+    Excess canalization of g: [0.1235 0.1264 0.1264]
     Effective degree of g: 1.875
     Average edge effectiveness of g: 0.625
     Normalized input redundancy of g: 0.375
     
     Edge effectiveness of h: [0.41666666666666663, 0.41666666666666663, 0.41666666666666663]
-    Activities of h: [0.248  0.2517 0.2501]
-    Excess canalization of h: [0.16866667 0.16496667 0.16656667]
+    Activities of h: [0.2565 0.2529 0.2505]
+    Excess canalization of h: [0.16016667 0.16376667 0.16616667]
     Effective degree of h: 1.25
     Average edge effectiveness of h: 0.4166666666666667
     Normalized input redundancy of h: 0.5833333333333334
     
     Edge effectiveness of k: [0.8125, 0.375, 0.375]
-    Activities of k: [0.7439 0.2541 0.2477]
-    Excess canalization of k: [0.0686 0.1209 0.1273]
+    Activities of k: [0.7551 0.2473 0.2525]
+    Excess canalization of k: [0.0574 0.1277 0.1225]
     Effective degree of k: 1.5625
     Average edge effectiveness of k: 0.5208333333333334
     Normalized input redundancy of k: 0.4791666666666667

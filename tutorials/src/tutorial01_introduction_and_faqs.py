@@ -276,8 +276,8 @@ print(type(cana_object))
 # These properties help characterize the function’s behavior and are used
 # throughout later tutorials.
 #
-# ### **Conversions and interoperability**
-# BoolForge supports conversion between representations (e.g., truth table to/from polynomial form) and is compatible with external packages such as **CANA** for
+# ### Conversions and interoperability
+# BoolForge supports conversion between representations (truth table, polynomial, and logical form) and is compatible with external packages such as **CANA** for
 # advanced analysis.  
 # This makes it easy to move between analytical frameworks and reuse models.
 
@@ -292,12 +292,18 @@ print(type(cana_object))
 # ## Frequently Asked Questions
 # ### Why does the order of variables matter?
 # The order in which variables appear determines the ordering of the truth table.
-# For a function with variables `[A, B, C]`, the entry at position `i` corresponds
-# to the binary representation of `i` over `(A, B, C)`.
+# For a function with variables `[A, B, C]`, the entry at position $i\in\{0,1,\ldots,2^n-1$ corresponds
+# to the binary representation of $i$ over `(A, B, C)`. For example, row 4 
+# (i.e., the fifth row since Python starts indexing at 0) corresponds to $A = 1, B = 0, C = 0$.
 #
 # If two equivalent expressions list variables in different orders, their truth
-# tables will be indexed differently.
-#
+# tables will be indexed differently. See, for example,
+
+# %%
+print(boolforge.BooleanFunction('A and not B'))
+print(boolforge.BooleanFunction('not B and A'))
+
+# %% [markdown]
 # To ensure reproducibility, always use consistent variable names and ordering.
 
 # %% [markdown]
@@ -338,7 +344,7 @@ print(type(cana_object))
 # | Create from truth table | `BooleanFunction([0, 0, 0, 1])` |
 # | Create from expression | `BooleanFunction("A and B")` |
 # | Combine with operations | `f & g, f \| g, ~f, f ^ g` |
-# | Check properties | `f.is_constant()`, `f.is_degenerate()` |
-# | Get variable info | `f.variables`, `f.n` |
+# | Check properties | `f.n`, `f.is_constant()`, `f.is_degenerate()` |
+# | Get variable names | `f.variables` |
 # | Convert representations | `f.to_logical()`, `f.to_polynomial()` |
 

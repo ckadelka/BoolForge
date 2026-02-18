@@ -33,11 +33,10 @@ import numpy as np
 In gene regulation, symmetric variables might represent
 redundant transcription factor binding sites or functionally equivalent 
 repressors. Identifying symmetries can:
+
 - Reduce model complexity
 - Suggest evolutionary mechanisms (gene duplication)
 - Identify potential drug targets (symmetric inputs may compensate)
-
-### What is a symmetry?
 
 A symmetry of a Boolean function is a permutation of input variables that does
 **not** change its output.
@@ -122,7 +121,7 @@ print("k.is_degenerate()", k.is_degenerate())
 
 
 Detecting degeneracy is NP-hard in general.
-However, such functions are extremely rare unless intentionally created.
+However even at relatively low degree, such functions are extremely rare unless intentionally created.
 
 BoolForge therefore:
 
@@ -191,10 +190,12 @@ Operating at this "edge of chaos" may optimize information processing and evolva
   to large $n$.
 
 Computational cost guide:
+
 - Exact methods: $O(2^n)$ time and space, where $n =$ number of inputs.
 - Monte Carlo: $O(k)$ time, where $k =$ number of samples.
 
 Recommendation:
+
 - $n \leq 10$: Use exact methods (fast, deterministic)
 - $10 < n \leq 20$: Use exact if possible, Monte Carlo if repeated computation needed
 - n > 20: Use Monte Carlo (exact is infeasible)
@@ -233,7 +234,10 @@ a property investigated in depth in the next tutorial.
 Exact computation is infeasible for large $n$, so Monte Carlo simulation must
 be used.
 
-When generating such a large function randomly (see Tutorial 4) it not recommended to require that all inputs are essential, as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input $x_i$ is given $1/2^{n-1}$), and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus set `allow_degenerate_functions=True`. You find more on this and the `random_function` method in Tutorial 4. 
+When generating such a large function randomly (see Tutorial 4) it is not recommended to require that all inputs are essential, 
+as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input $x_i$ is given $1/2^{n-1}$), 
+and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus suggest setting `allow_degenerate_functions=True`. 
+You find more on this and the `random_function` method in Tutorial 4. 
 
 
 ```python
@@ -250,8 +254,8 @@ print(
 )
 ```
 
-    Mean activity: 0.4997
-    Normalized average sensitivity: 0.5003
+    Mean activity: 0.5008
+    Normalized average sensitivity: 0.5001
 
 
 **Interpretation**

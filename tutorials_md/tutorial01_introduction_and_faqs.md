@@ -275,7 +275,7 @@ print("Absolute bias:", g.get_absolute_bias())
     Is constant? False
     Is degenerate? False
     Essential variables: [0, 1, 2]
-    Type of inputs: ['positive' 'positive' 'conditional']
+    Type of inputs: ['conditional' 'positive' 'positive']
     Hamming weight: 4
     Absolute bias: 0.0
 
@@ -344,34 +344,36 @@ print(type(cana_object))
 
     <class 'cana.boolean_node.BooleanNode'>
 
+    
+
 
 ## Summary of Key Concepts
 
 Before moving on to more advanced topics, here is a short summary of the
 fundamental ideas introduced in this tutorial:
 
-### **Boolean functions**
+### Boolean functions
 A Boolean function maps a set of binary inputs (0/1) to a single binary output.
 BoolForge represents Boolean functions internally by their truth table, i.e.,
 the list of outputs in lexicographic order of the input combinations.
 
-### **Representations of Boolean functions**
+### Representations of Boolean functions
 Boolean functions can be created from:
 
-- a truth table (list of 0s and 1s),
+- a truth table (a sequence of 0s and 1s of length $2^n$ for some $n$),
 - a logical expression written in Python syntax,
 - algebraic combinations of existing BooleanFunction objects using operations such as  
   `+` (OR), `*` (AND), `^` (XOR), and other supported Boolean operations.
 
 Each representation produces an equivalent internal truth-table-based object.
 
-### **Variable names and ordering**
+### Variable names and ordering
 BoolForge automatically infers variable names from the order of first appearance
 in expressions.  
 This order determines the indexing of the truth table and therefore affects how
 the function interacts with larger Boolean networks.
 
-### **Basic properties of Boolean functions**
+### Basic properties of Boolean functions
 BoolForge can compute structural properties, including:
 
 - the number of variables (`n`),
@@ -383,8 +385,8 @@ BoolForge can compute structural properties, including:
 These properties help characterize the function’s behavior and are used
 throughout later tutorials.
 
-### **Conversions and interoperability**
-BoolForge supports conversion between representations (e.g., truth table to/from polynomial form) and is compatible with external packages such as **CANA** for
+### Conversions and interoperability
+BoolForge supports conversion between representations (truth table, polynomial, and logical form) and is compatible with external packages such as **CANA** for
 advanced analysis.  
 This makes it easy to move between analytical frameworks and reuse models.
 
@@ -393,14 +395,25 @@ Together, these concepts provide the foundation for understanding canalization,
 random Boolean function generation, and eventually the construction and analysis
 of full Boolean networks.
 
-## Frequently Asked Questions (FAQ)
+## Frequently Asked Questions
 ### Why does the order of variables matter?
 The order in which variables appear determines the ordering of the truth table.
-For a function with variables `[A, B, C]`, the entry at position `i` corresponds
-to the binary representation of `i` over `(A, B, C)`.
+For a function with variables `[A, B, C]`, the entry at position $i\in\{0,1,\ldots,2^n-1$ corresponds
+to the binary representation of $i$ over `(A, B, C)`. For example, row 4 
+(i.e., the fifth row since Python starts indexing at 0) corresponds to $A = 1, B = 0, C = 0$.
 
 If two equivalent expressions list variables in different orders, their truth
-tables will be indexed differently.
+tables will be indexed differently. See, for example,
+
+
+```python
+print(boolforge.BooleanFunction('A and not B'))
+print(boolforge.BooleanFunction('not B and A'))
+```
+
+    [0 0 1 0]
+    [0 1 0 0]
+
 
 To ensure reproducibility, always use consistent variable names and ordering.
 
@@ -440,6 +453,6 @@ well-defined influence type.
 | Create from truth table | `BooleanFunction([0, 0, 0, 1])` |
 | Create from expression | `BooleanFunction("A and B")` |
 | Combine with operations | `f & g, f \| g, ~f, f ^ g` |
-| Check properties | `f.is_constant()`, `f.is_degenerate()` |
-| Get variable info | `f.variables`, `f.n` |
+| Check properties | `f.n`, `f.is_constant()`, `f.is_degenerate()` |
+| Get variable names | `f.variables` |
 | Convert representations | `f.to_logical()`, `f.to_polynomial()` |

@@ -1,9 +1,8 @@
 # Example Use Cases of the Random Function Generator
 
-In this tutorial, we explore example use cases of BoolForge’s random Boolean
-function generator. This functionality allows generating large ensembles of
-Boolean functions with prescribed structural properties and studying their
-statistical and dynamical characteristics.
+In this tutorial, we explore how BoolForge’s random Boolean function generator 
+can be used to generate large ensembles of Boolean functions with prescribed structural properties,
+whose statistical and dynamical characteristics can then be studied.
 
 ## What you will learn
 In this tutorial you will learn how to:
@@ -67,11 +66,13 @@ ax.set_xlabel("Number of essential variables")
 ax.set_ylabel("Proportion of functions")
 plt.show()
 
-pd.DataFrame(
+out = pd.DataFrame(
     count_depths,
     index=["n=" + str(n) for n in ns],
     columns=["k=" + str(k) for k in canalizing_depths],
 )
+
+print(out.to_string())
 ```
 
 
@@ -80,100 +81,21 @@ pd.DataFrame(
     
 
 
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>k=0</th>
-      <th>k=1</th>
-      <th>k=2</th>
-      <th>k=3</th>
-      <th>k=4</th>
-      <th>k=5</th>
-      <th>k=6</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>n=2</th>
-      <td>0.197</td>
-      <td>0.000</td>
-      <td>0.803</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>n=3</th>
-      <td>0.584</td>
-      <td>0.111</td>
-      <td>0.000</td>
-      <td>0.305</td>
-      <td>0.000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>n=4</th>
-      <td>0.948</td>
-      <td>0.033</td>
-      <td>0.007</td>
-      <td>0.000</td>
-      <td>0.012</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>n=5</th>
-      <td>1.000</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>n=6</th>
-      <td>1.000</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
+           k=0    k=1    k=2    k=3    k=4  k=5  k=6
+    n=2  0.185  0.000  0.815  0.000  0.000  0.0  0.0
+    n=3  0.605  0.116  0.000  0.279  0.000  0.0  0.0
+    n=4  0.953  0.031  0.004  0.000  0.012  0.0  0.0
+    n=5  1.000  0.000  0.000  0.000  0.000  0.0  0.0
+    n=6  1.000  0.000  0.000  0.000  0.000  0.0  0.0
 
 
 We see that hardly any Boolean function with $n\geq 5$ inputs is canalizing, let alone nested canalizing. 
 This makes the finding that most Boolean functions in published Boolean gene regulatory network models
 are nested canalizing very surprising (Kadelka et al., Science Advances, 2024).
 
-To zoom in on the few functions that are canalizing for higher $n$, we can simply require `depth=1` and repeat the above analysis.
-
 ### Restricting to canalizing functions
+
+To zoom in on the few functions that are canalizing for higher $n$, we can simply require `depth=1` and repeat the above analysis.
 
 
 ```python
@@ -207,11 +129,13 @@ ax.set_xlabel("Number of essential variables")
 ax.set_ylabel("Proportion of functions")
 plt.show()
 
-pd.DataFrame(
+out = pd.DataFrame(
     count_depths,
     index=["n=" + str(n) for n in ns],
     columns=["k=" + str(k) for k in canalizing_depths],
-)
+);
+
+print(out.to_string())
 ```
 
 
@@ -220,91 +144,12 @@ pd.DataFrame(
     
 
 
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>k=0</th>
-      <th>k=1</th>
-      <th>k=2</th>
-      <th>k=3</th>
-      <th>k=4</th>
-      <th>k=5</th>
-      <th>k=6</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>n=2</th>
-      <td>0.0</td>
-      <td>0.000</td>
-      <td>1.000</td>
-      <td>0.000</td>
-      <td>0.00</td>
-      <td>0.000</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>n=3</th>
-      <td>0.0</td>
-      <td>0.253</td>
-      <td>0.000</td>
-      <td>0.747</td>
-      <td>0.00</td>
-      <td>0.000</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>n=4</th>
-      <td>0.0</td>
-      <td>0.688</td>
-      <td>0.092</td>
-      <td>0.000</td>
-      <td>0.22</td>
-      <td>0.000</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>n=5</th>
-      <td>0.0</td>
-      <td>0.965</td>
-      <td>0.028</td>
-      <td>0.002</td>
-      <td>0.00</td>
-      <td>0.005</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>n=6</th>
-      <td>0.0</td>
-      <td>1.000</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>0.00</td>
-      <td>0.000</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
+         k=0    k=1    k=2    k=3    k=4    k=5  k=6
+    n=2  0.0  0.000  1.000  0.000  0.000  0.000  0.0
+    n=3  0.0  0.269  0.000  0.731  0.000  0.000  0.0
+    n=4  0.0  0.653  0.098  0.000  0.249  0.000  0.0
+    n=5  0.0  0.965  0.022  0.004  0.000  0.009  0.0
+    n=6  0.0  1.000  0.000  0.000  0.000  0.000  0.0
 
 
 This analysis reveals that among Boolean functions of degree $n\geq 5$, 
@@ -371,13 +216,13 @@ plt.show()
 
 Both measures decrease with increasing degree, but canalizing strength declines more sharply.
 
+### Stratification by canalizing depth
+
 If we stratify this analysis by canalizing depth 
 (exact canalizing depth using `exact_depth=True` or minimal canalizing depth using the default `exact_depth=False`),
 we can confirm that functions with more conditionally canalizing variables tend to also have higher average collective canalization, 
 irrespective of how it is measured.
 In other words, the various measures of canalization are all highly correlated.
-
-### Stratification by canalizing depth
 
 
 ```python
@@ -646,7 +491,6 @@ df = pd.DataFrame(
         "Hamming weight": all_hamming,
         "Absolute bias": all_abs_bias,
         "Layer structure": list(map(str, layer_structures)),
-        "Number of layers": list(map(len, layer_structures)),
         "Average sensitivity": avg_sens,
         "Canalizing strength": np.round(can_strength, 4),
         "Effective degree": np.round(eff_degree, 4),
@@ -656,15 +500,15 @@ df = pd.DataFrame(
 print(df.to_string())
 ```
 
-       Hamming weight  Absolute bias Layer structure  Number of layers  Average sensitivity  Canalizing strength  Effective degree
-    0               1         0.0625             [5]                 1               0.3125               1.0000            1.1250
-    1               3         0.1875          [3, 2]                 2               0.6875               0.7705            1.3984
-    2               5         0.3125       [2, 1, 2]                 3               0.9375               0.6369            1.5938
-    3               7         0.4375          [2, 3]                 2               1.0625               0.5993            1.5833
-    4               9         0.5625       [1, 1, 3]                 3               1.1875               0.5033            1.7266
-    5              11         0.6875    [1, 1, 1, 2]                 4               1.3125               0.4657            1.8021
-    6              13         0.8125       [1, 2, 2]                 3               1.3125               0.4657            1.7708
-    7              15         0.9375          [1, 4]                 2               1.1875               0.5033            1.6094
+       Hamming weight  Absolute bias Layer structure  Average sensitivity  Canalizing strength  Effective degree
+    0               1         0.0625             [5]               0.3125               1.0000            1.1250
+    1               3         0.1875          [3, 2]               0.6875               0.7705            1.3984
+    2               5         0.3125       [2, 1, 2]               0.9375               0.6369            1.5938
+    3               7         0.4375          [2, 3]               1.0625               0.5993            1.5833
+    4               9         0.5625       [1, 1, 3]               1.1875               0.5033            1.7266
+    5              11         0.6875    [1, 1, 1, 2]               1.3125               0.4657            1.8021
+    6              13         0.8125       [1, 2, 2]               1.3125               0.4657            1.7708
+    7              15         0.9375          [1, 4]               1.1875               0.5033            1.6094
 
 
 We notice that nested canalizing functions with higher absolute bias tend to be 

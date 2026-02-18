@@ -1467,9 +1467,93 @@ class BooleanNetwork(WiringDiagram):
         return np.where(is_identity)[0]
 
 
+def propagate_constants(self) -> "BooleanNetwork":
+    """
+    Recursively propagate constants through the network.
+
+    Any node whose update function becomes constant is converted
+    into a structural constant. Removal of such nodes and updating
+    of self.constants is handled by __init__.
+    """
+
+    F = deepcopy(self.F)
+    I = deepcopy(self.I)
+
+    n = len(F)
+
+    # Build reverse dependency graph
+    dependents = {i: [] for i in range(n)}
+    for node in range(n):
+        for inp in I[node]:
+            dependents[inp].append(node)
+
+    fixed = {}   # node_index -> value
+    queue = deque()
+
+    # Initial scan for structural constants already present
+    for node in range(n):
+        if len(I[node]) == 0 and len(F[node].f) == 1:
+            fixed[node] = int(F[node].f[0])
+            queue.append(node)
+
+    # ------------------------------------------------------------------
+    # Propagation
+    # ------------------------------------------------------------------
+    while queue:
+        fixed_node = queue.popleft()
+        value = fixed[fixed_node]
+
+        for node in dependents[fixed_node]:
+
+            if node in fixed:
+                continue
+
+            # Find position of fixed_node in input list
+            inputs = I[node]
+            positions = np.where(inputs == fixed_node)[0]
+            if len(positions) == 0:
+                continue
+
+            pos = positions[0]
+
+            k = len(inputs)
+            old_table = F[node].f
+            new_table = []
+
+            # Collapse truth table
+            for r in range(len(old_table)):
+                bit = (r >> (k - pos - 1)) & 1
+                if bit == value:
+                    new_table.append(old_table[r])
+
+            new_table = np.array(new_table, dtype=int)
+
+            # Update function
+            F[node].f = new_table
+            F[node].n = k - 1
+            I[node] = np.delete(inputs, pos)
+
+            # Check if constant
+            if len(new_table) == 1 or np.all(new_table == new_table[0]):
+                const_value = int(new_table[0])
+                F[node].f = np.array([const_value], dtype=int)
+                F[node].n = 0
+                I[node] = np.array([], dtype=int)
+
+                fixed[node] = const_value
+                queue.append(node)
+
+    # Reinitialize — constructor removes structural constants
+    return self.__class__(F, I, self.variables)
+
+
+
+
     def get_network_with_fixed_identity_nodes(
         self,
         values_identity_nodes: Sequence[int],
+        keep_controlled_nodes: bool = False,
+        simplify_recursively: bool = False,
     ) -> "BooleanNetwork":
         """
         Construct a Boolean network with identity nodes fixed to given values.
@@ -1483,12 +1567,21 @@ class BooleanNetwork(WiringDiagram):
         values_identity_nodes : sequence of int
             Values to fix for each identity node, in the order returned by
             ``get_identity_nodes(as_dict=False)``. Each value must be either 0 or 1.
-    
+        keep_controlled_nodes : bool, optional
+            If True, controlled nodes are retained in the network as identity
+            nodes with self-loops. If False (default), controlled nodes are
+            eliminated as constants.
+        simplify_recursively : bool, optional
+            If True, recursively propagate fixed values through the network and
+            eliminate any nodes whose update functions become constant as a result.
+            This logical reduction is repeated until no further simplifications are
+            possible. If False (default), only the explicitly controlled nodes are
+            fixed and no additional recursive simplification is performed. 
+            
         Returns
         -------
         BooleanNetwork
-            A new BooleanNetwork with the specified identity nodes fixed. Any
-            constants previously removed from the original network are preserved.
+            A new BooleanNetwork with the specified identity nodes fixed.
         """
         indices_identity_nodes = self.get_identity_nodes(as_dict=False)
     
@@ -1502,20 +1595,12 @@ class BooleanNetwork(WiringDiagram):
             if v not in (0, 1):
                 raise ValueError("Identity node values must be 0 or 1.")
     
-        F = deepcopy(self.F)
-        I = deepcopy(self.I)
-    
-        for identity_node, value in zip(indices_identity_nodes, values_identity_nodes):
-            F[identity_node].f = np.array([value], dtype=int)
-            F[identity_node].n = 0
-            I[identity_node] = np.array([], dtype=int)
-    
-        bn = self.__class__(F, I, self.variables)
-    
-        # Preserve previously removed constants
-        bn.constants.update(self.constants)
-    
-        return bn
+        return self.get_network_with_node_controls(
+            indices_controlled_nodes=indices_identity_nodes,
+            values_controlled_nodes=values_identity_nodes,
+            keep_controlled_nodes=keep_controlled_nodes,
+            simplify_recursively=simplify_recursively,
+        )
 
 
     def get_network_with_node_controls(
@@ -1523,6 +1608,7 @@ class BooleanNetwork(WiringDiagram):
         indices_controlled_nodes: Sequence[int],
         values_controlled_nodes: Sequence[int],
         keep_controlled_nodes: bool = False,
+        simplify_recursively: bool = False,
     ) -> "BooleanNetwork":
         """
         Construct a Boolean network with specified nodes fixed to given values.
@@ -1542,7 +1628,13 @@ class BooleanNetwork(WiringDiagram):
             If True, controlled nodes are retained in the network as identity
             nodes with self-loops. If False (default), controlled nodes are
             eliminated as constants.
-    
+        simplify_recursively : bool, optional
+            If True, recursively propagate fixed values through the network and
+            eliminate any nodes whose update functions become constant as a result.
+            This logical reduction is repeated until no further simplifications are
+            possible. If False (default), only the explicitly controlled nodes are
+            fixed and no additional recursive simplification is performed. 
+            
         Returns
         -------
         BooleanNetwork
@@ -1561,6 +1653,11 @@ class BooleanNetwork(WiringDiagram):
         for v in values_controlled_nodes:
             if v not in (0, 1):
                 raise ValueError("Controlled node values must be 0 or 1.")
+    
+        if simplify_recursively and keep_controlled_nodes:
+            raise ValueError(
+                "Cannot simplify recursively when keep_controlled_nodes=True."
+            )
     
         F = deepcopy(self.F)
         I = deepcopy(self.I)
@@ -1581,6 +1678,9 @@ class BooleanNetwork(WiringDiagram):
         # Preserve previously removed constants if controlled nodes are eliminated
         if not keep_controlled_nodes:
             bn.constants.update(self.constants)
+    
+        if simplify_recursively:
+            bn = bn.propagate_constants()
     
         return bn
 
@@ -1897,9 +1997,9 @@ class BooleanNetwork(WiringDiagram):
                 else:
                     fxdec = xdec
                 if fxdec in STG[xdec]:
-                    STG[xdec][fxdec] += stochastic_weights[i]
+                    STG[xdec][fxdec] += float(stochastic_weights[i])
                 else:
-                    STG[xdec][fxdec] = stochastic_weights[i]
+                    STG[xdec][fxdec] = float(stochastic_weights[i])
                 if fxdec!=xdec:
                     sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], fxdec)
                     sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], stochastic_weights[i])

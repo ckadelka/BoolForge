@@ -1,10 +1,9 @@
 # %% [markdown]
 # # Example Use Cases of the Random Function Generator
 #
-# In this tutorial, we explore example use cases of BoolForge’s random Boolean
-# function generator. This functionality allows generating large ensembles of
-# Boolean functions with prescribed structural properties and studying their
-# statistical and dynamical characteristics.
+# In this tutorial, we explore how BoolForge’s random Boolean function generator 
+# can be used to generate large ensembles of Boolean functions with prescribed structural properties,
+# whose statistical and dynamical characteristics can then be studied.
 #
 # ## What you will learn
 # In this tutorial you will learn how to:
@@ -80,11 +79,11 @@ print(out.to_string())
 # We see that hardly any Boolean function with $n\geq 5$ inputs is canalizing, let alone nested canalizing. 
 # This makes the finding that most Boolean functions in published Boolean gene regulatory network models
 # are nested canalizing very surprising (Kadelka et al., Science Advances, 2024).
-#
-# To zoom in on the few functions that are canalizing for higher $n$, we can simply require `depth=1` and repeat the above analysis.
 
 # %% [markdown]
 # ### Restricting to canalizing functions
+#
+# To zoom in on the few functions that are canalizing for higher $n$, we can simply require `depth=1` and repeat the above analysis.
 
 # %%
 count_depths = np.zeros((len(ns), max(ns) + 1))
@@ -121,13 +120,13 @@ out = pd.DataFrame(
     count_depths,
     index=["n=" + str(n) for n in ns],
     columns=["k=" + str(k) for k in canalizing_depths],
-)
+);
 
 print(out.to_string())
 
 
 # %% [markdown]
-#This analysis reveals that among Boolean functions of degree $n\geq 5$, 
+# This analysis reveals that among Boolean functions of degree $n\geq 5$, 
 # functions with few conditionally canalizing variables are much more abundant than functions with more conditionally canalizing variables, 
 # which is mathematically obvious due to the recursive nature of the definition of k-canalization.
 
@@ -185,15 +184,15 @@ plt.show()
 
 # %% [markdown]
 # Both measures decrease with increasing degree, but canalizing strength declines more sharply.
+
+# %% [markdown]
+# ### Stratification by canalizing depth
 #
 # If we stratify this analysis by canalizing depth 
 # (exact canalizing depth using `exact_depth=True` or minimal canalizing depth using the default `exact_depth=False`),
 # we can confirm that functions with more conditionally canalizing variables tend to also have higher average collective canalization, 
 # irrespective of how it is measured.
 # In other words, the various measures of canalization are all highly correlated.
-
-# %% [markdown]
-# ### Stratification by canalizing depth
 
 # %%
 n_simulations = 100

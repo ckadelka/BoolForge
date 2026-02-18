@@ -3,8 +3,7 @@
 #
 # In this tutorial, we study the *dynamics* of Boolean networks.
 # Building on the construction and structural analysis from previous tutorials,
-# we now focus on how Boolean networks evolve over time and how their long-term
-# behavior can be characterized.
+# we now focus on characterizing the long-term behavior of Boolean networks.
 #
 # You will learn how to:
 #
@@ -114,6 +113,7 @@ dict_dynamics = bn.get_attractors_synchronous_exact()
 # - `AttractorID`,
 # - `BasinSizes`.
 #
+# For computational reasons, binary vectors are identified by their decimal representation.
 # The state transition graph can be decoded as follows:
 
 # %%
@@ -193,7 +193,7 @@ for q in qs:
 
 ax.legend(title=r"$q$", frameon=False)
 ax.set_xlabel("number of initial states ($m$)")
-ax.set_ylabel("probability attractor is found")
+ax.set_ylabel("probability attractor of basin size q is found")
 plt.show()
 
 
@@ -211,21 +211,38 @@ plt.show()
 
 # %%
 dict_dynamics = bn.get_steady_states_asynchronous_exact()
-dict_dynamics
-
+print(dict_dynamics['SteadyStates'])
+print(dict_dynamics['NumberOfSteadyStates'])
 
 # %% [markdown]
 # This reveals the same two steady states as in the synchronous case.
 # In addition, the full asynchronous transition graph and absorption
 # probabilities are returned.
-#
-# BoolForge currently does not detect complex cyclic attractors under
-# asynchronous updating; for those, specialized tools such as
+
+# %%
+print(dict_dynamics['STGAsynchronous'])
+print(dict_dynamics['FinalTransitionProbabilities'])
+
+# %% [markdown]
+# The state transition graph describes for each state the possible next states that the system may
+# transition to, in addition to the transition probabilities. 
+# The absorption probabilities indicate that from many states multiple steady states may be reached.
+# The size of each basin of attraction can also be directly computed from these probabilities.
+
+# %%
+print(dict_dynamics['BasinSizes'])
+
+# %% [markdown]
+# Note that `BoolForge` currently does not detect complex cyclic attractors under
+# asynchronous updating; for this task, specialized tools such as
 # `pystablemotifs` are recommended.
 
 
 # %% [markdown]
 # ### Monte Carlo approximation
+#
+# As in synchronous case, `BoolForge` also contains a Monte Carlo routine
+# for sampling asynchronous dynamics.
 
 # %%
 dict_dynamics = bn.get_steady_states_asynchronous(n_simulations=500)

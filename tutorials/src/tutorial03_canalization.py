@@ -212,13 +212,12 @@ plt.show()
 # which describes the proportion of times that this variable is needed to determine the output of the function. 
 # Edge effectiveness is very similar to the activity of a variable 
 # but is not the same (the difference is defined as *excess canalization*).
-# The sum of all edge effectivenesses of the inputs of a function is known as its *effective degree*.
+# The sum of all edge effectiveness values of the inputs of a function is known as its *effective degree*.
 # The average input redundancy serves as a measure of the canalization in a function.
 #
-# In `BoolForge`, all these quantities can be computed, however not directly.
-# Instead, they are computed using the `CANA` package, 
-# which must be installed (`pip install cana`) to enjoy this functionality. 
-# To exemplify this, we reconsider the four 3-input functions from above.
+# `BoolForge` can compute all these quantities. To use this functionality, 
+# the optional `CANA` package must be installed (`pip install cana` or `pip install boolforge[cana]`). 
+# To exemplify this, reconsider the four 3-input functions from above.
 
 # %%
 for func, label in zip([f, g, h, k], labels):

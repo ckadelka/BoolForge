@@ -92,7 +92,7 @@ print("k.is_degenerate()", k.is_degenerate())
 
 # %% [markdown]
 # Detecting degeneracy is NP-hard in general.
-# However, such functions are extremely rare unless intentionally created.
+# However even at relatively low degree, such functions are extremely rare unless intentionally created.
 #
 # BoolForge therefore:
 #
@@ -199,7 +199,10 @@ print("Normalized average sensitivity of g:", g.get_average_sensitivity(exact=ex
 # Exact computation is infeasible for large $n$, so Monte Carlo simulation must
 # be used.
 #
-# When generating such a large function randomly (see Tutorial 4) it not recommended to require that all inputs are essential, as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input $x_i$ is given $1/2^{n-1}$), and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus set `allow_degenerate_functions=True`. You find more on this and the `random_function` method in Tutorial 4. 
+# When generating such a large function randomly (see Tutorial 4) it is not recommended to require that all inputs are essential, 
+# as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input $x_i$ is given $1/2^{n-1}$), 
+# and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus suggest setting `allow_degenerate_functions=True`. 
+# You find more on this and the `random_function` method in Tutorial 4. 
 
 # %%
 exact = False
