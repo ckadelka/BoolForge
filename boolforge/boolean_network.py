@@ -819,6 +819,9 @@ class BooleanNetwork(WiringDiagram):
     
         # ---- State transition graph -----------------------------------------
         self.STG = None
+        
+        # ---- Fixation layers ------------------------------------------------
+        self.fixation_layers = None
     
         # ---- Optional simplification ----------------------------------------
         if simplify_functions:
@@ -1487,73 +1490,91 @@ class BooleanNetwork(WiringDiagram):
             for inp in I[node]:
                 dependents[inp].append(node)
     
-        fixed = {}   # node_index -> value
+        fixed = {}
         queue = deque()
+        indices_fixation_layers = []  # <-- new
     
-        # Initial scan for structural constants already present
+        # ----------------------------------------------------------
+        # Initial scan (Layer 0)
+        # ----------------------------------------------------------
+        initial_layer = []
+    
         for node in range(n):
             if F[node].is_constant():
                 constant_value = F[node][0]
                 fixed[node] = constant_value
                 queue.append(node)
-                
+                initial_layer.append(node)
+    
                 F[node].f = np.array([constant_value], dtype=int)
                 F[node].n = 0
                 I[node] = np.array([], dtype=int)
-
-
     
-        # ------------------------------------------------------------------
+        if initial_layer:
+            indices_fixation_layers.append(initial_layer)
+    
+        # ----------------------------------------------------------
         # Propagation
-        # ------------------------------------------------------------------
+        # ----------------------------------------------------------
         while queue:
-            fixed_node = queue.popleft()
-            value = fixed[fixed_node]
     
-            for node in dependents[fixed_node]:
+            current_layer_size = len(queue)
+            next_layer = []
     
-                if node in fixed:
-                    continue
+            for _ in range(current_layer_size):
     
-                # Find position of fixed_node in input list
-                inputs = I[node]
-                positions = np.where(inputs == fixed_node)[0]
-                if len(positions) == 0:
-                    continue
+                fixed_node = queue.popleft()
+                value = fixed[fixed_node]
     
-                pos = positions[0]
+                for node in dependents[fixed_node]:
     
-                k = len(inputs)
-                old_table = F[node].f
-                new_table = []
+                    if node in fixed:
+                        continue
     
-                # Collapse truth table
-                for r in range(len(old_table)):
-                    bit = (r >> (k - pos - 1)) & 1
-                    if bit == value:
-                        new_table.append(old_table[r])
+                    inputs = I[node]
+                    positions = np.where(inputs == fixed_node)[0]
+                    if len(positions) == 0:
+                        continue
     
-                new_table = np.array(new_table, dtype=int)
+                    pos = positions[0]
+                    k = len(inputs)
+                    old_table = F[node].f
+                    new_table = []
     
-                # Update function
-                F[node].f = new_table
-                F[node].n = k - 1
-                I[node] = np.delete(inputs, pos)
+                    for r in range(len(old_table)):
+                        bit = (r >> (k - pos - 1)) & 1
+                        if bit == value:
+                            new_table.append(old_table[r])
     
-                # Check if constant
-                if len(new_table) == 1 or np.all(new_table == new_table[0]):
-                    const_value = int(new_table[0])
-                    F[node].f = np.array([const_value], dtype=int)
-                    F[node].n = 0
-                    I[node] = np.array([], dtype=int)
+                    new_table = np.array(new_table, dtype=int)
     
-                    fixed[node] = const_value
-                    queue.append(node)
+                    F[node].f = new_table
+                    F[node].n = k - 1
+                    I[node] = np.delete(inputs, pos)
     
+                    if len(new_table) == 1 or np.all(new_table == new_table[0]):
+                        const_value = int(new_table[0])
+    
+                        F[node].f = np.array([const_value], dtype=int)
+                        F[node].n = 0
+                        I[node] = np.array([], dtype=int)
+    
+                        fixed[node] = const_value
+                        queue.append(node)
+                        next_layer.append(node)
+    
+            if next_layer:
+                indices_fixation_layers.append(next_layer)
+        
+        fixation_layers = [
+            [self.variables[i] for i in layer]
+            for layer in indices_fixation_layers
+        ]
+        
         # Reinitialize — constructor removes structural constants
-        return self.__class__(F, I, self.variables)
-    
-
+        reduced_bn = self.__class__(F, I, self.variables)
+        return {'ReducedNetwork' : reduced_bn,
+                'FixationLayers' : fixation_layers}
 
 
     def get_network_with_fixed_identity_nodes(
@@ -1668,6 +1689,7 @@ class BooleanNetwork(WiringDiagram):
     
         F = deepcopy(self.F)
         I = deepcopy(self.I)
+        controlled_variables = [self.variables[int(i)] for i in indices_controlled_nodes]
     
         for node, value in zip(indices_controlled_nodes, values_controlled_nodes):
             if keep_controlled_nodes:
@@ -1680,18 +1702,20 @@ class BooleanNetwork(WiringDiagram):
                 F[node].n = 0
                 I[node] = np.array([], dtype=int)
     
-        bn = self.__class__(F, I, self.variables) #__init__ removes fixated control nodes
+        bn2 = self.__class__(F, I, self.variables) #__init__ removes fixated control nodes
     
-        if simplify_recursively:
-            bn = bn.propagate_constants()
-
         # Preserve previously removed constants if controlled nodes are eliminated
-        if not keep_controlled_nodes:
-            bn.constants.update(self.constants)
-    
-    
-        return bn
-
+        if simplify_recursively:
+            bn3, fixation_layers = bn2.propagate_constants()
+            bn3.constants.update(self.constants)
+            bn3.constants.update(bn2.constants)
+            bn3.fixation_layers = [controlled_variables] + fixation_layers
+            return bn3
+        else:
+            if not keep_controlled_nodes:
+                bn2.constants.update(self.constants)
+                bn2.fixation_layers = [controlled_variables]
+            return bn2
 
     def get_network_with_edge_controls(
         self,
