@@ -1706,7 +1706,9 @@ class BooleanNetwork(WiringDiagram):
     
         # Preserve previously removed constants if controlled nodes are eliminated
         if simplify_recursively:
-            bn3, fixation_layers = bn2.propagate_constants()
+            dummy = bn2.propagate_constants()
+            bn3 = dummy['ReducedNetwork']
+            fixation_layers = dummy['FixationLayers']
             bn3.constants.update(self.constants)
             bn3.constants.update(bn2.constants)
             bn3.fixation_layers = [controlled_variables] + fixation_layers
