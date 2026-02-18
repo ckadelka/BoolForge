@@ -1465,87 +1465,87 @@ class BooleanNetwork(WiringDiagram):
         if as_dict:
             return dict(enumerate(is_identity.tolist()))
         return np.where(is_identity)[0]
-
-
-def propagate_constants(self) -> "BooleanNetwork":
-    """
-    Recursively propagate constants through the network.
-
-    Any node whose update function becomes constant is converted
-    into a structural constant. Removal of such nodes and updating
-    of self.constants is handled by __init__.
-    """
-
-    F = deepcopy(self.F)
-    I = deepcopy(self.I)
-
-    n = len(F)
-
-    # Build reverse dependency graph
-    dependents = {i: [] for i in range(n)}
-    for node in range(n):
-        for inp in I[node]:
-            dependents[inp].append(node)
-
-    fixed = {}   # node_index -> value
-    queue = deque()
-
-    # Initial scan for structural constants already present
-    for node in range(n):
-        if len(I[node]) == 0 and len(F[node].f) == 1:
-            fixed[node] = int(F[node].f[0])
-            queue.append(node)
-
-    # ------------------------------------------------------------------
-    # Propagation
-    # ------------------------------------------------------------------
-    while queue:
-        fixed_node = queue.popleft()
-        value = fixed[fixed_node]
-
-        for node in dependents[fixed_node]:
-
-            if node in fixed:
-                continue
-
-            # Find position of fixed_node in input list
-            inputs = I[node]
-            positions = np.where(inputs == fixed_node)[0]
-            if len(positions) == 0:
-                continue
-
-            pos = positions[0]
-
-            k = len(inputs)
-            old_table = F[node].f
-            new_table = []
-
-            # Collapse truth table
-            for r in range(len(old_table)):
-                bit = (r >> (k - pos - 1)) & 1
-                if bit == value:
-                    new_table.append(old_table[r])
-
-            new_table = np.array(new_table, dtype=int)
-
-            # Update function
-            F[node].f = new_table
-            F[node].n = k - 1
-            I[node] = np.delete(inputs, pos)
-
-            # Check if constant
-            if len(new_table) == 1 or np.all(new_table == new_table[0]):
-                const_value = int(new_table[0])
-                F[node].f = np.array([const_value], dtype=int)
-                F[node].n = 0
-                I[node] = np.array([], dtype=int)
-
-                fixed[node] = const_value
+    
+    
+    def propagate_constants(self) -> "BooleanNetwork":
+        """
+        Recursively propagate constants through the network.
+    
+        Any node whose update function becomes constant is converted
+        into a structural constant. Removal of such nodes and updating
+        of self.constants is handled by __init__.
+        """
+    
+        F = deepcopy(self.F)
+        I = deepcopy(self.I)
+    
+        n = len(F)
+    
+        # Build reverse dependency graph
+        dependents = {i: [] for i in range(n)}
+        for node in range(n):
+            for inp in I[node]:
+                dependents[inp].append(node)
+    
+        fixed = {}   # node_index -> value
+        queue = deque()
+    
+        # Initial scan for structural constants already present
+        for node in range(n):
+            if len(I[node]) == 0 and len(F[node].f) == 1:
+                fixed[node] = int(F[node].f[0])
                 queue.append(node)
-
-    # Reinitialize — constructor removes structural constants
-    return self.__class__(F, I, self.variables)
-
+    
+        # ------------------------------------------------------------------
+        # Propagation
+        # ------------------------------------------------------------------
+        while queue:
+            fixed_node = queue.popleft()
+            value = fixed[fixed_node]
+    
+            for node in dependents[fixed_node]:
+    
+                if node in fixed:
+                    continue
+    
+                # Find position of fixed_node in input list
+                inputs = I[node]
+                positions = np.where(inputs == fixed_node)[0]
+                if len(positions) == 0:
+                    continue
+    
+                pos = positions[0]
+    
+                k = len(inputs)
+                old_table = F[node].f
+                new_table = []
+    
+                # Collapse truth table
+                for r in range(len(old_table)):
+                    bit = (r >> (k - pos - 1)) & 1
+                    if bit == value:
+                        new_table.append(old_table[r])
+    
+                new_table = np.array(new_table, dtype=int)
+    
+                # Update function
+                F[node].f = new_table
+                F[node].n = k - 1
+                I[node] = np.delete(inputs, pos)
+    
+                # Check if constant
+                if len(new_table) == 1 or np.all(new_table == new_table[0]):
+                    const_value = int(new_table[0])
+                    F[node].f = np.array([const_value], dtype=int)
+                    F[node].n = 0
+                    I[node] = np.array([], dtype=int)
+    
+                    fixed[node] = const_value
+                    queue.append(node)
+    
+        # Reinitialize — constructor removes structural constants
+        return self.__class__(F, I, self.variables)
+    
 
 
 
