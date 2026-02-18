@@ -1492,9 +1492,16 @@ class BooleanNetwork(WiringDiagram):
     
         # Initial scan for structural constants already present
         for node in range(n):
-            if len(I[node]) == 0 and len(F[node].f) == 1:
-                fixed[node] = int(F[node].f[0])
+            if F[node].is_constant():
+                constant_value = F[node][0]
+                fixed[node] = constant_value
                 queue.append(node)
+                
+                F[node].f = np.array([constant_value], dtype=int)
+                F[node].n = 0
+                I[node] = np.array([], dtype=int)
+
+
     
         # ------------------------------------------------------------------
         # Propagation
@@ -1675,12 +1682,13 @@ class BooleanNetwork(WiringDiagram):
     
         bn = self.__class__(F, I, self.variables) #__init__ removes fixated control nodes
     
+        if simplify_recursively:
+            bn = bn.propagate_constants()
+
         # Preserve previously removed constants if controlled nodes are eliminated
         if not keep_controlled_nodes:
             bn.constants.update(self.constants)
     
-        if simplify_recursively:
-            bn = bn.propagate_constants()
     
         return bn
 
