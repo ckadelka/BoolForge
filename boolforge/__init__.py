@@ -24,6 +24,9 @@ from .utils import (
     bin2dec,
     dec2bin,
     get_left_side_of_truth_table,
+    compress_trajectories,
+    product_of_trajectories,
+    plot_trajectory,
 )
 
 from .bio_models import get_bio_models_from_repository
@@ -52,4 +55,8 @@ __all__ = [
     "random_null_model",
     "get_bio_models_from_repository",
     "__version__",
+    
+    "compress_trajectories",
+    "product_of_trajectories",
+    "plot_trajectory"
 ]
