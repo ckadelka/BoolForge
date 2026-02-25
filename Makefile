@@ -1,5 +1,5 @@
 # ==========================================
-# BoolForge tutorial pipeline (src → outputs)
+# BoolForge tutorial pipeline (src â†’ outputs)
 # ==========================================
 
 # Canonical sources
@@ -17,13 +17,13 @@ TIMEOUT := 300
 # Convert + execute all tutorials
 # ------------------------------------------
 tutorials: $(IPYNBS)
-	@echo "✅ All tutorials converted and executed successfully."
+	@echo "âœ… All tutorials converted and executed successfully."
 
-# Rule: src/*.py → tutorials/*.ipynb → executed
+# Rule: src/*.py â†’ tutorials/*.ipynb â†’ executed
 tutorials/%.ipynb: tutorials/src/%.py
-	@echo "▶ Converting $< → $@"
+	@echo "â–¶ Converting $< â†’ $@"
 	jupytext --to notebook $< --output $@
-	@echo "▶ Executing $@"
+	@echo "â–¶ Executing $@"
 	jupyter nbconvert \
 	  --execute \
 	  --to notebook \
@@ -35,7 +35,7 @@ tutorials/%.ipynb: tutorials/src/%.py
 # Render HTML previews
 # ------------------------------------------
 html: tutorials
-	@echo "▶ Rendering HTML previews"
+	@echo "â–¶ Rendering HTML previews"
 	jupyter nbconvert --to html $(IPYNBS)
 
 # ------------------------------------------
@@ -46,3 +46,18 @@ clean:
 
 distclean:
 	rm -f tutorials/*.ipynb tutorials/*.html
+	
+# ------------------------------------------
+# Create pdfs
+# ------------------------------------------
+.PHONY: tutorial_pdfs
+
+tutorial_pdfs:
+	@mkdir -p tutorials/pdf
+	@ls tutorials/*.ipynb | xargs -n 1 -P 4 sh -c '\
+		echo "▶ Converting $$0 → PDF"; \
+		jupyter nbconvert --to webpdf \
+		  --HTMLExporter.extra_css="[\"pre { white-space: pre-wrap !important; word-break: break-word !important; }\"]" \
+		  --TemplateExporter.exclude_input_prompt=True \
+		  "$$0" --output-dir tutorials/pdf \
+	'

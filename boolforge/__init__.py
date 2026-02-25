@@ -20,6 +20,14 @@ from .generate import (
     random_null_model,
 )
 
+from .utils import (
+    bin2dec,
+    dec2bin,
+    get_left_side_of_truth_table,
+)
+
+from .bio_models import get_bio_models_from_repository
+
 # Version
 try:
     from ._version import __version__
@@ -27,6 +35,9 @@ except ImportError:
     __version__ = "unknown"
 
 __all__ = [
+    "bin2dec",
+    "dec2bin",
+    "get_left_side_of_truth_table",
     "BooleanFunction",
     "display_truth_table",
     "get_layer_structure_from_canalized_outputs",
@@ -39,5 +50,6 @@ __all__ = [
     "random_wiring_diagram",
     "random_network",
     "random_null_model",
+    "get_bio_models_from_repository",
     "__version__",
 ]

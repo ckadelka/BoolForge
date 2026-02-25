@@ -2,17 +2,23 @@
 
 **BoolForge** is a Python toolbox for generating, sampling, and analyzing
 Boolean functions and Boolean networks, with a particular emphasis on
-**canalization**.
+**canalization** and the uniform random generation of functions with prescribed structure.
+
+While many existing tools focus on simulation and dynamical analysis,
+BoolForge emphasizes **controlled generation and analysis**
+of Boolean functions and networks, enabling systematic studies of
+canalization, robustness, and ensemble properties.
 
 The package provides tools for:
 
-- random sampling of Boolean functions with prescribed canalizing properties,
+- random sampling of Boolean functions with prescribed canalizing structure,
 - generation of Boolean networks with controlled update rules and wiring diagrams,
-- analysis of canalization, activity, sensitivity, and related measures,
-- interoperability with other Boolean network software.
+- analysis of canalization, activity, sensitivity, and related structural measures,
+- interoperability with other Boolean network software and model formats.
 
-BoolForge is designed for researchers working in systems biology,
-network science, and discrete dynamical systems.
+BoolForge is designed for researchers working with regulatory networks,
+discrete dynamical systems, and random Boolean network ensembles in
+systems biology and network science.
 
 ---
 

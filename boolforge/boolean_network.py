@@ -311,7 +311,7 @@ if __LOADED_NUMBA__:
         F_array_list,
         I_array_list,
         N,
-        nsim,
+        n_simulations,
         seed
     ):
         """
@@ -330,7 +330,7 @@ if __LOADED_NUMBA__:
             List of regulator index arrays for each node.
         N : int
             Number of variables (nodes) in the network.
-        nsim : int
+        n_simulations : int
             Number of Monte Carlo simulations to perform.
         seed : int
             Seed for the Numba-compatible random number generator.
@@ -349,7 +349,7 @@ if __LOADED_NUMBA__:
         X = np.empty(N, dtype=np.uint8)
         Y = np.empty(N, dtype=np.uint8)
     
-        for _ in range(nsim):
+        for _ in range(n_simulations):
             # Random initial state
             for i in range(N):
                 X[i] = np.random.randint(0, 2)
@@ -365,7 +365,7 @@ if __LOADED_NUMBA__:
     
             total_dist += _hamming_distance(FX, FY)
     
-        return total_dist / nsim
+        return total_dist / n_simulations
 
     @njit(cache=True)
     def _attractors_functional_graph(next_state):
@@ -682,7 +682,7 @@ class BooleanNetwork(WiringDiagram):
     variables : sequence of str, optional
         Names of the variables corresponding to each node. Ignored if ``I`` is
         provided as a ``WiringDiagram``.
-    SIMPLIFY_FUNCTIONS : bool, optional
+    simplify_functions : bool, optional
         If True, simplify Boolean update functions after initialization.
         Default is False.
 
@@ -706,6 +706,13 @@ class BooleanNetwork(WiringDiagram):
         Interaction weights associated with the wiring diagram.
     STG : dict or None
         State transition graph, initialized to None and computed on demand.
+    fixation_layers : list of list of str or None
+        Sequential record of structural node fixations produced by recursive
+        constant propagation. Each inner list contains the variable names that
+        became fixed at the same propagation step. The first layer corresponds
+        to externally controlled nodes (if any), and subsequent layers represent
+        nodes that became constant due to earlier fixations. If no recursive
+        simplification was performed, this attribute is None.
     """
 
     def __init__(
@@ -713,7 +720,7 @@ class BooleanNetwork(WiringDiagram):
         F: Sequence[BooleanFunction | list[int] | np.ndarray],
         I: Sequence[Sequence[int]] | WiringDiagram,
         variables: Sequence[str] | None = None,
-        SIMPLIFY_FUNCTIONS: bool = False,
+        simplify_functions: bool = False,
     ):
         """
         Initialize a Boolean network.
@@ -739,7 +746,7 @@ class BooleanNetwork(WiringDiagram):
         variables : sequence of str, optional
             Names of the variables corresponding to each node. Ignored if ``I`` is
             provided as a ``WiringDiagram``.
-        SIMPLIFY_FUNCTIONS : bool, optional
+        simplify_functions : bool, optional
             If True, Boolean update functions are simplified after initialization.
             Default is False.
     
@@ -821,9 +828,12 @@ class BooleanNetwork(WiringDiagram):
     
         # ---- State transition graph -----------------------------------------
         self.STG = None
+        
+        # ---- Fixation layers ------------------------------------------------
+        self.fixation_layers = None
     
         # ---- Optional simplification ----------------------------------------
-        if SIMPLIFY_FUNCTIONS:
+        if simplify_functions:
             self.simplify_functions()
 
     def remove_constants(self) -> None:
@@ -845,17 +855,15 @@ class BooleanNetwork(WiringDiagram):
         # Identify constant nodes from topology
         # In this model, source nodes (indegree 0) are exactly the semantic constants
         # at initialization time.
-        indices_constants = self.get_source_nodes(AS_DICT=False)
+        indices_constants = self.get_source_nodes(as_dict=False)
         if len(indices_constants) == 0:
             return
     
-        dict_constants = self.get_source_nodes(AS_DICT=True)
+        dict_constants = self.get_source_nodes(as_dict=True)
         values_constants = [int(self.F[c][0]) for c in indices_constants]
     
         # Propagate constant values downstream
-        for id_constant, value in zip(indices_constants, values_constants):
-            regulated_nodes = []
-    
+        for id_constant, value in zip(indices_constants, values_constants):    
             for i in range(self.N):
                 if dict_constants[i]:
                     continue
@@ -877,12 +885,8 @@ class BooleanNetwork(WiringDiagram):
                 self.indegrees[i] -= 1
                 self.F[i].n -= 1
     
-                regulated_nodes.append(str(self.variables[i]))
     
-            self.constants[str(self.variables[id_constant])] = {
-                "value": value,
-                "regulatedNodes": regulated_nodes,
-            }
+            self.constants[str(self.variables[id_constant])] = value
     
         # Ensure no remaining node loses all regulators
         for i in range(self.N):
@@ -930,6 +934,7 @@ class BooleanNetwork(WiringDiagram):
     def from_cana(
         cls,
         cana_BooleanNetwork: "cana.boolean_network.BooleanNetwork",
+        simplify_functions: bool = False,
     ) -> "BooleanNetwork":
         """
         Construct a BooleanNetwork from a ``cana.BooleanNetwork`` instance.
@@ -941,7 +946,10 @@ class BooleanNetwork(WiringDiagram):
         ----------
         cana_BooleanNetwork : cana.boolean_network.BooleanNetwork
             A Boolean network instance from the ``cana`` package.
-    
+        simplify_functions : bool, optional
+            If True, Boolean update functions are simplified after initialization.
+            Default is False.  
+            
         Returns
         -------
         BooleanNetwork
@@ -983,9 +991,7 @@ class BooleanNetwork(WiringDiagram):
             I.append(list(entry["in"]))
             F.append(np.array(entry["out"], dtype=int))
     
-        return cls(F=F, I=I, variables=variables)
-
-
+        return cls(F=F, I=I, variables=variables, simplify_functions=simplify_functions)
 
 
     @classmethod
@@ -997,7 +1003,8 @@ class BooleanNetwork(WiringDiagram):
         original_not: str | Sequence[str] = "NOT",
         original_and: str | Sequence[str] = "AND",
         original_or: str | Sequence[str] = "OR",
-        ALLOW_TRUNCATION: bool = False
+        allow_truncation: bool = False,
+        simplify_functions: bool = False,
         ) -> "BooleanNetwork":
         """
         Construct a BooleanNetwork from a textual Boolean rule specification.
@@ -1021,12 +1028,15 @@ class BooleanNetwork(WiringDiagram):
             Maximum allowed indegree for explicit truth-table construction.
         original_not, original_and, original_or : str or sequence of str, optional
             Operator strings to be replaced by logical NOT, AND, OR.
-        ALLOW_TRUNCATION : bool, optional
+        allow_truncation : bool, optional
             If False (default), nodes with indegree greater than ``max_degree``
             raise a ValueError. If True, such nodes are replaced by identity
             self-loops, allowing fast construction of large networks while
             ignoring high-degree functions.
-    
+        simplify_functions : bool, optional
+            If True, Boolean update functions are simplified after initialization.
+            Default is False.  
+            
         Returns
         -------
         BooleanNetwork
@@ -1035,7 +1045,7 @@ class BooleanNetwork(WiringDiagram):
         Raises
         ------
         ValueError
-            If parsing fails or if ``ALLOW_TRUNCATION`` is False and 
+            If parsing fails or if ``allow_truncation`` is False and 
             a node exceeds ``max_degree``.
         """
         sepstr, andop, orop, notop = "@", "∧", "∨", "¬"
@@ -1125,7 +1135,7 @@ class BooleanNetwork(WiringDiagram):
                     env
                 )
             else:
-                if not ALLOW_TRUNCATION:
+                if not allow_truncation:
                     raise ValueError(
                         f"Node '{var[i]}' has indegree {deg} > max_degree={max_degree}."
                     )
@@ -1137,7 +1147,7 @@ class BooleanNetwork(WiringDiagram):
             F.append(np.array([0, 1], dtype=int))
             I.append(np.array([len(var) + j]))
         
-        return cls(F, I, var+consts)
+        return cls(F, I, var+consts,simplify_functions=simplify_functions)
 
 
     @classmethod
@@ -1168,7 +1178,7 @@ class BooleanNetwork(WiringDiagram):
             If the ``cana`` package is not installed.
         """
         try:
-            import cana
+            import cana.boolean_network
         except ImportError as e:
             raise ImportError(
                 "The 'cana' package is required for to_cana()."
@@ -1193,7 +1203,7 @@ class BooleanNetwork(WiringDiagram):
     def to_bnet(
         self,
         separator: str = ",\t",
-        AS_POLYNOMIAL: bool = True,
+        as_polynomial: bool = True,
     ) -> str:
         """
         Export the Boolean network in BNET format.
@@ -1207,7 +1217,7 @@ class BooleanNetwork(WiringDiagram):
         separator : str, optional
             String used to separate the target variable from its update function.
             Default is `",\\t"`.
-        AS_POLYNOMIAL : bool, optional
+        as_polynomial : bool, optional
             If True (default), return Boolean functions in polynomial form.
             If False, return functions as logical expressions.
     
@@ -1224,7 +1234,7 @@ class BooleanNetwork(WiringDiagram):
         lines = []
     
         for i in range(self.N):
-            if AS_POLYNOMIAL:
+            if as_polynomial:
                 function = utils.bool_to_poly(
                     self.F[i],
                     self.variables[self.I[i]].tolist(),
@@ -1425,7 +1435,7 @@ class BooleanNetwork(WiringDiagram):
 
     def get_identity_nodes(
         self, 
-        AS_DICT: bool = False
+        as_dict: bool = False
     ) -> dict[int, bool] | np.ndarray:
         """
         Identify identity (memory) nodes in the Boolean network.
@@ -1436,16 +1446,16 @@ class BooleanNetwork(WiringDiagram):
     
         Parameters
         ----------
-        AS_DICT : bool, optional
+        as_dict : bool, optional
             If True, return a dictionary mapping node indices to booleans.
             If False (default), return an array of indices of identity nodes.
     
         Returns
         -------
         dict[int, bool] or np.ndarray
-            If ``AS_DICT`` is True, a dictionary indicating which nodes are
+            If ``as_dict`` is True, a dictionary indicating which nodes are
             identity nodes.
-            If ``AS_DICT`` is False, an array of indices of identity nodes.
+            If ``as_dict`` is False, an array of indices of identity nodes.
         """
         is_identity = np.array(
             [
@@ -1458,14 +1468,123 @@ class BooleanNetwork(WiringDiagram):
             dtype=bool,
         )
     
-        if AS_DICT:
+        if as_dict:
             return dict(enumerate(is_identity.tolist()))
         return np.where(is_identity)[0]
+    
+    
+    def propagate_constants(self) -> "BooleanNetwork":
+        """
+        Recursively propagate constants through the network.
+    
+        Any node whose update function becomes constant is converted
+        into a structural constant. Removal of such nodes and updating
+        of self.constants is handled by __init__.
+        """
+    
+        F = deepcopy(self.F)
+        I = deepcopy(self.I)
+    
+        n = len(F)
+    
+        # Build reverse dependency graph
+        dependents = {i: [] for i in range(n)}
+        for node in range(n):
+            for inp in I[node]:
+                dependents[inp].append(node)
+    
+        fixed = {}
+        queue = deque()
+        indices_fixation_layers = []  # <-- new
+    
+        # ----------------------------------------------------------
+        # Initial scan (Layer 0)
+        # ----------------------------------------------------------
+        initial_layer = []
+    
+        for node in range(n):
+            if F[node].is_constant():
+                constant_value = F[node][0]
+                fixed[node] = constant_value
+                queue.append(node)
+                initial_layer.append(node)
+    
+                F[node].f = np.array([constant_value], dtype=int)
+                F[node].n = 0
+                I[node] = np.array([], dtype=int)
+    
+        if initial_layer:
+            indices_fixation_layers.append(initial_layer)
+    
+        # ----------------------------------------------------------
+        # Propagation
+        # ----------------------------------------------------------
+        while queue:
+    
+            current_layer_size = len(queue)
+            next_layer = []
+    
+            for _ in range(current_layer_size):
+    
+                fixed_node = queue.popleft()
+                value = fixed[fixed_node]
+    
+                for node in dependents[fixed_node]:
+    
+                    if node in fixed:
+                        continue
+    
+                    inputs = I[node]
+                    positions = np.where(inputs == fixed_node)[0]
+                    if len(positions) == 0:
+                        continue
+    
+                    pos = positions[0]
+                    k = len(inputs)
+                    old_table = F[node].f
+                    new_table = []
+    
+                    for r in range(len(old_table)):
+                        bit = (r >> (k - pos - 1)) & 1
+                        if bit == value:
+                            new_table.append(old_table[r])
+    
+                    new_table = np.array(new_table, dtype=int)
+    
+                    F[node].f = new_table
+                    F[node].n = k - 1
+                    I[node] = np.delete(inputs, pos)
+    
+                    if len(new_table) == 1 or np.all(new_table == new_table[0]):
+                        const_value = int(new_table[0])
+    
+                        F[node].f = np.array([const_value], dtype=int)
+                        F[node].n = 0
+                        I[node] = np.array([], dtype=int)
+    
+                        fixed[node] = const_value
+                        queue.append(node)
+                        next_layer.append(node)
+    
+            if next_layer:
+                indices_fixation_layers.append(next_layer)
+        
+        fixation_layers = [
+            [str(self.variables[i]) for i in layer]
+            for layer in indices_fixation_layers
+        ]
+        
+        # Reinitialize — constructor removes structural constants
+        reduced_bn = self.__class__(F, I, self.variables)
+        return {'ReducedNetwork' : reduced_bn,
+                'FixationLayers' : fixation_layers}
 
 
     def get_network_with_fixed_identity_nodes(
         self,
         values_identity_nodes: Sequence[int],
+        keep_controlled_nodes: bool = False,
+        simplify_recursively: bool = False,
     ) -> "BooleanNetwork":
         """
         Construct a Boolean network with identity nodes fixed to given values.
@@ -1478,15 +1597,24 @@ class BooleanNetwork(WiringDiagram):
         ----------
         values_identity_nodes : sequence of int
             Values to fix for each identity node, in the order returned by
-            ``get_identity_nodes(AS_DICT=False)``. Each value must be either 0 or 1.
-    
+            ``get_identity_nodes(as_dict=False)``. Each value must be either 0 or 1.
+        keep_controlled_nodes : bool, optional
+            If True, controlled nodes are retained in the network as identity
+            nodes with self-loops. If False (default), controlled nodes are
+            eliminated as constants.
+        simplify_recursively : bool, optional
+            If True, recursively propagate fixed values through the network and
+            eliminate any nodes whose update functions become constant as a result.
+            This logical reduction is repeated until no further simplifications are
+            possible. If False (default), only the explicitly controlled nodes are
+            fixed and no additional recursive simplification is performed. 
+            
         Returns
         -------
         BooleanNetwork
-            A new BooleanNetwork with the specified identity nodes fixed. Any
-            constants previously removed from the original network are preserved.
+            A new BooleanNetwork with the specified identity nodes fixed.
         """
-        indices_identity_nodes = self.get_identity_nodes(AS_DICT=False)
+        indices_identity_nodes = self.get_identity_nodes(as_dict=False)
     
         if len(values_identity_nodes) != len(indices_identity_nodes):
             raise ValueError(
@@ -1498,26 +1626,20 @@ class BooleanNetwork(WiringDiagram):
             if v not in (0, 1):
                 raise ValueError("Identity node values must be 0 or 1.")
     
-        F = deepcopy(self.F)
-        I = deepcopy(self.I)
-    
-        for identity_node, value in zip(indices_identity_nodes, values_identity_nodes):
-            F[identity_node] = BooleanFunction(np.array([value], dtype=int))
-            I[identity_node] = np.array([], dtype=int)
-    
-        bn = self.__class__(F, I, self.variables)
-    
-        # Preserve previously removed constants
-        bn.constants.update(self.constants)
-    
-        return bn
+        return self.get_network_with_node_controls(
+            indices_controlled_nodes=indices_identity_nodes,
+            values_controlled_nodes=values_identity_nodes,
+            keep_controlled_nodes=keep_controlled_nodes,
+            simplify_recursively=simplify_recursively,
+        )
 
 
     def get_network_with_node_controls(
         self,
         indices_controlled_nodes: Sequence[int],
         values_controlled_nodes: Sequence[int],
-        KEEP_CONTROLLED_NODES: bool = False,
+        keep_controlled_nodes: bool = False,
+        simplify_recursively: bool = False,
     ) -> "BooleanNetwork":
         """
         Construct a Boolean network with specified nodes fixed to given values.
@@ -1533,11 +1655,17 @@ class BooleanNetwork(WiringDiagram):
         values_controlled_nodes : sequence of int
             Values to fix for each specified node, in the same order as
             ``indices_controlled_nodes``. Each value must be either 0 or 1.
-        KEEP_CONTROLLED_NODES : bool, optional
+        keep_controlled_nodes : bool, optional
             If True, controlled nodes are retained in the network as identity
             nodes with self-loops. If False (default), controlled nodes are
             eliminated as constants.
-    
+        simplify_recursively : bool, optional
+            If True, recursively propagate fixed values through the network and
+            eliminate any nodes whose update functions become constant as a result.
+            This logical reduction is repeated until no further simplifications are
+            possible. If False (default), only the explicitly controlled nodes are
+            fixed and no additional recursive simplification is performed. 
+            
         Returns
         -------
         BooleanNetwork
@@ -1550,18 +1678,24 @@ class BooleanNetwork(WiringDiagram):
             )
     
         for node in indices_controlled_nodes:
-            if not isinstance(node, int) or node < 0 or node >= self.N:
-                raise ValueError(f"Invalid node index: {node}")
+            if not isinstance(node, (int, np.integer)) or node < 0 or node >= self.N:
+                raise ValueError(f"Invalid node index: {node, not isinstance(node, int), node < 0 , node >= self.N}")
     
         for v in values_controlled_nodes:
             if v not in (0, 1):
                 raise ValueError("Controlled node values must be 0 or 1.")
     
+        if simplify_recursively and keep_controlled_nodes:
+            raise ValueError(
+                "Cannot simplify recursively when keep_controlled_nodes=True."
+            )
+    
         F = deepcopy(self.F)
         I = deepcopy(self.I)
+        controlled_variables = [str(self.variables[int(i)]) for i in indices_controlled_nodes]
     
         for node, value in zip(indices_controlled_nodes, values_controlled_nodes):
-            if KEEP_CONTROLLED_NODES:
+            if keep_controlled_nodes:
                 # Identity-clamped node
                 F[node].f = np.array([value, value], dtype=int)
                 I[node] = np.array([node], dtype=int)
@@ -1571,21 +1705,29 @@ class BooleanNetwork(WiringDiagram):
                 F[node].n = 0
                 I[node] = np.array([], dtype=int)
     
-        bn = self.__class__(F, I, self.variables) #__init__ removes fixated control nodes
+        bn2 = self.__class__(F, I, self.variables) #__init__ removes fixated control nodes
     
         # Preserve previously removed constants if controlled nodes are eliminated
-        if not KEEP_CONTROLLED_NODES:
-            bn.constants.update(self.constants)
-    
-        return bn
-
+        if simplify_recursively:
+            dummy = bn2.propagate_constants()
+            bn3 = dummy['ReducedNetwork']
+            fixation_layers = dummy['FixationLayers']
+            bn3.constants.update(self.constants)
+            bn3.constants.update(bn2.constants)
+            bn3.fixation_layers = [controlled_variables] + fixation_layers
+            return bn3
+        else:
+            if not keep_controlled_nodes:
+                bn2.constants.update(self.constants)
+                bn2.fixation_layers = [controlled_variables]
+            return bn2
 
     def get_network_with_edge_controls(
         self,
         control_targets: Sequence[int],
         control_sources: Sequence[int],
         values_edge_controls: Sequence[int] | None = None,
-        KEEP_FULLY_CONTROLLED_NODES: bool = True
+        keep_fully_controlled_nodes: bool = True
     ) -> "BooleanNetwork":
         """
         Construct a Boolean network with specified regulatory edges controlled.
@@ -1605,7 +1747,7 @@ class BooleanNetwork(WiringDiagram):
         values_edge_controls : sequence of int, optional
             Fixed values (0 or 1) imposed on each controlled edge. If None, all
             controlled edges are fixed to 0.
-        KEEP_FULLY_CONTROLLED_NODES : bool, optional
+        keep_fully_controlled_nodes : bool, optional
             If True (default), nodes without any remaining regulation are retained
             in the network as identity nodes with self-loops. 
             If False, fully controlled nodes are eliminated as constants.
@@ -1667,7 +1809,7 @@ class BooleanNetwork(WiringDiagram):
             
             # ---- NEW LOGIC: fully controlled node -----------------------------
             if F_new[target].n == 0:
-                if KEEP_FULLY_CONTROLLED_NODES:
+                if keep_fully_controlled_nodes:
                     value = int(F_new[target].f[0])
                     # Identity-clamped node
                     F_new[target].f = np.array([value, value], dtype=int)
@@ -1892,9 +2034,9 @@ class BooleanNetwork(WiringDiagram):
                 else:
                     fxdec = xdec
                 if fxdec in STG[xdec]:
-                    STG[xdec][fxdec] += stochastic_weights[i]
+                    STG[xdec][fxdec] += float(stochastic_weights[i])
                 else:
-                    STG[xdec][fxdec] = stochastic_weights[i]
+                    STG[xdec][fxdec] = float(stochastic_weights[i])
                 if fxdec!=xdec:
                     sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], fxdec)
                     sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], stochastic_weights[i])
@@ -1947,10 +2089,10 @@ class BooleanNetwork(WiringDiagram):
 
     def get_steady_states_asynchronous(
         self,
-        nsim: int = 500,
+        n_simulations: int = 500,
         initial_states: Sequence[int] | None = None,
         search_depth: int = 50,
-        DEBUG: bool = False,
+        debug: bool = False,
         *,
         rng=None,
     ) -> dict:
@@ -1969,16 +2111,16 @@ class BooleanNetwork(WiringDiagram):
     
         Parameters
         ----------
-        nsim : int, optional
+        n_simulations : int, optional
             Number of asynchronous simulations to perform (default is 500).
         initial_states : sequence of int or None, optional
             Initial states to use for the simulations, given as decimal
-            representations of network states. If None (default), ``nsim``
+            representations of network states. If None (default), ``n_simulations``
             random initial states are generated.
         search_depth : int, optional
             Maximum number of asynchronous update steps per simulation before
             giving up on convergence (default is 50).
-        DEBUG : bool, optional
+        debug : bool, optional
             If True, print detailed debugging information during simulation.
         rng : optional
             Random number generator or seed, passed to ``utils._coerce_rng``.
@@ -2024,7 +2166,7 @@ class BooleanNetwork(WiringDiagram):
         basin_sizes: list[int] = []
         steady_state_dict: dict[int, int] = {}
     
-        for iteration in range(nsim):
+        for iteration in range(n_simulations):
             # Initialize state
             if initial_states is None:
                 x = rng.integers(2, size=self.N)
@@ -2034,11 +2176,11 @@ class BooleanNetwork(WiringDiagram):
                 xdec = initial_states[iteration]
                 x = utils.dec2bin(xdec, self.N)
     
-            if DEBUG:
+            if debug:
                 print(iteration, -1, -1, False, xdec, x)
     
             for step in range(search_depth):
-                FOUND_NEW_STATE = False
+                found_new_state = False
     
                 # Check if state is already known to be steady
                 if xdec in steady_state_dict:
@@ -2054,24 +2196,24 @@ class BooleanNetwork(WiringDiagram):
                         if fx_i > x[i]:
                             fxdec = xdec + 2 ** (self.N - 1 - i)
                             x[i] = 1
-                            FOUND_NEW_STATE = True
+                            found_new_state = True
                         elif fx_i < x[i]:
                             fxdec = xdec - 2 ** (self.N - 1 - i)
                             x[i] = 0
-                            FOUND_NEW_STATE = True
+                            found_new_state = True
                         else:
                             fxdec = xdec
                         STG_asynchronous[(xdec, i)] = fxdec
     
                     if fxdec != xdec:
                         xdec = fxdec
-                        FOUND_NEW_STATE = True
+                        found_new_state = True
                         break
     
-                if DEBUG:
-                    print(iteration, step, i, FOUND_NEW_STATE, xdec, x)
+                if debug:
+                    print(iteration, step, i, found_new_state, xdec, x)
     
-                if not FOUND_NEW_STATE:
+                if not found_new_state:
                     # New steady state found
                     if xdec in steady_state_dict:
                         basin_sizes[steady_state_dict[xdec]] += 1
@@ -2081,12 +2223,12 @@ class BooleanNetwork(WiringDiagram):
                         basin_sizes.append(1)
                     break
     
-            if DEBUG:
+            if debug:
                 print()
     
-        if sum(basin_sizes) < nsim:
+        if sum(basin_sizes) < n_simulations:
             print(
-                f"Warning: only {sum(basin_sizes)} of the {nsim} simulations "
+                f"Warning: only {sum(basin_sizes)} of the {n_simulations} simulations "
                 "reached a steady state. Consider increasing search_depth. "
                 "The network may also contain asynchronous limit cycles."
             )
@@ -2105,10 +2247,10 @@ class BooleanNetwork(WiringDiagram):
     def get_steady_states_asynchronous_given_one_initial_condition(
         self,
         initial_condition: int | Sequence[int] = 0,
-        nsim: int = 500,
+        n_simulations: int = 500,
         stochastic_weights: Sequence[float] | None = None,
         search_depth: int = 50,
-        DEBUG: bool = False,
+        debug: bool = False,
         *,
         rng=None,
     ) -> dict:
@@ -2132,7 +2274,7 @@ class BooleanNetwork(WiringDiagram):
             Initial network state. If an integer is provided, it is interpreted as
             the decimal encoding of a Boolean state. If a sequence is provided, it
             must be a binary vector of length ``N``. Default is 0.
-        nsim : int, optional
+        n_simulations : int, optional
             Number of asynchronous simulation runs (default is 500).
         stochastic_weights : sequence of float or None, optional
             Relative update propensities for each node. If provided, must have
@@ -2140,7 +2282,7 @@ class BooleanNetwork(WiringDiagram):
             internally. If None (default), nodes are updated uniformly at random.
         search_depth : int, optional
             Maximum number of asynchronous update steps per simulation.
-        DEBUG : bool, optional
+        debug : bool, optional
             If True, print detailed debugging information during simulation.
         rng : optional
             Random number generator or seed, passed to ``utils._coerce_rng``.
@@ -2211,13 +2353,13 @@ class BooleanNetwork(WiringDiagram):
         queues: list[list[int]] = []
     
         # --- Simulations ---
-        for iteration in range(nsim):
+        for iteration in range(n_simulations):
             x = x0.copy()
             xdec = x0dec
             queue = [xdec]
     
             for step in range(search_depth):
-                FOUND_NEW_STATE = False
+                found_new_state = False
     
                 # If already known steady state, stop
                 if xdec in steady_state_dict:
@@ -2253,13 +2395,13 @@ class BooleanNetwork(WiringDiagram):
                     if fxdec != xdec:
                         xdec = fxdec
                         queue.append(xdec)
-                        FOUND_NEW_STATE = True
+                        found_new_state = True
                         break
     
-                if DEBUG:
-                    print(iteration, step, i, FOUND_NEW_STATE, xdec, x)
+                if debug:
+                    print(iteration, step, i, found_new_state, xdec, x)
     
-                if not FOUND_NEW_STATE:
+                if not found_new_state:
                     # New steady state reached
                     if xdec in steady_state_dict:
                         idx = steady_state_dict[xdec]
@@ -2273,12 +2415,12 @@ class BooleanNetwork(WiringDiagram):
                     queues.append(queue)
                     break
     
-            if DEBUG:
+            if debug:
                 print()
     
-        if sum(basin_sizes) < nsim:
+        if sum(basin_sizes) < n_simulations:
             print(
-                f"Warning: only {sum(basin_sizes)} of the {nsim} simulations "
+                f"Warning: only {sum(basin_sizes)} of the {n_simulations} simulations "
                 "reached a steady state. Consider increasing search_depth. "
                 "The network may contain asynchronous limit cycles."
             )
@@ -2295,11 +2437,11 @@ class BooleanNetwork(WiringDiagram):
 
     def get_attractors_synchronous(
         self,
-        nsim: int = 500,
+        n_simulations: int = 500,
         initial_sample_points: Sequence[int | Sequence[int]] | None = None,
         n_steps_timeout: int = 1000,
-        INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS: bool = False,
-        USE_NUMBA: bool = True,
+        initial_sample_points_are_vectors: bool = False,
+        use_numba: bool = True,
         *,
         rng=None,
     ) -> dict:
@@ -2315,25 +2457,25 @@ class BooleanNetwork(WiringDiagram):
         are found. Basin sizes are lower-bound estimates based on the sampled
         initial conditions.
     
-        If Numba is available and ``USE_NUMBA=True``, synchronous updates are
+        If Numba is available and ``use_numba=True``, synchronous updates are
         accelerated using a compiled kernel.
     
         Parameters
         ----------
-        nsim : int, optional
-            Number of initial conditions to simulate (default is 500). Ignored if
-            ``initial_sample_points`` is provided.
+        n_simulations : int, optional
+            Number of random initial conditions to sample (default is 500). 
+            Ignored if ``initial_sample_points`` is provided.
         initial_sample_points : sequence of int or sequence of sequence of int, optional
             Initial states to use. If provided, its length determines the number
             of simulations. Interpretation depends on
-            ``INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS``.
+            ``initial_sample_points_are_vectors``.
         n_steps_timeout : int, optional
             Maximum number of synchronous update steps per simulation before
             declaring a timeout (default is 1000).
-        INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS : bool, optional
+        initial_sample_points_are_vectors : bool, optional
             If True, ``initial_sample_points`` are interpreted as binary vectors;
-            otherwise they are interpreted as decimal-encoded states.
-        USE_NUMBA : bool, optional
+            otherwise (default) they are interpreted as decimal-encoded states.
+        use_numba : bool, optional
             If True (default) and Numba is available, use a Numba-accelerated
             synchronous update kernel.
         rng : optional
@@ -2354,7 +2496,7 @@ class BooleanNetwork(WiringDiagram):
             - ``"BasinSizes"`` : list of int  
               Number of sampled initial conditions converging to each attractor.
     
-            - ``"AttractorDict"`` : dict  
+            - ``"AttractorID"`` : dict  
               Mapping from visited states (decimal) to attractor index.
     
             - ``"InitialSamplePoints"`` : list of int  
@@ -2374,6 +2516,7 @@ class BooleanNetwork(WiringDiagram):
           exhaustive synchronous analysis is infeasible.
         - Basin sizes are *sampling-based estimates* and should not be interpreted
           as exact proportions of the state space.
+        - There is no guarantee that all attractors are found. 
         """
         rng = utils._coerce_rng(rng)
     
@@ -2386,26 +2529,26 @@ class BooleanNetwork(WiringDiagram):
         n_timeout = 0
         sampled_points: list[int] = []
     
-        INITIAL_SAMPLE_POINTS_EMPTY = initial_sample_points is None
-        if not INITIAL_SAMPLE_POINTS_EMPTY:
-            nsim = len(initial_sample_points)
+        initial_sample_points_empty = initial_sample_points is None
+        if not initial_sample_points_empty:
+            n_simulations = len(initial_sample_points)
     
         # --- Decide update backend ---
-        use_numba = __LOADED_NUMBA__ and USE_NUMBA
+        use_numba = __LOADED_NUMBA__ and use_numba
     
         if use_numba:
             F_array_list = List([np.array(bf.f, dtype=np.uint8) for bf in self.F])
             I_array_list = List([np.array(regs, dtype=np.int64) for regs in self.I])
     
         # --- Main simulation loop ---
-        for sim_idx in range(nsim):
+        for sim_idx in range(n_simulations):
             # Initialize state
-            if INITIAL_SAMPLE_POINTS_EMPTY:
+            if initial_sample_points_empty:
                 x = rng.integers(2, size=self.N, dtype=np.uint8)
                 xdec = utils.bin2dec(x)
                 sampled_points.append(xdec)
             else:
-                if INITIAL_SAMPLE_POINTS_AS_BINARY_VECTORS:
+                if initial_sample_points_are_vectors:
                     x = np.asarray(initial_sample_points[sim_idx], dtype=np.uint8)
                     if x.shape[0] != self.N:
                         raise ValueError(
@@ -2473,9 +2616,9 @@ class BooleanNetwork(WiringDiagram):
             "Attractors": attractors,
             "NumberOfAttractors": len(attractors),
             "BasinSizes": basin_sizes,
-            "AttractorDict": attr_dict,
+            "AttractorID": attr_dict,
             "InitialSamplePoints": (
-                sampled_points if INITIAL_SAMPLE_POINTS_EMPTY else list(initial_sample_points)
+                sampled_points if initial_sample_points_empty else list(initial_sample_points)
             ),
             "STG": STG,
             "NumberOfTimeouts": n_timeout,
@@ -2485,7 +2628,7 @@ class BooleanNetwork(WiringDiagram):
     
     def compute_synchronous_state_transition_graph(
         self,
-        USE_NUMBA: bool = True,
+        use_numba: bool = True,
     ) -> None:
         """
         Compute the exact synchronous state transition graph (STG).
@@ -2499,7 +2642,7 @@ class BooleanNetwork(WiringDiagram):
     
         Parameters
         ----------
-        USE_NUMBA : bool, optional
+        use_numba : bool, optional
             If True (default) and Numba is available, use a compiled kernel to
             accelerate computation.
         """
@@ -2507,7 +2650,7 @@ class BooleanNetwork(WiringDiagram):
         if self.STG is not None:
             return
     
-        if __LOADED_NUMBA__ and USE_NUMBA:
+        if __LOADED_NUMBA__ and use_numba:
             # Preprocess data into Numba-friendly types
             F_list = [np.array(bf.f, dtype=np.uint8) for bf in self.F]
             I_list = [np.array(regs, dtype=np.int64) for regs in self.I]
@@ -2550,7 +2693,7 @@ class BooleanNetwork(WiringDiagram):
 
     def get_attractors_synchronous_exact(
         self,
-        USE_NUMBA: bool = True,
+        use_numba: bool = True,
     ) -> dict:
         """
         Compute all attractors and their exact basin sizes under synchronous updating.
@@ -2565,7 +2708,7 @@ class BooleanNetwork(WiringDiagram):
     
         Parameters
         ----------
-        USE_NUMBA : bool, optional
+        use_numba : bool, optional
             If True (default) and Numba is available, use a compiled kernel for
             attractor detection.
     
@@ -2586,11 +2729,11 @@ class BooleanNetwork(WiringDiagram):
                 The synchronous state transition graph.
         """
         if self.STG is None:
-            self.compute_synchronous_state_transition_graph(USE_NUMBA=USE_NUMBA)
+            self.compute_synchronous_state_transition_graph(use_numba=use_numba)
     
         attractors = []
     
-        if __LOADED_NUMBA__ and USE_NUMBA:
+        if __LOADED_NUMBA__ and use_numba:
             attractor_id, basin_sizes, cycle_rep, cycle_len, n_attr = (
                 _attractors_functional_graph(self.STG)
             )
@@ -2653,7 +2796,7 @@ class BooleanNetwork(WiringDiagram):
     
     def get_transient_lengths_exact(
         self,
-        USE_NUMBA : bool = True
+        use_numba : bool = True
     ) -> np.ndarray:
         """
         Compute exact transient length using:
@@ -2662,12 +2805,12 @@ class BooleanNetwork(WiringDiagram):
     
         This avoids indegree-pruning because cycle states are given explicitly.
         """
-        attractor_info = self.get_attractors_synchronous_exact(USE_NUMBA=USE_NUMBA)
+        attractor_info = self.get_attractors_synchronous_exact(use_numba=use_numba)
 
         stg = self.STG                              # full mapping: successor(s)
         attractors = attractor_info["Attractors"]   # list of cycles
         
-        if __LOADED_NUMBA__ and USE_NUMBA:
+        if __LOADED_NUMBA__ and use_numba:
             is_attr_mask = np.full(2**self.N, 0, dtype=np.uint8)
         
             for i, states in enumerate(attractors):
@@ -2720,10 +2863,10 @@ class BooleanNetwork(WiringDiagram):
         return np.array(dist,dtype=int)
 
     ## Robustness measures: synchronous Derrida value, entropy of basin size distribution, coherence, fragility
-    def get_attractors_and_robustness_measures_synchronous_exact(
+    def get_attractors_and_robustness_synchronous_exact(
         self, 
-        USE_NUMBA: bool = True,
-        GET_STRATIFIED_COHERENCES : bool = False
+        use_numba: bool = True,
+        get_stratified_coherences : bool = False
     ) -> dict:
         """
         Compute attractors and exact robustness measures of a synchronously
@@ -2748,11 +2891,11 @@ class BooleanNetwork(WiringDiagram):
 
         Parameters
         ----------
-        USE_NUMBA : bool, optional
+        use_numba : bool, optional
             If True (default) and Numba is available, compiled kernels are used
             for robustness and transient-length computations, resulting in
             substantial speedups.
-        GET_STRATIFIED_COHERENCES : bool, optional
+        get_stratified_coherences : bool, optional
             If True, coherence is additionally computed as a function of the
             transient length (distance to the attractor) of each state.
             When Numba is enabled, this option incurs only modest additional
@@ -2786,7 +2929,7 @@ class BooleanNetwork(WiringDiagram):
             - AttractorFragility : np.ndarray of float
                 Exact fragility of each attractor.
 
-            If ``GET_STRATIFIED_COHERENCES`` is True, the dictionary additionally
+            If ``get_stratified_coherences`` is True, the dictionary additionally
             contains:
 
             - StratifiedCoherences : np.ndarray of float
@@ -2801,7 +2944,7 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # 0) Attractors and basins
         # ------------------------------------------------------------------
-        result = self.get_attractors_synchronous_exact(USE_NUMBA=USE_NUMBA)
+        result = self.get_attractors_synchronous_exact(use_numba=use_numba)
     
         attractors = result["Attractors"]
         n_attractors = int(result["NumberOfAttractors"])
@@ -2867,8 +3010,8 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # 4) Hypercube edge traversal
         # ------------------------------------------------------------------
-        if __LOADED_NUMBA__ and USE_NUMBA:
-            if GET_STRATIFIED_COHERENCES:
+        if __LOADED_NUMBA__ and use_numba:
+            if get_stratified_coherences:
                 distances_from_attractor = _transient_lengths_functional_numba(
                     self.STG.astype(np.int64, copy=False),
                     is_attr_mask
@@ -2917,7 +3060,7 @@ class BooleanNetwork(WiringDiagram):
             attractor_coherences = np.zeros(n_attractors, dtype=np.float64)
             attractor_fragilities = np.zeros(n_attractors, dtype=np.float64)
             
-            if GET_STRATIFIED_COHERENCES:
+            if get_stratified_coherences:
                 distances_from_attractor = self.get_transient_lengths_exact(result)
                 max_distance_from_attractor = max(distances_from_attractor)
                 stratified_coherences = np.zeros((n_attractors,max_distance_from_attractor+1), dtype=np.float64)
@@ -2933,7 +3076,7 @@ class BooleanNetwork(WiringDiagram):
                     idx_x = attractor_id[xdec]
                     idx_y = attractor_id[ydec]
                     
-                    if GET_STRATIFIED_COHERENCES:
+                    if get_stratified_coherences:
                         n_states_with_specific_distance_from_attractor[idx_x,distances_from_attractor[xdec]] += 1
                         n_states_with_specific_distance_from_attractor[idx_y,distances_from_attractor[ydec]] += 1
                         
@@ -2943,7 +3086,7 @@ class BooleanNetwork(WiringDiagram):
                             attractor_coherences[idx_x] += 1.0
                         if is_attr_mask[ydec]:
                             attractor_coherences[idx_y] += 1.0
-                        if GET_STRATIFIED_COHERENCES:
+                        if get_stratified_coherences:
                             stratified_coherences[idx_x,distances_from_attractor[xdec]] += 1.0
                             stratified_coherences[idx_y,distances_from_attractor[ydec]] += 1.0
                     else:
@@ -2960,7 +3103,7 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         basin_counts = basin_sizes * float(n_states)
     
-        if GET_STRATIFIED_COHERENCES:
+        if get_stratified_coherences:
             n_states_with_specific_distance_from_attractor //= self.N
     
         for i in range(n_attractors):
@@ -2972,7 +3115,7 @@ class BooleanNetwork(WiringDiagram):
                 attractor_coherences[i] /= len_attractors[i] * self.N
                 attractor_fragilities[i] /= len_attractors[i] * self.N
                 
-            if GET_STRATIFIED_COHERENCES:
+            if get_stratified_coherences:
                 for d in range(max_distance_from_attractor+1):
                     if n_states_with_specific_distance_from_attractor[i,d] > 0.0:
                         stratified_coherences[i,d] /= n_states_with_specific_distance_from_attractor[i,d] * self.N
@@ -2997,17 +3140,17 @@ class BooleanNetwork(WiringDiagram):
             "AttractorCoherence": attractor_coherences,
             "AttractorFragility": attractor_fragilities,
         }
-        if GET_STRATIFIED_COHERENCES:
+        if get_stratified_coherences:
             return_dict['StratifiedCoherences'] = stratified_coherences
             return_dict['DistanceFromAttractorCount'] = n_states_with_specific_distance_from_attractor
             return_dict['DistanceFromAttractor'] = distances_from_attractor
         return return_dict
 
 
-    def get_attractors_and_robustness_measures_synchronous(
+    def get_attractors_and_robustness_synchronous(
         self,
-        number_different_IC: int = 500,
-        RETURN_ATTRACTOR_COHERENCE: bool = True,
+        n_simulations: int = 500,
+        return_attractor_coherence: bool = True,
         *,
         rng=None,
     ) -> dict:
@@ -3030,10 +3173,10 @@ class BooleanNetwork(WiringDiagram):
     
         Parameters
         ----------
-        number_different_IC : int, optional
+        n_simulations : int, optional
             Number of random initial conditions to sample (default is 500). For each
             IC, the method also simulates one randomly chosen single-bit perturbation.
-        RETURN_ATTRACTOR_COHERENCE : bool, optional
+        return_attractor_coherence : bool, optional
             If True (default), also compute attractor-level coherence and fragility
             by perturbing attractor states found during sampling.
         rng : None or numpy.random.Generator, optional
@@ -3074,11 +3217,11 @@ class BooleanNetwork(WiringDiagram):
                 Approximate fragility per basin (same definition as fragility but
                 conditioned on having reached that basin).
             - AttractorCoherence : np.ndarray[float], optional
-                If ``RETURN_ATTRACTOR_COHERENCE`` is True: estimated attractor-level
+                If ``return_attractor_coherence`` is True: estimated attractor-level
                 coherence (probability that a single-bit perturbation of an attractor
                 state returns to the same attractor).
             - AttractorFragility : np.ndarray[float], optional
-                If ``RETURN_ATTRACTOR_COHERENCE`` is True: estimated attractor-level
+                If ``return_attractor_coherence`` is True: estimated attractor-level
                 fragility based on differences between the original attractor and the
                 attractor reached after perturbation.
     
@@ -3128,7 +3271,7 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # Sampling phase
         # ------------------------------------------------------------------
-        for _ in range(number_different_IC):
+        for _ in range(n_simulations):
             index_attractors = []
             index_within_attr = []
             dist_from_attr = []
@@ -3314,11 +3457,11 @@ class BooleanNetwork(WiringDiagram):
     
         approximate_basin_sizes = (
             np.asarray(basin_sizes, dtype=np.float64)
-            / (2.0 * float(number_different_IC))
+            / (2.0 * float(n_simulations))
         )
     
-        approximate_coherence = robustness_approximation / float(number_different_IC)
-        approximate_fragility = fragility_sum / float(number_different_IC) / float(self.N)
+        approximate_coherence = robustness_approximation / float(n_simulations)
+        approximate_fragility = fragility_sum / float(n_simulations) / float(self.N)
     
         approximate_basin_coherence = np.asarray(
             [
@@ -3336,7 +3479,7 @@ class BooleanNetwork(WiringDiagram):
             dtype=np.float64,
         )
     
-        final_hamming_distance_approximation /= float(number_different_IC)
+        final_hamming_distance_approximation /= float(n_simulations)
     
         results = [
             attractors,
@@ -3349,7 +3492,7 @@ class BooleanNetwork(WiringDiagram):
             approximate_basin_fragility,
         ]
     
-        if not RETURN_ATTRACTOR_COHERENCE:
+        if not return_attractor_coherence:
             return dict(
                 zip(
                     [
@@ -3367,7 +3510,7 @@ class BooleanNetwork(WiringDiagram):
             )
     
         # ------------------------------------------------------------------
-        # Attractor-level coherence / fragility (FIXED)
+        # Attractor-level coherence / fragility
         # ------------------------------------------------------------------
         attractor_coherence = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
         attractor_fragility = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
@@ -3479,9 +3622,9 @@ class BooleanNetwork(WiringDiagram):
     
     def get_derrida_value(
         self,
-        nsim: int = 1000,
-        EXACT: bool = False,
-        USE_NUMBA: bool = True,
+        n_simulations: int = 1000,
+        exact: bool = False,
+        use_numba: bool = True,
         *,
         rng=None,
     ) -> float:
@@ -3493,19 +3636,19 @@ class BooleanNetwork(WiringDiagram):
         perturbation. It quantifies the short-term sensitivity of the network
         dynamics to small perturbations.
     
-        If ``EXACT`` is True, the Derrida value is computed exactly as the mean
+        If ``exact`` is True, the Derrida value is computed exactly as the mean
         (unnormalized) average sensitivity of the Boolean update functions.
         Otherwise, it is approximated via Monte Carlo simulation.
     
         Parameters
         ----------
-        nsim : int, optional
+        n_simulations : int, optional
             Number of Monte Carlo simulations to perform (default is 1000).
-            Ignored if ``EXACT`` is True.
-        EXACT : bool, optional
+            Ignored if ``exact`` is True.
+        exact : bool, optional
             If True, compute the exact Derrida value. If False (default),
             approximate the Derrida value using Monte Carlo simulation.
-        USE_NUMBA : bool, optional
+        use_numba : bool, optional
             If True (default) and Numba is available, use a compiled kernel for
             Monte Carlo simulation.
         rng : None or np.random.Generator, optional
@@ -3527,12 +3670,12 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # Exact computation
         # ------------------------------------------------------------------
-        if EXACT:
+        if exact:
             return float(
                 np.mean(
                     [
                         bf.get_average_sensitivity(
-                            EXACT=True, NORMALIZED=False
+                            exact=True, normalized=False
                         )
                         for bf in self.F
                     ]
@@ -3544,7 +3687,7 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         rng = utils._coerce_rng(rng)
     
-        if __LOADED_NUMBA__ and USE_NUMBA:
+        if __LOADED_NUMBA__ and use_numba:
             # Prepare Numba-friendly inputs
             F_array_list = List(
                 [np.asarray(bf.f, dtype=np.uint8) for bf in self.F]
@@ -3560,7 +3703,7 @@ class BooleanNetwork(WiringDiagram):
                     F_array_list,
                     I_array_list,
                     int(self.N),
-                    int(nsim),
+                    int(n_simulations),
                     seed,
                 )
             )
@@ -3570,7 +3713,7 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         total_dist: float = 0.0
     
-        for _ in range(int(nsim)):
+        for _ in range(int(n_simulations)):
             x = rng.integers(0, 2, size=self.N, dtype=np.uint8)
             y = x.copy()
     
@@ -3588,7 +3731,7 @@ class BooleanNetwork(WiringDiagram):
     
             total_dist += float(np.sum(fx != fy))
     
-        return float(total_dist / float(nsim))
+        return float(total_dist / float(n_simulations))
 
 # ===================== #
 #   Modular BoolForge   #

@@ -1,5 +1,5 @@
 # %% [markdown]
-# # #03: Canalization
+# # Canalization
 #
 # Canalization is a key property of biological Boolean functions that confers
 # robustness: when a canalizing variable takes its canalizing value, the output
@@ -18,8 +18,7 @@
 # - compute properties related to collective canalization, such as canalizing strength, 
 # effective degree and input redundancy.
 #
-# ---
-# ## 0. Setup
+# ## Setup
 
 # %%
 import boolforge
@@ -27,8 +26,7 @@ import matplotlib.pyplot as plt
 
 
 # %% [markdown]
-# ---
-# ## 1. Canalizing variables and layers
+# ## Canalizing variables and layers
 #
 # A Boolean function $f(x_1, \ldots, x_n)$ is *canalizing* if there exists at least one
 # *canalizing variable* $x_i$ and a *canalizing input value* $a \in \{0,1\}$ such that
@@ -39,7 +37,7 @@ import matplotlib.pyplot as plt
 #
 # where $b \in \{0,1\}$ is a constant, the *canalized output*.
 #
-#A Boolean function is *k-canalizing* if it has at least k conditionally canalizing variables. 
+# A Boolean function is *k-canalizing* if it has at least k conditionally canalizing variables. 
 # This is checked recursively: after fixing a canalizing variable $x_i$ to its non-canalizing input value $\bar a$, 
 # the subfunction $f(x_1,\ldots,x_{i-1},x_{i+1},\ldots,x_n)$ must itself contain another canalizing variable, and so on. 
 # For a given function, the maximal possible value of k is defined as its *canalizing depth*. 
@@ -47,7 +45,7 @@ import matplotlib.pyplot as plt
 # the function is called a *nested canalizing* function (*NCF*). 
 # Biological networks are heavily enriched for NCFs as we explore in a later tutorial.
 #
-#Per (He and Macauley, Physica D, 2016), any Boolean function can be decomposed 
+# Per (He and Macauley, Physica D, 2016), any Boolean function can be decomposed 
 # into a unique standard monomial form by recursively identifying and removing all 
 # conditionally canalizing variables (this set of variables is called a *canalizing layer*). 
 # Each variable of a Boolean function appears in exactly one layer, 
@@ -56,9 +54,8 @@ import matplotlib.pyplot as plt
 # The *canalizing layer structure* $[k_1,\ldots,k_r]$ describes the number of variables in each canalizing layer. 
 # We thus have $r\geq 0$, $k_i\geq 1$ and $k_1+\cdots+k_r$.
 #
-#In the following code, we define four 3-input functions with different canalizing properties.
-#
-# ### 1.1 Examples
+# In the following code, we define four 3-input functions with different canalizing properties.
+
 
 # %%
 # Non-canalizing XOR function
@@ -78,7 +75,7 @@ boolforge.display_truth_table(f, g, h, k, labels=labels)
 
 
 # %% [markdown]
-# ### 1.2 Canalizing depth and nested canalization
+# ### Canalizing depth and nested canalization
 #
 # For each function, we can determine whether it is canalizing and/or nested canalizing. 
 # This is determined by the canalizing depth (the number of conditionally canalizing variables), 
@@ -97,7 +94,7 @@ for func, label in zip([f, g, h, k], labels):
 
 
 # %% [markdown]
-# ### 1.3 Canalizing layer structure
+# ### Canalizing layer structure
 #
 # The full canalizing layer structure includes canalizing input values, canalized
 # output values, the order of canalizing variables, the layer structure, and the
@@ -123,20 +120,20 @@ for func, label in zip([f, g, h, k], labels):
 # - Layer 2: $x_1, x_2$ (if $x_0=0$ and $x_1=0$ or $x_2=0$, then $k=0$)
 
 # %% [markdown]
-# ---
-# ## 2. Collective canalization
+# ## Collective canalization
 #
 # Collective canalization treats canalization as a property of the function rather
-# than individual variables (Reichhardt & Bassler, J. Phys. A, 2007).
+# than individual variables (Reichhardt & Bassler, J. Phys. A, 2007). 
+# Individual canalization asks: "Which *single* variables can determine output?"
+# Collective canalization asks: "Which *sets* of variables can determine output?"
 #
 # A Boolean function is *$k$-set canalizing* if there exists a set of $k$ variables
 # whose fixed values determine the output irrespective of the remaining inputs.
-#
-# Individual canalization asks: "Which single variables can determine output?"
-# Collective canalization asks: "Which SETS of variables can determine output?"
 # 
-# A 2-set canalizing example: If $k(x_0,x_1,x_2) = x_0 \| (x_1 \& x_2)$,
-# - $\{x_0,x_1\}$ can determine the output: if $(x_0,x_1)=(1,0)$, $k=1$ ($x_2$ irrelevant),
+# Consider, for example, the function $k(x_0,x_1,x_2) = x_0 \vee (x_1 \wedge x_2)$.
+# This function is 2-set canalizing because
+#
+# - $\{x_0,x_1\}$ can determine the output: if $(x_0,x_1)=(1,0)$, $k=1$ ($x_2$ irrelevant), or
 # - $\{x_1,x_2\}$ can determine the output: if $(x_1,x_2)=(1,1)$, $k=1$ ($x_0$ irrelevant)
 #
 # The proportion of such $k$-sets, the $k$-set canalizing proportion denoted $P_k(f)$, is used to define the canalizing strength.
@@ -152,13 +149,13 @@ for func, label in zip([f, g, h, k], labels):
 for func, label in zip([f, g, h, k], labels):
     print(f"1-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=1)}")
     print(f"2-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=2)}")
-    print(f"Normalized average sensitivity of {label}: {func.get_average_sensitivity(EXACT=True)}")
+    print(f"Normalized average sensitivity of {label}: {func.get_average_sensitivity(exact=True, normalized=True)}")
     print(f"3-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=3)}")
     print()
 
 
 # %% [markdown]
-# ### 2.1 Canalizing strength
+# ### Canalizing strength
 #
 # The *canalizing strength* summarizes collective canalization as a weighted average of
 # the $k$-set canalizing proportions (Kadelka et al., Adv Appl Math, 2023). It ranges from:
@@ -180,8 +177,7 @@ for func, label in zip([f, g, h, k], labels):
 
 
 # %% [markdown]
-# ---
-# ### 2.2. Distribution of canalizing strength
+# ### Distribution of canalizing strength
 #
 # An enumeration of all non-degenerate 3-input Boolean functions reveals the distribution of the canalizing strength. 
 # Note that this brute-force code can also run (in less than a minute) for all $2^{2^4}=2^{16}=65,536$ 
@@ -205,8 +201,7 @@ plt.show()
 
 
 # %% [markdown]
-# ---
-# ## 3. Canalization as a measure of input redundancy
+# ## Canalization as a measure of input redundancy
 #
 # Canalization, symmetry and redundancy are related concepts. 
 # A highly symmetry Boolean function with few (e.g., one) symmetry groups
@@ -217,13 +212,12 @@ plt.show()
 # which describes the proportion of times that this variable is needed to determine the output of the function. 
 # Edge effectiveness is very similar to the activity of a variable 
 # but is not the same (the difference is defined as *excess canalization*).
-# The sum of all edge effectivenesses of the inputs of a function is known as its *effective degree*.
+# The sum of all edge effectiveness values of the inputs of a function is known as its *effective degree*.
 # The average input redundancy serves as a measure of the canalization in a function.
 #
-# In `BoolForge`, all these quantities can be computed, however not directly.
-# Instead, they are computed using the `CANA` package, 
-# which must be installed (`pip install cana`) to enjoy this functionality. 
-# To exemplify this, we reconsider the four 3-input functions from above.
+# `BoolForge` can compute all these quantities. To use this functionality, 
+# the optional `CANA` package must be installed (`pip install cana` or `pip install boolforge[cana]`). 
+# To exemplify this, reconsider the four 3-input functions from above.
 
 # %%
 for func, label in zip([f, g, h, k], labels):
@@ -242,8 +236,7 @@ for func, label in zip([f, g, h, k], labels):
 
 
 # %% [markdown]
-# ---
-# ## 4. Summary and next steps
+# ## Summary and next steps
 #
 # In this tutorial you learned how to:
 #

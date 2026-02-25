@@ -1,10 +1,9 @@
 # %% [markdown]
-# # #05: Example Use Cases of the Random Function Generator
+# # Example Use Cases of the Random Function Generator
 #
-# In this tutorial, we explore example use cases of BoolForge’s random Boolean
-# function generator. This functionality allows generating large ensembles of
-# Boolean functions with prescribed structural properties and studying their
-# statistical and dynamical characteristics.
+# In this tutorial, we explore how BoolForge’s random Boolean function generator 
+# can be used to generate large ensembles of Boolean functions with prescribed structural properties,
+# whose statistical and dynamical characteristics can then be studied.
 #
 # ## What you will learn
 # In this tutorial you will learn how to:
@@ -16,8 +15,7 @@
 #
 # It is strongly recommended to complete the previous tutorials first.
 #
-# ---
-# ## 0. Setup
+# ## Setup
 
 # %%
 import boolforge
@@ -28,25 +26,24 @@ import scipy.stats as stats
 
 
 # %% [markdown]
-# ---
-# ## 1. Prevalence of canalization
+# ## Prevalence of canalization
 #
 # Using random sampling, we estimate how frequently Boolean functions of degree $n$
 # exhibit a given canalizing depth.
 
 # %%
-nsim = 1000
+n_simulations = 1000
 ns = np.arange(2, 7)
 canalizing_depths = np.arange(max(ns) + 1)
 
 count_depths = np.zeros((len(ns), max(ns) + 1))
 
-for _ in range(nsim):
+for _ in range(n_simulations):
     for i, n in enumerate(ns):
         f = boolforge.random_function(n)
         count_depths[i, f.get_canalizing_depth()] += 1
 
-count_depths /= nsim
+count_depths /= n_simulations
 
 fig, ax = plt.subplots()
 for i, depth in enumerate(canalizing_depths):
@@ -69,32 +66,34 @@ ax.set_xlabel("Number of essential variables")
 ax.set_ylabel("Proportion of functions")
 plt.show()
 
-pd.DataFrame(
+out = pd.DataFrame(
     count_depths,
     index=["n=" + str(n) for n in ns],
     columns=["k=" + str(k) for k in canalizing_depths],
 )
+
+print(out.to_string())
 
 
 # %% [markdown]
 # We see that hardly any Boolean function with $n\geq 5$ inputs is canalizing, let alone nested canalizing. 
 # This makes the finding that most Boolean functions in published Boolean gene regulatory network models
 # are nested canalizing very surprising (Kadelka et al., Science Advances, 2024).
-#
-# To zoom in on the few functions that are canalizing for higher $n$, we can simply require `depth=1` and repeat the above analysis.
 
 # %% [markdown]
 # ### Restricting to canalizing functions
+#
+# To zoom in on the few functions that are canalizing for higher $n$, we can simply require `depth=1` and repeat the above analysis.
 
 # %%
 count_depths = np.zeros((len(ns), max(ns) + 1))
 
-for _ in range(nsim):
+for _ in range(n_simulations):
     for i, n in enumerate(ns):
         f = boolforge.random_function(n, depth=1)
         count_depths[i, f.get_canalizing_depth()] += 1
 
-count_depths /= nsim
+count_depths /= n_simulations
 
 fig, ax = plt.subplots()
 for i, depth in enumerate(canalizing_depths):
@@ -117,33 +116,35 @@ ax.set_xlabel("Number of essential variables")
 ax.set_ylabel("Proportion of functions")
 plt.show()
 
-pd.DataFrame(
+out = pd.DataFrame(
     count_depths,
     index=["n=" + str(n) for n in ns],
     columns=["k=" + str(k) for k in canalizing_depths],
-)
+);
+
+print(out.to_string())
+
 
 # %% [markdown]
-#This analysis reveals that among Boolean functions of degree $n\geq 5$, 
+# This analysis reveals that among Boolean functions of degree $n\geq 5$, 
 # functions with few conditionally canalizing variables are much more abundant than functions with more conditionally canalizing variables, 
 # which is mathematically obvious due to the recursive nature of the definition of k-canalization.
 
 # %% [markdown]
-# ---
-# ## 2. Collective canalization vs degree
+# ## Collective canalization vs degree
 #
 # Using a similar setup, we can investigate if and how the various measures of collective canalization, 
 # specifically canalizing strength (Kadelka et al., Adv in Appl Math, 2023) and the normalized input redundancy (Gates et al., PNAS, 2021), 
 # change when the degree of the functions changes.
 
 # %%
-nsim = 100
+n_simulations = 100
 ns = np.arange(2, 8)
 
-canalizing_strengths = np.zeros((len(ns), nsim))
-input_redundancies = np.zeros((len(ns), nsim))
+canalizing_strengths = np.zeros((len(ns), n_simulations))
+input_redundancies = np.zeros((len(ns), n_simulations))
 
-for j in range(nsim):
+for j in range(n_simulations):
     for i, n in enumerate(ns):
         f = boolforge.random_function(n)
         canalizing_strengths[i, j] = f.get_canalizing_strength()
@@ -183,30 +184,30 @@ plt.show()
 
 # %% [markdown]
 # Both measures decrease with increasing degree, but canalizing strength declines more sharply.
+
+# %% [markdown]
+# ### Stratification by canalizing depth
 #
 # If we stratify this analysis by canalizing depth 
-# (exact canalizing depth using `EXACT_DEPTH=True` or minimal canalizing depth using the default `EXACT_DEPTH=False`),
+# (exact canalizing depth using `exact_depth=True` or minimal canalizing depth using the default `exact_depth=False`),
 # we can confirm that functions with more conditionally canalizing variables tend to also have higher average collective canalization, 
 # irrespective of how it is measured.
 # In other words, the various measures of canalization are all highly correlated.
 
-# %% [markdown]
-# ### Stratification by canalizing depth
-
 # %%
-nsim = 100
-EXACT_DEPTH = False
+n_simulations = 100
+exact_depth = False
 ns = np.arange(2, 7)
 
 max_depth = max(ns)
 
-canalizing_strengths = np.zeros((len(ns), max_depth + 1, nsim))
-input_redundancies = np.zeros((len(ns), max_depth + 1, nsim))
+canalizing_strengths = np.zeros((len(ns), max_depth + 1, n_simulations))
+input_redundancies = np.zeros((len(ns), max_depth + 1, n_simulations))
 
-for k in range(nsim):
+for k in range(n_simulations):
     for i, n in enumerate(ns):
         for depth in np.append(np.arange(n - 1), n):
-            f = boolforge.random_function(n, depth=depth, EXACT_DEPTH=EXACT_DEPTH)
+            f = boolforge.random_function(n, depth=depth, exact_depth=exact_depth)
             canalizing_strengths[i, depth, k] = f.get_canalizing_strength()
             input_redundancies[i, depth, k] = f.get_input_redundancy()
 
@@ -270,13 +271,12 @@ fig.legend(
     loc="upper center",
     ncol=7,
     frameon=False,
-    title="exact canalizing depth" if EXACT_DEPTH else "minimal canalizing depth",
+    title="exact canalizing depth" if exact_depth else "minimal canalizing depth",
 )
 plt.show()
 
 
 # %% [markdown]
-# ---
 # ### Correlation between canalizing strength and input redundancy
 #
 # We can generate all (non-degenerate) Boolean functions of a certain degree $n$ 
@@ -284,7 +284,7 @@ plt.show()
 
 # %%
 n = 3
-ALLOW_DEGENERATE_FUNCTIONS = False
+allow_degenerate_functions = False
 degenerate = np.zeros(2 ** (2**n), dtype=bool)
 strengths = np.zeros(2 ** (2**n))
 redundancies = np.zeros(2 ** (2**n))
@@ -293,10 +293,10 @@ for i, fvec in enumerate(boolforge.get_left_side_of_truth_table(2**n)):
     bf = boolforge.BooleanFunction(fvec)
     strengths[i] = bf.get_canalizing_strength()
     redundancies[i] = bf.get_input_redundancy()
-    if not ALLOW_DEGENERATE_FUNCTIONS:
+    if not allow_degenerate_functions:
         degenerate[i] = bf.is_degenerate()
         
-if ALLOW_DEGENERATE_FUNCTIONS:
+if allow_degenerate_functions:
     which = np.ones(2 ** (2**n), dtype=bool)
 else:
     which = ~degenerate
@@ -318,29 +318,28 @@ stats.spearmanr(strengths[which], redundancies[which])
 # It remains an open question what drives this behavior.
 
 # %% [markdown]
-# ---
-# ## 3. Correlation between canalization and bias
+# ## Correlation between canalization and bias
 #
 # Basically all metrics used to assess the sensitivity of Boolean functions (canalization, absolute bias, average sensitivity) are correlated. 
 # For example, functions with higher absolute bias are more likely to be canalizing.
 
 # %%
 ns = np.arange(2, 6)
-nsim = 3000
+n_simulations = 3000
 bias_values = np.linspace(0, 1, 21)
 
 count_canalizing = np.zeros((len(ns), len(bias_values)), dtype=int)
 
 for i, n in enumerate(ns):
-    for _ in range(nsim):
+    for _ in range(n_simulations):
         for j, bias in enumerate(bias_values):
-            f = boolforge.random_function(n, bias=bias, ALLOW_DEGENERATE_FUNCTIONS=True)
+            f = boolforge.random_function(n, bias=bias, allow_degenerate_functions=True)
             if f.is_canalizing():
                 count_canalizing[i, j] += 1
 
 fig, ax = plt.subplots()
 for i, n in enumerate(ns):
-    ax.plot(bias_values, count_canalizing[i] / nsim, label=f"n={n}")
+    ax.plot(bias_values, count_canalizing[i] / n_simulations, label=f"n={n}")
 
 xticks = [0, 0.25, 0.5, 0.75, 1]
 ax.set_xticks(xticks)
@@ -367,15 +366,15 @@ plt.show()
 count_degenerate = np.zeros((len(ns), len(bias_values)), dtype=int)
 
 for i, n in enumerate(ns):
-    for _ in range(nsim):
+    for _ in range(n_simulations):
         for j, bias in enumerate(bias_values):
-            f = boolforge.random_function(n, bias=bias, ALLOW_DEGENERATE_FUNCTIONS=True)
+            f = boolforge.random_function(n, bias=bias, allow_degenerate_functions=True)
             if f.is_degenerate():
                 count_degenerate[i, j] += 1
 
 fig, ax = plt.subplots()
 for i, n in enumerate(ns):
-    ax.plot(bias_values, count_degenerate[i] / nsim, label=f"n={n}")
+    ax.plot(bias_values, count_degenerate[i] / n_simulations, label=f"n={n}")
 
 ax.set_xticks(xticks)
 ax.set_xticklabels([f"{p} ({round(200*abs(p-0.5))}%)" for p in xticks])
@@ -391,8 +390,7 @@ plt.show()
 
 
 # %% [markdown]
-# ---
-# ## 4. Analyzing functions with specific canalizing layer structure
+# ## Analyzing functions with specific canalizing layer structure
 #
 # The average sensitivity of the Boolean functions governing the updates in a Boolean network, determines the stability of the network to perturbations. 
 # More generally, it determines the dynamical regime of the network (see Tutorial 8). 
@@ -402,7 +400,7 @@ plt.show()
 
 # For nested canalizing functions of a given degree $n$, there exists a bijection 
 # between their absolute bias and their canalizing layer structure (Kadelka et al., Physica D, 2017).
-# The function `boolforge.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
+# The function `boolforge.utils.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
 # NCFs with the same layer structure have the same dynamical properties. 
 # That is, they have the same average sensitivity, canalizing strength and the same effective degree.
 # Iterating over all possible absolute biases (parametrized by the possible Hamming weights), 
@@ -420,10 +418,10 @@ eff_degree = np.zeros_like(avg_sens)
 layer_structures = []
 
 for i, w in enumerate(all_hamming):
-    layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
+    layer = boolforge.utils.hamming_weight_to_ncf_layer_structure(n, w)
     layer_structures.append(layer)
     f = boolforge.random_function(n, layer_structure=layer)
-    avg_sens[i] = f.get_average_sensitivity(EXACT=True, NORMALIZED=False)
+    avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
     can_strength[i] = f.get_canalizing_strength()
     eff_degree[i] = f.get_effective_degree()
 
@@ -432,7 +430,6 @@ df = pd.DataFrame(
         "Hamming weight": all_hamming,
         "Absolute bias": all_abs_bias,
         "Layer structure": list(map(str, layer_structures)),
-        "Number of layers": list(map(len, layer_structures)),
         "Average sensitivity": avg_sens,
         "Canalizing strength": np.round(can_strength, 4),
         "Effective degree": np.round(eff_degree, 4),
@@ -461,9 +458,9 @@ for n in ns:
     avg_sens = np.zeros(2 ** (n - 2))
 
     for i, w in enumerate(all_hamming_weights):
-        layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
+        layer = boolforge.utils.hamming_weight_to_ncf_layer_structure(n, w)
         f = boolforge.random_function(n, layer_structure=layer)
-        avg_sens[i] = f.get_average_sensitivity(EXACT=True, NORMALIZED=False)
+        avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
 
     ax.plot(all_abs_bias, avg_sens, "x--", label=f"n={n}")
 
@@ -474,8 +471,7 @@ plt.show()
 
 
 # %% [markdown]
-# ---
-# ## 5. Summary and outlook
+# ## Summary and outlook
 #
 # This tutorial illustrated how ensembles of Boolean functions generated under
 # explicit constraints reveal systematic relationships between canalization,

@@ -89,10 +89,10 @@ class WiringDiagram(object):
     >>> W.N
     3
     
-    >>> W.get_source_nodes(AS_DICT=True)
+    >>> W.get_source_nodes(as_dict=True)
     {0: True, 1: False, 2: False}
     
-    >>> W.get_source_nodes(AS_DICT=False)
+    >>> W.get_source_nodes(as_dict=False)
     array([0])
     
     See Also
@@ -273,7 +273,7 @@ class WiringDiagram(object):
         return cls(I=I, variables=variables, weights=weights)
 
 
-    def to_DiGraph(self, USE_VARIABLE_NAMES: bool = True) -> nx.DiGraph:
+    def to_DiGraph(self, use_variable_names: bool = True) -> nx.DiGraph:
         """
         Convert the wiring diagram into a NetworkX directed graph.
         
@@ -282,7 +282,7 @@ class WiringDiagram(object):
         
         Parameters
         ----------
-        USE_VARIABLE_NAMES : bool, optional
+        use_variable_names : bool, optional
             If True (default), nodes are labeled using the variable names stored in
             ``self.variables``. If False, nodes are labeled by integer indices
             ``0, 1, ..., N-1``.
@@ -303,7 +303,7 @@ class WiringDiagram(object):
         """
         G = nx.DiGraph()
     
-        if USE_VARIABLE_NAMES:
+        if use_variable_names:
             nodes = list(self.variables)
             idx_to_node = {i: self.variables[i] for i in range(self.N)}
         else:
@@ -357,7 +357,7 @@ class WiringDiagram(object):
 
     def get_source_nodes(
         self, 
-        AS_DICT: bool = True
+        as_dict: bool = True
     ) -> dict[int, bool] | np.ndarray:
         """
         Identify source nodes in the wiring diagram.
@@ -370,7 +370,7 @@ class WiringDiagram(object):
     
         Parameters
         ----------
-        AS_DICT : bool, optional
+        as_dict : bool, optional
             If True (default), return a dictionary mapping node indices to
             Boolean values indicating whether each node is a source node.
             If False, return an array of indices corresponding to source nodes.
@@ -378,13 +378,13 @@ class WiringDiagram(object):
         Returns
         -------
         dict[int, bool] or np.ndarray
-            If ``AS_DICT`` is True, a dictionary where keys are node indices and
+            If ``as_dict`` is True, a dictionary where keys are node indices and
             values indicate whether the node is a source node.
-            If ``AS_DICT`` is False, a one-dimensional array containing the
+            If ``as_dict`` is False, a one-dimensional array containing the
             indices of source nodes.
         """
         is_source = self.indegrees == 0
-        if AS_DICT:
+        if as_dict:
             return dict(enumerate(is_source.tolist()))
         return np.where(is_source)[0]
 
@@ -519,7 +519,7 @@ class WiringDiagram(object):
     
         
         
-    def get_fbls(self, max_length: int = 4, CLASSIFY : bool = False) -> dict:
+    def get_fbls(self, max_length: int = 4, classify : bool = False) -> dict:
         """
         Identify feedback loops (simple directed cycles).
     
@@ -533,7 +533,7 @@ class WiringDiagram(object):
         max_length : int, optional
             Maximum length of feedback loops to consider. Cycles longer than
             ``max_length`` are not returned. Default is 4.
-        CLASSIFY : bool, optional
+        classify : bool, optional
             If True and interaction weights are available, the type of each
             feedback loop is determined.
         
@@ -546,7 +546,7 @@ class WiringDiagram(object):
             as single-element lists.
             
         """
-        G = self.to_DiGraph(USE_VARIABLE_NAMES=False)
+        G = self.to_DiGraph(use_variable_names=False)
     
         def _unblock(thisnode, blocked, B):
             stack = set([thisnode])
@@ -607,7 +607,7 @@ class WiringDiagram(object):
             sccs.extend(scc for scc in nx.strongly_connected_components(H) if len(scc) > 1)
         
         return_dict = {'FBLs' : fbls}
-        if self.weights is not None and CLASSIFY == True:
+        if self.weights is not None and classify:
             types,n_negative = self._get_types_of_fbls(fbls)
             return_dict['Types'] = types
             return_dict['NumberNegativeEdges'] = n_negative
@@ -1060,7 +1060,7 @@ class WiringDiagram(object):
         ax.set_autoscale_on(False)
 
         # --------------------------------------------------
-        # FINAL hard limits: guarantee everything is visible
+        # final hard limits: guarantee everything is visible
         # --------------------------------------------------
         xs = []
         ys = []

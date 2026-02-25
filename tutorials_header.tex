@@ -1,0 +1,9 @@
+\usepackage{graphicx}
+
+% Allow alt= key in \includegraphics without error
+\makeatletter
+\define@key{Gin}{alt}{}
+\makeatother
+
+\usepackage{etoolbox}
+\pretocmd{\section}{\clearpage}{}{}
