@@ -3957,7 +3957,8 @@ class BooleanNetwork(WiringDiagram):
     def get_trajectories(self,
         non_periodic_component : Sequence[Sequence[int]],
         periodic_component : Sequence[Sequence[int]],
-        MERGE_TRAJECTORIES : bool = True) -> [nx.DiGraph, list]:
+        merge_trajectories : bool = True,
+        starting_states_dec : Sequence[int] = None) -> [nx.DiGraph, list]:
         """
         Compute state trajectories of the Boolean network under
         non-autonomous external inputs.
@@ -3977,24 +3978,40 @@ class BooleanNetwork(WiringDiagram):
             Each inner sequence corresponds to one identity node and
             is treated as repeating indefinitely.
         
-        MERGE_TRAJECTORIES : bool, optional
+        merge_trajectories : bool, optional
             If True, trajectories are merged into a directed graph
             representation. If False, individual trajectories are
             returned. Defaults to True.
         
+        starting_states_dec : sequence of int, optional
+            The states to compute trajectories from. If None, will use every
+            valid state in the entire :math:`2^{N}` state space.
+        
         Returns
         -------
         result : object
-            If MERGE_TRAJECTORIES is True, returns a directed graph
+            If merge_trajectories is True, returns a directed graph
             representing merged trajectories.
         
-            If MERGE_TRAJECTORIES is False, returns a list of tuples
+            If merge_trajectories is False, returns a list of tuples
             (trajectory, cycle_length), where trajectory is a list of
             state values in decimal form and cycle_length is the length
-            of the periodic component.
+            of the periodic component from the end of the trajectory.
         """
 
         N = self.N - len(self.get_identity_nodes(False))
+        state_space = 2 ** N
+        
+        assert len(non_periodic_component) == len(periodic_component), f"All components of the input sequence must be the same length ({len(periodic_component)} != {len(non_periodic_component)})."
+        assert len(non_periodic_component) == self.N - N, f"Input sequence must be of the same length as the number of identity nodes of the network. Expected {self.N - N}, Given{len(non_periodic_component)}."
+        assert all(len(seq) > 0 for seq in periodic_component), "Periodic component of the input sequence cannot contain an empty list."
+        assert (starting_states_dec is None) or all((x >= 0 and x < state_space) for x in starting_states_dec), f"Starting states must be in [0, {state_space}) for this network."
+        
+        if starting_states_dec is None:
+            starting_states_dec = list(range(state_space)) # default to every state
+        else:
+            # we shouldn't recompute duplicates, since the result is deterministic
+            starting_states_dec = list(set(starting_states_dec))
         
         # Helper method: get the network with fixed source nodes
         # associated with the given values vector.
@@ -4066,12 +4083,12 @@ class BooleanNetwork(WiringDiagram):
         
         # Compute the trajectory for every initial state of the network.
         trajectories = []
-        for i in range(2**N):
+        for i in starting_states_dec:
             trajectories.append(_calc_traj_(i))
         
-        # If the MERGE_TRAJECTORIES flag is set, return the merged representation
+        # If the merge_trajectories flag is set, return the merged representation
         # of the trajectories, which is of type nx.DiGraph.
-        if MERGE_TRAJECTORIES:
+        if merge_trajectories:
             return utils.compress_trajectories(trajectories, N)
         # If the flag is not set, then just return the trajectory arrays
         # without further modification.

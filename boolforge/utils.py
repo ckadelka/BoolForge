@@ -898,7 +898,8 @@ def product_of_trajectories(compressed_trajectory_graph_1 : nx.DiGraph,
                     stack.append(new_pair)
     return G
 
-def plot_trajectory(compressed_trajectory_graph : nx.DiGraph):
+def plot_trajectory(compressed_trajectory_graph : nx.DiGraph,
+    show : bool = True):
     """
     Visualize a compressed trajectory graph using a layered layout.
     
@@ -909,6 +910,9 @@ def plot_trajectory(compressed_trajectory_graph : nx.DiGraph):
     ----------
     compressed_trajectory_graph : networkx.DiGraph
         Directed graph of compressed trajectories.
+    
+    show : bool, default=True
+        Whether to call ``plt.show()`` at the end.
     """
     import matplotlib.pyplot as plt
     
@@ -1010,62 +1014,7 @@ def plot_trajectory(compressed_trajectory_graph : nx.DiGraph):
         ax.axis("off")
 
     plt.tight_layout()
-    plt.show()
+    if show:
+        plt.show()
     
     return fig
-    
-    # pos = {}
-    # x_offset = 0
-    
-    # for comp in nx.weakly_connected_components(G):
-    #     comp_nodes = list(comp)
-    #     start = comp_nodes[0]
-    #     visited = {}
-    #     v = start
-    #     while v not in visited:
-    #         visited[v] = True
-    #         v = next(iter(G.successors(v)))
-    #     cycle = [v]
-    #     u = next(iter(G.successors(v)))
-    #     while u != v:
-    #         cycle.append(u)
-    #         u = next(iter(G.successors(u)))
-    #     comp_pos = {}
-    #     n = len(cycle)
-    #     for i, node in enumerate(cycle):
-    #         angle = 2 * math.pi * i / n
-    #         comp_pos[node] = (x_offset + 2 * np.cos(angle),
-    #                      2 * np.sin(angle))
-    #     visited = set(cycle)
-    #     for node in cycle:
-    #         layout_tree(G, node, comp_pos[node][0], comp_pos[node][1], dx=1.5, pos=comp_pos, visited=visited)
-    #     pos.update(comp_pos)
-    #     x_offset += 8
-    
-    # plt.figure(figsize=(12, 6))
-    # nx.draw_networkx(
-    #     G,
-    #     pos,
-    #     node_size = 1200,
-    #     node_color="#00000000",
-    #     arrows=True,
-    #     arrowstyle="-|>",
-    #     arrowsize=8
-    # )
-    # normal = {}
-    # boxed = {}
-    # labels = nx.get_node_attributes(compressed_trajectory_graph, "NLbl")
-    # initial = nx.get_node_attributes(compressed_trajectory_graph, "StIn")
-    # for n in compressed_trajectory_graph.nodes():
-    #     if initial[n]:
-    #         boxed.update({n:labels[n]})
-    #     else:
-    #         normal.update({n:labels[n]})
-    # nx.draw_networkx_labels(G, pos, labels=normal, font_size=12,
-    #     bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="white", lw=1))
-    # nx.draw_networkx_labels(G, pos, labels=boxed, font_size=12,
-    #     bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="black", lw=1))
-    
-    
-    # plt.axis("equal")
-    # plt.show()
