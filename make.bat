@@ -23,9 +23,9 @@ REM %1 = input .py file
 set INFILE=%1
 set BASENAME=%~n1
 set OUTFILE=tutorials\%BASENAME%.ipynb
-echo ▶ Converting "%INFILE%" -> "%OUTFILE%"
+echo Converting "%INFILE%" -> "%OUTFILE%"
 jupytext --to notebook "%INFILE%" --output "%OUTFILE%"
-echo ▶ Executing "%OUTFILE%"
+echo Executing "%OUTFILE%"
 jupyter nbconvert ^
   --execute ^
   --to notebook ^
@@ -41,13 +41,29 @@ for %%f in (%PY_TUTORIALS%) do (
     call :process_one "%%~f"
 )
 echo.
-echo ✅ All tutorials converted and executed successfully.
+echo All tutorials converted and executed successfully.
 goto :eof
 
 :html
 call :tutorials
-echo ▶ Rendering HTML previews
+echo Rendering HTML previews
 jupyter nbconvert --to html %IPYNBS%
+goto :eof
+
+:pdf
+call :tutorials
+echo Creating PDF directory
+if not exist tutorials\pdf mkdir tutorials\pdf
+
+echo Converting notebooks to PDF...
+
+for %%f in (%IPYNBS%) do (
+    echo Converting %%f → PDF
+    jupyter nbconvert --to pdf "%%f" --output-dir tutorials\pdf
+)
+
+echo.
+echo All PDFs generated successfully.
 goto :eof
 
 :clean
@@ -64,10 +80,11 @@ goto :eof
 :start
 if "%~1"=="" (
     echo Usage
-    echo   build_tutorials.bat tutorials
-    echo   build_tutorials.bat html
-    echo   build_tutorials.bat clean
-    echo   build_tutorials.bat distclean
+    echo   make.bat tutorials
+    echo   make.bat html
+    echo   make.bat pdf
+    echo   make.bat clean
+    echo   make.bat distclean
     goto :eof
 )
 call :%1

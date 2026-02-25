@@ -80,7 +80,7 @@ non_periodic = [[1]]
 periodic = [[1, 0]]
 
 # compute the trajectories
-T = n.get_trajectories(non_periodic, periodic, False)
+T = n.get_trajectories(non_periodic, periodic)
 
 print("T_00: ", T[0])
 print("T_01: ", T[1])
@@ -90,7 +90,7 @@ print("T_11: ", T[3])
 #%% [markdown]
 # Notice that we also pass an additional Boolean parameter. This is because
 # BoolForge automatically attempts to compress the trajectory representation
-# into a reduced, graphical format. When the MERGE_TRAJECTORIES flag is passed
+# into a reduced, graphical format. When the merge_trajectories flag is passed
 # as True or omitted, `get_trajectories(...)` instead returns a NetworkX graph.
 #
 # ### 1.2 Plotting trajectories
@@ -98,18 +98,18 @@ print("T_11: ", T[3])
 
 #%%
 G = n.get_trajectories(non_periodic, periodic)
-boolforge.plot_trajectory(G)
+boolforge.plot_trajectory(G, False)
 
 #%% [markdown]
 # This process can also be performed manually, by calling `compress_trajectories(...)`
 # on the list output of `get_trajectories(...)`. However, the `compress_trajectories(...)`
 # function will require the number of non-input nodes in the network. This value
-# is automatically computed and passed to the function when the MERGE_TRAJECTORIES flag is True.
+# is automatically computed and passed to the function when the merge_trajectories flag is True.
 
 #%%
-T = n.get_trajectories(non_periodic, periodic, False)
+T = n.get_trajectories(non_periodic, periodic)
 G = boolforge.compress_trajectories(T, 2)
-boolforge.plot_trajectory(G)
+boolforge.plot_trajectory(G, False)
 
 #%% [markdown]
 # ### 1.3 Computing the product of trajectories
@@ -133,9 +133,9 @@ G_2_9 = n_2_9.get_trajectories([[1]], [[1,0]])
 G = boolforge.product_of_trajectories(G_2_8, G_2_9)
 
 # Plot the results
-boolforge.plot_trajectory(G_2_8)
-boolforge.plot_trajectory(G_2_9)
-boolforge.plot_trajectory(G)
+boolforge.plot_trajectory(G_2_8, False)
+boolforge.plot_trajectory(G_2_9, False)
+boolforge.plot_trajectory(G, False)
 
 #%% [markdown]
 # ---
@@ -148,21 +148,21 @@ boolforge.plot_trajectory(G)
 
 #%%
 n = boolforge.BooleanNetwork([[0,0,0,1],[0,1],[0,1]],[[1,2],[0],[2]])
-boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]))
+boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), False)
 
 #%% [markdown]
 # ### (2.9)
 
 #%%
 n = boolforge.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
-boolforge.plot_trajectory(n.get_trajectories([[1]], [[1,0]]))
+boolforge.plot_trajectory(n.get_trajectories([[1]], [[1,0]]), False)
 
 #%% [markdown]
 # ### (2.10)
 
 #%%
 n = boolforge.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
-boolforge.plot_trajectory(n.get_trajectories([[]], [[0]]))
+boolforge.plot_trajectory(n.get_trajectories([[]], [[0]]), False)
 
 #%% [markdown]
 # ### (3.2)
@@ -179,28 +179,34 @@ T = [
      ([7],1)
 ]
 G = boolforge.compress_trajectories(T, 3)
-boolforge.plot_trajectory(G)
+boolforge.plot_trajectory(G, False)
 
 #%% [markdown]
 # ### Fig. 11 (a)
+
+#%%
 G1 = boolforge.compress_trajectories([([1,0],1)], 3)
 
 T = [([0,1],1),([1,3,0,1],1),([2,0,1],1),([3,2,0,1],1)]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2))
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False)
 
 #%% [markdown]
 # ### Fig. 11 (b)
+
+#%%
 G1 = boolforge.compress_trajectories([([4,0],1),([0],1)], 3)
 
 T = [([0,1],1),([1],1),([2,0,1],1),([3,0,1],1)]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2))
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False)
 
 #%% [markdown]
 # ### Fig. 11 (c)
+
+#%%
 G1 = boolforge.compress_trajectories([([3,5,2],2)], 3)
 
 T = [
@@ -211,10 +217,12 @@ T = [
 ]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2))
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False)
 
 #%% [markdown]
 # ### Fig. 11 (d)
+
+#%%
 G1 = boolforge.compress_trajectories([([6,5,2],2),([2,5],2)], 3)
 
 T = [
@@ -225,10 +233,12 @@ T = [
 ]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2))
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False)
 
 #%% [markdown]
 # ### Fig. 11 (e)
+
+#%%
 G1 = boolforge.compress_trajectories([([5,2],2)], 3)
 
 T = [
@@ -239,10 +249,12 @@ T = [
 ]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2))
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False)
 
 #%% [markdown]
 # ### Fig. 11 (f)
+
+#%%
 G1 = boolforge.compress_trajectories([([7],1)], 3)
 G2 = boolforge.compress_trajectories([([0,1,3,2],4),([1,3,2,0],4),([3,2,0,1],4),([2,0,1,3],4)], 2)
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2))
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False)
