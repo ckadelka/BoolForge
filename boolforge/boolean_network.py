@@ -998,9 +998,6 @@ class BooleanNetwork(WiringDiagram):
         network_string: str,
         separator: str | Sequence[str] = ",",
         max_degree: int = 24,
-        original_not: str | Sequence[str] = "NOT",
-        original_and: str | Sequence[str] = "AND",
-        original_or: str | Sequence[str] = "OR",
         allow_truncation: bool = False,
         simplify_functions: bool = False,
         ) -> "BooleanNetwork":
@@ -1008,13 +1005,14 @@ class BooleanNetwork(WiringDiagram):
         Construct a BooleanNetwork from a textual Boolean rule specification.
     
         This compatibility method parses a string representation of Boolean update
-        rules and constructs a corresponding BooleanNetwork. The input format is
-        intended for legacy or trusted sources and supports logical expressions
-        using AND/OR/NOT operators.
+        rules (one rule per line) and constructs a corresponding BooleanNetwork. 
+        The input format is intended for legacy or trusted sources and supports 
+        logical expressions using AND/OR/NOT operators. See utils.f_from_expression
+        for details.
     
         .. warning::
             This method uses ``eval`` internally and MUST NOT be used on untrusted
-            input. It is provided solely for backward compatibility.
+            input.
     
         Parameters
         ----------
@@ -1024,8 +1022,6 @@ class BooleanNetwork(WiringDiagram):
             Separator(s) between variable names and Boolean expressions.
         max_degree : int, optional
             Maximum allowed indegree for explicit truth-table construction.
-        original_not, original_and, original_or : str or sequence of str, optional
-            Operator strings to be replaced by logical NOT, AND, OR.
         allow_truncation : bool, optional
             If False (default), nodes with indegree greater than ``max_degree``
             raise a ValueError. If True, such nodes are replaced by identity
@@ -1046,106 +1042,89 @@ class BooleanNetwork(WiringDiagram):
             If parsing fails or if ``allow_truncation`` is False and 
             a node exceeds ``max_degree``.
         """
-        sepstr, andop, orop, notop = "@", "∧", "∨", "¬"
         
-        get_dummy_var = lambda i: f"x{int(i)}y"
-        
-        # reformat network string
-        def _replace_all(string, original, replacement):
-            if isinstance(original, (list, np.ndarray)):
-                for s in original:
-                    string = string.replace(s, f" {replacement} ")
-            else:
-                string = string.replace(original, f" {replacement} ")
-            return string
-        
-        text = (
-            network_string.replace('\t', ' ',)
-            .replace('(', ' ( ')
-            .replace(')', ' ) ')
-        )
-        text = _replace_all(text, separator, sepstr)
-        text = _replace_all(text, original_not, notop)
-        text = _replace_all(text, original_and, andop)
-        text = _replace_all(text, original_or, orop)
-        
-        # Remove comments and empty lines
+        # --------------------------------------------
+        # 1. Clean lines
+        # --------------------------------------------
         lines = [
-            l for l in text.splitlines()
+            l.strip()
+            for l in network_string.splitlines()
             if l.strip() and not l.strip().startswith("#")
         ]
-        
-        n = len(lines)
-        
-        # find variables and constants
-        var = ["" for i in range(n)]
-        for i in range(n):
-            var[i] = lines[i].split(sepstr)[0].replace(' ', '')
-        consts_and_vars = []
-        for line in lines:
-            words = line.split(' ')
-            for word in words:
-                if word not in ['(', ')', sepstr, andop, orop, notop, ''] and not utils.is_float(word):
-                    consts_and_vars.append(word)
-        consts = list(set(consts_and_vars)-set(var))
-        dict_var_const = dict(list(zip(var, [get_dummy_var(i) for i in range(len(var))])))
-        dict_var_const.update(dict(list(zip(consts, [get_dummy_var(i+len(var)) for i in range(len(consts))]))))
-        
-        # replace all variables and constants with dummy names
+    
+        rules = []
         for i, line in enumerate(lines):
-            words = line.split(' ')
-            for j, word in enumerate(words):
-                if word not in ['(', ')', sepstr, andop, orop, notop, ''] and not utils.is_float(word):
-                    words[j] = dict_var_const[word]
-            lines[i] = ' '.join(words)
-        
-        # update line to only be function
-        expressions = [line.split(sepstr)[1] for line in lines]
-        
-        # generate wiring diagram I
-        I: list[np.ndarray] = []
-        
-        for i in range(n):
-            try:
-                idcs_open = utils.find_all_indices(expressions[i], 'x')
-                idcs_end = utils.find_all_indices(expressions[i], 'y')
-                regs = np.sort(np.array(list(map(int,list(set([expressions[i][(begin+1):end] for begin,end in zip(idcs_open,idcs_end)]))))))
-                I.append(regs)
-            except ValueError:
-                I.append(np.array([], int))
-        
-                
-        # Build Boolean functions
-        F: list[np.ndarray] = []
-        for i, expr in enumerate(expressions):
-            deg = len(I[i])
-            if deg == 0:
-                f = np.array([int(expr)], int)
-            elif deg <= max_degree:
-                tt = utils.get_left_side_of_truth_table(deg)
-                env = { get_dummy_var(I[i][j]) : tt[:, j].astype(bool) for j in range(deg) }
-                f = eval(
-                    expr.replace(andop, '&')
-                    .replace(orop, '|')
-                    .replace(notop, '~')
-                    .replace(' ', ''),
-                    {"__builtins__" : None}, 
-                    env
-                )
-            else:
+            if separator not in line:
+                raise ValueError(f"Missing separator '{separator}' in line {i+1}:\n{line}")
+            lhs, rhs = line.split(separator, 1)
+            rules.append((lhs.strip(), rhs.strip()))
+    
+        # --------------------------------------------
+        # 2. Collect explicitly defined nodes
+        # --------------------------------------------
+        node_names = [lhs for lhs, _ in rules]
+    
+        # --------------------------------------------
+        # 3. Parse RHS to detect all regulators
+        # --------------------------------------------
+        parsed_rhs = []
+        all_regulators = set()
+    
+        for lhs, rhs in rules:
+            f, regulators = utils.f_from_expression(rhs, max_degree=max_degree)
+            parsed_rhs.append((lhs, rhs, f, regulators))
+            for r in regulators:
+                all_regulators.add(r)
+    
+        # --------------------------------------------
+        # 4. Add missing regulators as identity nodes
+        # --------------------------------------------
+        missing_nodes = sorted(all_regulators - set(node_names))
+    
+        # Append them deterministically (sorted for reproducibility)
+        node_names_extended = node_names + missing_nodes
+    
+        node_index = {name: i for i, name in enumerate(node_names_extended)}
+    
+        # --------------------------------------------
+        # 5. Build F and I
+        # --------------------------------------------
+        F = []
+        I = []
+    
+        # First build defined rules
+        for lhs, rhs, f, regulators in parsed_rhs:
+    
+            deg = len(regulators)
+    
+            if deg > max_degree:
                 if not allow_truncation:
                     raise ValueError(
-                        f"Node '{var[i]}' has indegree {deg} > max_degree={max_degree}."
+                        f"Node '{lhs}' has indegree {deg} > max_degree={max_degree}."
                     )
-                # Truncate: identity self-loop
+                idx = node_index[lhs]
                 F.append(np.array([0, 1], dtype=int))
-                I[i] = np.array([i], dtype=int)
+                I.append(np.array([idx], dtype=int))
+                continue
+    
+            reg_indices = [node_index[r] for r in regulators]
+    
             F.append(f.astype(int))
-        for j in range(len(consts)):
-            F.append(np.array([0, 1], dtype=int))
-            I.append(np.array([len(var) + j]))
-        
-        return cls(F, I, var+consts,simplify_functions=simplify_functions)
+            I.append(np.array(reg_indices, dtype=int))
+    
+        # Add identity nodes for missing regulators
+        for name in missing_nodes:
+            idx = node_index[name]
+            F.append(np.array([0, 1], dtype=int))  # identity
+            I.append(np.array([idx], dtype=int))
+    
+        return cls(
+            F,
+            I,
+            node_names_extended,
+            simplify_functions=simplify_functions,
+        )
+
 
 
     @classmethod
@@ -2135,7 +2114,7 @@ class BooleanNetwork(WiringDiagram):
               Number of unique steady states found.
     
             - ``"BasinSizes"`` : list of int  
-              Counts of how many simulations converged to each steady state.
+              Fraction of simulations converged to each steady state.
     
             - ``"STGAsynchronous"`` : dict  
               Partial cache of asynchronous transitions encountered during
@@ -2230,7 +2209,10 @@ class BooleanNetwork(WiringDiagram):
                 "reached a steady state. Consider increasing search_depth. "
                 "The network may also contain asynchronous limit cycles."
             )
-    
+        
+        if sum(basin_sizes)>0:
+            basin_sizes /= sum(basin_sizes)
+        
         return {
             "SteadyStates": steady_states,
             "NumberOfSteadyStates": len(steady_states),

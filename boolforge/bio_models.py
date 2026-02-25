@@ -308,6 +308,7 @@ def get_bio_models_from_repository(
                             original_or=" OR ",
                             original_not=" NOT ",
                             simplify_functions=simplify_functions,
+                            max_degree = max_degree,
                         )
 
                     successful_download_urls.append(download_url)
@@ -333,6 +334,7 @@ def get_bio_models_from_repository(
                         original_or=[" or ", "|"],
                         original_not=[" not ", " !"],
                         simplify_functions=simplify_functions,
+                        max_degree = max_degree,
                     )
                     successful_download_urls.append(download_url)
                     bns.append(bn)
@@ -362,6 +364,7 @@ def get_bio_models_from_repository(
                     original_not="!",
                     ignore_first_line=True,
                     simplify_functions=simplify_functions,
+                    max_degree=max_degree,
                 )
                 successful_download_urls.append(download_url)
                 bns.append(bn)

@@ -8,11 +8,11 @@
 # You will learn how to:
 # - quantify robustness and fragility of Boolean networks under synchronous update,
 # - interpret basin-level and attractor-level robustness measures,
-# - compare exact and approximate robustness computations, and
+# - perform exact and approximate robustness computations, and
 # - compute Derrida values as a measure of dynamical sensitivity.
 #
-# These tools allow us to assess dynamical stability and resilience of Boolean
-# network models in a principled and computationally efficient way.
+# Together, these tools allow us to assess dynamical stability and resilience of 
+# Boolean network models in a principled and computationally efficient way.
 #
 # ## Setup
 
@@ -23,9 +23,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # %% [markdown]
-# ## A running example Boolean network
-#
-# We reuse the small Boolean network from the previous tutorial.
+# We reuse the small Boolean network from the previous tutorial as a running example.
 
 # %%
 string = """
@@ -59,7 +57,7 @@ results_exact.keys()
 # %%
 print("Number of attractors:", results_exact["NumberOfAttractors"])
 print("Attractors (decimal states):", results_exact["Attractors"])
-print("Eventual attractor:", results_exact["AttractorID"])
+print("Eventual attractor of each state:", results_exact["AttractorID"])
 
 print("Basin sizes:", results_exact["BasinSizes"])
 print("Overall coherence:", results_exact["Coherence"])
