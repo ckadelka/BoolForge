@@ -30,6 +30,7 @@ import numpy as np
 import random as _py_random
 from collections.abc import Sequence
 from numpy.random import Generator as _NPGen, RandomState as _NPRandomState, SeedSequence, default_rng
+from typing import Tuple
 
 __all__ = [
     "bin2dec",
@@ -40,6 +41,26 @@ __all__ = [
     "get_left_side_of_truth_table",
     "left_side_of_truth_tables",
 ]
+
+_LOGIC_MAP = {
+    "AND": "&",
+    "and": "&",
+    "&&": "&",
+    "&": "&",
+    "OR": "|",
+    "or": "|",
+    "||": "|",
+    "|": "|",
+    "NOT": "~",
+    "not": "~",
+    "!": "~",
+    "~": "~",
+}
+
+
+_COMPARE_OPS = {"==", "!=", ">=", "<=", ">", "<"}
+
+_ARITH_OPS = {"+", "-", "*", "%"}
 
 def _require_cana():
     try:
@@ -104,6 +125,16 @@ def _coerce_rng(
         # simpler: entropy = [rng.getrandbits(32) for _ in range(4)]
         return default_rng(SeedSequence(entropy))
     raise TypeError(f"Unsupported rng type: {type(rng)!r}")
+
+
+def _is_number(token: str) -> bool:
+    """Return True if token is a pure numeric literal."""
+    try:
+        float(token)
+        return True
+    except ValueError:
+        return False
+    
 
 def is_float(element: object) -> bool:
     """
@@ -478,7 +509,7 @@ def bool_to_poly(
 def f_from_expression(
     expr: str,
     max_degree: int = 16,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Construct a Boolean function from a string expression.
     
@@ -528,37 +559,109 @@ def f_from_expression(
     (array([1, 0, 0, 1, 0, 1, 1, 0], dtype=uint8),
      array(['x1', 'x2', 'x3'], dtype='<U2'))
     """
-
-    expr_mod = expr.replace('(', ' ( ').replace(')', ' ) ').replace('!','not ').replace('~','not ')
-    expr_split = expr_mod.split(' ')
-    variables = []
-    dict_var = dict()
-    n_var = 0
-    for i, el in enumerate(expr_split):
-        if el not in ['',' ','(',')','and','or','not','AND','OR','NOT','&','|','+','-','*','%','>','>=','==','<=','<'] and not is_float(el):#el.isdigit():
-            try:
-                new_var = dict_var[el]
-            except KeyError:
-                new_var = 'x[%i]' % n_var
-                dict_var.update({el: new_var})
-                variables.append(el)
-                n_var += 1
-            expr_split[i] = el
-        elif el in ['AND', 'and']:
-            expr_split[i] = '&'
-        elif el in ['OR', 'or']:
-            expr_split[i] = '|'
-        elif el in ['NOT', 'not']:
-            expr_split[i] = '~'
-    expr_mod = ' '.join(expr_split)
     
-    if n_var <= max_degree:
-        truth_table = get_left_side_of_truth_table(n_var)
-        local_dict = {var: truth_table[:, i].astype(bool) for i, var in enumerate(variables)}
-        f = eval(expr_mod, {"__builtins__": None}, local_dict)
+    # --------------------------------------------------
+    # 1. Normalize parentheses spacing
+    # --------------------------------------------------
+
+    expr = expr.replace("(", " ( ").replace(")", " ) ")
+
+    raw_tokens = expr.split()
+
+    tokens = []
+    variables = []
+    seen = set()
+
+    # --------------------------------------------------
+    # 2. Token classification
+    # --------------------------------------------------
+
+    for token in raw_tokens:
+
+        if token in {"(", ")"}:
+            tokens.append(token)
+            continue
+
+        if token in _LOGIC_MAP:
+            tokens.append(_LOGIC_MAP[token])
+            continue
+
+        if token in _COMPARE_OPS:
+            tokens.append(token)
+            continue
+        
+        if token in _ARITH_OPS:
+            tokens.append(token)
+            continue
+
+        if _is_number(token):
+            tokens.append(token)
+            continue
+
+        # Otherwise: biological identifier
+        if token not in seen:
+            seen.add(token)
+            variables.append(token)
+
+        tokens.append(token)
+
+    n = len(variables)
+
+    if n > max_degree:
+        return np.array([], dtype=np.uint8), np.array(variables)
+
+    # --------------------------------------------------
+    # 3. Map biological names → safe Python names
+    # --------------------------------------------------
+
+    safe_map = {var: f"v{i}" for i, var in enumerate(variables)}
+
+    safe_tokens = [
+        safe_map[token] if token in safe_map else token
+        for token in tokens
+    ]
+
+    expr_mod = " ".join(safe_tokens)
+
+    # --------------------------------------------------
+    # 4. Build evaluation environment
+    # --------------------------------------------------
+
+    truth_table = get_left_side_of_truth_table(n)
+
+    local_dict = {
+        safe_map[var]: truth_table[:, i].astype(np.int64)
+        for i, var in enumerate(variables)
+    }
+
+    # --------------------------------------------------
+    # 5. Evaluate expression
+    # --------------------------------------------------
+
+    try:
+        result = eval(expr_mod, {"__builtins__": None}, local_dict)
+    except Exception as e:
+        raise ValueError(
+            f"Error evaluating expression:\n{expr}\nParsed as:\n{expr_mod}\nError: {e}"
+        )
+
+    # --------------------------------------------------
+    # 6. Enforce Boolean semantics
+    # --------------------------------------------------
+
+    result = np.asarray(result)
+
+    if n == 0:
+        result = np.array([int(result)], dtype=np.int64)
     else:
-        f = []
-    return np.array(f,dtype=np.uint8), np.array(variables)
+        result = result.astype(np.int64)
+
+    # Fix NOT and enforce {0,1}
+    result = result & 1
+
+    return result.astype(np.uint8), np.array(variables)
+
+
 
 
 def flatten(l: Sequence[Sequence[object]]) -> list[object]:

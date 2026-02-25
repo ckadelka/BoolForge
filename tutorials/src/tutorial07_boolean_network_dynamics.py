@@ -148,7 +148,8 @@ for attractor in dict_dynamics["Attractors"]:
     print()
 
 # %% [markdown]
-# The information which state transitions to which attractor is stored in a dictionary
+# The information which state transitions to which attractor is stored in a dictionary.
+# Here, the indices correspond to the list of attractors in `dict_dynamics['Attractors']`.
 
 # %%
 print(dict_dynamics['AttractorID'])
@@ -156,7 +157,8 @@ print(dict_dynamics['AttractorID'])
 
 # %% [markdown]
 # Finally, the basin size of each attractor is determined by the number of states that eventually transition to an attractor.
-# By definition, the sum of all basin sizes is always $2^N$.
+# By definition, the sum of all basin sizes is always $2^N$. To simplify the comparison of
+# the basin size distribution for networks of different size, `BoolForge` normalizes the basin sizes by default.
 
 # %%
 print(dict_dynamics['BasinSizes'])
@@ -178,10 +180,10 @@ print(dict_dynamics['BasinSizes'])
 # The simulation returns additional information:
 #
 # - sampled initial states,
-# - the number of timeouts (trajectories not reaching an attractor in time).
+# - the number of timeouts (trajectories not reaching an attractor before timeout).
 #
-# If an attractor has relative basin size $q$, the probability that it is found
-# after $m$ random initializations is $1 - (1-q)^m$.
+# In the absence of timeouts: If an attractor has relative basin size $q$, 
+# the probability that it is found from $m$ random initializations is $1 - (1-q)^m$.
 
 # %%
 qs = [0.0001, 0.001, 0.01, 0.1]
@@ -216,6 +218,7 @@ print(dict_dynamics['NumberOfSteadyStates'])
 
 # %% [markdown]
 # This reveals the same two steady states as in the synchronous case.
+# However, the limit cycle does not exist under asynchronous update.
 # In addition, the full asynchronous transition graph and absorption
 # probabilities are returned.
 
@@ -227,14 +230,16 @@ print(dict_dynamics['FinalTransitionProbabilities'])
 # The state transition graph describes for each state the possible next states that the system may
 # transition to, in addition to the transition probabilities. 
 # The absorption probabilities indicate that from many states multiple steady states may be reached.
-# The size of each basin of attraction can also be directly computed from these probabilities.
+# The size of each basin of attraction is the (column-wise) average of these probabilities.
 
 # %%
 print(dict_dynamics['BasinSizes'])
+print(dict_dynamics['BasinSizes'] == 
+      np.mean(dict_dynamics['FinalTransitionProbabilities'],0))
 
 # %% [markdown]
 # Note that `BoolForge` currently does not detect complex cyclic attractors under
-# asynchronous updating; for this task, specialized tools such as
+# asynchronous update; for this task, specialized tools such as
 # `pystablemotifs` are recommended.
 
 
@@ -243,19 +248,18 @@ print(dict_dynamics['BasinSizes'])
 #
 # As in synchronous case, `BoolForge` also contains a Monte Carlo routine
 # for sampling asynchronous dynamics.
-
-# %%
-dict_dynamics = bn.get_steady_states_asynchronous(n_simulations=500)
-dict_dynamics
-
-
-# %% [markdown]
+#
 # The simulation provides:
 #
 # - a lower bound on the number of steady states,
 # - approximate basin size distributions,
 # - samples of the asynchronous state transition graph.
 
+# %%
+dict_dynamics = bn.get_steady_states_asynchronous(n_simulations=500)
+print(dict_dynamics['SteadyStates'])
+print(dict_dynamics['NumberOfSteadyStates'])
+print(dict_dynamics['BasinSizes'])
 
 # %% [markdown]
 # ### Sampling from a fixed initial condition
