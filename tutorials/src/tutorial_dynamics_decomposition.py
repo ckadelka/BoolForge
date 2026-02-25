@@ -107,7 +107,7 @@ boolforge.plot_trajectory(G, False)
 # is automatically computed and passed to the function when the merge_trajectories flag is True.
 
 #%%
-T = n.get_trajectories(non_periodic, periodic)
+T = n.get_trajectories(non_periodic, periodic, False)
 G = boolforge.compress_trajectories(T, 2)
 boolforge.plot_trajectory(G, False)
 
