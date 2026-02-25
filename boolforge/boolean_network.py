@@ -38,6 +38,8 @@ import networkx as nx
 import pandas as pd
 from typing import TYPE_CHECKING
 
+import itertools
+
 from . import utils
 from .boolean_function import BooleanFunction
 from .wiring_diagram import WiringDiagram
@@ -3713,5 +3715,391 @@ class BooleanNetwork(WiringDiagram):
     
         return float(total_dist / float(n_simulations))
 
-         
+# ===================== #
+#   Modular BoolForge   #
+# ===================== #
+    
+    def get_attractors_synchronous_exact_non_autonomous(self,
+        non_periodic_component : Sequence[Sequence[int]],
+        periodic_component : Sequence[Sequence[int]]) -> dict:
+        """
+        Compute all attractors and basin sizes under synchronous updating
+        for a Boolean network driven by a non-autonomous input sequence.
+        
+        The input is split into a non-periodic component (applied once)
+        followed by a periodic component (repeated indefinitely). The
+        non-periodic component is first evaluated to determine a set of
+        initial states, which are then used to compute attractors under
+        the periodic component.
+        
+        Parameters
+        ----------
+        non_periodic_component : sequence of sequence of int
+            External input values applied before the periodic regime.
+            Each inner sequence corresponds to one identity node and
+            contains binary values (0 or 1) over time.
+        
+        periodic_component : sequence of sequence of int
+            External input values defining the periodic regime.
+            Each inner sequence corresponds to one identity node and
+            contains binary values (0 or 1) forming a repeating pattern.
+        
+        Returns
+        -------
+        result : dict
+            Dictionary with the following keys:
+        
+            - Attractors : list
+                List of attractors. Each attractor is a list of pairs
+                (external_input_decimal, state_decimal) forming a cycle.
+        
+            - NumberOfAttractors : int
+                Total number of unique attractors.
+        
+            - BasinSizes : list of int
+                Number of initial states converging to each attractor.
+        
+            - AttractorDict : dict
+                Mapping from (external_input_decimal, state_decimal)
+                to attractor index.
+        
+            - STG : dict
+                State transition graph mapping
+                (external_input_decimal, state_decimal) to the next pair.
+        
+            - InitialStatesPeriodic : list of int
+                Initial state values (decimal) after applying the
+                non-periodic component.
+        
+            - FormattedAttractors : list
+                Attractors represented as binary vectors, where the
+                external input bits and state bits are concatenated.
+        """
+        # Convert components into single argument? tuple|list|arr, str, etc.?
+        N = self.N - len(self.get_identity_nodes(False))
+        if len(non_periodic_component) > 0:
+            initial_states = set() # stores initial states for periodic computation
+            len_np_comp = len(non_periodic_component)
+            max_len_pattern = max(list(zip(map(len, non_periodic_component))))[0]
+            fixed_source_networks = {}
+            for i in range(2 ** N):
+                fxvec = utils.dec2bin(i, N) # initialize binary vector
+                for iii in range(max_len_pattern):
+                    values = [ non_periodic_component[j][iii] for j in range(len_np_comp) ]
+                    values_decimal = utils.bin2dec(values)
+                    if values_decimal in fixed_source_networks:
+                        fixed_source_network = fixed_source_networks[values_decimal]
+                    else:
+                        fixed_source_network = self.get_network_with_fixed_identity_nodes(values)
+                        fixed_source_networks[values_decimal] = fixed_source_network
+                    fxvec = fixed_source_network.update_network_synchronously(fxvec)
+                initial_states.add(utils.bin2dec(fxvec))
+            initial_states = list(initial_states)
+        else:
+            initial_states = list(range(2**N))
+        
+        attr_computation = self.get_attractors_synchronous_exact_with_external_inputs(periodic_component, initial_states)
+        
+        bvec_attractors = []
+        len_pattern = len(periodic_component)
+        for attr in attr_computation["Attractors"]:
+            bvec_attractors.append([])
+            for decimal_external, decimal_module in attr:
+                if len_pattern > 0:
+                    bvec = utils.dec2bin(decimal_external, len_pattern)
+                else:
+                    bvec = []
+                bvec.extend(utils.dec2bin(decimal_module, N))
+                bvec_attractors[-1].append(bvec)
+        
+        attr_computation.update({"InitialStatesPeriodic":initial_states,"FormattedAttractors":bvec_attractors})
+        return attr_computation
+    
+    def get_attractors_synchronous_exact_with_external_inputs(self,
+        input_patterns : Sequence[Sequence[int]],
+        starting_states : [Sequence[int], None] = None) -> dict:
+        """
+        Compute all attractors and basin sizes under synchronous updating
+        for a Boolean network with periodic external inputs.
+        
+        The external inputs are treated as a periodic sequence. The state
+        transition graph is constructed over the combined space of
+        (network state, input phase), and attractors are detected exactly.
+        
+        Parameters
+        ----------
+        input_patterns : sequence of sequence of int
+            Periodic external input patterns. Each inner sequence
+            corresponds to one identity node and contains binary
+            values (0 or 1).
+        
+        starting_states : sequence of int, optional
+            Optional list of initial network states in decimal form.
+            If None, all possible states are used.
+        
+        Returns
+        -------
+        result : dict
+            Dictionary with the following keys:
+        
+            - Attractors : list
+                List of attractors. Each attractor is a list of pairs
+                (external_input_decimal, state_decimal) forming a cycle.
+        
+            - NumberOfAttractors : int
+                Total number of unique attractors.
+        
+            - BasinSizes : list of int
+                Number of initial states converging to each attractor.
+        
+            - AttractorDict : dict
+                Mapping from (external_input_decimal, state_decimal)
+                to attractor index.
+        
+            - STG : dict
+                State transition graph mapping
+                (external_input_decimal, state_decimal) to the next pair.
+        """
+        N = self.N - len(self.get_identity_nodes(False))
+        
+        if starting_states is None:
+            starting_states = list(range(2**N))
+        
+        len_patterns = len(input_patterns)
+        lcm = math.lcm(*list(map(len, input_patterns)))
+        periodic_pattern_of_external_inputs = np.zeros((lcm, len_patterns), int)
+        for i, pattern in enumerate(input_patterns):
+            for j in range(int(lcm / len(pattern))):
+                periodic_pattern_of_external_inputs[len(pattern)*j:len(pattern)*(j+1),i] = pattern
+        n_initial_values = len(periodic_pattern_of_external_inputs)
+        
+        fixed_source_networks = []
+        for input_values in periodic_pattern_of_external_inputs:
+            fixed_source_networks.append(self.get_network_with_fixed_identity_nodes(input_values))
+        
+        lstt = utils.get_left_side_of_truth_table(N)
+        po2 = np.array([2**i for i in range(N)])[::-1]
+        
+        dictF_fixed_source = []
+        
+        for iii in range(n_initial_values):
+            state_space = np.zeros((2**N, N), dtype=int)
+            for i in range(N):
+                for j, x in enumerate(itertools.product([0, 1], repeat=fixed_source_networks[iii].indegrees[i])):
+                    if fixed_source_networks[iii].F[i][j]==1:
+                        # For rows in left_side_of_truth_table where the columns I[i] equal x, set state_space accordingly.
+                        state_space[np.all(lstt[:, fixed_source_networks[iii].I[i]] == np.array(x), axis=1), i] = 1
+            dictF_fixed_source.append(dict(zip(list(range(2**N)), np.dot(state_space, po2))))
+        
+        attractors = []
+        basin_sizes = []
+        attractor_dict = dict()
+        stg = dict()
+        for iii_start in range(lcm):
+            for xdec in starting_states:
+                iii = iii_start
+                queue = [xdec]
+                while True:
+                    fxdec = dictF_fixed_source[iii % n_initial_values][xdec]
+                    stg.update({(int(utils.bin2dec(periodic_pattern_of_external_inputs[iii % n_initial_values])),int(xdec)):(int(utils.bin2dec(periodic_pattern_of_external_inputs[(iii + 1) % n_initial_values])),int(fxdec))})
+                    iii += 1
+                    try:
+                        index_attr = attractor_dict[(iii % n_initial_values,fxdec)]
+                        basin_sizes[index_attr] += 1
+                        attractor_dict.update(list(zip(zip(np.arange(iii_start,len(queue)+iii_start)%n_initial_values,queue), [index_attr] * len(queue))))
+                        break
+                    except KeyError:
+                        try: 
+                            index = queue[-n_initial_values::-n_initial_values].index(fxdec)
+                            dummy = np.arange(iii_start,len(queue)+iii_start)%n_initial_values
+                            #print(iii_start,j,list(zip(dummy[-n_initial_values*(index+1):],queue[-n_initial_values*(index+1):])))
+                            attractor_dict.update(list(zip(zip(dummy,queue), [len(attractors)] * len(queue))))
+                            attractors.append(list(zip(dummy[-n_initial_values*(index+1):],queue[-n_initial_values*(index+1):])))
+                            basin_sizes.append(1)
+                            break
+                        except ValueError:
+                            pass
+                    queue.append(fxdec)
+                    xdec = fxdec
+        
+        attrs = []
+        attr_dict = {}
+        for key in attractor_dict.keys():
+            attr_dict[(int(utils.bin2dec(periodic_pattern_of_external_inputs[key[0]])), int(key[1]))] = int(attractor_dict[key])
+        for attr in attractors:
+            formatted_attr = []
+            for state in attr:
+                formatted_attr.append((int(utils.bin2dec(periodic_pattern_of_external_inputs[state[0]])), int(state[1])))
+            attrs.append(formatted_attr)
+        
+        return { "Attractors":attrs, "NumberOfAttractors":len(attrs),
+                "BasinSizes":basin_sizes, "AttractorDict":attr_dict,
+                "STG":stg }#, "StateSpace":state_space} # state space is not properly maintained, so it is not returned
+    
+    def get_trajectories(self,
+        non_periodic_component : Sequence[Sequence[int]],
+        periodic_component : Sequence[Sequence[int]],
+        merge_trajectories : bool = True,
+        starting_states_dec : Sequence[int] = None) -> [nx.DiGraph, list]:
+        """
+        Compute state trajectories of the Boolean network under
+        non-autonomous external inputs.
+        
+        Each trajectory consists of a non-periodic transient followed by
+        a periodic component. The periodic component corresponds to an
+        attractor of the system and is detected automatically.
+        
+        Parameters
+        ----------
+        non_periodic_component : sequence of sequence of int
+            External input values applied before the periodic regime.
+            Each inner sequence corresponds to one identity node.
+        
+        periodic_component : sequence of sequence of int
+            External input values defining the periodic regime.
+            Each inner sequence corresponds to one identity node and
+            is treated as repeating indefinitely.
+        
+        merge_trajectories : bool, optional
+            If True, trajectories are merged into a directed graph
+            representation. If False, individual trajectories are
+            returned. Defaults to True.
+        
+        starting_states_dec : sequence of int, optional
+            The states to compute trajectories from. If None, will use every
+            valid state in the entire :math:`2^{N}` state space.
+        
+        Returns
+        -------
+        result : object
+            If merge_trajectories is True, returns a directed graph
+            representing merged trajectories.
+        
+            If merge_trajectories is False, returns a list of tuples
+            (trajectory, cycle_length), where trajectory is a list of
+            state values in decimal form and cycle_length is the length
+            of the periodic component from the end of the trajectory.
+        """
 
+        N = self.N - len(self.get_identity_nodes(False))
+        state_space = 2 ** N
+        
+        assert len(non_periodic_component) == len(periodic_component), f"All components of the input sequence must be the same length ({len(periodic_component)} != {len(non_periodic_component)})."
+        assert len(non_periodic_component) == self.N - N, f"Input sequence must be of the same length as the number of identity nodes of the network. Expected {self.N - N}, Given{len(non_periodic_component)}."
+        assert all(len(seq) > 0 for seq in periodic_component), "Periodic component of the input sequence cannot contain an empty list."
+        assert (starting_states_dec is None) or all((x >= 0 and x < state_space) for x in starting_states_dec), f"Starting states must be in [0, {state_space}) for this network."
+        
+        if starting_states_dec is None:
+            starting_states_dec = list(range(state_space)) # default to every state
+        else:
+            # we shouldn't recompute duplicates, since the result is deterministic
+            starting_states_dec = list(set(starting_states_dec))
+        
+        # Helper method: get the network with fixed source nodes
+        # associated with the given values vector.
+        fixed_networks = {}
+        def _get_fnet_(values):
+            values_dec = utils.bin2dec(values)
+            if values_dec in fixed_networks:
+                fixed_network = fixed_networks[values_dec]
+            else:
+                fixed_network = self.get_network_with_fixed_identity_nodes(values)
+                fixed_networks[values_dec] = fixed_network
+            return fixed_network
+        
+        # Helper method: calculate the trajectory of this network given
+        # a starting state represented in decimal.
+        def _calc_traj_(starting):
+            trajectory = [starting]
+            latest_state = starting
+            # Compute the non-periodic component of the trajectory.
+            len_np = len(non_periodic_component)
+            max_len_pattern = max(list(zip(map(len, non_periodic_component))))[0]
+            for idx in range(max_len_pattern):
+                vals = [ non_periodic_component[node][idx] for node in range(len_np) ]
+                fixed_network = _get_fnet_(vals)
+                latest_state = utils.bin2dec(fixed_network.update_network_synchronously(utils.dec2bin(latest_state, N)))
+                trajectory.append(latest_state)
+            # Compute the periodic component of the trajectory.
+            len_p = len(periodic_component)
+            lcm = math.lcm(*list(map(len, periodic_component)))
+            idx_p = 0
+            cycle_len = -1
+            
+            seen = {}  # (state, phase) -> index in traj_cyclic
+            traj_cyclic = []
+            idx_p = 0
+            
+            while True:
+                phase = idx_p % lcm
+                key = (latest_state, phase)
+            
+                if key in seen:
+                    # We found the cycle start
+                    cycle_start = seen[key]
+                    cycle_len = len(traj_cyclic) - cycle_start
+                    break
+            
+                seen[key] = len(traj_cyclic)
+            
+                vals = [
+                    periodic_component[node][phase]
+                    for node in range(len_p)
+                ]
+                fixed_network = _get_fnet_(vals)
+            
+                latest_state = utils.bin2dec(
+                    fixed_network.update_network_synchronously(
+                        utils.dec2bin(latest_state, N)
+                    )
+                )
+            
+                traj_cyclic.append(latest_state)
+                idx_p += 1
+            trajectory.extend(traj_cyclic[:cycle_start + cycle_len])
+            #print(trajectory, traj_cyclic, traj_cyclic[:cycle_start + cycle_len])
+            
+            # Compress the trajectory's representation to be minimal.
+            # That is, only the non-periodic component and a single
+            # cycle of the periodic component.
+            len_traj = len(trajectory)
+            best_trajectory = []
+            best_cycle_len = -1
+            best_length = math.inf
+            for s in range(len_traj):
+                for p in range(1, min(cycle_len, len_traj - s) + 1):
+                    proposed_period = trajectory[s : s + p]
+                    good_proposal = True
+                    for i in range(s, len_traj):
+                        if trajectory[i] != proposed_period[(i - s) % p]:
+                            good_proposal = False
+                            break
+                    if not good_proposal:
+                        continue
+                    
+                    len_proposal = s + p
+                    if len_proposal < best_length:
+                        best_length = len_proposal
+                        best_trajectory = trajectory[:s] + proposed_period
+                        best_cycle_len = p
+            #print(best_trajectory, best_cycle_len, "\n")
+            
+            # Return the compressed trajectory array and the length of the
+            # periodic component.
+            # Note that the periodic component will ALWAYS be the last
+            # cycle_len values in the array. The periodic components
+            # also correspond with the attractors of the network.
+            return best_trajectory, best_cycle_len
+        
+        # Compute the trajectory for every initial state of the network.
+        trajectories = []
+        for i in starting_states_dec:
+            trajectories.append(_calc_traj_(i))
+        
+        # If the merge_trajectories flag is set, return the merged representation
+        # of the trajectories, which is of type nx.DiGraph.
+        if merge_trajectories:
+            return utils.compress_trajectories(trajectories, N)
+        # If the flag is not set, then just return the trajectory arrays
+        # without further modification.
+        return trajectories
