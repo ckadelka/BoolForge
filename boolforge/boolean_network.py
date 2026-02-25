@@ -4042,44 +4042,72 @@ class BooleanNetwork(WiringDiagram):
             len_p = len(periodic_component)
             lcm = math.lcm(*list(map(len, periodic_component)))
             idx_p = 0
-            not_cyclic = True
             cycle_len = -1
-            while not_cyclic:
-                vals = [ periodic_component[node][idx_p % len(periodic_component[node])] for node in range(len_p) ]
+            
+            seen = {}  # (state, phase) -> index in traj_cyclic
+            traj_cyclic = []
+            idx_p = 0
+            
+            while True:
+                phase = idx_p % lcm
+                key = (latest_state, phase)
+            
+                if key in seen:
+                    # We found the cycle start
+                    cycle_start = seen[key]
+                    cycle_len = len(traj_cyclic) - cycle_start
+                    break
+            
+                seen[key] = len(traj_cyclic)
+            
+                vals = [
+                    periodic_component[node][phase]
+                    for node in range(len_p)
+                ]
                 fixed_network = _get_fnet_(vals)
-                latest_state = utils.bin2dec(fixed_network.update_network_synchronously(utils.dec2bin(latest_state, N)))
-                trajectory.append(latest_state)
+            
+                latest_state = utils.bin2dec(
+                    fixed_network.update_network_synchronously(
+                        utils.dec2bin(latest_state, N)
+                    )
+                )
+            
+                traj_cyclic.append(latest_state)
                 idx_p += 1
-                len_traj = len(trajectory)
-                if idx_p >= lcm: # Cycle detection can probably be optimized
-                    for L in range(1, len_traj // 2 + 1):
-                        supposed_pattern = trajectory[len_traj - L : len_traj]
-                        # If we find a cycle that is repeated three times consecutively,
-                        # it must be the periodic component.
-                        # Note that this assumes that no sub-pattern will be repeated
-                        # three or more times.
-                        if supposed_pattern == trajectory[len_traj - 2 * L : len_traj - L] and supposed_pattern == trajectory[len_traj - 3 * L : len_traj - 2 * L]:
-                            not_cyclic = False
-                            cycle_len = L
+            trajectory.extend(traj_cyclic[:cycle_start + cycle_len])
+            #print(trajectory, traj_cyclic, traj_cyclic[:cycle_start + cycle_len])
+            
             # Compress the trajectory's representation to be minimal.
             # That is, only the non-periodic component and a single
             # cycle of the periodic component.
-            if len_traj >= cycle_len * 2:
-               cycle = trajectory[-cycle_len:]
-               m = 0
-               i = len_traj
-               while i >= cycle_len and trajectory[i - cycle_len:i] == cycle:
-                   m += 1
-                   i -= cycle_len
-               if m >= 1:
-                   new_len = len_traj - (m - 1) * cycle_len
-                   trajectory = trajectory[:new_len]
+            len_traj = len(trajectory)
+            best_trajectory = []
+            best_cycle_len = -1
+            best_length = math.inf
+            for s in range(len_traj):
+                for p in range(1, min(cycle_len, len_traj - s) + 1):
+                    proposed_period = trajectory[s : s + p]
+                    good_proposal = True
+                    for i in range(s, len_traj):
+                        if trajectory[i] != proposed_period[(i - s) % p]:
+                            good_proposal = False
+                            break
+                    if not good_proposal:
+                        continue
+                    
+                    len_proposal = s + p
+                    if len_proposal < best_length:
+                        best_length = len_proposal
+                        best_trajectory = trajectory[:s] + proposed_period
+                        best_cycle_len = p
+            #print(best_trajectory, best_cycle_len, "\n")
+            
             # Return the compressed trajectory array and the length of the
             # periodic component.
             # Note that the periodic component will ALWAYS be the last
             # cycle_len values in the array. The periodic components
             # also correspond with the attractors of the network.
-            return trajectory, cycle_len
+            return best_trajectory, best_cycle_len
         
         # Compute the trajectory for every initial state of the network.
         trajectories = []
