@@ -666,7 +666,6 @@ def hamming_weight_to_ncf_layer_structure(
 # ===================== #
 
 import math
-import matplotlib.pyplot as plt
 import networkx as nx
 
 def merge_state_representation(x : int | Sequence[int], y : int | Sequence[int],
@@ -899,7 +898,7 @@ def product_of_trajectories(compressed_trajectory_graph_1 : nx.DiGraph,
                     stack.append(new_pair)
     return G
 
-def plot_trajectory(compressed_trajectory_graph : nx.DiGraph) -> None:
+def plot_trajectory(compressed_trajectory_graph : nx.DiGraph):
     """
     Visualize a compressed trajectory graph using a layered layout.
     
@@ -911,49 +910,162 @@ def plot_trajectory(compressed_trajectory_graph : nx.DiGraph) -> None:
     compressed_trajectory_graph : networkx.DiGraph
         Directed graph of compressed trajectories.
     """
+    import matplotlib.pyplot as plt
+    
+    def layout_tree(G, root, x0, y0, dx, pos, visited):
+        children = [c for c in G.predecessors(root) if c not in visited]
+        if not children:
+            return
+        width = dx * (len(children) - 1)
+        xs = [x0 - width/2 + i*dx for i in range(len(children))]
+        
+        for child, x in zip(children, xs):
+            pos[child] = (x, y0 - 1)
+            visited.add(child)
+            layout_tree(G, child, x, y0 - 1, dx/1.5, pos, visited)
+        return
+    
+    G = compressed_trajectory_graph.copy()
+    
+    components = list(nx.weakly_connected_components(G))
+    fig, axes = plt.subplots(
+        nrows=len(components),
+        figsize=(10, 5 * len(components)),
+        squeeze=False
+    )
 
-    def assign_layers(G):
-        layer = {}
-        current_offset = 0
-        for comp in nx.weakly_connected_components(G):
-            sub = G.subgraph(comp)
-            roots = [n for n in sub.nodes if sub.in_degree(n) == 0]
-            if not roots:
-                roots = [next(iter(sub.nodes))]
-            local_layer = {}
-            queue = list(roots)
-            for r in roots:
-                local_layer[r] = 0
-            while queue:
-                parent = queue.pop(0)
-                for child in G.successors(parent):
-                    if child not in local_layer:
-                        local_layer[child] = local_layer[parent] + 1
-                        queue.append(child)
-            for n, l in local_layer.items():
-                layer[n] = l + current_offset
-            current_offset += max(local_layer.values()) + 2
-        return layer
-    
-    layers = assign_layers(compressed_trajectory_graph)
-    nx.set_node_attributes(compressed_trajectory_graph, layers, "GLyr")
-    pos = nx.multipartite_layout(compressed_trajectory_graph, subset_key="GLyr", align="vertical")
+    labels = nx.get_node_attributes(G, "NLbl")
+    initial = nx.get_node_attributes(G, "StIn")
 
-    nx.draw_networkx_nodes(compressed_trajectory_graph, pos, node_size=150, node_color="white")
-    nx.draw_networkx_edges(compressed_trajectory_graph, pos, arrows=True, arrowstyle="->", arrowsize=10, width=0.5)
-    
-    normal = {}
-    boxed = {}
-    labels = nx.get_node_attributes(compressed_trajectory_graph, "NLbl")
-    initial = nx.get_node_attributes(compressed_trajectory_graph, "StIn")
-    for n in compressed_trajectory_graph.nodes():
-        if initial[n]:
-            boxed.update({n:labels[n]})
-        else:
-            normal.update({n:labels[n]})
-    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=normal, font_size=6)
-    nx.draw_networkx_labels(compressed_trajectory_graph, pos, labels=boxed, font_size=6,
-        bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="black", lw=1))
-    
-    plt.axis("off")
+    for idx, comp in enumerate(components):
+        ax = axes[idx][0]
+        sub_nodes = list(comp)
+        SG = G.subgraph(sub_nodes).copy()
+        pos = {}
+
+        # Find a cycle in the component
+        start = sub_nodes[0]
+        visited = {}
+        v = start
+        while v not in visited:
+            visited[v] = True
+            succ = list(SG.successors(v))
+            if not succ:
+                break
+            v = succ[0]
+
+        # Build the cycle
+        cycle = [v]
+        succ = list(SG.successors(v))
+        if succ:
+            u = succ[0]
+            while u != v:
+                cycle.append(u)
+                u = next(iter(SG.successors(u)))
+
+        # Place cycle nodes in a circle
+        n = len(cycle)
+        for i, node in enumerate(cycle):
+            angle = 2 * math.pi * i / n
+            pos[node] = (2 * np.cos(angle), 2 * np.sin(angle))
+
+        # Layout trees hanging off the cycle
+        visited = set(cycle)
+        for node in cycle:
+            layout_tree(SG, node, pos[node][0], pos[node][1], dx=1.5, pos=pos, visited=visited)
+        
+        nx.draw_networkx(
+            SG,
+            pos,
+            ax=ax,
+            node_size=1200,
+            node_color="#00000000",
+            arrows=True,
+            arrowstyle="-|>",
+            arrowsize=8
+        )
+        
+        ax.invert_yaxis() # flip, so the graph points downward
+        
+        normal = {}
+        boxed = {}
+        for n in SG.nodes():
+            if initial.get(n, False):
+                boxed[n] = labels[n]
+            else:
+                normal[n] = labels[n]
+        
+        nx.draw_networkx_labels(
+            SG, pos, labels=normal, font_size=12,
+            bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="white", lw=1),
+            ax=ax
+        )
+        nx.draw_networkx_labels(
+            SG, pos, labels=boxed, font_size=12,
+            bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="black", lw=1),
+            ax=ax
+        )
+        
+        ax.axis("equal")
+        ax.axis("off")
+
+    plt.tight_layout()
     plt.show()
+    
+    return fig
+    
+    # pos = {}
+    # x_offset = 0
+    
+    # for comp in nx.weakly_connected_components(G):
+    #     comp_nodes = list(comp)
+    #     start = comp_nodes[0]
+    #     visited = {}
+    #     v = start
+    #     while v not in visited:
+    #         visited[v] = True
+    #         v = next(iter(G.successors(v)))
+    #     cycle = [v]
+    #     u = next(iter(G.successors(v)))
+    #     while u != v:
+    #         cycle.append(u)
+    #         u = next(iter(G.successors(u)))
+    #     comp_pos = {}
+    #     n = len(cycle)
+    #     for i, node in enumerate(cycle):
+    #         angle = 2 * math.pi * i / n
+    #         comp_pos[node] = (x_offset + 2 * np.cos(angle),
+    #                      2 * np.sin(angle))
+    #     visited = set(cycle)
+    #     for node in cycle:
+    #         layout_tree(G, node, comp_pos[node][0], comp_pos[node][1], dx=1.5, pos=comp_pos, visited=visited)
+    #     pos.update(comp_pos)
+    #     x_offset += 8
+    
+    # plt.figure(figsize=(12, 6))
+    # nx.draw_networkx(
+    #     G,
+    #     pos,
+    #     node_size = 1200,
+    #     node_color="#00000000",
+    #     arrows=True,
+    #     arrowstyle="-|>",
+    #     arrowsize=8
+    # )
+    # normal = {}
+    # boxed = {}
+    # labels = nx.get_node_attributes(compressed_trajectory_graph, "NLbl")
+    # initial = nx.get_node_attributes(compressed_trajectory_graph, "StIn")
+    # for n in compressed_trajectory_graph.nodes():
+    #     if initial[n]:
+    #         boxed.update({n:labels[n]})
+    #     else:
+    #         normal.update({n:labels[n]})
+    # nx.draw_networkx_labels(G, pos, labels=normal, font_size=12,
+    #     bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="white", lw=1))
+    # nx.draw_networkx_labels(G, pos, labels=boxed, font_size=12,
+    #     bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="black", lw=1))
+    
+    
+    # plt.axis("equal")
+    # plt.show()
