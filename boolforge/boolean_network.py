@@ -99,6 +99,21 @@ def get_entropy_of_basin_size_distribution(
     return sum([-np.log(p) * p for p in probabilities])
 
 
+def _reduce_state_cycle(trajectory, cycle_len):
+    """
+    Reduce cycle length to minimal period in state-only space.
+    """
+    prefix_len = len(trajectory) - cycle_len
+    cycle = trajectory[prefix_len:]
+
+    for p in range(1, cycle_len + 1):
+        if cycle_len % p != 0:
+            continue
+        if all(cycle[i] == cycle[i % p] for i in range(cycle_len)):
+            return trajectory[:prefix_len] + cycle[:p], p
+
+    return trajectory, cycle_len
+
 if __LOADED_NUMBA__:
     @njit(fastmath=True)  # safe: operations are integer-only
     def _update_network_synchronously_numba(
@@ -4607,6 +4622,11 @@ class BooleanNetwork(WiringDiagram):
                 periodic_input_sequence,
                 N_regulated_nodes,
                 fixed_network_cache
+            )
+            
+            periodic_traj, cycle_len = self._reduce_state_cycle(
+                periodic_traj,
+                cycle_len
             )
     
             trajectories.append((periodic_traj, cycle_len))
