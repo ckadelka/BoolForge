@@ -4624,6 +4624,10 @@ class BooleanNetwork(WiringDiagram):
                 fixed_network_cache
             )
             
+            # Add original initial state
+            periodic_traj = [state] + periodic_traj
+            
+            # Reduce state-only periodicity
             periodic_traj, cycle_len = _reduce_state_cycle(
                 periodic_traj,
                 cycle_len
