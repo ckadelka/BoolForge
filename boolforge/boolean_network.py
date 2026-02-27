@@ -105,6 +105,10 @@ def _compress_minimal_trajectory(traj):
     """
     n = len(traj)
 
+    best_len = float("inf")
+    best_traj = traj
+    best_p = 1
+
     for s in range(n):
         for p in range(1, n - s + 1):
 
@@ -114,10 +118,15 @@ def _compress_minimal_trajectory(traj):
                     good = False
                     break
 
-            if good:
-                return traj[:s + p], p
+            if not good:
+                continue
 
-    return traj, 1
+            if s + p < best_len:
+                best_len = s + p
+                best_traj = traj[:s + p]
+                best_p = p
+
+    return best_traj, best_p
 
 if __LOADED_NUMBA__:
     @njit(fastmath=True)  # safe: operations are integer-only
