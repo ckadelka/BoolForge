@@ -106,13 +106,15 @@ def _compress_minimal_trajectory(traj):
     n = len(traj)
 
     for s in range(n):
-        suffix = traj[s:]
-        L = len(suffix)
+        for p in range(1, n - s + 1):
 
-        for p in range(1, L + 1):
-            if L % p != 0:
-                continue
-            if all(suffix[i] == suffix[i % p] for i in range(L)):
+            good = True
+            for i in range(s, n):
+                if traj[i] != traj[s + (i - s) % p]:
+                    good = False
+                    break
+
+            if good:
                 return traj[:s + p], p
 
     return traj, 1
