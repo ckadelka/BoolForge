@@ -4484,7 +4484,7 @@ class BooleanNetwork(WiringDiagram):
         lcm = math.lcm(*[len(p) for p in periodic_input_sequence])
     
         seen = {}  # (state, phase) -> index
-        trajectory = []
+        trajectory = [state_dec]
         phase = 0
     
         while True:
@@ -4623,10 +4623,7 @@ class BooleanNetwork(WiringDiagram):
                 N_regulated_nodes,
                 fixed_network_cache
             )
-            
-            # Add original initial state
-            periodic_traj = [state] + periodic_traj
-            
+
             # Reduce state-only periodicity
             periodic_traj, cycle_len = _reduce_state_cycle(
                 periodic_traj,
