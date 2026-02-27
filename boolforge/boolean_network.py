@@ -4474,6 +4474,46 @@ class BooleanNetwork(WiringDiagram):
     
         return utils.bin2dec(vec)
 
+    def _simulate_transient_trajectory(
+        self,
+        state_dec,
+        transient_input_sequence,
+        N_regulated_nodes,
+        fixed_network_cache
+    ):
+        """
+        Return full trajectory of transient phase, including initial state.
+        """
+        trajectory = [state_dec]
+    
+        if not transient_input_sequence:
+            return trajectory
+    
+        max_len = max(len(seq) for seq in transient_input_sequence)
+    
+        current_state = state_dec
+    
+        for t in range(max_len):
+            values = [
+                transient_input_sequence[i][t]
+                for i in range(len(transient_input_sequence))
+            ]
+    
+            values_dec = utils.bin2dec(values)
+    
+            if values_dec not in fixed_network_cache:
+                fixed_network_cache[values_dec] = self.get_network_with_fixed_identity_nodes(values)
+    
+            current_state = utils.bin2dec(
+                fixed_network_cache[values_dec].update_network_synchronously(
+                    utils.dec2bin(current_state, N_regulated_nodes)
+                )
+            )
+    
+            trajectory.append(current_state)
+    
+        return trajectory
+
     def _simulate_periodic_trajectory(
         self,
         state_dec,
@@ -4484,7 +4524,7 @@ class BooleanNetwork(WiringDiagram):
         lcm = math.lcm(*[len(p) for p in periodic_input_sequence])
     
         seen = {}  # (state, phase) -> index
-        trajectory = [state_dec]
+        trajectory = []
         phase = 0
     
         while True:
@@ -4609,12 +4649,14 @@ class BooleanNetwork(WiringDiagram):
         for state in starting_states_dec:
     
             # Apply transient block
-            state_after_transient = self._apply_transient_block(
+            transient_traj = self._simulate_transient_trajectory(
                 state,
                 transient_input_sequence,
                 N_regulated_nodes,
                 fixed_network_cache
             )
+            
+            state_after_transient = transient_traj[-1]
     
             # Simulate periodic regime
             periodic_traj, cycle_len = self._simulate_periodic_trajectory(
@@ -4623,14 +4665,16 @@ class BooleanNetwork(WiringDiagram):
                 N_regulated_nodes,
                 fixed_network_cache
             )
+            
+            full_traj = transient_traj + periodic_traj[1:]
 
             # Reduce state-only periodicity
-            periodic_traj, cycle_len = _reduce_state_cycle(
-                periodic_traj,
+            full_traj, cycle_len = _reduce_state_cycle(
+                full_traj,
                 cycle_len
             )
     
-            trajectories.append((periodic_traj, cycle_len))
+            trajectories.append((full_traj, cycle_len))
     
         if merge_trajectories:
             return utils.compress_trajectories(trajectories, N_regulated_nodes)
