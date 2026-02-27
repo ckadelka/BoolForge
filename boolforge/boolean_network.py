@@ -99,34 +99,25 @@ def get_entropy_of_basin_size_distribution(
     return sum([-np.log(p) * p for p in probabilities])
 
 
-def _compress_minimal_trajectory(traj):
+def _compress_with_known_cycle(traj, cycle_len):
     """
-    Return minimal (trajectory, cycle_len) representation.
+    Compress trajectory using known augmented-space cycle length.
+    Only allow shifting cycle start earlier; do not change cycle_len.
     """
     n = len(traj)
+    cycle_start = n - cycle_len
 
-    best_len = float("inf")
-    best_traj = traj
-    best_p = 1
+    # Try to shift cycle start left as far as possible
+    for s in range(cycle_start + 1):
+        good = True
+        for i in range(s, n):
+            if traj[i] != traj[cycle_start + (i - s) % cycle_len]:
+                good = False
+                break
+        if good:
+            return traj[:s + cycle_len], cycle_len
 
-    for s in range(n):
-        for p in range(1, n - s + 1):
-
-            good = True
-            for i in range(s, n):
-                if traj[i] != traj[s + (i - s) % p]:
-                    good = False
-                    break
-
-            if not good:
-                continue
-
-            if s + p < best_len:
-                best_len = s + p
-                best_traj = traj[:s + p]
-                best_p = p
-
-    return best_traj, best_p
+    return traj
 
 if __LOADED_NUMBA__:
     @njit(fastmath=True)  # safe: operations are integer-only
@@ -4685,7 +4676,7 @@ class BooleanNetwork(WiringDiagram):
             full_traj = transient_traj + periodic_traj[1:]
 
             # Reduce state-only periodicity
-            full_traj,cycle_len = _compress_minimal_trajectory(full_traj)
+            full_traj = _compress_with_known_cycle(full_traj, cycle_len)
     
             trajectories.append((full_traj, cycle_len))
     
