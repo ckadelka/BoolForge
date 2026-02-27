@@ -99,20 +99,23 @@ def get_entropy_of_basin_size_distribution(
     return sum([-np.log(p) * p for p in probabilities])
 
 
-def _reduce_state_cycle(trajectory, cycle_len):
+def _compress_minimal_trajectory(traj):
     """
-    Reduce cycle length to minimal period in state-only space.
+    Return minimal (trajectory, cycle_len) representation.
     """
-    prefix_len = len(trajectory) - cycle_len
-    cycle = trajectory[prefix_len:]
+    n = len(traj)
 
-    for p in range(1, cycle_len + 1):
-        if cycle_len % p != 0:
-            continue
-        if all(cycle[i] == cycle[i % p] for i in range(cycle_len)):
-            return trajectory[:prefix_len] + cycle[:p], p
+    for s in range(n):
+        suffix = traj[s:]
+        L = len(suffix)
 
-    return trajectory, cycle_len
+        for p in range(1, L + 1):
+            if L % p != 0:
+                continue
+            if all(suffix[i] == suffix[i % p] for i in range(L)):
+                return traj[:s + p], p
+
+    return traj, 1
 
 if __LOADED_NUMBA__:
     @njit(fastmath=True)  # safe: operations are integer-only
@@ -4558,6 +4561,8 @@ class BooleanNetwork(WiringDiagram):
     
         return trajectory, cycle_len
 
+
+    
     
     def get_trajectories(
         self,
@@ -4669,10 +4674,7 @@ class BooleanNetwork(WiringDiagram):
             full_traj = transient_traj + periodic_traj[1:]
 
             # Reduce state-only periodicity
-            full_traj, cycle_len = _reduce_state_cycle(
-                full_traj,
-                cycle_len
-            )
+            full_traj,cycle_len = _compress_minimal_trajectory(full_traj)
     
             trajectories.append((full_traj, cycle_len))
     
