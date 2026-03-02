@@ -4693,7 +4693,7 @@ class BooleanNetwork(WiringDiagram):
                 fixed_network_cache
             )
             
-            full_traj = transient_traj + periodic_traj[1:]
+            full_traj = transient_traj + periodic_traj
 
             # Reduce state-only periodicity
             best_trajectory, cycle_len = _compress_with_known_cycle(full_traj, cycle_len)

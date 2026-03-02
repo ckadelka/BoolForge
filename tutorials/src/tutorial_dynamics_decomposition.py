@@ -96,7 +96,7 @@ print("T_11: ", T[3])
 
 #%%
 G = bn.get_trajectories(non_periodic, periodic)
-boolforge.plot_trajectory(G, show = False);
+boolforge.plot_trajectory(G, show = True);
 
 #%% [markdown]
 # This process can also be performed manually, by calling `compress_trajectories(...)`
@@ -105,11 +105,11 @@ boolforge.plot_trajectory(G, show = False);
 # is automatically computed and passed to the function when the merge_trajectories flag is True.
 
 #%%
-trajectories = bn.get_trajectories(non_periodic_component = non_periodic, 
-                                   periodic_component = periodic, 
+trajectories = bn.get_trajectories(transient_input_sequence = non_periodic, 
+                                   periodic_input_sequence = periodic, 
                                    merge_trajectories = False)
 G = boolforge.compress_trajectories(trajectories, 2)
-boolforge.plot_trajectory(G, show = False);
+boolforge.plot_trajectory(G, show = True);
 
 #%% [markdown]
 # ### Computing the product of trajectories
@@ -129,9 +129,9 @@ G_2_9 = n_2_9.get_trajectories([[1]], [[1,0]])
 
 G = boolforge.product_of_trajectories(G_2_8, G_2_9)
 
-boolforge.plot_trajectory(G_2_8, False);
-boolforge.plot_trajectory(G_2_9, False);
-boolforge.plot_trajectory(G, False);
+boolforge.plot_trajectory(G_2_8, show = True);
+boolforge.plot_trajectory(G_2_9, show = True);
+boolforge.plot_trajectory(G, show = True);
 
 #%% [markdown]
 # ## Examples
@@ -144,7 +144,7 @@ boolforge.plot_trajectory(G, False);
 
 #%%
 n = boolforge.BooleanNetwork([[0,0,0,1],[0,1],[0,1]],[[1,2],[0],[2]])
-boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), False);
+boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), show = True);
 
 #%% [markdown]
 # ### Example 2.9
@@ -152,7 +152,7 @@ boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), False);
 
 #%%
 n = boolforge.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
-boolforge.plot_trajectory(n.get_trajectories([[1]], [[1,0]]), False);
+boolforge.plot_trajectory(n.get_trajectories([[1]], [[1,0]]), show = True);
 
 #%% [markdown]
 # ### Example 2.10
@@ -160,7 +160,7 @@ boolforge.plot_trajectory(n.get_trajectories([[1]], [[1,0]]), False);
 
 #%%
 n = boolforge.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
-boolforge.plot_trajectory(n.get_trajectories([[]], [[0]]), False);
+boolforge.plot_trajectory(n.get_trajectories([[]], [[0]]), show = True);
 
 #%% [markdown]
 # ### Example 3.2
@@ -178,7 +178,7 @@ T = [
      ([7],1)
 ]
 G = boolforge.compress_trajectories(T, 3)
-boolforge.plot_trajectory(G, False);
+boolforge.plot_trajectory(G, show = True);
 
 #%% [markdown]
 # ### Figure 11
@@ -190,7 +190,7 @@ G1 = boolforge.compress_trajectories([([1,0],1)], 3)
 T = [([0,1],1),([1,3,0,1],1),([2,0,1],1),([3,2,0,1],1)]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False);
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
 
 #%% [markdown]
 # This is Figure 11b from the Dynamics Decomposition manuscript.
@@ -201,7 +201,7 @@ G1 = boolforge.compress_trajectories([([4,0],1),([0],1)], 3)
 T = [([0,1],1),([1],1),([2,0,1],1),([3,0,1],1)]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False);
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
 
 #%% [markdown]
 # This is Figure 11c from the Dynamics Decomposition manuscript.
@@ -217,7 +217,7 @@ T = [
 ]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False);
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
 
 #%% [markdown]
 # This is Figure 11d from the Dynamics Decomposition manuscript.
@@ -233,7 +233,7 @@ T = [
 ]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False);
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
 
 #%% [markdown]
 # This is Figure 11e from the Dynamics Decomposition manuscript.
@@ -249,7 +249,7 @@ T = [
 ]
 G2 = boolforge.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False);
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
 
 #%% [markdown]
 # This is Figure 11f from the Dynamics Decomposition manuscript.
@@ -257,4 +257,4 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False);
 #%%
 G1 = boolforge.compress_trajectories([([7],1)], 3)
 G2 = boolforge.compress_trajectories([([0,1,3,2],4),([1,3,2,0],4),([3,2,0,1],4),([2,0,1,3],4)], 2)
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), False);
+boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
