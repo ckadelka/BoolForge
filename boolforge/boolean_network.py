@@ -4696,9 +4696,9 @@ class BooleanNetwork(WiringDiagram):
             full_traj = transient_traj + periodic_traj[1:]
 
             # Reduce state-only periodicity
-            full_traj = _compress_with_known_cycle(full_traj, cycle_len)
+            best_trajectory, cycle_len = _compress_with_known_cycle(full_traj, cycle_len)
     
-            trajectories.append((full_traj, cycle_len))
+            trajectories.append((best_trajectory, cycle_len))
     
         if merge_trajectories:
             return utils.compress_trajectories(trajectories, N_regulated_nodes)

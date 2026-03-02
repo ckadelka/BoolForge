@@ -771,8 +771,10 @@ def hamming_weight_to_ncf_layer_structure(
 import math
 import networkx as nx
 
-def merge_state_representation(x : int | Sequence[int], y : int | Sequence[int],
-    b : int | Sequence[int]) -> int | Sequence[int]:
+def merge_state_representation(x : int | Sequence[int], 
+                               y : int | Sequence[int],
+                               num_nodes : int | Sequence[int]
+    ) -> int | Sequence[int]:
     """
     Combine two state representations into a single decimal representation.
     
@@ -798,11 +800,11 @@ def merge_state_representation(x : int | Sequence[int], y : int | Sequence[int],
     is_pair_y = isinstance(y, Sequence)
     if is_pair_x:
         if is_pair_y:
-            return ((x[0] << b[0]) | y[0], (x[1] << b[1]) | y[1]) 
-        return (x[0], (x[1] << b) | y)
+            return ((x[0] << num_nodes[0]) | y[0], (x[1] << num_nodes[1]) | y[1]) 
+        return (x[0], (x[1] << num_nodes) | y)
     elif is_pair_y:
-        return (y[0], (x << b[1]) | y[1])
-    return (x << b) | y
+        return (y[0], (x << num_nodes[1]) | y[1])
+    return (x << num_nodes) | y
 
 def get_product_of_attractors(attrs_1 : Sequence[Sequence[int | Sequence[int]]],
     attrs_2 : Sequence[Sequence[int | Sequence[int]]],
