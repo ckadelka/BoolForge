@@ -38,8 +38,6 @@ import networkx as nx
 import pandas as pd
 from typing import TYPE_CHECKING
 
-import itertools
-
 from . import utils
 from .boolean_function import BooleanFunction
 from .wiring_diagram import WiringDiagram
@@ -99,25 +97,47 @@ def get_entropy_of_basin_size_distribution(
     return sum([-np.log(p) * p for p in probabilities])
 
 
+# def _compress_with_known_cycle(traj, cycle_len):
+#     """
+#     Compress trajectory using known augmented-space cycle length.
+#     Only allow shifting cycle start earlier; do not change cycle_len.
+#     """
+#     n = len(traj)
+#     cycle_start = n - cycle_len
+
+#     # Try to shift cycle start left as far as possible
+#     for s in range(cycle_start + 1):
+#         good = True
+#         for i in range(s, n):
+#             if traj[i] != traj[cycle_start + (i - s) % cycle_len]:
+#                 good = False
+#                 break
+#         if good:
+#             return traj[:s + cycle_len], cycle_len
+#     return traj
+
 def _compress_with_known_cycle(traj, cycle_len):
-    """
-    Compress trajectory using known augmented-space cycle length.
-    Only allow shifting cycle start earlier; do not change cycle_len.
-    """
-    n = len(traj)
-    cycle_start = n - cycle_len
-
-    # Try to shift cycle start left as far as possible
-    for s in range(cycle_start + 1):
-        good = True
-        for i in range(s, n):
-            if traj[i] != traj[cycle_start + (i - s) % cycle_len]:
-                good = False
-                break
-        if good:
-            return traj[:s + cycle_len], cycle_len
-
-    return traj
+    len_traj = len(traj)
+    best_trajectory = []
+    best_cycle_len = -1
+    best_length = math.inf
+    for s in range(len_traj):
+        for p in range(1, min(cycle_len, len_traj - s) + 1):
+            proposed_period = traj[s : s + p]
+            good_proposal = True
+            for i in range(s, len_traj):
+                if traj[i] != proposed_period[(i - s) % p]:
+                    good_proposal = False
+                    break
+            if not good_proposal:
+                continue
+            
+            len_proposal = s + p
+            if len_proposal < best_length:
+                best_length = len_proposal
+                best_trajectory = traj[:s] + proposed_period
+                best_cycle_len = p
+    return best_trajectory, best_cycle_len
 
 if __LOADED_NUMBA__:
     @njit(fastmath=True)  # safe: operations are integer-only
