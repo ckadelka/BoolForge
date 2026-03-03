@@ -4584,6 +4584,111 @@ class BooleanNetwork(WiringDiagram):
         return trajectory, cycle_len
 
 
+    def _get_fnet_(self,values,fixed_network_cache):
+        values_dec = utils.bin2dec(values)
+        if values_dec in fixed_network_cache:
+            fixed_network = fixed_network_cache[values_dec]
+        else:
+            fixed_network = self.get_network_with_fixed_identity_nodes(values)
+            fixed_network_cache[values_dec] = fixed_network
+        return fixed_network
+
+    def _calculate_trajectory(
+            self,
+            starting_state_dec,
+            transient_input_sequence,
+            periodic_input_sequence,
+            N_regulated_nodes,
+            fixed_network_cache
+            ):
+        trajectory = [starting_state_dec]
+        latest_state = starting_state_dec
+        
+        # Compute the non-periodic component of the trajectory.
+        len_np = len(transient_input_sequence)
+        max_len_pattern = max(list(zip(map(len, transient_input_sequence))))[0]
+        for idx in range(max_len_pattern):
+            vals = [ transient_input_sequence[node][idx] for node in range(len_np) ]
+            fixed_network = self._get_fnet_(vals,fixed_network_cache)
+            latest_state = utils.bin2dec(
+                fixed_network.update_network_synchronously(
+                    utils.dec2bin(latest_state, N_regulated_nodes)
+                )
+            )
+            trajectory.append(latest_state)
+            
+        # Compute the periodic component of the trajectory.
+        len_p = len(periodic_input_sequence)
+        lcm = math.lcm(*list(map(len, periodic_input_sequence)))
+        idx_p = 0
+        cycle_len = -1
+        
+        seen = {}  # (state, phase) -> index in traj_cyclic
+        traj_cyclic = []
+        idx_p = 0
+        
+        while True:
+            phase = idx_p % lcm
+            key = (latest_state, phase)
+        
+            if key in seen:
+                # We found the cycle start
+                cycle_start = seen[key]
+                cycle_len = len(traj_cyclic) - cycle_start
+                break
+        
+            seen[key] = len(traj_cyclic)
+        
+            vals = [
+                periodic_input_sequence[node][phase]
+                for node in range(len_p)
+            ]
+            fixed_network = self._get_fnet_(vals)
+        
+            latest_state = utils.bin2dec(
+                fixed_network.update_network_synchronously(
+                    utils.dec2bin(latest_state, N_regulated_nodes)
+                )
+            )
+        
+            traj_cyclic.append(latest_state)
+            idx_p += 1
+        trajectory.extend(traj_cyclic[:cycle_start + cycle_len])
+        #print(trajectory, traj_cyclic, traj_cyclic[:cycle_start + cycle_len])
+        
+        # Compress the trajectory's representation to be minimal.
+        # That is, only the transient input sequence and a single
+        # cycle of the periodic input sequence.
+        len_traj = len(trajectory)
+        best_trajectory = []
+        best_cycle_len = -1
+        best_length = math.inf
+        for s in range(len_traj):
+            for p in range(1, min(cycle_len, len_traj - s) + 1):
+                proposed_period = trajectory[s : s + p]
+                good_proposal = True
+                for i in range(s, len_traj):
+                    if trajectory[i] != proposed_period[(i - s) % p]:
+                        good_proposal = False
+                        break
+                if not good_proposal:
+                    continue
+                
+                len_proposal = s + p
+                if len_proposal < best_length:
+                    best_length = len_proposal
+                    best_trajectory = trajectory[:s] + proposed_period
+                    best_cycle_len = p
+        #print(best_trajectory, best_cycle_len, "\n")
+        
+        # Return the compressed trajectory array and the length of the
+        # periodic component.
+        # Note that the periodic_input_sequence will ALWAYS be the last
+        # cycle_len values in the array. The periodic_input_sequence
+        # also correspond with the attractors of the network.
+        return best_trajectory, best_cycle_len
+    
+
     
     
     def get_trajectories(
@@ -4675,30 +4780,38 @@ class BooleanNetwork(WiringDiagram):
     
         for state in starting_states_dec:
     
-            # Apply transient block
-            transient_traj = self._simulate_transient_trajectory(
+            trajectory, cycle_len = self._calculate_trajectory(
                 state,
                 transient_input_sequence,
-                N_regulated_nodes,
-                fixed_network_cache
-            )
-            
-            state_after_transient = transient_traj[-1]
-    
-            # Simulate periodic regime
-            periodic_traj, cycle_len = self._simulate_periodic_trajectory(
-                state_after_transient,
                 periodic_input_sequence,
                 N_regulated_nodes,
                 fixed_network_cache
-            )
-            
-            full_traj = transient_traj + periodic_traj[1:]
-
-            # Reduce state-only periodicity
-            best_trajectory, cycle_len = _compress_with_known_cycle(full_traj, cycle_len)
+            )        
     
-            trajectories.append((best_trajectory, cycle_len))
+            # # Apply transient block
+            # transient_traj = self._simulate_transient_trajectory(
+            #     state,
+            #     transient_input_sequence,
+            #     N_regulated_nodes,
+            #     fixed_network_cache
+            # )
+            
+            # state_after_transient = transient_traj[-1]
+    
+            # # Simulate periodic regime
+            # periodic_traj, cycle_len = self._simulate_periodic_trajectory(
+            #     state_after_transient,
+            #     periodic_input_sequence,
+            #     N_regulated_nodes,
+            #     fixed_network_cache
+            # )
+            
+            # full_traj = transient_traj + periodic_traj[1:]
+
+            # # Reduce state-only periodicity
+            # best_trajectory, cycle_len = _compress_with_known_cycle(full_traj, cycle_len)
+    
+            trajectories.append((trajectory, cycle_len))
     
         if merge_trajectories:
             return utils.compress_trajectories(trajectories, N_regulated_nodes)
