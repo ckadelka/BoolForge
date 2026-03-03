@@ -3978,173 +3978,173 @@ class BooleanNetwork(WiringDiagram):
     #             "AttractorDict":attr_dict,
     #             "STG":stg }
 
-    # def get_trajectories(self,
-    #     non_periodic_component : Sequence[Sequence[int]],
-    #     periodic_component : Sequence[Sequence[int]],
-    #     merge_trajectories : bool = True,
-    #     starting_states_dec : Sequence[int] | None = None) -> [nx.DiGraph, list]:
-    #     """
-    #     Compute state trajectories of the Boolean network under
-    #     non-autonomous external inputs.
+    def get_trajectories_old(self,
+        non_periodic_component : Sequence[Sequence[int]],
+        periodic_component : Sequence[Sequence[int]],
+        merge_trajectories : bool = True,
+        starting_states_dec : Sequence[int] | None = None) -> [nx.DiGraph, list]:
+        """
+        Compute state trajectories of the Boolean network under
+        non-autonomous external inputs.
         
-    #     Each trajectory consists of a non-periodic transient followed by
-    #     a periodic component. The periodic component corresponds to an
-    #     attractor of the system and is detected automatically.
+        Each trajectory consists of a non-periodic transient followed by
+        a periodic component. The periodic component corresponds to an
+        attractor of the system and is detected automatically.
         
-    #     Parameters
-    #     ----------
-    #     non_periodic_component : sequence of sequence of int
-    #         External input values applied before the periodic regime.
-    #         Each inner sequence corresponds to one identity node.
+        Parameters
+        ----------
+        non_periodic_component : sequence of sequence of int
+            External input values applied before the periodic regime.
+            Each inner sequence corresponds to one identity node.
         
-    #     periodic_component : sequence of sequence of int
-    #         External input values defining the periodic regime.
-    #         Each inner sequence corresponds to one identity node and
-    #         is treated as repeating indefinitely.
+        periodic_component : sequence of sequence of int
+            External input values defining the periodic regime.
+            Each inner sequence corresponds to one identity node and
+            is treated as repeating indefinitely.
         
-    #     merge_trajectories : bool, optional
-    #         If True, trajectories are merged into a directed graph
-    #         representation. If False, individual trajectories are
-    #         returned. Defaults to True.
+        merge_trajectories : bool, optional
+            If True, trajectories are merged into a directed graph
+            representation. If False, individual trajectories are
+            returned. Defaults to True.
         
-    #     starting_states_dec : sequence of int or None, optional
-    #         The states to compute trajectories from. If None (default), every 
-    #         valid state in the entire state space of size 2^N will be used.
+        starting_states_dec : sequence of int or None, optional
+            The states to compute trajectories from. If None (default), every 
+            valid state in the entire state space of size 2^N will be used.
         
-    #     Returns
-    #     -------
-    #     result : object
-    #         If merge_trajectories is True, returns a directed graph
-    #         representing merged trajectories.
+        Returns
+        -------
+        result : object
+            If merge_trajectories is True, returns a directed graph
+            representing merged trajectories.
         
-    #         If merge_trajectories is False, returns a list of tuples
-    #         (trajectory, cycle_length), where trajectory is a list of
-    #         state values in decimal form and cycle_length is the length
-    #         of the periodic component from the end of the trajectory.
-    #     """
+            If merge_trajectories is False, returns a list of tuples
+            (trajectory, cycle_length), where trajectory is a list of
+            state values in decimal form and cycle_length is the length
+            of the periodic component from the end of the trajectory.
+        """
 
-    #     N = self.N - len(self.get_identity_nodes(False))
-    #     state_space = 2 ** N
+        N = self.N - len(self.get_identity_nodes(False))
+        state_space = 2 ** N
         
-    #     assert len(non_periodic_component) == len(periodic_component), f"All components of the input sequence must be the same length ({len(periodic_component)} != {len(non_periodic_component)})."
-    #     assert len(non_periodic_component) == self.N - N, f"Input sequence must be of the same length as the number of identity nodes of the network. Expected {self.N - N}, Given{len(non_periodic_component)}."
-    #     assert all(len(seq) > 0 for seq in periodic_component), "Periodic component of the input sequence cannot contain an empty list."
-    #     assert (starting_states_dec is None) or all((x >= 0 and x < state_space) for x in starting_states_dec), f"Starting states must be in [0, {state_space}) for this network."
+        assert len(non_periodic_component) == len(periodic_component), f"All components of the input sequence must be the same length ({len(periodic_component)} != {len(non_periodic_component)})."
+        assert len(non_periodic_component) == self.N - N, f"Input sequence must be of the same length as the number of identity nodes of the network. Expected {self.N - N}, Given{len(non_periodic_component)}."
+        assert all(len(seq) > 0 for seq in periodic_component), "Periodic component of the input sequence cannot contain an empty list."
+        assert (starting_states_dec is None) or all((x >= 0 and x < state_space) for x in starting_states_dec), f"Starting states must be in [0, {state_space}) for this network."
         
-    #     if starting_states_dec is None:
-    #         starting_states_dec = list(range(state_space)) # default to every state
-    #     else:
-    #         # we shouldn't recompute duplicates, since the result is deterministic
-    #         starting_states_dec = list(set(starting_states_dec))
+        if starting_states_dec is None:
+            starting_states_dec = list(range(state_space)) # default to every state
+        else:
+            # we shouldn't recompute duplicates, since the result is deterministic
+            starting_states_dec = list(set(starting_states_dec))
         
-    #     # Helper method: get the network with fixed source nodes
-    #     # associated with the given values vector.
-    #     fixed_networks = {}
-    #     def _get_fnet_(values):
-    #         values_dec = utils.bin2dec(values)
-    #         if values_dec in fixed_networks:
-    #             fixed_network = fixed_networks[values_dec]
-    #         else:
-    #             fixed_network = self.get_network_with_fixed_identity_nodes(values)
-    #             fixed_networks[values_dec] = fixed_network
-    #         return fixed_network
+        # Helper method: get the network with fixed source nodes
+        # associated with the given values vector.
+        fixed_networks = {}
+        def _get_fnet_(values):
+            values_dec = utils.bin2dec(values)
+            if values_dec in fixed_networks:
+                fixed_network = fixed_networks[values_dec]
+            else:
+                fixed_network = self.get_network_with_fixed_identity_nodes(values)
+                fixed_networks[values_dec] = fixed_network
+            return fixed_network
         
-    #     # Helper method: calculate the trajectory of this network given
-    #     # a starting state represented in decimal.
-    #     def _calc_traj_(starting):
-    #         trajectory = [starting]
-    #         latest_state = starting
-    #         # Compute the non-periodic component of the trajectory.
-    #         len_np = len(non_periodic_component)
-    #         max_len_pattern = max(list(zip(map(len, non_periodic_component))))[0]
-    #         for idx in range(max_len_pattern):
-    #             vals = [ non_periodic_component[node][idx] for node in range(len_np) ]
-    #             fixed_network = _get_fnet_(vals)
-    #             latest_state = utils.bin2dec(fixed_network.update_network_synchronously(utils.dec2bin(latest_state, N)))
-    #             trajectory.append(latest_state)
-    #         # Compute the periodic component of the trajectory.
-    #         len_p = len(periodic_component)
-    #         lcm = math.lcm(*list(map(len, periodic_component)))
-    #         idx_p = 0
-    #         cycle_len = -1
+        # Helper method: calculate the trajectory of this network given
+        # a starting state represented in decimal.
+        def _calc_traj_(starting):
+            trajectory = [starting]
+            latest_state = starting
+            # Compute the non-periodic component of the trajectory.
+            len_np = len(non_periodic_component)
+            max_len_pattern = max(list(zip(map(len, non_periodic_component))))[0]
+            for idx in range(max_len_pattern):
+                vals = [ non_periodic_component[node][idx] for node in range(len_np) ]
+                fixed_network = _get_fnet_(vals)
+                latest_state = utils.bin2dec(fixed_network.update_network_synchronously(utils.dec2bin(latest_state, N)))
+                trajectory.append(latest_state)
+            # Compute the periodic component of the trajectory.
+            len_p = len(periodic_component)
+            lcm = math.lcm(*list(map(len, periodic_component)))
+            idx_p = 0
+            cycle_len = -1
             
-    #         seen = {}  # (state, phase) -> index in traj_cyclic
-    #         traj_cyclic = []
-    #         idx_p = 0
+            seen = {}  # (state, phase) -> index in traj_cyclic
+            traj_cyclic = []
+            idx_p = 0
             
-    #         while True:
-    #             phase = idx_p % lcm
-    #             key = (latest_state, phase)
+            while True:
+                phase = idx_p % lcm
+                key = (latest_state, phase)
             
-    #             if key in seen:
-    #                 # We found the cycle start
-    #                 cycle_start = seen[key]
-    #                 cycle_len = len(traj_cyclic) - cycle_start
-    #                 break
+                if key in seen:
+                    # We found the cycle start
+                    cycle_start = seen[key]
+                    cycle_len = len(traj_cyclic) - cycle_start
+                    break
             
-    #             seen[key] = len(traj_cyclic)
+                seen[key] = len(traj_cyclic)
             
-    #             vals = [
-    #                 periodic_component[node][phase]
-    #                 for node in range(len_p)
-    #             ]
-    #             fixed_network = _get_fnet_(vals)
+                vals = [
+                    periodic_component[node][phase]
+                    for node in range(len_p)
+                ]
+                fixed_network = _get_fnet_(vals)
             
-    #             latest_state = utils.bin2dec(
-    #                 fixed_network.update_network_synchronously(
-    #                     utils.dec2bin(latest_state, N)
-    #                 )
-    #             )
+                latest_state = utils.bin2dec(
+                    fixed_network.update_network_synchronously(
+                        utils.dec2bin(latest_state, N)
+                    )
+                )
             
-    #             traj_cyclic.append(latest_state)
-    #             idx_p += 1
-    #         trajectory.extend(traj_cyclic[:cycle_start + cycle_len])
-    #         #print(trajectory, traj_cyclic, traj_cyclic[:cycle_start + cycle_len])
+                traj_cyclic.append(latest_state)
+                idx_p += 1
+            trajectory.extend(traj_cyclic[:cycle_start + cycle_len])
+            #print(trajectory, traj_cyclic, traj_cyclic[:cycle_start + cycle_len])
             
-    #         # Compress the trajectory's representation to be minimal.
-    #         # That is, only the non-periodic component and a single
-    #         # cycle of the periodic component.
-    #         len_traj = len(trajectory)
-    #         best_trajectory = []
-    #         best_cycle_len = -1
-    #         best_length = math.inf
-    #         for s in range(len_traj):
-    #             for p in range(1, min(cycle_len, len_traj - s) + 1):
-    #                 proposed_period = trajectory[s : s + p]
-    #                 good_proposal = True
-    #                 for i in range(s, len_traj):
-    #                     if trajectory[i] != proposed_period[(i - s) % p]:
-    #                         good_proposal = False
-    #                         break
-    #                 if not good_proposal:
-    #                     continue
+            # Compress the trajectory's representation to be minimal.
+            # That is, only the non-periodic component and a single
+            # cycle of the periodic component.
+            len_traj = len(trajectory)
+            best_trajectory = []
+            best_cycle_len = -1
+            best_length = math.inf
+            for s in range(len_traj):
+                for p in range(1, min(cycle_len, len_traj - s) + 1):
+                    proposed_period = trajectory[s : s + p]
+                    good_proposal = True
+                    for i in range(s, len_traj):
+                        if trajectory[i] != proposed_period[(i - s) % p]:
+                            good_proposal = False
+                            break
+                    if not good_proposal:
+                        continue
                     
-    #                 len_proposal = s + p
-    #                 if len_proposal < best_length:
-    #                     best_length = len_proposal
-    #                     best_trajectory = trajectory[:s] + proposed_period
-    #                     best_cycle_len = p
-    #         #print(best_trajectory, best_cycle_len, "\n")
+                    len_proposal = s + p
+                    if len_proposal < best_length:
+                        best_length = len_proposal
+                        best_trajectory = trajectory[:s] + proposed_period
+                        best_cycle_len = p
+            #print(best_trajectory, best_cycle_len, "\n")
             
-    #         # Return the compressed trajectory array and the length of the
-    #         # periodic component.
-    #         # Note that the periodic component will ALWAYS be the last
-    #         # cycle_len values in the array. The periodic components
-    #         # also correspond with the attractors of the network.
-    #         return best_trajectory, best_cycle_len
+            # Return the compressed trajectory array and the length of the
+            # periodic component.
+            # Note that the periodic component will ALWAYS be the last
+            # cycle_len values in the array. The periodic components
+            # also correspond with the attractors of the network.
+            return best_trajectory, best_cycle_len
         
-    #     # Compute the trajectory for every initial state of the network.
-    #     trajectories = []
-    #     for i in starting_states_dec:
-    #         trajectories.append(_calc_traj_(i))
+        # Compute the trajectory for every initial state of the network.
+        trajectories = []
+        for i in starting_states_dec:
+            trajectories.append(_calc_traj_(i))
         
-    #     # If the merge_trajectories flag is set, return the merged representation
-    #     # of the trajectories, which is of type nx.DiGraph.
-    #     if merge_trajectories:
-    #         return utils.compress_trajectories(trajectories, N)
-    #     # If the flag is not set, then just return the trajectory arrays
-    #     # without further modification.
-    #     return trajectories
+        # If the merge_trajectories flag is set, return the merged representation
+        # of the trajectories, which is of type nx.DiGraph.
+        if merge_trajectories:
+            return utils.compress_trajectories(trajectories, N)
+        # If the flag is not set, then just return the trajectory arrays
+        # without further modification.
+        return trajectories
 
     def _compute_post_transient_states(
         self,
