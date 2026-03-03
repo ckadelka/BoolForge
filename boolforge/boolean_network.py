@@ -4643,7 +4643,7 @@ class BooleanNetwork(WiringDiagram):
                 periodic_input_sequence[node][phase]
                 for node in range(len_p)
             ]
-            fixed_network = self._get_fnet_(vals)
+            fixed_network = self._get_fnet_(vals,fixed_network_cache)
         
             latest_state = utils.bin2dec(
                 fixed_network.update_network_synchronously(
