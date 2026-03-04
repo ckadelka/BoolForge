@@ -159,10 +159,7 @@ def fetch_file_bytes(download_url: str) -> bytes:
 def load_model(
     download_url: str,
     max_degree: int = 24,
-    possible_separators: list = ['* =', '*=', '=', ','],
-    original_not: str = 'NOT',
-    original_and: str = 'AND',
-    original_or: str = 'OR',
+    possible_separators: list[str] = ['* =', '*=', '=', ','],
     ignore_first_line: bool = False,
     simplify_functions: bool = False,
 ) -> BooleanNetwork:
@@ -177,12 +174,6 @@ def load_model(
         Maximum allowed in-degree for nodes (default: 24).
     possible_separators : list[str], optional
         Possible assignment separators used in the model file.
-    original_not : str, optional
-        Logical negation operator used in the model file.
-    original_and : str, optional
-        Logical AND operator used in the model file.
-    original_or : str, optional
-        Logical OR operator used in the model file.
     ignore_first_line : bool, optional
         If True, skip the first line of the file (default: False).
     simplify_functions : bool, optional
@@ -204,22 +195,29 @@ def load_model(
     if ignore_first_line:
         string = string[string.index('\n') + 1:]
 
-    try:
-        bn = BooleanNetwork.from_string(
-            string,
-            possible_separators,
-            max_degree,
-            original_not,
-            original_and,
-            original_or,
-            simplify_functions=simplify_functions
-        )
-    except Exception as e:
-        raise ValueError(
-            f"Failed to parse Boolean network model from {download_url}"
-        ) from e
+    errors = []
+    
+    for sep in possible_separators:
+        try:
+            return BooleanNetwork.from_string(
+                string,
+                separator=sep,
+                max_degree=max_degree,
+                simplify_functions=simplify_functions,
+            )
+        except Exception as e:
+            errors.append((sep, e))
 
-    return bn
+    error_msg = "\n".join(
+        f"separator '{sep}' failed with: {repr(err)}"
+        for sep, err in errors
+    )
+
+    raise ValueError(
+        f"Failed to parse Boolean network model from {download_url} "
+        f"using any separator.\nAttempted separators: {possible_separators}\n"
+        f"Errors:\n{error_msg}"
+    )
 
 def get_bio_models_from_repository(
     repository: str = 'expert-curated (ckadelka)',
@@ -304,9 +302,7 @@ def get_bio_models_from_repository(
                     else:
                         bn = load_model(
                             download_url,
-                            original_and=" AND ",
-                            original_or=" OR ",
-                            original_not=" NOT ",
+                            possible_separators = ['='],
                             simplify_functions=simplify_functions,
                             max_degree = max_degree,
                         )
@@ -330,9 +326,9 @@ def get_bio_models_from_repository(
                     bn = load_model(
                         download_url,
                         possible_separators=['*    =', '*   =', '*  =', '* =', '*='],
-                        original_and=[" and ", "&"],
-                        original_or=[" or ", "|"],
-                        original_not=[" not ", " !"],
+                        # original_and=[" and ", "&"],
+                        # original_or=[" or ", "|"],
+                        # original_not=[" not ", " !"],
                         simplify_functions=simplify_functions,
                         max_degree = max_degree,
                     )
@@ -359,9 +355,9 @@ def get_bio_models_from_repository(
                 )
                 bn = load_model(
                     download_url,
-                    original_and=" & ",
-                    original_or=" | ",
-                    original_not="!",
+                    # original_and=" & ",
+                    # original_or=" | ",
+                    # original_not="!",
                     ignore_first_line=True,
                     simplify_functions=simplify_functions,
                     max_degree=max_degree,

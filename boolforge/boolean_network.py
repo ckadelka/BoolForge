@@ -3754,6 +3754,7 @@ class BooleanNetwork(WiringDiagram):
             total_dist += float(np.sum(fx != fy))
     
         return float(total_dist / float(n_simulations))
+        
 
 # ===================== #
 #   Modular BoolForge   #
@@ -4407,9 +4408,6 @@ class BooleanNetwork(WiringDiagram):
         # cycle_len values in the array. The periodic_input_sequence
         # also correspond with the attractors of the network.
         return best_trajectory, best_cycle_len
-    
-
-    
     
     def get_trajectories(
         self,

@@ -20,7 +20,7 @@ import boolforge
 
 A trajectory of a Boolean network is the sequence of states assumed by the
 network, given an initial state. A trajectory can be thought of as two
-consecutive components: a non-periodic prefix followed by the periodic cycle.
+consecutive components: a transient (non-periodic) prefix followed by the periodic cycle.
 BoolForge compresses trajectories to a minimal representation, consisting
 of only the prefix and a single instance of the cycle. Furthermore, all values
 are stored in decimal representation.
@@ -29,12 +29,12 @@ For example, the trajectory
 $$
 T = (00, 01, 11, 00, 01, 01, 11, 00, 01, 01, ...)
 $$
-has non-periodic prefix 00 followed by periodic cycle $\{01, 11, 00, 01\}$.
+has transient prefix 00 followed by periodic cycle $\{01, 11, 00, 01\}$.
 Because these trajectories may belong to non-autonomous Boolean networks, 
 the same state may be repeated multiple times within a cycle.
 Internally, `BoolForge` stores the trajectory as `([0, 1, 3, 0, 1], 4)`.
 The value 4 indicates that the last four entries $1, 3, 0, 1$ describe the cycle 
-(in decimal representation). The remaining entries describe the non-periodic prefix.
+(in decimal representation). The remaining entries describe the transient prefix.
 Here, this is just 0 (in decimal representation), corresponding to the binary state 00.
 
 ### Computing trajectories
@@ -43,21 +43,21 @@ To compute a trajectory, you can call the `get_trajectories(...)` method for
 any `BooleanNetwork` object. This method assumes the network is non-autonomous,
 and thus requires two parameters defining:
 
-- non_periodic_component
-- periodic_component
+- transient_input_sequence
+- periodic_input_sequence
 
 Both of these parameters are a sequence of sequences of integers. Each sequence
 of integers defines the states assumed by a specific input node.
 For example, the sequence (1, 1, 0, 1, 0, 1, 0, 1, ...) corresponds to:
 
-non_periodic_component: [[1]]
-periodic_component: [[1, 0]]
+- transient_input_sequence: [[1]]
+- periodic_input_sequence: [[1, 0]]
 
 and the sequence (10, 01, 11, 00, 11, 01, 10, 01, 11, 00, 11, 01, 10, ...)
 corresponds to:
 
-non_periodic_component: [[], []]
-periodic_component: [[1, 0], [0, 1, 1]]
+- transient_input_sequence: [[], []]
+- periodic_input_sequence: [[1, 0], [0, 1, 1]]
 
 This is because $x_1$ iterates from the beginning through the 2-cycle (1, 0, 1, 0, 1, 0, ...), 
 while $x_2$ iterates from the beginning through the 3-cycle (0 , 1, 1, 0, 1, 1, ...).
@@ -175,11 +175,10 @@ boolforge.plot_trajectory(G, show = True);
 
 
 ## Examples
-Everything beyond this point is an implementation of an example
-from the Dynamics Decomposition manuscript.
+Everything beyond this point are implementations of all example
+from the manuscript ``Dynamics Decomposition of Boolean Networks" by Veliz-Cuba et al.
 
 ### Example 2.8
-This is Example 2.8 from the Dynamics Decomposition manuscript.
 
 
 ```python
@@ -194,7 +193,6 @@ boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), show = True);
 
 
 ### Example 2.9
-This is Example 2.9 from the Dynamics Decomposition manuscript.
 
 
 ```python
@@ -209,7 +207,6 @@ boolforge.plot_trajectory(n.get_trajectories([[1]], [[1,0]]), show = True);
 
 
 ### Example 2.10
-This is Example 2.10 from the Dynamics Decomposition manuscript.
 
 
 ```python
@@ -224,7 +221,6 @@ boolforge.plot_trajectory(n.get_trajectories([[]], [[0]]), show = True);
 
 
 ### Example 3.2
-This is Example 3.2 from the Dynamics Decomposition manuscript.
 
 
 ```python
@@ -249,7 +245,7 @@ boolforge.plot_trajectory(G, show = True);
 
 
 ### Figure 11
-This is Figure 11a from the Dynamics Decomposition manuscript.
+This is Figure 11a from the manuscript.
 
 
 ```python
@@ -267,7 +263,7 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
     
 
 
-This is Figure 11b from the Dynamics Decomposition manuscript.
+This is Figure 11b from the manuscript.
 
 
 ```python
@@ -285,7 +281,7 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
     
 
 
-This is Figure 11c from the Dynamics Decomposition manuscript.
+This is Figure 11c from the manuscript.
 
 
 ```python
@@ -308,7 +304,7 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
     
 
 
-This is Figure 11d from the Dynamics Decomposition manuscript.
+This is Figure 11d from the manuscript.
 
 
 ```python
@@ -331,7 +327,7 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
     
 
 
-This is Figure 11e from the Dynamics Decomposition manuscript.
+This is Figure 11e from the manuscript.
 
 
 ```python
@@ -354,7 +350,7 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
     
 
 
-This is Figure 11f from the Dynamics Decomposition manuscript.
+This is Figure 11f from the manuscript.
 
 
 ```python
