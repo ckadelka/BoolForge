@@ -28,7 +28,7 @@ def test_random_k_canalizing_function_basic():
 
 def test_random_k_canalizing_function_exact_depth():
     """
-    If EXACT_DEPTH=True, the returned function must have
+    If exact_depth=True, the returned function must have
     canalizing depth exactly k.
     """
     rng = np.random.default_rng(1)
@@ -39,7 +39,7 @@ def test_random_k_canalizing_function_exact_depth():
     bf = boolforge.random_k_canalizing_function(
         n=n,
         k=k,
-        EXACT_DEPTH=True,
+        exact_depth=True,
         rng=rng,
     )
 
@@ -49,7 +49,7 @@ def test_random_k_canalizing_function_exact_depth():
 
 def test_random_k_canalizing_function_at_least_depth():
     """
-    If EXACT_DEPTH=False, the returned function must have
+    If exact_depth=False, the returned function must have
     canalizing depth at least k.
     """
     rng = np.random.default_rng(2)
@@ -60,7 +60,7 @@ def test_random_k_canalizing_function_at_least_depth():
     bf = boolforge.random_k_canalizing_function(
         n=n,
         k=k,
-        EXACT_DEPTH=False,
+        exact_depth=False,
         rng=rng,
     )
 
@@ -104,7 +104,7 @@ def test_random_non_degenerate_function_activities():
         rng=rng,
     )
 
-    activities = bf.get_activities(EXACT=True)
+    activities = bf.get_activities(exact=True)
     assert min(activities) > 0, (
         "Non-degenerate function has variable with zero activity"
     )
@@ -126,7 +126,7 @@ def test_random_degenerate_function_activities():
         rng=rng,
     )
 
-    activities = bf.get_activities(EXACT=True)
+    activities = bf.get_activities(exact=True)
     assert min(activities) == 0, (
         "Degenerate function has no variable with zero activity"
     )
@@ -174,7 +174,7 @@ def test_random_non_canalizing_non_degenerate_function():
         "Function is canalizing but should not be"
     )
 
-    activities = bf.get_activities(EXACT=True)
+    activities = bf.get_activities(exact=True)
     assert min(activities) > 0, (
         "Non-degenerate function has variable with zero activity"
     )
@@ -194,7 +194,7 @@ def test_random_parity_function_average_sensitivity():
         rng=rng,
     )
 
-    avg_sens = bf.get_average_sensitivity(EXACT=True)
+    avg_sens = bf.get_average_sensitivity(exact=True)
     assert avg_sens == 1, (
         "Parity function does not have average sensitivity equal to 1"
     )
@@ -237,7 +237,7 @@ def test_ncf_layer_structure_recovery_from_hamming_weight():
 
 def test_random_k_canalizing_invalid_exact_depth():
     """
-    EXACT_DEPTH=True with k = n-1 should raise an AssertionError.
+    exact_depth=True with k = n-1 should raise an AssertionError.
     """
     rng = np.random.default_rng(10)
 
@@ -248,7 +248,7 @@ def test_random_k_canalizing_invalid_exact_depth():
         boolforge.random_k_canalizing_function(
             n=n,
             k=k,
-            EXACT_DEPTH=True,
+            exact_depth=True,
             rng=rng,
         )
         

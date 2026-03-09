@@ -25,10 +25,9 @@ import numpy as np
 # $N$ Boolean update functions. Each node can be in one of two states, 0 or 1,
 # often interpreted as OFF/ON in biological contexts.
 #
-# Under synchronous updating, all nodes update simultaneously, yielding a
-# deterministic state transition graph on $\{0,1\}^N$.
-#
-# Under asynchronous updating, only one node is updated at a time, yielding a
+# Under **synchronous updating**, all nodes update simultaneously, yielding a
+# deterministic state transition graph on $\{0,1\}^N$. 
+# Under **asynchronous updating**, only one node is updated at a time, yielding a
 # stochastic transition graph. BoolForge implements both schemes.
 #
 # Real biological networks are typically sparsely connected. The **in-degree**
@@ -48,7 +47,7 @@ import numpy as np
 # We first construct wiring diagrams, which encode network structure independently
 # of specific Boolean functions.
 #
-# Separating topology (I) from dynamics (F) allows:
+# Separating topology (encoded in BoolForge by `I`) from dynamics (`F`) allows:
 #
 # - studying structural properties independent of specific Boolean rules,
 # - swapping different rule sets on the same topology,
@@ -73,13 +72,15 @@ fig = W.plot(show=False);
 
 
 # %% [markdown]
-# The wiring diagram above uses default variable names $x_0, \ldots, x_{N-1}$.
-# The vectors `indegrees` and `outdegrees` describe incoming and outgoing edges
-# for each node.
+# The wiring diagram above consists of $N=3$ variables, and 
+# uses default variable names $x_0, \ldots, x_{N-1}$.
+# The vectors `indegrees` and `outdegrees` describe the number of 
+# incoming and outgoing edges for each node.
 
 
 # %% [markdown]
 # ### Example with constants and unequal degrees
+# The next wiring diagram contains a constant node (source) $x_0$ and a node 
 
 # %%
 I = [

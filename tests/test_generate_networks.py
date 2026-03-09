@@ -44,7 +44,7 @@ def test_random_network_minimal_canalizing_depth():
 def test_random_network_exact_canalizing_depth():
     """
     All update rules must have canalizing depth exactly k
-    when EXACT_DEPTH=True.
+    when exact_depth=True.
     """
     rng = np.random.default_rng(2)
 
@@ -53,7 +53,7 @@ def test_random_network_exact_canalizing_depth():
     k = 1
 
     bn = boolforge.random_network(
-        N, n, depth=k, EXACT_DEPTH=True, rng=rng
+        N, n, depth=k, exact_depth=True, rng=rng
     )
 
     depths = [bf.get_layer_structure()["CanalizingDepth"] for bf in bn]
@@ -115,7 +115,7 @@ def test_random_network_linear_update_rules():
 
     bn = boolforge.random_network(N, n, PARITY=True, rng=rng)
 
-    average_sensitivities = [bf.get_average_sensitivity(EXACT=True,NORMALIZED=False) for bf in bn]
+    average_sensitivities = [bf.get_average_sensitivity(exact=True,normalized=False) for bf in bn]
     assert min(average_sensitivities) == n, (
         "Failed to create linear BN. Not all average sensitivites equal n."
     )
@@ -123,7 +123,7 @@ def test_random_network_linear_update_rules():
 
 def test_random_network_no_self_regulation():
     """
-    NO_SELF_REGULATION=True must produce a wiring diagram
+    allow_self_loops=False must produce a wiring diagram
     without self-loops.
     """
     rng = np.random.default_rng(6)
@@ -132,7 +132,7 @@ def test_random_network_no_self_regulation():
     n = 3
 
     bn = boolforge.random_network(
-        N, n, NO_SELF_REGULATION=True, rng=rng
+        N, n, allow_self_loops=False, rng=rng
     )
 
     assert np.all(
@@ -143,7 +143,7 @@ def test_random_network_no_self_regulation():
 
 def test_random_network_non_degenerate_update_rules():
     """
-    ALLOW_DEGENERATE_FUNCTIONS=False must enforce that
+    allow_degenerate_functions=False must enforce that
     all update rules are non-degenerate.
     """
     rng = np.random.default_rng(7)
@@ -152,7 +152,7 @@ def test_random_network_non_degenerate_update_rules():
     n = 3
 
     bn = boolforge.random_network(
-        N, n, ALLOW_DEGENERATE_FUNCTIONS=False, rng=rng
+        N, n, allow_degenerate_functions=False, rng=rng
     )
 
     assert np.all(

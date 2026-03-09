@@ -170,7 +170,6 @@ print(boolforge.BooleanFunction("(y + z + x) % 2 == 0").variables)
 # inside networks or importing networks from text files.
 
 # %% [markdown]
-# ---
 # ## Basic properties of Boolean functions
 #
 # We can inspect various properties of a Boolean function. The degree, i.e., the number of inputs, is readily available via 'f.n'. Other properties can be computed.
@@ -219,6 +218,8 @@ print(f.summary(compute_all=True))
 
 
 # %% [markdown]
+# The more advanced properties displayed here (e.g., all properties related to canalization) are the subject of later tutorials.
+#
 # ## Logical and polynomial representations
 #
 # While Boolean functions are stored as truth tables, they can be expressed in logical and polynomial format.
@@ -229,7 +230,7 @@ print(f"Polynomial form of {f.name}:", f.to_polynomial())
 
 
 # %% [markdown]
-# In addition, an instance of `BooleanFunction` can be turned into an instance of `BooleanNode` from the [CANA package](https:www.github.com). 
+# In addition, a `BooleanFunction` object can be turned into `BooleanNode` object from the [CANA package](https:www.github.com). 
 # This requires the optional CANA package to be installed.
 
 # %%
@@ -277,7 +278,7 @@ print(type(cana_object))
 # throughout later tutorials.
 #
 # ### Conversions and interoperability
-# BoolForge supports conversion between representations (truth table, polynomial, and logical form) and is compatible with external packages such as **CANA** for
+# BoolForge supports conversion between representations (truth table, polynomial, and logical form) and is compatible with external packages such as CANA for
 # advanced analysis.  
 # This makes it easy to move between analytical frameworks and reuse models.
 

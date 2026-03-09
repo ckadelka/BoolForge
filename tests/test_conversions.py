@@ -76,9 +76,9 @@ def test_boolean_network_bnet_bijection():
     bnet = bn.to_bnet()
     bn_reconverted = boolforge.BooleanNetwork.from_string(
         bnet,
-        original_not="1 - ",
-        original_and=" * ",
-        original_or=" + ",
+#        original_not="1 - ",
+#        original_and=" * ",
+#        original_or=" + ",
     )
 
     assert all(
