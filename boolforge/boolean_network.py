@@ -1392,7 +1392,7 @@ class BooleanNetwork(WiringDiagram):
         return self.F[index]
     
     def __repr__(self):
-        return f"{type(self).__name__}(N={self.N})"
+        return f"{type(self).__name__}(N={self.N}, average degree={np.round(self.indegrees.mean(),3)})"
     
     
     def __call__(self, state):
@@ -1461,8 +1461,8 @@ class BooleanNetwork(WiringDiagram):
             core_summary["Number of constants (removed)"] =  N_constants
 
         core_summary['Average degree'] = np.mean(self.indegrees)
-        core_summary['Maximal in-degree'] = int(np.max(self.indegrees))
-        core_summary['Maximal out-degree'] = int(np.max(self.get_outdegrees())) 
+        core_summary['Largest in-degree'] = int(np.max(self.indegrees))
+        core_summary['Largest out-degree'] = int(np.max(self.get_outdegrees())) 
 
         core_summary["Regulated nodes"] = regulated_nodes
         if N_identity_nodes>0:

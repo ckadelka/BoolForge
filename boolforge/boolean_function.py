@@ -1038,18 +1038,28 @@ class BooleanFunction(object):
             "Hamming Weight": self.hamming_weight,
             "Bias": self.bias,
             "Absolute bias": self.absolute_bias,
-            "Variables": self.variables,
+            "Variables": self.variables.tolist(),
         }
         
         special_formatting = {
             "Absolute bias" : ".3f",
             "Bias" : ".3f",
+            "Average sensitivity" : ".3f"
         }
         
         summary = core_summary.copy()
     
         if compute_all:
-            self.get_type_of_inputs()
+            if self.n < 11:
+                activities = self.get_activities(exact=True)
+                avg_sensitivity = self.get_average_sensitivity(exact=True)
+            else:
+                activities = self.get_activities()
+                avg_sensitivity = self.get_average_sensitivity()
+            summary['Activities'] = [f"{x:.3f}" for x in activities]
+            summary['Average sensitivity'] = avg_sensitivity
+            
+            self.get_type_of_inputs()            
             self.get_layer_structure()
     
         summary.update(self.properties)
