@@ -1485,7 +1485,7 @@ class BooleanNetwork(WiringDiagram):
                 additional_info = self.get_attractors_and_robustness_synchronous()
                 summary["Minimal number of attractors"] = additional_info["NumberOfAttractors"]
             
-            summary['Maximal basin size'] = additional_info['BasinSizes']
+            summary['Maximal basin size'] = max(additional_info['BasinSizes'])
             summary['Coherence'] = additional_info['Coherence']
             summary['Fragility'] = additional_info['Fragility']
     
