@@ -74,6 +74,8 @@ print(pd.DataFrame(all_states, columns=bn.variables).to_string())
 
 # %% [markdown]
 # ### Exact computation
+# For each state, we can call `update_network_synchronously` to identify the next
+# state under synchronous update.
 
 # %%
 for state in all_states:
@@ -99,6 +101,8 @@ print(bn.to_truth_table().to_string())
 
 # %% [markdown]
 # ### Exhaustive attractor computation
+# BoolForge contains a dedicated method to identify all attractors of a network
+# under synchronous update.
 
 # %%
 dict_dynamics = bn.get_attractors_synchronous_exact()
@@ -113,7 +117,7 @@ dict_dynamics = bn.get_attractors_synchronous_exact()
 # - `AttractorID`,
 # - `BasinSizes`.
 #
-# For computational reasons, binary vectors are identified by their decimal representation.
+# For computational reasons, binary states in $\{0,1\}^N$ are identified by their decimal representation.
 # The state transition graph can be decoded as follows:
 
 # %%
@@ -163,8 +167,11 @@ print(dict_dynamics['AttractorID'])
 # %%
 print(dict_dynamics['BasinSizes'])
 
-
 # %% [markdown]
+# From the previous two commands, that there is no state (other than 000) that eventually
+# transitions to 000. Half the states transition to the 2-cycle, while 3 out of 8
+# states transition to the attractor 111.
+#
 # ### Monte Carlo simulation
 #
 # For larger networks, exhaustive enumeration is infeasible.
@@ -203,13 +210,14 @@ plt.show()
 # ## Dynamics of asynchronous Boolean networks
 #
 # Synchronous updating is computationally convenient but biologically unrealistic.
-# Asynchronous updating assumes that only one node is updated at a time.
+# Asynchronous updating assumes that only one node changes at a time.
 
 
 # %% [markdown]
 # ### Steady states under general asynchronous update
 #
-# BoolForge can compute steady states under general asynchronous updating.
+# BoolForge can compute steady states under **general asynchronous updating**,
+# where at each step only a single node updates according to its Boolean rule.
 
 # %%
 dict_dynamics = bn.get_steady_states_asynchronous_exact()
@@ -217,19 +225,33 @@ print(dict_dynamics['SteadyStates'])
 print(dict_dynamics['NumberOfSteadyStates'])
 
 # %% [markdown]
-# This reveals the same two steady states as in the synchronous case.
-# However, the limit cycle does not exist under asynchronous update.
-# In addition, the full asynchronous transition graph and absorption
-# probabilities are returned.
+# The result reveals the same two steady states as in the synchronous case.
+# However, the limit cycle observed under synchronous updating disappears
+# under asynchronous dynamics.
+#
+# In addition, BoolForge returns the **full asynchronous state transition graph**.
+
 
 # %%
-print(dict_dynamics['STGAsynchronous'])
-print(dict_dynamics['FinalTransitionProbabilities'])
+for state, successors in dict_dynamics["STGAsynchronous"].items():
+    print(state, successors)
 
 # %% [markdown]
-# The state transition graph describes for each state the possible next states that the system may
-# transition to, in addition to the transition probabilities. 
-# The absorption probabilities indicate that from many states multiple steady states may be reached.
+# The state transition graph describes for each state the possible next states 
+# that the system may transition to, in addition to the transition probabilities. 
+# This graph can be interpreted as a **sparse transition matrix**
+# of a Markov chain. Each directed edge corresponds to a possible single-node update.
+#
+# By repeatedly composing this transition matrix with itself (equivalently,
+# raising it to higher powers), BoolForge computes the **absorption probabilities**,
+# i.e., the probability that a trajectory starting from any state eventually
+# reaches each steady state.
+
+# %%
+print(dict_dynamics['FinalTransitionProbabilities'])
+
+
+# %% [markdown]
 # The size of each basin of attraction is the (column-wise) average of these probabilities.
 
 # %%
@@ -282,5 +304,5 @@ dict_dynamics
 # - compute steady states under asynchronous updating.
 #
 # This concludes the function- and network-level analysis.
-# Subsequent work focuses on large-scale dynamical analysis,
-# perturbations, and stability in Boolean network models.
+# Subsequent tutorials focus on analyzing stability to perturbations, control analysis, 
+# and ensemble experiments.

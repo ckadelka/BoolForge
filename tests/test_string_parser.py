@@ -9,8 +9,7 @@ from boolforge.utils import f_from_expression
 # ------------------------------------------------------------
 
 def evaluate(expr):
-    out = f_from_expression(expr)
-    return out["f"], list(out["variables"])
+    return f_from_expression(expr)
 
 
 # ------------------------------------------------------------
@@ -63,13 +62,10 @@ def test_multiple_digit_leading():
 
 
 # ------------------------------------------------------------
-# 4 Arithmetic operators should raise error
+# 4 Unimplemented arithmetic operators should raise error
 # ------------------------------------------------------------
 
 @pytest.mark.parametrize("expr", [
-    "A + B",
-    "A - B",
-    "A * B",
     "A / B",
     "A ** B",
 ])
@@ -79,24 +75,7 @@ def test_arithmetic_operators_disallowed(expr):
 
 
 # ------------------------------------------------------------
-# 5 Comparison operators should raise error
-# ------------------------------------------------------------
-
-@pytest.mark.parametrize("expr", [
-    "A > B",
-    "A < B",
-    "A >= B",
-    "A <= B",
-    "A == B",
-    "A != B",
-])
-def test_comparison_operators_disallowed(expr):
-    with pytest.raises(ValueError):
-        f_from_expression(expr)
-
-
-# ------------------------------------------------------------
-# 6 Boolean operator sanity checks
+# 5 Boolean operator sanity checks
 # ------------------------------------------------------------
 
 def test_basic_and_truth_table():
@@ -120,7 +99,7 @@ def test_not_operator():
 
 
 # ------------------------------------------------------------
-# 7 Parentheses robustness
+# 6 Parentheses robustness
 # ------------------------------------------------------------
 
 def test_nested_parentheses():
@@ -130,7 +109,7 @@ def test_nested_parentheses():
 
 
 # ------------------------------------------------------------
-# 8 Whitespace robustness
+# 7 Whitespace robustness
 # ------------------------------------------------------------
 
 def test_whitespace_variations():

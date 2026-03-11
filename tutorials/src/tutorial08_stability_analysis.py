@@ -18,9 +18,7 @@
 
 # %%
 import boolforge
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 # %% [markdown]
 # We reuse the small Boolean network from the previous tutorial as a running example.
@@ -60,14 +58,21 @@ print("Attractors (decimal states):", results_exact["Attractors"])
 print("Eventual attractor of each state:", results_exact["AttractorID"])
 
 print("Basin sizes:", results_exact["BasinSizes"])
+
+# %% [markdown]
+# ## Network-, basin- and attractor-level robustness
+#
+# Robustness can be resolved at different structural levels. Network-level metrics
+# report the average robustness of any network state when subjected to perturbation. 
+
+# %%
 print("Overall coherence:", results_exact["Coherence"])
 print("Overall fragility:", results_exact["Fragility"])
 
-# %% [markdown]
-# ## Basin-level and attractor-level robustness
-#
-# Robustness can be resolved at different structural levels.
-# We now inspect basin-specific and attractor-specific measures.
+# The same robustness metrics, coherence and fragility, can also be averaged
+# across a smaller set of states, e.g., all states in one basin of attraction, or
+# an even smaller set of states, e.g., all states that form an attractor.
+
 
 # %%
 df_basins = pd.DataFrame({
@@ -92,31 +97,12 @@ print(df_attractors)
 #
 # - **Coherence** measures the fraction of single-bit perturbations that do *not*
 #   change the final attractor.
-# - **Fragility** measures how much the attractor state changes *when* a perturbation
-#   does lead to a different attractor.
+# - **Fragility** measures how much the attractor state changes.
 #
 # Importantly, attractors are often less stable than their basins,
-# a phenomenon explored in detail in Tutorial #10.
-
-# %% [markdown]
-# ## Visualization of basin robustness
-
-# %%
-fig, ax = plt.subplots()
-
-ax.bar(
-    np.arange(len(results_exact["BasinSizes"])),
-    results_exact["BasinFragility"],
-    label="Basin fragility",
-)
-ax.set_xlabel("Basin index")
-ax.set_ylabel("Fragility")
-ax.set_title("Exact basin fragility (synchronous update)")
-ax.set_ylim(0, 1)
-
-plt.show()
-
-# %% [markdown]
+# a phenomenon explored in detail in Tutorial 10.
+#
+#
 # ## Approximate robustness for larger networks
 #
 # For larger networks, exact enumeration of all 2^N states is infeasible.
@@ -128,25 +114,33 @@ results_approx = bn.get_attractors_and_robustness_synchronous(
     n_simulations=500
 )
 
-results_approx.keys()
+for key in results_approx.keys():
+    print(key)
 
-# %%
-print("Lower bound on number of attractors:", results_approx["LowerBoundOfNumberOfAttractors"])
+print("Lower bound on the number of attractors:", results_approx["LowerBoundOfNumberOfAttractors"])
 print("Approximate coherence:", results_approx["CoherenceApproximation"])
 print("Approximate fragility:", results_approx["FragilityApproximation"])
 print("Final Hamming distance approximation:",
       results_approx["FinalHammingDistanceApproximation"])
 
 # %% [markdown]
-# Even for this small network, the approximate values closely match the exact ones.
+# Even when only using 500 random initial states, the approximate values closely match the exact ones.
 # For larger networks, these approximations are often the only feasible option.
 
 # %% [markdown]
 # ## Derrida value: dynamical sensitivity
 #
-# The Derrida value measures how perturbations *propagate* after one synchronous update.
+# The robustness metrics considered thus far describe how a single perturbation affects
+# the network dynamics in the long-term, i.e., at the attractor. 
+# These metrics are very meaningful biologically because attractors typically 
+# correspond to cell types of phenotypes.
+#
+# An older and very popular robustness metric, the Derrida value, 
+# measures how perturbations *propagate* after one synchronous update.
 # It is defined as the expected Hamming distance between updated states that initially
-# differed in exactly one bit.
+# differed in exactly one bit. 
+# BoolForge includes routines for its exact calculations and Monte Carlo simulations.
+# For small networks, the exact calculation is strongly preferable. It is faster and more accurate.
 
 # %%
 derrida_exact = bn.get_derrida_value(exact=True)
@@ -162,7 +156,7 @@ print("Approximate Derrida value:", derrida_approx)
 # - Large Derrida values indicate sensitive or chaotic dynamics.
 #
 # Derrida values are closely related to average sensitivity of the update functions,
-# and provide a complementary notion of robustness to basin-based measures.
+# and provide a complementary notion of robustness.
 
 # %% [markdown]
 # ## Summary and outlook
@@ -173,7 +167,5 @@ print("Approximate Derrida value:", derrida_approx)
 # - approximate robustness measures for larger networks, and
 # - assess dynamical sensitivity using the Derrida value.
 #
-# **Next steps:**
-# In Tutorial 9, we will move from global robustness measures to
-# *trajectory-based* sensitivity analysis, including damage spreading,
-# Hamming distance dynamics, and time-resolved perturbation experiments.
+# In Tutorial 9, we will finally analyze biological Boolean network models and
+# design ensemble experiments. 

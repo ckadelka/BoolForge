@@ -98,7 +98,7 @@ def test_random_non_degenerate_function_activities():
     n = 6
     bias = 0.5
 
-    bf = boolforge.random_non_degenerate_function(
+    bf = boolforge.generate.random_non_degenerate_function(
         n=n,
         bias=bias,
         rng=rng,
@@ -120,7 +120,7 @@ def test_random_degenerate_function_activities():
     n = 6
     bias = 0.5
 
-    bf = boolforge.random_degenerate_function(
+    bf = boolforge.generate.random_degenerate_function(
         n=n,
         bias=bias,
         rng=rng,
@@ -141,7 +141,7 @@ def test_random_non_canalizing_function_depth_zero():
     n = 6
     bias = 0.5
 
-    bf = boolforge.random_non_canalizing_function(
+    bf = boolforge.generate.random_non_canalizing_function(
         n=n,
         bias=bias,
         rng=rng,
@@ -163,7 +163,7 @@ def test_random_non_canalizing_non_degenerate_function():
     n = 6
     bias = 0.5
 
-    bf = boolforge.random_non_canalizing_non_degenerate_function(
+    bf = boolforge.generate.random_non_canalizing_non_degenerate_function(
         n=n,
         bias=bias,
         rng=rng,
@@ -189,7 +189,7 @@ def test_random_parity_function_average_sensitivity():
 
     n = 6
 
-    bf = boolforge.random_parity_function(
+    bf = boolforge.generate.random_parity_function(
         n=n,
         rng=rng,
     )
@@ -213,7 +213,7 @@ def test_ncf_layer_structure_recovery_from_hamming_weight():
 
     for w in range(1, 2 ** (n - 1), 2):
         layer_structure = (
-            boolforge.hamming_weight_to_ncf_layer_structure(n, w)
+            boolforge.utils.hamming_weight_to_ncf_layer_structure(n, w)
         )
 
         bf = boolforge.random_NCF(

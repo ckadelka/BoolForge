@@ -45,9 +45,8 @@ import numpy as np
 # ## Wiring diagrams
 #
 # We first construct wiring diagrams, which encode network structure independently
-# of specific Boolean functions.
-#
-# Separating topology (encoded in BoolForge by `I`) from dynamics (`F`) allows:
+# of specific Boolean functions. Separating topology (encoded in BoolForge by `I`) 
+# from dynamics (`F`) allows:
 #
 # - studying structural properties independent of specific Boolean rules,
 # - swapping different rule sets on the same topology,
@@ -81,12 +80,13 @@ fig = W.plot(show=False);
 # %% [markdown]
 # ### Example with constants and unequal degrees
 # The next wiring diagram contains a constant node (source) $x_0$ and a node 
+# that is only regulated but does not regulate any nodes (sink) $x_2$.
 
 # %%
 I = [
     [],
-    [0, 2],
     [0],
+    [0, 1], 
 ]
 
 W = boolforge.WiringDiagram(I=I)
@@ -115,7 +115,7 @@ print("W.get_ffls()", W.get_ffls())
 
 # %% [markdown]
 # This tells us that `W` contains one FFL, in which $x_0$ regulates both $x_1$ and $x_2$, 
-# while $x_1$ is also regulated by $x_2$.
+# while $x_2$ is also regulated by $x_1$.
 #
 # `BoolForge` can also identify all feedback loops. For this, we consider another wiring diagram:
 
@@ -203,7 +203,9 @@ print(bn_str.to_truth_table().to_string())
 
 # %% [markdown]
 # Here, the update rule `x = y` specifies that node `x` copies the state of `y`,
-# while `y = x OR z` indicates that node `y` is regulated by both `x` and `z`.
+# while `y = x OR z` indicates that node `y` becomes activated (1) whenever `x`,
+# or `z`, or both are active.
+# 
 # From this symbolic description, `BoolForge` automatically:
 #
 # - extracts the wiring diagram,

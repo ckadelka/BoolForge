@@ -24,6 +24,9 @@ from .utils import (
     bin2dec,
     dec2bin,
     get_left_side_of_truth_table,
+)
+
+from .modularity import (
     compress_trajectories,
     product_of_trajectories,
     plot_trajectory,

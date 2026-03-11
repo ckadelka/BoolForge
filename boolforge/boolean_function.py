@@ -37,9 +37,9 @@ import warnings
 import numpy as np
 import pandas as pd
 from collections.abc import Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 
-import boolforge.utils as utils
+from . import utils
 
 if TYPE_CHECKING:
     try:
@@ -59,7 +59,183 @@ __all__ = [
     "BooleanFunction",
     "display_truth_table",
     "get_layer_structure_from_canalized_outputs",
+    "f_from_expression",
 ]
+
+_LOGIC_MAP = {
+    "AND": "&",
+    "and": "&",
+    "&&": "&",
+    "&": "&",
+    "OR": "|",
+    "or": "|",
+    "||": "|",
+    "|": "|",
+    "NOT": "~",
+    "not": "~",
+    "!": "~",
+    "~": "~",
+}
+
+_COMPARE_OPS = {"==", "!=", ">=", "<=", ">", "<"}
+
+_ARITH_OPS = {"+", "-", "*", "%"}
+
+def f_from_expression(
+    expr: str,
+    max_degree: int = 16,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Construct a Boolean function from a string expression.
+    
+    The expression is evaluated symbolically over all Boolean input
+    combinations to produce the truth table of the corresponding Boolean
+    function. Variables are detected automatically based on their first
+    occurrence in the expression.
+    
+    Parameters
+    ----------
+    expr : str
+        Boolean expression to evaluate. The expression may contain logical
+        operators (``AND``, ``OR``, ``NOT`` or their lowercase equivalents),
+        arithmetic operators, and comparisons.
+    max_degree : int, optional
+        Maximum number of variables allowed. If the number of detected
+        variables exceeds ``max_degree``, an empty truth table is returned.
+    
+    Returns
+    -------
+    f : np.ndarray
+        Boolean function values as an array of shape ``(2**n,)`` with entries
+        in ``{0, 1}``, where ``n`` is the number of detected variables.
+    variables : np.ndarray
+        Variable names in the order they were first encountered in the
+        expression.
+    
+    Notes
+    -----
+    - Variables are ordered by first occurrence in ``expr``.
+    - Truth-table rows follow the standard lexicographic ordering with the
+      most significant bit first.
+    - The expression is evaluated using ``eval`` with restricted builtins.
+    - No syntactic or semantic validation of ``expr`` is performed beyond
+      basic parsing.
+    
+    Examples
+    --------
+    >>> f_from_expression('A AND NOT B')
+    (array([0, 0, 1, 0], dtype=uint8), array(['A', 'B'], dtype='<U1'))
+    
+    >>> f_from_expression('x1 + x2 + x3 > 1')
+    (array([0, 0, 0, 1, 0, 1, 1, 1], dtype=uint8),
+     array(['x1', 'x2', 'x3'], dtype='<U2'))
+    
+    >>> f_from_expression('(x1 + x2 + x3) % 2 == 0')
+    (array([1, 0, 0, 1, 0, 1, 1, 0], dtype=uint8),
+     array(['x1', 'x2', 'x3'], dtype='<U2'))
+    """
+    
+    # --------------------------------------------------
+    # 1. Normalize parentheses spacing
+    # --------------------------------------------------
+
+    expr = expr.replace("(", " ( ").replace(")", " ) ")
+
+    raw_tokens = expr.split()
+
+    tokens = []
+    variables = []
+    seen = set()
+
+    # --------------------------------------------------
+    # 2. Token classification
+    # --------------------------------------------------
+
+    for token in raw_tokens:
+
+        if token in {"(", ")"}:
+            tokens.append(token)
+            continue
+
+        if token in _LOGIC_MAP:
+            tokens.append(_LOGIC_MAP[token])
+            continue
+
+        if token in _COMPARE_OPS:
+            tokens.append(token)
+            continue
+        
+        if token in _ARITH_OPS:
+            tokens.append(token)
+            continue
+
+        if utils._is_number(token):
+            tokens.append(token)
+            continue
+
+        # Otherwise: biological identifier
+        if token not in seen:
+            seen.add(token)
+            variables.append(token)
+
+        tokens.append(token)
+
+    n = len(variables)
+
+    if n > max_degree:
+        return np.array([], dtype=np.uint8), np.array(variables)
+
+    # --------------------------------------------------
+    # 3. Map biological names → safe Python names
+    # --------------------------------------------------
+
+    safe_map = {var: f"v{i}" for i, var in enumerate(variables)}
+
+    safe_tokens = [
+        safe_map[token] if token in safe_map else token
+        for token in tokens
+    ]
+
+    expr_mod = " ".join(safe_tokens)
+
+    # --------------------------------------------------
+    # 4. Build evaluation environment
+    # --------------------------------------------------
+
+    truth_table = utils.get_left_side_of_truth_table(n)
+
+    local_dict = {
+        safe_map[var]: truth_table[:, i].astype(np.int64)
+        for i, var in enumerate(variables)
+    }
+
+    # --------------------------------------------------
+    # 5. Evaluate expression
+    # --------------------------------------------------
+
+    try:
+        result = eval(expr_mod, {"__builtins__": None}, local_dict)
+    except Exception as e:
+        raise ValueError(
+            f"Error evaluating expression:\n{expr}\nParsed as:\n{expr_mod}\nError: {e}"
+        )
+
+    # --------------------------------------------------
+    # 6. Enforce Boolean semantics
+    # --------------------------------------------------
+
+    result = np.asarray(result)
+
+    if n == 0:
+        result = np.array([int(result)], dtype=np.int64)
+    else:
+        result = result.astype(np.int64)
+
+    # Fix NOT and enforce {0,1}
+    result = result & 1
+
+    return result.astype(np.uint8), np.array(variables)
+
 
 if __LOADED_NUMBA__:
     @njit
@@ -204,10 +380,12 @@ class BooleanFunction(object):
     Parameters
     ----------
     f : list[int] | np.ndarray | str
-        Truth table of length ``2**n`` representing the outputs of a Boolean
-        function with ``n`` inputs, or a Boolean expression string that can be
-        evaluated. Expression strings are parsed using
-        ``utils.f_from_expression``.
+        Either:
+            
+        - a truth table of length ``2**n`` representing the outputs of a Boolean
+        function with ``n`` inputs, or 
+        - a Boolean expression string that can be evaluated. Expression strings 
+        are parsed using ``utils.f_from_expression``.
     name : str, optional
         Name of the node regulated by the Boolean function. Default is ``""``.
     variables : list[str] | np.ndarray | None, optional
@@ -258,8 +436,7 @@ class BooleanFunction(object):
         """
         self.name = name
         if isinstance(f, str):
-            f, self.variables = utils.f_from_expression(f)
-            
+            f, self.variables = f_from_expression(f)
         else:
             if not isinstance(f, (list, np.ndarray)):
                 raise ValueError("f must be a list, numpy array or interpretable string")
@@ -374,20 +551,21 @@ class BooleanFunction(object):
         This method returns the underlying truth table as a NumPy array.
         """
         return f"{self.f}"
-        #return f"{self.f.tolist()}"
     
     def __repr__(self):
         """
         Return an unambiguous string representation of the BooleanFunction.
     
-        For small functions (``n < 6``), the full truth table is shown.
+        For small functions (``n < 5``), the full truth table is shown.
         For larger functions, only the number of inputs is displayed to
         avoid excessive output.
         """
-        if self.n < 6:
-            return f"{type(self).__name__}(f={self.f.tolist()})"
+        name = f"name='{self.name}', " if self.name else ""
+        
+        if self.n < 5:
+            return f"{type(self).__name__}({name}f={self.f.tolist()})"
         else:
-            return f"{type(self).__name__}(n={self.n})"
+            return f"{type(self).__name__}({name}n={self.n}, bias={self.bias:.3f})"
     
     def __len__(self):
         return 2**self.n
@@ -607,8 +785,23 @@ class BooleanFunction(object):
         str
             Polynomial representation of the Boolean function in non-reduced DNF.
         """
-        return utils.bool_to_poly(self.f, variables=self.variables)
+        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.n)
+        num_values = 2 ** self.n
+        text = []
 
+        for i in range(num_values):
+            if self.f[i]:
+                monomial = ' * '.join(
+                    [
+                        v if entry == 1 else f'(1 - {v})'
+                        for v, entry in zip(self.variables, left_side_of_truth_table[i])
+                    ]
+                )
+                text.append(monomial)
+
+        if text:
+            return ' + '.join(text)
+        return '0'
 
     def to_truth_table(
         self,
@@ -796,8 +989,26 @@ class BooleanFunction(object):
                 .replace("1 - ", not_op)
             )
 
+
+    @property
+    def hamming_weight(self) -> int:
+        """Number of ones in the truth table."""
+        return self.get_hamming_weight()
     
-    def summary(self, *, as_dict: bool = False, compute_all: bool = False):
+    
+    @property
+    def bias(self) -> float:
+        """Fraction of ones in the truth table."""
+        return self.hamming_weight / len(self.f)
+    
+    
+    @property
+    def absolute_bias(self) -> float:
+        """Absolute bias: |2*bias − 1|."""
+        return 2 * abs(self.bias - 0.5)
+    
+    
+    def summary(self, compute_all: bool = False, *, as_dict: bool = False):
         """
         Return a concise summary of the Boolean function.
     
@@ -807,14 +1018,13 @@ class BooleanFunction(object):
     
         Parameters
         ----------
-        as_dict : bool, optional
-            If ``True``, return the summary as a dictionary. If ``False`` (default),
-            return a formatted string.
-    
         compute_all : bool, optional
             If ``True``, additional properties are computed and included in the
             summary. These computations may be expensive. If ``False`` (default),
             only already available properties are included.
+        as_dict : bool, optional
+            If ``True``, return the summary as a dictionary. If ``False`` (default),
+            return a formatted string.
     
         Returns
         -------
@@ -823,52 +1033,44 @@ class BooleanFunction(object):
             a dictionary depending on the value of ``as_dict``.
         """
     
-        ones = sum(self.f)
-        bias = ones / 2**self.n
-        abs_bias = 2 * abs(bias-0.5)
-
-        summary = {
+        core_summary = {
             "Number of variables": self.n,
-            "Hamming Weight": int(ones),
-            "Bias": float(bias),
-            "Absolute bias": float(abs_bias),
-            "Variables": self.variables
+            "Hamming Weight": self.hamming_weight,
+            "Bias": self.bias,
+            "Absolute bias": self.absolute_bias,
+            "Variables": self.variables,
         }
+        
+        special_formatting = {
+            "Absolute bias" : ".3f",
+            "Bias" : ".3f",
+        }
+        
+        summary = core_summary.copy()
     
-        # Optional properties (only if already computed / cached)
         if compute_all:
-            self.get_layer_structure()
             self.get_type_of_inputs()
-            
+            self.get_layer_structure()
+    
         summary.update(self.properties)
-                
+    
         if as_dict:
             return summary
     
-        # Pretty formatting
-        lines = [
-            "BooleanFunction summary",
-            "-" * 40,
-            f"Number of variables:        {summary['Number of variables']}",
-            f"Hamming Weight:             {summary['Hamming Weight']}",
-            f"Bias:                       {summary['Bias']:.3f}",
-            f"Absolute bias:              {summary['Absolute bias']:.3f}",
-            f"Variables:                  {summary['Variables']}"
-        ]
-    
-        for key in summary:
-            if key not in {
-                "Number of variables",
-                "Hamming Weight",
-                "Bias",
-                "Absolute bias",
-                "Variables"
-            }:
-                lines.append(f"{key}:"+(" "*(27-len(key)))+f"{summary[key]}")
-
+        title = "BooleanFunction"
+        if self.name:
+            title += f" ({self.name})"
+            
+        lines = [title, "-" * len(title)]
+        
+        for key, value in summary.items():
+            if key not in special_formatting:
+                lines.append(f"{key+':':27}{value}")
+            else:
+                lines.append(f"{key+':':27}{value:{special_formatting[key]}}")
+        
         return "\n".join(lines)
-
-    
+        
     def is_constant(self) -> bool:
         """
         Check whether the Boolean function is constant.
@@ -1168,9 +1370,9 @@ class BooleanFunction(object):
             elif min_diff == -1 and max_diff <= 0: 
                 types[i] = 'negative'
                 
-        types = np.array(types, dtype=str)
+        types = np.array(types, dtype=str)[::-1] #flip because of BoolForge logic ordering
         self.properties['InputTypes'] = types
-        return types[::-1] #flip because of BoolForge logic ordering
+        return types 
         
     
     def get_symmetry_groups(self) -> list[list[int]]:

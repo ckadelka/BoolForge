@@ -41,7 +41,7 @@ from typing import TYPE_CHECKING
 from . import utils
 from .boolean_function import BooleanFunction
 from .wiring_diagram import WiringDiagram
-
+from .modularity import compress_trajectories
 
 if TYPE_CHECKING:
     try:
@@ -1219,17 +1219,19 @@ class BooleanNetwork(WiringDiagram):
         )
 
 
-    def to_bnet(
+    def to_string(
         self,
-        separator: str = ",\t",
+        separator: str = ',\t',
         as_polynomial: bool = True,
+        logical_and_op: str = ' & ',
+        logical_or_op: str = ' | ',
+        logical_not_op:str = ' !'
     ) -> str:
         """
-        Export the Boolean network in BNET format.
+        Export the Boolean network in string format.
     
         This compatibility method returns a string representation of the Boolean
-        network in the BNET format used by tools such as BoolNet and PyBoolNet,
-        with one line per variable of the form ``variable <separator> function.
+        network, with one line per variable of the form variable <separator> function.
         
         Parameters
         ----------
@@ -1239,11 +1241,17 @@ class BooleanNetwork(WiringDiagram):
         as_polynomial : bool, optional
             If True (default), return Boolean functions in polynomial form.
             If False, return functions as logical expressions.
-    
+        logical_and_op : str, optional
+            String used to represent the logical AND operator. Default is ``" & "``.
+        logical_or_op : str, optional
+            String used to represent the logical OR operator. Default is ``" | "``.
+        logical_not_op : str, optional
+            String used to represent the logical NOT operator. Default is ``" !"``.
+            
         Returns
         -------
         str
-            A string containing the BNET representation of the network.
+            A string describing the network.
             
         Notes
         -----
@@ -1254,16 +1262,60 @@ class BooleanNetwork(WiringDiagram):
     
         for i in range(self.N):
             if as_polynomial:
-                function = utils.bool_to_poly(
-                    self.F[i],
-                    self.variables[self.I[i]].tolist(),
-                )
+                function = self.F[i].to_polynomial()
             else:
-                function = self.F[i].to_expression(" & ", " | ")
+                function = self.F[i].to_logical(and_op = logical_and_op, 
+                                                or_op = logical_or_op,
+                                                not_op = logical_not_op)
     
             lines.append(f"{self.variables[i]}{separator}{function}")
     
         return "\n".join(lines)
+    
+    
+    def to_bnet(
+        self,
+        as_polynomial: bool = True,
+        logical_and_op: str = ' & ',
+        logical_or_op: str = ' | ',
+        logical_not_op:str = ' !'
+    ) -> str:
+        """
+        Export the Boolean network in BNET format.
+    
+        This compatibility method returns a string representation of the Boolean
+        network in the BNET format used by tools such as BoolNet and PyBoolNet,
+        with one line per variable of the form ``variable ,<tab> function.
+        
+        Parameters
+        ----------
+        as_polynomial : bool, optional
+            If True (default), return Boolean functions in polynomial form.
+            If False, return functions as logical expressions.
+        logical_and_op : str, optional
+            String used to represent the logical AND operator. Default is ``" & "``.
+        logical_or_op : str, optional
+            String used to represent the logical OR operator. Default is ``" | "``.
+        logical_not_op : str, optional
+            String used to represent the logical NOT operator. Default is ``" !"``.
+                
+        Returns
+        -------
+        str
+            A string containing the BNET representation of the network.
+            
+        Notes
+        -----
+        This method exports the reduced Boolean network, i.e. after semantic
+        constants have been removed during initialization.
+        """
+
+        return self.to_string(separator = ',\t', 
+                              as_polynomial=as_polynomial,
+                              logical_and_op=logical_and_op,
+                              logical_or_op=logical_or_op,
+                              logical_not_op=logical_not_op
+                              )
     
     
     def to_truth_table(
@@ -1282,7 +1334,7 @@ class BooleanNetwork(WiringDiagram):
             If provided, the truth table is written to a file. The file extension
             determines the format and must be one of ``'csv'``, ``'xls'``, or
             ``'xlsx'``. If None (default), no file is created.
-    
+
         Returns
         -------
         pandas.DataFrame
@@ -1366,6 +1418,92 @@ class BooleanNetwork(WiringDiagram):
         This method is equivalent to calling ``update_network_synchronously``.
         """
         return self.update_network_synchronously(state)
+
+    def summary(self, compute_all: bool = False, *, as_dict: bool = False):
+        """
+        Return a concise summary of the Boolean network.
+    
+        The summary includes basic structural and statistical properties of the
+        Boolean network and, optionally, additional properties that may require
+        nontrivial computation.
+    
+        Parameters
+        ----------
+        compute_all : bool, optional
+            If ``True``, additional properties are computed and included in the
+            summary. These computations may be expensive. If ``False`` (default),
+            only already available properties are included.
+        as_dict : bool, optional
+            If ``True``, return the summary as a dictionary. If ``False`` (default),
+            return a formatted string.
+    
+        Returns
+        -------
+        str or dict
+            Summary of the Boolean network, either as a formatted string or as
+            a dictionary depending on the value of ``as_dict``.
+        """
+        indices_identity_nodes = self.get_identity_nodes(True)
+        indices_identity_nodes = np.array(list(indices_identity_nodes.values()))
+        
+        N_identity_nodes = sum(indices_identity_nodes)
+        N_regulated_nodes = self.N - N_identity_nodes
+        N_constants = len(self.constants)
+        
+        regulated_nodes = self.variables[~indices_identity_nodes]
+        identity_nodes = self.variables[indices_identity_nodes]
+        
+        core_summary = {"Number of regulated nodes": N_regulated_nodes}
+        if N_identity_nodes>0:
+            core_summary["Number of identity nodes (inputs)"] = N_identity_nodes
+        if N_constants>0:
+            core_summary["Number of constants (removed)"] =  N_constants
+
+        core_summary['Average degree'] = np.mean(self.indegrees)
+        core_summary['Maximal degree'] = int(np.max(self.indegrees))
+
+        core_summary["Regulated nodes"] = regulated_nodes
+        if N_identity_nodes>0:
+            core_summary['Identity nodes (inputs)'] = identity_nodes
+        if N_constants>0:
+            core_summary['Constants'] = self.constants
+        
+        special_formatting = {
+            "Average degree" : ".3f",
+            "Maximal basin size" : ".3f",
+            "Coherence" : ".3f",
+            "Fragility" : ".3f",
+        }
+        
+        summary = core_summary.copy()
+    
+        if compute_all:
+            if self.N <= 15:
+                additional_info = self.get_attractors_and_robustness_synchronous_exact()
+                summary["Number of attractors"] = additional_info["NumberOfAttractors"]
+            else:
+                additional_info = self.get_attractors_and_robustness_synchronous()
+                summary["Minimal number of attractors"] = additional_info["NumberOfAttractors"]
+            
+            summary['Maximal basin size'] = additional_info['BasinSizes']
+            summary['Coherence'] = additional_info['Coherence']
+            summary['Fragility'] = additional_info['Fragility']
+    
+        if as_dict:
+            return summary
+    
+        title = "BooleanNetwork"
+            
+        lines = [title, "-" * len(title)]
+        
+        for key, value in summary.items():
+            if key not in special_formatting:
+                lines.append(f"{key+':':32}{value}")
+            else:
+                lines.append(f"{key+':':32}{value:{special_formatting[key]}}")
+        
+        return "\n".join(lines)
+        
     
     
     def get_types_of_regulation(self) -> list[np.ndarray]:
@@ -3759,227 +3897,6 @@ class BooleanNetwork(WiringDiagram):
 # ===================== #
 #   Modular BoolForge   #
 # ===================== #
-
-    # def get_attractors_synchronous_exact_non_autonomous(self,
-    #     non_periodic_component : Sequence[Sequence[int]],
-    #     periodic_component : Sequence[Sequence[int]]) -> dict:
-    #     """
-    #     Compute all attractors and basin sizes under synchronous updating
-    #     for a Boolean network driven by a non-autonomous input sequence.
-        
-    #     The input is split into a non-periodic component (applied once)
-    #     followed by a periodic component (repeated indefinitely). The
-    #     non-periodic component is first evaluated to determine a set of
-    #     initial states, which are then used to compute attractors under
-    #     the periodic component.
-        
-    #     Parameters
-    #     ----------
-    #     non_periodic_component : sequence of sequence of int
-    #         External input values applied before the periodic regime.
-    #         Each inner sequence corresponds to one identity node and
-    #         contains binary values (0 or 1) over time.
-        
-    #     periodic_component : sequence of sequence of int
-    #         External input values defining the periodic regime.
-    #         Each inner sequence corresponds to one identity node and
-    #         contains binary values (0 or 1) forming a repeating pattern.
-        
-    #     Returns
-    #     -------
-    #     result : dict
-    #         Dictionary with the following keys:
-        
-    #         - Attractors : list
-    #             List of attractors. Each attractor is a list of pairs
-    #             (external_input_decimal, state_decimal) forming a cycle.
-        
-    #         - NumberOfAttractors : int
-    #             Total number of unique attractors.
-        
-    #         - BasinSizes : list of int
-    #             Number of initial states converging to each attractor.
-        
-    #         - AttractorDict : dict
-    #             Mapping from (external_input_decimal, state_decimal)
-    #             to attractor index.
-        
-    #         - STG : dict
-    #             State transition graph mapping
-    #             (external_input_decimal, state_decimal) to the next pair.
-        
-    #         - InitialStatesPeriodic : list of int
-    #             Initial state values (decimal) after applying the
-    #             non-periodic component.
-        
-    #         - FormattedAttractors : list
-    #             Attractors represented as binary vectors, where the
-    #             external input bits and state bits are concatenated.
-    #     """
-    #     # Convert components into single argument? tuple|list|arr, str, etc.?
-    #     N = self.N - len(self.get_identity_nodes(False))
-    #     if len(non_periodic_component) > 0:
-    #         initial_states = set() # stores initial states for periodic computation
-    #         len_np_comp = len(non_periodic_component)
-    #         max_len_pattern = max(list(zip(map(len, non_periodic_component))))[0]
-    #         fixed_source_networks = {}
-    #         for i in range(2 ** N):
-    #             fxvec = utils.dec2bin(i, N) # initialize binary vector
-    #             for iii in range(max_len_pattern):
-    #                 values = [ non_periodic_component[j][iii] for j in range(len_np_comp) ]
-    #                 values_decimal = utils.bin2dec(values)
-    #                 if values_decimal in fixed_source_networks:
-    #                     fixed_source_network = fixed_source_networks[values_decimal]
-    #                 else:
-    #                     fixed_source_network = self.get_network_with_fixed_identity_nodes(values)
-    #                     fixed_source_networks[values_decimal] = fixed_source_network
-    #                 fxvec = fixed_source_network.update_network_synchronously(fxvec)
-    #             initial_states.add(utils.bin2dec(fxvec))
-    #         initial_states = list(initial_states)
-    #     else:
-    #         initial_states = list(range(2**N))
-        
-    #     attr_computation = self.get_attractors_synchronous_exact_with_external_inputs(periodic_component, initial_states)
-        
-    #     bvec_attractors = []
-    #     len_pattern = len(periodic_component)
-    #     for attr in attr_computation["Attractors"]:
-    #         bvec_attractors.append([])
-    #         for decimal_external, decimal_module in attr:
-    #             if len_pattern > 0:
-    #                 bvec = utils.dec2bin(decimal_external, len_pattern)
-    #             else:
-    #                 bvec = []
-    #             bvec.extend(utils.dec2bin(decimal_module, N))
-    #             bvec_attractors[-1].append(bvec)
-        
-    #     attr_computation.update({"InitialStatesPeriodic":initial_states,"FormattedAttractors":bvec_attractors})
-    #     return attr_computation
-    
-    # def get_attractors_synchronous_exact_with_external_inputs(self,
-    #     input_patterns : Sequence[Sequence[int]],
-    #     starting_states : [Sequence[int], None] = None) -> dict:
-    #     """
-    #     Compute all attractors and basin sizes under synchronous updating
-    #     for a Boolean network with periodic external inputs.
-        
-    #     The external inputs are treated as a periodic sequence. The state
-    #     transition graph is constructed over the combined space of
-    #     (network state, input phase), and attractors are detected exactly.
-        
-    #     Parameters
-    #     ----------
-    #     input_patterns : sequence of sequence of int
-    #         Periodic external input patterns. Each inner sequence
-    #         corresponds to one identity node and contains binary
-    #         values (0 or 1).
-        
-    #     starting_states : sequence of int, optional
-    #         Optional list of initial network states in decimal form.
-    #         If None, all possible states are used.
-        
-    #     Returns
-    #     -------
-    #     result : dict
-    #         Dictionary with the following keys:
-        
-    #         - Attractors : list
-    #             List of attractors. Each attractor is a list of pairs
-    #             (external_input_decimal, state_decimal) forming a cycle.
-        
-    #         - NumberOfAttractors : int
-    #             Total number of unique attractors.
-        
-    #         - BasinSizes : list of int
-    #             Number of initial states converging to each attractor.
-        
-    #         - AttractorDict : dict
-    #             Mapping from (external_input_decimal, state_decimal)
-    #             to attractor index.
-        
-    #         - STG : dict
-    #             State transition graph mapping
-    #             (external_input_decimal, state_decimal) to the next pair.
-    #     """
-    #     N = self.N - len(self.get_identity_nodes(False))
-        
-    #     if starting_states is None:
-    #         starting_states = list(range(2**N))
-        
-    #     len_patterns = len(input_patterns)
-    #     lcm = math.lcm(*list(map(len, input_patterns)))
-    #     periodic_pattern_of_external_inputs = np.zeros((lcm, len_patterns), int)
-    #     for i, pattern in enumerate(input_patterns):
-    #         for j in range(int(lcm / len(pattern))):
-    #             periodic_pattern_of_external_inputs[len(pattern)*j:len(pattern)*(j+1),i] = pattern
-    #     n_initial_values = len(periodic_pattern_of_external_inputs)
-        
-    #     fixed_source_networks = []
-    #     for input_values in periodic_pattern_of_external_inputs:
-    #         fixed_source_networks.append(self.get_network_with_fixed_identity_nodes(input_values))
-        
-    #     lstt = utils.get_left_side_of_truth_table(N)
-    #     po2 = np.array([2**i for i in range(N)])[::-1]
-        
-    #     dictF_fixed_source = []
-        
-    #     for iii in range(n_initial_values):
-    #         state_space = np.zeros((2**N, N), dtype=int)
-    #         for i in range(N):
-    #             for j, x in enumerate(itertools.product([0, 1], repeat=fixed_source_networks[iii].indegrees[i])):
-    #                 if fixed_source_networks[iii].F[i][j]==1:
-    #                     # For rows in left_side_of_truth_table where the columns I[i] equal x, set state_space accordingly.
-    #                     state_space[np.all(lstt[:, fixed_source_networks[iii].I[i]] == np.array(x), axis=1), i] = 1
-    #         dictF_fixed_source.append(dict(zip(list(range(2**N)), np.dot(state_space, po2))))
-        
-    #     attractors = []
-    #     basin_sizes = []
-    #     attractor_dict = dict()
-    #     stg = dict()
-    #     for iii_start in range(lcm):
-    #         for xdec in starting_states:
-    #             iii = iii_start
-    #             queue = [xdec]
-    #             while True:
-    #                 fxdec = dictF_fixed_source[iii % n_initial_values][xdec]
-    #                 stg.update({(int(utils.bin2dec(periodic_pattern_of_external_inputs[iii % n_initial_values])),int(xdec)):(int(utils.bin2dec(periodic_pattern_of_external_inputs[(iii + 1) % n_initial_values])),int(fxdec))})
-    #                 iii += 1
-    #                 try:
-    #                     index_attr = attractor_dict[(iii % n_initial_values,fxdec)]
-    #                     basin_sizes[index_attr] += 1
-    #                     attractor_dict.update(list(zip(zip(np.arange(iii_start,len(queue)+iii_start)%n_initial_values,queue), [index_attr] * len(queue))))
-    #                     break
-    #                 except KeyError:
-    #                     try: 
-    #                         index = queue[-n_initial_values::-n_initial_values].index(fxdec)
-    #                         dummy = np.arange(iii_start,len(queue)+iii_start)%n_initial_values
-    #                         #print(iii_start,j,list(zip(dummy[-n_initial_values*(index+1):],queue[-n_initial_values*(index+1):])))
-    #                         attractor_dict.update(list(zip(zip(dummy,queue), [len(attractors)] * len(queue))))
-    #                         attractors.append(list(zip(dummy[-n_initial_values*(index+1):],queue[-n_initial_values*(index+1):])))
-    #                         basin_sizes.append(1)
-    #                         break
-    #                     except ValueError:
-    #                         pass
-    #                 queue.append(fxdec)
-    #                 xdec = fxdec
-        
-    #     attrs = []
-    #     attr_dict = {}
-    #     for key in attractor_dict.keys():
-    #         attr_dict[(int(utils.bin2dec(periodic_pattern_of_external_inputs[key[0]])), int(key[1]))] = int(attractor_dict[key])
-    #     for attr in attractors:
-    #         formatted_attr = []
-    #         for state in attr:
-    #             formatted_attr.append((int(utils.bin2dec(periodic_pattern_of_external_inputs[state[0]])), int(state[1])))
-    #         attrs.append(formatted_attr)
-        
-    #     return { "Attractors":attrs, 
-    #             "NumberOfAttractors":len(attrs),
-    #             "BasinSizes":basin_sizes, 
-    #             "AttractorDict":attr_dict,
-    #             "STG":stg }
-
-
     def _compute_post_transient_states(
         self,
         transient_input_sequence
@@ -4507,7 +4424,7 @@ class BooleanNetwork(WiringDiagram):
             trajectories.append((trajectory, cycle_len))
     
         if merge_trajectories:
-            return utils.compress_trajectories(trajectories, N_regulated_nodes)
+            return compress_trajectories(trajectories, N_regulated_nodes)
     
         return trajectories
     

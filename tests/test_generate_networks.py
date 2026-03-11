@@ -113,7 +113,7 @@ def test_random_network_linear_update_rules():
     N = 20
     n = 3
 
-    bn = boolforge.random_network(N, n, PARITY=True, rng=rng)
+    bn = boolforge.random_network(N, n, parity=True, rng=rng)
 
     average_sensitivities = [bf.get_average_sensitivity(exact=True,normalized=False) for bf in bn]
     assert min(average_sensitivities) == n, (
