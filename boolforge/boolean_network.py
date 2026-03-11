@@ -1419,6 +1419,7 @@ class BooleanNetwork(WiringDiagram):
         """
         return self.update_network_synchronously(state)
 
+
     def summary(self, compute_all: bool = False, *, as_dict: bool = False):
         """
         Return a concise summary of the Boolean network.
@@ -1446,12 +1447,12 @@ class BooleanNetwork(WiringDiagram):
         indices_identity_nodes = self.get_identity_nodes(True)
         indices_identity_nodes = np.array(list(indices_identity_nodes.values()))
         
-        N_identity_nodes = sum(indices_identity_nodes)
+        N_identity_nodes = int(indices_identity_nodes.sum())
         N_regulated_nodes = self.N - N_identity_nodes
         N_constants = len(self.constants)
         
-        regulated_nodes = self.variables[~indices_identity_nodes]
-        identity_nodes = self.variables[indices_identity_nodes]
+        regulated_nodes = self.variables[~indices_identity_nodes].tolist()
+        identity_nodes = self.variables[indices_identity_nodes].tolist()
         
         core_summary = {"Number of regulated nodes": N_regulated_nodes}
         if N_identity_nodes>0:
@@ -1460,7 +1461,8 @@ class BooleanNetwork(WiringDiagram):
             core_summary["Number of constants (removed)"] =  N_constants
 
         core_summary['Average degree'] = np.mean(self.indegrees)
-        core_summary['Maximal degree'] = int(np.max(self.indegrees))
+        core_summary['Maximal in-degree'] = int(np.max(self.indegrees))
+        core_summary['Maximal out-degree'] = int(np.max(self.get_outdegrees())) 
 
         core_summary["Regulated nodes"] = regulated_nodes
         if N_identity_nodes>0:
@@ -1470,9 +1472,11 @@ class BooleanNetwork(WiringDiagram):
         
         special_formatting = {
             "Average degree" : ".3f",
-            "Maximal basin size" : ".3f",
+            "Largest basin size" : ".3f",
+            "Basin size entropy" : ".3f",
             "Coherence" : ".3f",
             "Fragility" : ".3f",
+            "Derrida value" : ".3f"
         }
         
         summary = core_summary.copy()
@@ -1481,11 +1485,16 @@ class BooleanNetwork(WiringDiagram):
             if self.N <= 15:
                 additional_info = self.get_attractors_and_robustness_synchronous_exact()
                 summary["Number of attractors"] = additional_info["NumberOfAttractors"]
+                derrida = self.get_derrida_value(exact=True)
             else:
                 additional_info = self.get_attractors_and_robustness_synchronous()
                 summary["Minimal number of attractors"] = additional_info["NumberOfAttractors"]
+                derrida = self.get_derrida_value()
             
-            summary['Maximal basin size'] = max(additional_info['BasinSizes'])
+            summary['Largest basin size'] = max(additional_info['BasinSizes'])
+            entropy = get_entropy_of_basin_size_distribution(additional_info['BasinSizes'])
+            summary['Basin size entropy'] = entropy
+            summary['Derrida value'] = derrida
             summary['Coherence'] = additional_info['Coherence']
             summary['Fragility'] = additional_info['Fragility']
     
@@ -1498,13 +1507,12 @@ class BooleanNetwork(WiringDiagram):
         
         for key, value in summary.items():
             if key not in special_formatting:
-                lines.append(f"{key+':':32}{value}")
+                lines.append(f"{key+':':30}{value}")
             else:
-                lines.append(f"{key+':':32}{value:{special_formatting[key]}}")
+                lines.append(f"{key+':':30}{value:{special_formatting[key]}}")
         
         return "\n".join(lines)
         
-    
     
     def get_types_of_regulation(self) -> list[np.ndarray]:
         """
@@ -1530,7 +1538,6 @@ class BooleanNetwork(WiringDiagram):
             for bf in self.F
         ]
         return self.weights
-
 
 
     ## Transform Boolean networks
