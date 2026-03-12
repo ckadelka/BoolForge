@@ -25,8 +25,8 @@ import matplotlib.pyplot as plt
 
 # %%
 models = boolforge.get_bio_models_from_repository()
-n_models = len(models)
 bns = models['BooleanNetworks']
+n_models = len(bns)
 
 # %% [markdown]
 # The function `get_bio_models_from_repository` loads, by default, all 122 distinct 
@@ -39,8 +39,8 @@ bns = models['BooleanNetworks']
 
 # %%
 models_sm = boolforge.get_bio_models_from_repository('pystablemotifs (jcrozum)')
-n_models_sm = len(models_sm)
 bns_sm = models_sm['BooleanNetworks']
+n_models_sm = len(bns_sm)
 
 #models_bd = boolforge.get_bio_models_from_repository('biodivine (sybila)')
 #n_models_bd = len(models_bd)
@@ -60,13 +60,18 @@ average_degrees = [np.mean(bn.indegrees) for bn in bns]
 
 # %% [markdown]
 # Plotting the size of a model against its average degree, we observe that,
-# for these 122 models, there exists no strong correlation between size and degree.
+# for these models, there exists no strong correlation between size and degree.
 
 # %%
+sizes_sm = [bn.N for bn in bns_sm]
+average_degrees_sm = [np.mean(bn.indegrees) for bn in bns_sm]
+
 f,ax = plt.subplots()
-ax.semilogx(sizes,average_degrees,'x')
+ax.semilogx(sizes,average_degrees,'rx',label = 'expert-curated (ckadelka)')
+ax.semilogx(sizes_sm,average_degrees_sm,'bo',label = 'pystablemotifs (jcrozum)')
 ax.set_xlabel('network size')
 ax.set_ylabel('average degree')
+ax.legend(loc='best',frameon=False)
 
 
 

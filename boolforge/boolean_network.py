@@ -2402,7 +2402,8 @@ class BooleanNetwork(WiringDiagram):
             )
         
         if sum(basin_sizes)>0:
-            basin_sizes /= sum(basin_sizes)
+            sum_basin_sizes  = sum(basin_sizes)
+            basin_sizes = [size/sum_basin_sizes for size in basin_sizes]
         
         return {
             "SteadyStates": steady_states,
