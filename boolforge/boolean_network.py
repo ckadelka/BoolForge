@@ -2153,19 +2153,15 @@ class BooleanNetwork(WiringDiagram):
         dict
             Dictionary with the following entries:
         
-            - ``"SteadyStates"`` : list of int  
+            - SteadyStates : list of int  
               Decimal representations of steady states.
-        
-            - ``"NumberOfSteadyStates"`` : int  
+            - NumberOfSteadyStates : int  
               Total number of steady states.
-        
-            - ``"BasinSizes"`` : np.ndarray  
+            - BasinSizes : np.ndarray  
               Fraction of the state space converging to each steady state.
-        
-            - ``"STGAsynchronous"`` : dict  
+            - STGAsynchronous : dict  
               Asynchronous state transition graph represented as a Markov kernel.
-        
-            - ``"FinalTransitionProbabilities"`` : np.ndarray  
+            - inalTransitionProbabilities : np.ndarray  
               Absorption probabilities from each state into each steady state.
         
         Raises
@@ -2229,7 +2225,7 @@ class BooleanNetwork(WiringDiagram):
         for it in range(1, max_iterations + 1):
             max_delta = 0.0
     
-            # In-place Gauss–Seidel  update:
+            # In-place Gauss–Seidel update:
             for xdec in transient_states:
                 nxt, pr = sped_up_STG[xdec]
 
@@ -2298,21 +2294,17 @@ class BooleanNetwork(WiringDiagram):
         dict
             Dictionary with the following entries:
     
-            - ``"SteadyStates"`` : list of int  
+            - SteadyStates : list of int  
               Decimal representations of steady states encountered.
-    
-            - ``"NumberOfSteadyStates"`` : int  
+            - NumberOfSteadyStatesLowerBound : int  
               Number of unique steady states found.
-    
-            - ``"BasinSizes"`` : list of int  
-              Fraction of simulations converged to each steady state.
-    
-            - ``"STGAsynchronous"`` : dict  
+            - BasinSizesApproximation : list of int  
+              Proportion of simulations that converged to each steady state.
+            - STGAsynchronous : dict  
               Partial cache of asynchronous transitions encountered during
               simulation. Keys are ``(state, node_index)`` and values are
               successor states (all in decimal form).
-    
-            - ``"InitialSamplePoints"`` : list of int  
+            - InitialSamplePoints : list of int  
               Decimal initial states used in the simulations (either provided
               explicitly or generated randomly).
     
@@ -2324,6 +2316,7 @@ class BooleanNetwork(WiringDiagram):
         - The returned asynchronous transition graph is generally incomplete
           and should be interpreted as a cache of explored transitions rather
           than the full STG.
+        - There is no guarantee that all steady states will be identified.
         """
         rng = utils._coerce_rng(rng)
     
@@ -2403,12 +2396,12 @@ class BooleanNetwork(WiringDiagram):
         
         if sum(basin_sizes)>0:
             sum_basin_sizes  = sum(basin_sizes)
-            basin_sizes = [size/sum_basin_sizes for size in basin_sizes]
+            basin_sizes = np.array([size/sum_basin_sizes for size in basin_sizes])
         
         return {
             "SteadyStates": steady_states,
-            "NumberOfSteadyStates": len(steady_states),
-            "BasinSizes": basin_sizes,
+            "NumberOfSteadyStatesLowerBound": len(steady_states),
+            "BasinSizesApproximation": basin_sizes,
             "STGAsynchronous": STG_asynchronous,
             "InitialSamplePoints": (
                 initial_states if initial_states is not None else sampled_states
@@ -2464,25 +2457,20 @@ class BooleanNetwork(WiringDiagram):
         dict
             Dictionary with the following entries:
     
-            - ``"SteadyStates"`` : list of int  
+            - SteadyStates : list of int  
               Decimal representations of steady states reached.
-    
-            - ``"NumberOfSteadyStates"`` : int  
+            - NumberOfSteadyStatesLowerBound : int  
               Number of unique steady states found.
-    
-            - ``"BasinSizes"`` : list of int  
-              Number of simulations converging to each steady state.
-    
-            - ``"TransientTimes"`` : list of list of int  
+            - BasinSizesApproximation : list of int  
+              Proportion of simulations converging to each steady state.
+            - TransientTimes : list of list of int  
               For each steady state, a list of transient lengths (number of update
               steps before convergence).
-    
-            - ``"STGAsynchronous"`` : dict  
+            - STGAsynchronous : dict  
               Partial cache of asynchronous transitions encountered during
               simulation. Keys are ``(state, node_index)`` and values are successor
               states (all in decimal form).
-    
-            - ``"UpdateQueues"`` : list of list of int  
+            - UpdateQueues : list of list of int  
               For each simulation, the sequence of visited states (in decimal form).
     
         Notes
@@ -2492,6 +2480,7 @@ class BooleanNetwork(WiringDiagram):
           ``search_depth``.
         - The returned asynchronous transition graph is incomplete and represents
           only transitions encountered during sampling.
+        - There is no guarantee that all steady states will be identified.
         """
         rng = utils._coerce_rng(rng)
     
@@ -2596,11 +2585,13 @@ class BooleanNetwork(WiringDiagram):
                 "reached a steady state. Consider increasing search_depth. "
                 "The network may contain asynchronous limit cycles."
             )
+            
+        basin_sizes = np.array(basin_sizes)/n_simulations
     
         return {
             "SteadyStates": steady_states,
-            "NumberOfSteadyStates": len(steady_states),
-            "BasinSizes": basin_sizes,
+            "NumberOfSteadyStatesLowerBound": len(steady_states),
+            "BasinSizesApproximation": basin_sizes,
             "TransientTimes": transient_times,
             "STGAsynchronous": STG_async,
             "UpdateQueues": queues,
@@ -2658,34 +2649,30 @@ class BooleanNetwork(WiringDiagram):
         dict
             Dictionary with the following entries:
     
-            - ``"Attractors"`` : list of list of int  
+            - Attractors : list of list of int  
               Attractors found, each represented as a list of decimal states
               (cycles are given in cyclic order).
-    
-            - ``"NumberOfAttractors"`` : int  
-              Number of distinct attractors found.
-    
-            - ``"BasinSizes"`` : list of int  
-              Number of sampled initial conditions converging to each attractor.
-    
-            - ``"AttractorID"`` : dict  
+            - NumberOfAttractorsLowerBound : int
+                Number of distinct attractors discovered (a lower bound on the true
+                number of attractors).
+            - BasinSizesApproximation : np.ndarray[float]
+                Approximate basin size (fraction of sampled trajectories that end in
+                each attractor). Sums to ~1 over discovered attractors.
+            - AttractorID : dict  
               Mapping from visited states (decimal) to attractor index.
-    
-            - ``"InitialSamplePoints"`` : list of int  
+            - InitialSamplePoints : list of int  
               Decimal initial states used for sampling.
-    
-            - ``"STG"`` : dict  
+            - STG : dict  
               Sampled synchronous state transition graph
               (state → successor state).
-    
-            - ``"NumberOfTimeouts"`` : int  
+            - NumberOfTimeouts : int  
               Number of simulations that did not converge within
               ``n_steps_timeout``.
     
         Notes
         -----
-        - This method is intended for networks with long transient dynamics, where
-          exhaustive synchronous analysis is infeasible.
+        - This method is intended for large networks with long transient dynamics, 
+          where exhaustive analysis is infeasible.
         - Basin sizes are *sampling-based estimates* and should not be interpreted
           as exact proportions of the state space.
         - There is no guarantee that all attractors are found. 
@@ -2783,7 +2770,10 @@ class BooleanNetwork(WiringDiagram):
                 if count == n_steps_timeout:
                     n_timeout += 1
                     break
-
+        
+        #normalize basin sizes to return proportions
+        basin_sizes = np.array(basin_sizes) / min(1,n_simulations)
+        
         self._set_property('attractors', attractors,
                            context='synchronous', exact=False)
         self._set_property('number_of_attractors', len(attractors),
@@ -2793,8 +2783,8 @@ class BooleanNetwork(WiringDiagram):
         
         return {
             "Attractors": attractors,
-            "NumberOfAttractors": len(attractors),
-            "BasinSizes": basin_sizes,
+            "NumberOfAttractorsLowerBound": len(attractors),
+            "BasinSizesApproximation": basin_sizes,
             "AttractorID": attr_dict,
             "InitialSamplePoints": (
                 sampled_points if initial_sample_points_empty else list(initial_sample_points)
@@ -3106,13 +3096,13 @@ class BooleanNetwork(WiringDiagram):
                 Exact global network coherence.
             - Fragility : float
                 Exact global network fragility.
-            - BasinCoherence : np.ndarray of float
+            - BasinCoherences : np.ndarray of float
                 Exact coherence of each basin of attraction.
-            - BasinFragility : np.ndarray of float
+            - BasinFragilities : np.ndarray of float
                 Exact fragility of each basin of attraction.
-            - AttractorCoherence : np.ndarray of float
+            - AttractorCoherences : np.ndarray of float
                 Exact coherence of each attractor.
-            - AttractorFragility : np.ndarray of float
+            - AttractorFragilities : np.ndarray of float
                 Exact fragility of each attractor.
 
             If ``get_stratified_coherences`` is True, the dictionary additionally
@@ -3143,25 +3133,19 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # Single-attractor shortcut
         # ------------------------------------------------------------------
-        if n_attractors == 1:
+        if n_attractors == 1 and not get_stratified_coherences:
             basin_coherences = np.ones(1, dtype=np.float64)
             basin_fragilities = np.zeros(1, dtype=np.float64)
             attractor_coherences = np.ones(1, dtype=np.float64)
             attractor_fragilities = np.zeros(1, dtype=np.float64)
-            
-            self._set_property('coherence', 1.0,
-                               context='synchronous', exact=True)
-            self._set_property('fragility', 0.0,
-                               context='synchronous', exact=True)
-            self._set_property('basin_coherences', basin_coherences,
-                               context='synchronous', exact=True)
-            self._set_property('basin_fragilities', basin_fragilities,
-                               context='synchronous', exact=True)
-            self._set_property('attractor_coherences', attractor_coherences,
-                               context='synchronous', exact=True)
-            self._set_property('attractor_fragilities', attractor_fragilities,
-                               context='synchronous', exact=True)
-            
+
+            for name, value in zip(
+                ['coherence','fragility','basin_coherences','basin_fragilities',
+                 'attractor_coherences','attractor_fragilities'],
+                [1.0,0.0,basin_coherences,basin_fragilities,
+                 attractor_coherences,attractor_fragilities]):
+                self._set_property(name, value, context='synchronous', exact=True)
+
             return {
                 "Attractors": attractors,
                 "NumberOfAttractors": 1,
@@ -3332,18 +3316,12 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # Final return
         # ------------------------------------------------------------------
-        self._set_property('coherence', coherence,
-                           context='synchronous', exact=True)
-        self._set_property('fragility', fragility,
-                           context='synchronous', exact=True)
-        self._set_property('basin_coherences', basin_coherences,
-                           context='synchronous', exact=True)
-        self._set_property('basin_fragilities', basin_fragilities,
-                           context='synchronous', exact=True)
-        self._set_property('attractor_coherences', attractor_coherences,
-                           context='synchronous', exact=True)
-        self._set_property('attractor_fragilities', attractor_fragilities,
-                           context='synchronous', exact=True)
+        for name, value in zip(
+            ['coherence','fragility','basin_coherences','basin_fragilities',
+             'attractor_coherences','attractor_fragilities'],
+            [coherence,fragility,basin_coherences,basin_fragilities,
+             attractor_coherences,attractor_fragilities]):
+            self._set_property(name, value, context='synchronous', exact=True)
 
         return_dict =  {
             "Attractors": attractors,
@@ -3409,7 +3387,7 @@ class BooleanNetwork(WiringDiagram):
                 List of discovered attractors, each represented as a list of states
                 forming a cycle. States are decimals (``int``) for ``N < 64`` and
                 bitstrings (``str``) for ``N >= 64``.
-            - LowerBoundOfNumberOfAttractors : int
+            - NumberOfAttractorsLowerBound : int
                 Number of distinct attractors discovered (a lower bound on the true
                 number of attractors).
             - BasinSizesApproximation : np.ndarray[float]
@@ -3427,20 +3405,22 @@ class BooleanNetwork(WiringDiagram):
                 trajectories when comparing the IC and its perturbation. This is a
                 *distance* in [0, 1], where 0 means identical and 1 means completely
                 different.
-            - BasinCoherenceApproximation : np.ndarray[float]
+            - BasinCoherencesApproximation : np.ndarray[float]
                 Approximate coherence per basin (same definition as coherence but
                 conditioned on having reached that basin).
-            - BasinFragilityApproximation : np.ndarray[float]
+            - BasinFragilitiesApproximation : np.ndarray[float]
                 Approximate fragility per basin (same definition as fragility but
                 conditioned on having reached that basin).
-            - AttractorCoherence : np.ndarray[float], optional
-                If ``return_attractor_coherence`` is True: estimated attractor-level
+            - AttractorCoherences : np.ndarray[float], optional
+                If ``return_attractor_coherence`` is True: attractor-level
                 coherence (probability that a single-bit perturbation of an attractor
-                state returns to the same attractor).
-            - AttractorFragility : np.ndarray[float], optional
-                If ``return_attractor_coherence`` is True: estimated attractor-level
+                state returns to the same attractor). For all discovered attractors,
+                these values are exact!
+            - AttractorFragilities : np.ndarray[float], optional
+                If ``return_attractor_coherence`` is True:  attractor-level
                 fragility based on differences between the original attractor and the
-                attractor reached after perturbation.
+                attractor reached after perturbation. For all discovered attractors,
+                these values are exact!
     
         References
         ----------
@@ -3718,22 +3698,24 @@ class BooleanNetwork(WiringDiagram):
         self._set_property('basin_fragilities', approximate_basin_fragility,
                            context='synchronous', exact=False)
     
-        if not return_attractor_coherence:
-            return dict(
-                zip(
-                    [
-                        "Attractors",
-                        "LowerBoundOfNumberOfAttractors",
-                        "BasinSizesApproximation",
-                        "CoherenceApproximation",
-                        "FragilityApproximation",
-                        "FinalHammingDistanceApproximation",
-                        "BasinCoherenceApproximation",
-                        "BasinFragilityApproximation",
-                    ],
-                    results,
-                )
+        return_dict = dict(
+            zip(
+                [
+                    "Attractors",
+                    "NumberOfAttractorsLowerBound",
+                    "BasinSizesApproximation",
+                    "CoherenceApproximation",
+                    "FragilityApproximation",
+                    "FinalHammingDistanceApproximation",
+                    "BasinCoherencesApproximation",
+                    "BasinFragilitiesApproximation",
+                ],
+                results,
             )
+        )
+    
+        if not return_attractor_coherence:
+            return return_dict
     
         # ------------------------------------------------------------------
         # Attractor-level coherence / fragility
@@ -3832,23 +3814,9 @@ class BooleanNetwork(WiringDiagram):
         self._set_property('attractor_fragilities', attractor_fragilities,
                            context='synchronous', exact=False)
     
-        return dict(
-            zip(
-                [
-                    "Attractors",
-                    "LowerBoundOfNumberOfAttractors",
-                    "BasinSizesApproximation",
-                    "CoherenceApproximation",
-                    "FragilityApproximation",
-                    "FinalHammingDistanceApproximation",
-                    "BasinCoherenceApproximation",
-                    "BasinFragilityApproximation",
-                    "AttractorCoherence",
-                    "AttractorFragility",
-                ],
-                results + [attractor_coherences, attractor_fragilities],
-            )
-        )
+        return_dict["AttractorCoherences"] = attractor_coherences
+        return_dict["AttractorFragilities"] = attractor_fragilities
+        return return_dict
     
     
     def get_derrida_value(

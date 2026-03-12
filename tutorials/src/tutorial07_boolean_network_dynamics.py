@@ -49,7 +49,9 @@ bn = boolforge.BooleanNetwork.from_string(string, separator="=")
 print("Variables:", bn.variables)
 print("N:", bn.N)
 print("bn.I:", bn.I)
-print("bn.F:", bn.F)
+print("bn.F:")
+for i, bf in enumerate(bn.F):
+    print(f"  F[{i}] = {bf!r}")
 
 
 # %% [markdown]
@@ -156,8 +158,9 @@ for attractor in dict_dynamics["Attractors"]:
 # Here, the indices correspond to the list of attractors in `dict_dynamics['Attractors']`.
 
 # %%
-print(dict_dynamics['AttractorID'])
-
+for state_dec,attr_id in enumerate(dict_dynamics['AttractorID']):
+    print(state_dec,'--> attractor',attr_id,
+          'which is',dict_dynamics['Attractors'][attr_id])
 
 # %% [markdown]
 # Finally, the basin size of each attractor is determined by the number of states that eventually transition to an attractor.
@@ -168,7 +171,7 @@ print(dict_dynamics['AttractorID'])
 print(dict_dynamics['BasinSizes'])
 
 # %% [markdown]
-# From the previous two commands, that there is no state (other than 000) that eventually
+# From the previous two outputs, we see that there is no state (other than 000) that eventually
 # transitions to 000. Half the states transition to the 2-cycle, while 3 out of 8
 # states transition to the attractor 111.
 #
@@ -280,18 +283,34 @@ print(dict_dynamics['BasinSizes'] ==
 # %%
 dict_dynamics = bn.get_steady_states_asynchronous(n_simulations=500)
 print(dict_dynamics['SteadyStates'])
-print(dict_dynamics['NumberOfSteadyStates'])
-print(dict_dynamics['BasinSizes'])
+print(dict_dynamics['NumberOfSteadyStatesLowerBound'])
+print(dict_dynamics['BasinSizesApproximation'])
 
 # %% [markdown]
 # ### Sampling from a fixed initial condition
+# In biological Boolean network models, a specific state $\mathbf x \in \{0,1\}^N$
+# is frequently considered the initial state, e.g., corresponding to the G0 phase of the cell cylce.
+# To enable exploration of the stochastic trajectories from a specific state, BoolForge
+# contains the following method.
 
 # %%
 dict_dynamics = bn.get_steady_states_asynchronous_given_one_initial_condition(
     initial_condition=[0, 0, 1], n_simulations=500
 )
-dict_dynamics
+print(dict_dynamics['SteadyStates'])
+print(dict_dynamics['NumberOfSteadyStatesLowerBound'])
+print(dict_dynamics['BasinSizesApproximation'])
 
+# %% [markdown]
+# Note the equivalent analysis under synchronous update is trivial because the dynamics
+# are deterministic and the long-term behavior when starting in a specific initial
+# condition can be found by
+
+# %%
+dict_dynamics = bn.get_attractors_synchronous(n_simulations=1,
+                                              initial_sample_points=[[0,0,1]],
+                                              initial_sample_points_are_vectors=True)
+dict_dynamics
 
 # %% [markdown]
 # ## Summary and outlook

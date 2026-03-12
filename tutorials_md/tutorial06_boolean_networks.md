@@ -11,13 +11,11 @@ In this tutorial you will learn how to:
 - compute basic properties of the wiring diagram,
 - compute basic properties of Boolean networks.
 
-## 0. Setup
-
+## Setup
 
 ```python
 import boolforge
 import numpy as np
-import matplotlib.pyplot as plt
 ```
 
 ## Boolean network theory
@@ -26,10 +24,9 @@ A Boolean network $F = (f_1, \ldots, f_N)$ is a dynamical system consisting of
 $N$ Boolean update functions. Each node can be in one of two states, 0 or 1,
 often interpreted as OFF/ON in biological contexts.
 
-Under synchronous updating, all nodes update simultaneously, yielding a
-deterministic state transition graph on $\{0,1\}^N$.
-
-Under asynchronous updating, only one node is updated at a time, yielding a
+Under **synchronous updating**, all nodes update simultaneously, yielding a
+deterministic state transition graph on $\{0,1\}^N$. 
+Under **asynchronous updating**, only one node is updated at a time, yielding a
 stochastic transition graph. BoolForge implements both schemes.
 
 Real biological networks are typically sparsely connected. The **in-degree**
@@ -46,14 +43,12 @@ Despite their simplicity, Boolean networks can:
 ## Wiring diagrams
 
 We first construct wiring diagrams, which encode network structure independently
-of specific Boolean functions.
-
-Separating topology (I) from dynamics (F) allows:
+of specific Boolean functions. Separating topology (encoded in BoolForge by `I`) 
+from dynamics (`F`) allows:
 
 - studying structural properties independent of specific Boolean rules,
 - swapping different rule sets on the same topology,
 - efficient storage (sparse I, local F vs dense full truth table).
-
 
 ```python
 # Wiring diagram of a 3-node network
@@ -81,22 +76,24 @@ fig = W.plot(show=False);
 
 
     
-![png](tutorial06_boolean_networks_files/tutorial06_boolean_networks_4_1.png)
+![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_4_1.png)
     
 
 
-The wiring diagram above uses default variable names $x_0, \ldots, x_{N-1}$.
-The vectors `indegrees` and `outdegrees` describe incoming and outgoing edges
-for each node.
+The wiring diagram above consists of $N=3$ variables, and 
+uses default variable names $x_0, \ldots, x_{N-1}$.
+The vectors `indegrees` and `outdegrees` describe the number of 
+incoming and outgoing edges for each node.
 
 ### Example with constants and unequal degrees
-
+The next wiring diagram contains a constant node (source) $x_0$ and a node 
+that is only regulated but does not regulate any nodes (sink) $x_2$.
 
 ```python
 I = [
     [],
-    [0, 2],
     [0],
+    [0, 1], 
 ]
 
 W = boolforge.WiringDiagram(I=I)
@@ -113,13 +110,13 @@ fig = W.plot(show=False)
 
     W.N: 3
     W.variables: ['x0' 'x1' 'x2']
-    W.indegrees: [0 2 1]
-    W.outdegrees: [2 0 1]
+    W.indegrees: [0 1 2]
+    W.outdegrees: [2 1 0]
 
 
 
     
-![png](tutorial06_boolean_networks_files/tutorial06_boolean_networks_7_1.png)
+![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_7_1.png)
     
 
 
@@ -132,19 +129,17 @@ transcriptional networks. It can:
 See Mangan & Alon, PNAS, 2003 for a detailed analysis.
 `BoolForge` enables the identification of all feed-forward loops:
 
-
 ```python
 print("W.get_ffls()", W.get_ffls())
 ```
 
-    W.get_ffls() {'FFLs': [[0, 2, 1]]}
+    W.get_ffls() {'FFLs': [[0, 1, 2]]}
 
 
 This tells us that `W` contains one FFL, in which $x_0$ regulates both $x_1$ and $x_2$, 
-while $x_1$ is also regulated by $x_2$.
+while $x_2$ is also regulated by $x_1$.
 
 `BoolForge` can also identify all feedback loops. For this, we consider another wiring diagram:
-
 
 ```python
 I2 = [
@@ -166,7 +161,7 @@ print("W2.get_fbls()", W2.get_fbls())
 
 
     
-![png](tutorial06_boolean_networks_files/tutorial06_boolean_networks_11_1.png)
+![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_11_1.png)
     
 
 
@@ -179,7 +174,6 @@ To create a Boolean network, we must specify:
 
 1. A wiring diagram `I`, describing who regulates whom.
 2. A list `F` of Boolean update functions (or truth tables), one per node.
-
 
 ```python
 I = [
@@ -236,7 +230,6 @@ In the example below, each line has the form $x_i = f_i(\text{regulators of } x_
 where Boolean operators such as `AND`, `OR`, and `NOT` can be used to define
 the update functions.
 
-
 ```python
 string = """
 x = y
@@ -260,7 +253,9 @@ print(bn_str.to_truth_table().to_string())
 
 
 Here, the update rule `x = y` specifies that node `x` copies the state of `y`,
-while `y = x OR z` indicates that node `y` is regulated by both `x` and `z`.
+while `y = x OR z` indicates that node `y` becomes activated (1) whenever `x`,
+or `z`, or both are active.
+
 From this symbolic description, `BoolForge` automatically:
 
 - extracts the wiring diagram,
@@ -299,7 +294,6 @@ This guarantees that `BoolForge` and CANA can be used interchangeably within
 a workflow, allowing users to leverage CANA’s analytical tools while
 continuing to build and manipulate models using `BoolForge`.
 
-
 ```python
 cana_bn = bn.to_cana()
 bn_from_cana = boolforge.BooleanNetwork.from_cana(cana_bn)
@@ -327,7 +321,6 @@ Nodes in a Boolean network can be classified as follows:
 - **Regulated nodes**  
   Nodes whose update functions depend on one or more other nodes.
 
-
 ```python
 F = [
     [0, 0, 0, 1],  # regulated
@@ -352,8 +345,8 @@ print("bn.I:", bn.I)
 ```
 
     bn.variables: ['x0' 'x1' 'x2']
-    bn.constants: {'x3': {'value': 0, 'regulatedNodes': ['x1']}}
-    bn.F: [BooleanFunction(f=[0, 0, 0, 1]), BooleanFunction(f=[0, 1]), BooleanFunction(f=[0, 1])]
+    bn.constants: {'x3': 0}
+    bn.F: [BooleanFunction(name='x0', f=[0, 0, 0, 1]), BooleanFunction(name='x1', f=[0, 1]), BooleanFunction(name='x2', f=[0, 1])]
     bn.I: [array([1, 2]), array([0]), array([2])]
 
 
@@ -371,7 +364,6 @@ values influence the effective dynamics of the network.
 
 Importantly, this simplification is performed symbolically at construction
 time and does not depend on the dynamical evolution of the network.
-
 
 ```python
 F = [
@@ -395,7 +387,7 @@ print("bn.I:", bn.I)
 print("bn.variables:", bn.variables)
 ```
 
-    bn.F: [BooleanFunction(f=[0, 0, 0, 1]), BooleanFunction(f=[1, 1]), BooleanFunction(f=[0, 1])]
+    bn.F: [BooleanFunction(name='x0', f=[0, 0, 0, 1]), BooleanFunction(name='x1', f=[1, 1]), BooleanFunction(name='x2', f=[0, 1])]
     bn.I: [array([1, 2]), array([0]), array([2])]
     bn.variables: ['x0' 'x1' 'x2']
 
@@ -431,7 +423,6 @@ Many of these methods will be introduced and discussed in detail in the
 following tutorials. Here, we focus only on a few basic and commonly used
 properties.
 
-
 ```python
 print("bn.N:", bn.N)
 print("bn.indegrees:", bn.indegrees)
@@ -449,9 +440,57 @@ bn.plot();
 
 
     
-![png](tutorial06_boolean_networks_files/tutorial06_boolean_networks_27_1.png)
+![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_27_1.png)
     
 
+
+Just like BooleanFunction objects, BooleanNetwork possesses a`.summary()` method,
+which prints a human-readable overview of basic properties.
+If more advanced properties have already been computed, e.g., attractors,
+this information is also displayed (or if the optional keyword `COMPUTE_ALL` is set to True, default False). 
+
+```python
+print(bn.summary())
+print()
+print(bn.summary(compute_all=True)) #or simply print(f.summary(True))
+```
+
+    BooleanNetwork
+    --------------
+    Number of nodes:              3
+    Number of regulated nodes:    2
+    Number of identity nodes:     1
+    Number of constants (removed):1
+    Average degree:               1.333
+    Largest in-degree:            2
+    Largest out-degree:           2
+    Regulated nodes:              ['x0', 'x1']
+    Identity nodes (inputs):      ['x2']
+    Constants:                    {'x3': 1}
+    
+
+
+    BooleanNetwork
+    --------------
+    Number of nodes:              3
+    Number of regulated nodes:    2
+    Number of identity nodes:     1
+    Number of constants (removed):1
+    Average degree:               1.333
+    Largest in-degree:            2
+    Largest out-degree:           2
+    Regulated nodes:              ['x0', 'x1']
+    Identity nodes (inputs):      ['x2']
+    Constants:                    {'x3': 1}
+    Number of attractors:         2
+    Largest basin size:           0.500
+    Basin size entropy:           0.693
+    Derrida value:                0.667
+    Coherence:                    0.667
+    Fragility:                    0.222
+
+
+The more advanced properties displayed here are the subject of the next two tutorials.
 
 ## Outlook
 

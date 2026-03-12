@@ -21,7 +21,6 @@ It is strongly recommended to complete the previous tutorials first.
 
 ## Setup
 
-
 ```python
 import boolforge
 import numpy as np
@@ -33,7 +32,6 @@ import matplotlib.pyplot as plt
 The function `boolforge.random_function(n, *args)` generates a random $n$-input
 Boolean function subject to optional constraints. By default, it generates a
 **non-degenerate** function, meaning that all variables are essential.
-
 
 ```python
 n = 3
@@ -48,17 +46,17 @@ print("Edge effectiveness of f:", f.get_edge_effectiveness())
 
     x0	x1	x2	|	f_random_non_degenerate
     -------------------------------------------------------
-    0	0	0	|	0
+    0	0	0	|	1
     0	0	1	|	1
     0	1	0	|	1
     0	1	1	|	0
-    1	0	0	|	1
-    1	0	1	|	1
+    1	0	0	|	0
+    1	0	1	|	0
     1	1	0	|	0
-    1	1	1	|	1
+    1	1	1	|	0
     Is f degenerate? False
-    Activities of f: [0.75 0.75 0.75]
-    Edge effectiveness of f: [0.8333333333333334, 0.8333333333333334, 0.8333333333333334]
+    Activities of f: [0.75 0.25 0.25]
+    Edge effectiveness of f: [0.8125, 0.375, 0.375]
 
 
 The rest of this tutorial describes the various constraints. 
@@ -69,7 +67,6 @@ That is, each function satisfying a given set of constraints is selected with eq
 ## Parity functions
 
 Setting `parity=True` generates *parity* functions, also known as non-degenerate *linear* functions.
-
 
 ```python
 f = boolforge.random_function(n, parity=True)
@@ -118,7 +115,6 @@ For example, it checks that the provided layer structure $(k_1,\ldots,k_r)$ sati
 - $k_1 + \cdots + k_r \leq n$, and
 - if $k_1 + \cdots + k_r = n$, then $k_r \geq 2$ because the last layer of a nested canalizing function must always contain two or more variables.
 
-
 ```python
 f = boolforge.random_function(n, layer_structure=[1])
 g = boolforge.random_function(n, layer_structure=[1], exact_depth=True)
@@ -140,16 +136,16 @@ for func, label in zip([f, g, h, k], labels):
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
     0	0	0	|	1	0	1	0
-    0	0	1	|	0	1	1	1
-    0	1	0	|	1	1	1	0
-    0	1	1	|	0	1	1	0
-    1	0	0	|	1	1	1	0
-    1	0	1	|	0	1	1	1
-    1	1	0	|	0	0	0	0
-    1	1	1	|	0	1	1	1
+    0	0	1	|	1	0	1	0
+    0	1	0	|	0	1	1	0
+    0	1	1	|	1	0	1	0
+    1	0	0	|	1	1	1	1
+    1	0	1	|	1	0	1	1
+    1	1	0	|	1	0	0	0
+    1	1	1	|	1	0	1	1
     Canalizing depth of f: 3
-    Layer structure of f: [1, 2]
-    Number of layers of f: 2
+    Layer structure of f: [3]
+    Number of layers of f: 1
     Core function of f: [0]
     
     Canalizing depth of g: 1
@@ -180,7 +176,6 @@ Their layer structure is exactly as specified.
 If we do not care about the specific layer structure but only about the canalizing depth, 
 we specify the optional argument `depth` instead of `layer_structure`.
 
-
 ```python
 # any function has at least canalizing depth 0 so this is the same as boolforge.random_function(n)
 f = boolforge.random_function(n,depth=0)
@@ -204,19 +199,19 @@ for func, label in zip([f, g, h, k], labels):
 
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
-    0	0	0	|	1	0	1	0
-    0	0	1	|	1	0	1	0
-    0	1	0	|	0	0	0	0
-    0	1	1	|	1	1	1	0
-    1	0	0	|	1	1	1	0
-    1	0	1	|	0	1	1	1
-    1	1	0	|	1	1	1	1
-    1	1	1	|	0	0	1	1
-    Canalizing depth of f: 0
+    0	0	0	|	0	0	1	0
+    0	0	1	|	1	1	1	0
+    0	1	0	|	1	1	1	1
+    0	1	1	|	1	0	1	1
+    1	0	0	|	0	0	0	0
+    1	0	1	|	1	0	1	0
+    1	1	0	|	0	1	1	1
+    1	1	1	|	1	0	0	0
+    Canalizing depth of f: 3
     
     Canalizing depth of g: 0
     
-    Canalizing depth of h: 3
+    Canalizing depth of h: 1
     
     Canalizing depth of k: 3
     
@@ -250,7 +245,6 @@ Since degenerate functions occur much more frequently at low degree, we set `n=2
 generate a large number of random, possibly degenerate functions and 
 compare a histogram of the observed number of essential variables to the expected proportions.
 
-
 ```python
 n = 2
 n_simulations = 10000
@@ -278,12 +272,12 @@ print("Error:", count_essential / n_simulations - expected)
 plt.show()
 ```
 
-    Error: [-0.0017  0.002  -0.0003]
+    Error: [ 0.0024  0.0036 -0.006 ]
 
 
 
     
-![png](tutorial04_random_Boolean_function_generation_files/tutorial04_random_Boolean_function_generation_13_1.png)
+![](tutorial04_random_Boolean_function_generation_files/tutorial04_random_Boolean_function_generation_13_1.png)
     
 
 
@@ -296,7 +290,6 @@ specify whether degenerate and canalizing functions are allowed.
 By default, canalizing functions are allowed, while degenerate functions are not. 
 Since all functions with Hamming weight $w\in\{0,1,2^n-1,2^n\}$ are canalizing, 
 we require $2\leq w\leq 2^n-2$ whenever canalizing functions are not permissible (i.e., whenever `exact_depth=True`).
-
 
 ```python
 n = 3
@@ -317,16 +310,16 @@ for func, label in zip([f, g, h], labels):
 
     x0	x1	x2	|	f	g	h
     -------------------------------------------------
-    0	0	0	|	0	0	0
-    0	0	1	|	1	0	0
-    0	1	0	|	1	1	0
-    0	1	1	|	1	1	1
-    1	0	0	|	0	1	0
-    1	0	1	|	1	1	1
-    1	1	0	|	0	0	0
-    1	1	1	|	1	1	0
+    0	0	0	|	1	1	0
+    0	0	1	|	0	1	1
+    0	1	0	|	0	0	0
+    0	1	1	|	1	1	0
+    1	0	0	|	1	1	0
+    1	0	1	|	0	0	0
+    1	1	0	|	1	1	0
+    1	1	1	|	1	0	1
     Hamming weight of f: 5
-    Canalizing depth of f: 3
+    Canalizing depth of f: 0
     Number of essential variables of f: 3
     
     Hamming weight of g: 5
@@ -354,7 +347,6 @@ the bias is either $(1+a)/2$ or $(1-a)/2$, both with probability 50%.
 To display these different modes, we repeatedly generate random Boolean functions 
 under three different constraints (`f` with bias $p=0.75$, `g` with absolute bias 0.5, and `h` an unbiased function, i.e., with bias $p=0.5$), 
 and compare the empirical Hamming weight distribution of the three families of functions.
-
 
 ```python
 n = 4
@@ -388,7 +380,7 @@ plt.show()
 
 
     
-![png](tutorial04_random_Boolean_function_generation_files/tutorial04_random_Boolean_function_generation_17_0.png)
+![](tutorial04_random_Boolean_function_generation_files/tutorial04_random_Boolean_function_generation_17_0.png)
     
 
 
@@ -403,7 +395,6 @@ The desired use of absolute bias must be specified by `use_absolute_bias=True`.
 In the above plot, we notice a lack of functions with Hamming weight 0 and $16=2^n$.
 These constant functions are degenerate and thus not generated unless we set `allow_degenerate_functions=True`, 
 which as we see below slightly modifies the resulting Hamming weight distributions.
-
 
 ```python
 counts[:] = 0
@@ -432,7 +423,7 @@ plt.show()
 
 
     
-![png](tutorial04_random_Boolean_function_generation_files/tutorial04_random_Boolean_function_generation_19_0.png)
+![](tutorial04_random_Boolean_function_generation_files/tutorial04_random_Boolean_function_generation_19_0.png)
     
 
 

@@ -5,9 +5,9 @@
 # the behavior of the Boolean networks they define. In this tutorial, we move
 # beyond the basics of `BooleanFunction` and explore three core concepts:
 #
-# - **Symmetries** among inputs
-# - **Activities** of inputs
-# - **Average sensitivity** of a Boolean function
+# - symmetries among inputs
+# - activities of inputs
+# - average sensitivity of a Boolean function
 #
 # These quantities are tied to redundancy, robustness, and dynamical behavior –
 # concepts that will play a central role in later tutorials on canalization and
@@ -18,7 +18,7 @@
 #
 # - identify symmetry groups of Boolean functions,
 # - compute activities and sensitivities,
-# - choose between exact and Monte Carlo computation,
+# - choose between exact computation and Monte Carlo estimation,
 # - interpret these quantities in terms of robustness and redundancy.
 #
 # ## Setup
@@ -60,8 +60,6 @@ h = boolforge.BooleanFunction("x0 | (x1 & ~x2)")
 labels = ["f", "g", "h"]
 boolforge.display_truth_table(f, g, h, labels=labels)
 
-
-# %%
 for func, label in zip([f, g, h], labels):
     print(f"Symmetry groups of {label}:")
     for group in func.get_symmetry_groups():
@@ -94,16 +92,15 @@ print("k.is_degenerate()", k.is_degenerate())
 # Detecting degeneracy is NP-hard in general.
 # However even at relatively low degree, such functions are extremely rare unless intentionally created.
 #
-# BoolForge therefore:
-#
-# - allows degenerate functions by default,
-# - avoids expensive essential-variable checks unless requested.
+# We can also identify the specific variables that cause a function to be degenerate.
 
+# %%
+nonessential = [
+    v for v, t in zip(k.variables, k.get_type_of_inputs())
+    if t == "non-essential"
+]
 
-
-
-
-
+print("Non-essential variables:", nonessential)
 
 # %% [markdown]
 # ## Activities and Sensitivities
@@ -184,8 +181,10 @@ normalized = True
 print("Activities of f:", f.get_activities(exact=exact))
 print("Activities of g:", g.get_activities(exact=exact))
 
-print("Normalized average sensitivity of f:", f.get_average_sensitivity(exact=exact, normalized=normalized))
-print("Normalized average sensitivity of g:", g.get_average_sensitivity(exact=exact, normalized=normalized))
+print("Normalized average sensitivity of f:", f.get_average_sensitivity(exact=exact, 
+                                                                        normalized=normalized))
+print("Normalized average sensitivity of g:", g.get_average_sensitivity(exact=exact, 
+                                                                        normalized=normalized))
 
 # %% [markdown]
 # **Interpretation**
@@ -199,9 +198,12 @@ print("Normalized average sensitivity of g:", g.get_average_sensitivity(exact=ex
 # Exact computation is infeasible for large $n$, so Monte Carlo simulation must
 # be used.
 #
-# When generating such a large function randomly (see Tutorial 4) it is not recommended to require that all inputs are essential, 
-# as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input $x_i$ is given $1/2^{n-1}$), 
-# and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus suggest setting `allow_degenerate_functions=True`. 
+# When generating such a large function randomly (see Tutorial 4), it is not recommended
+#  to require that all inputs are essential, as (i) this is almost certainly the case 
+# anyways (the probability that an n-input function does not depend on input $x_i$ is given $1/2^{n-1}$), 
+# and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). 
+# In this specific case, we thus suggest diverging from BoolForge's default and 
+# setting `allow_degenerate_functions=True`. 
 # You find more on this and the `random_function` method in Tutorial 4. 
 
 # %%
@@ -213,8 +215,7 @@ h = boolforge.random_function(n=n, allow_degenerate_functions=True)
 activities = h.get_activities(exact=exact)
 print(f"Mean activity: {np.mean(activities):.4f}")
 print(
-    f"Normalized average sensitivity: "
-    f"{h.get_average_sensitivity(exact=exact):.4f}"
+    f"Normalized average sensitivity: {h.get_average_sensitivity(exact=exact):.4f}"
 )
 
 # %% [markdown]

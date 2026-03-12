@@ -116,8 +116,8 @@ for func, label in zip([f, g, h, k], labels):
 # Consider, for example, the output for `k`. The canalizing input values corresponding to
 # $x_0, x_1, x_2$ are $1,0,0$, respectively, with the same canalized outputs. That is,
 #
-# - Layer 1: $x_0$ (if $x_0=1$, then $k=1$, regardless of $x_1$ and $x_2$)
-# - Layer 2: $x_1, x_2$ (if $x_0=0$ and $x_1=0$ or $x_2=0$, then $k=0$)
+# - Layer 1 contains $x_0$ (if $x_0=1$, then $k=1$, regardless of $x_1$ and $x_2$)
+# - Layer 2 contains $x_1$ and $x_2$ (given $x_0=0$, if $x_1=0$ or $x_2=0$, then $k=0$)
 
 # %% [markdown]
 # ## Collective canalization
@@ -130,16 +130,17 @@ for func, label in zip([f, g, h, k], labels):
 # A Boolean function is *$k$-set canalizing* if there exists a set of $k$ variables
 # whose fixed values determine the output irrespective of the remaining inputs.
 # 
-# Consider, for example, the function $k(x_0,x_1,x_2) = x_0 \vee (x_1 \wedge x_2)$.
+# Consider, for example, the function $k(x_0,x_1,x_2) = x_0 \vee (x_1 \wedge x_2)$, defined above.
 # This function is 2-set canalizing because
 #
 # - $\{x_0,x_1\}$ can determine the output: if $(x_0,x_1)=(1,0)$, $k=1$ ($x_2$ irrelevant), or
 # - $\{x_1,x_2\}$ can determine the output: if $(x_1,x_2)=(1,1)$, $k=1$ ($x_0$ irrelevant)
 #
-# The proportion of such $k$-sets, the $k$-set canalizing proportion denoted $P_k(f)$, is used to define the canalizing strength.
-# It is fairly obvious that
+# The proportion of such $k$-sets, the *$k$-set canalizing proportion* denoted $P_k(f)$, 
+# is an important summary statistic. It is fairly obvious that
 #
-# - nested canalizing functions of a single layer such as `h` are the non-degenerate functions with highest k-set canalizing proportion $P_k(f) = 1-1/2^k$, and
+# - nested canalizing functions of a single layer such as `h` are the non-degenerate functions 
+#   with largest k-set canalizing proportion $P_k(f) = 1-1/2^k$, and
 # - $P_{k-1}(f) \leq P_k(f)$, i.e., more knowledge about a function's inputs cannot result in less knowledge about its output,
 # - the $n-1$-set canalizing proportion $P_{n-1}(f)$ is 1 minus the function's normalized average sensitivity.
 #
@@ -149,7 +150,8 @@ for func, label in zip([f, g, h, k], labels):
 for func, label in zip([f, g, h, k], labels):
     print(f"1-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=1)}")
     print(f"2-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=2)}")
-    print(f"Normalized average sensitivity of {label}: {func.get_average_sensitivity(exact=True, normalized=True)}")
+    print(f"Normalized average sensitivity of {label}:"
+          f"{func.get_average_sensitivity(exact=True, normalized=True)}")
     print(f"3-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=3)}")
     print()
 

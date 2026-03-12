@@ -292,9 +292,10 @@ bn = boolforge.BooleanNetwork(F, I)
 
 print("bn.variables:", bn.variables)
 print("bn.constants:", bn.constants)
-print("bn.F:", bn.F)
 print("bn.I:", bn.I)
-
+print("bn.F:")
+for i, bf in enumerate(bn.F):
+    print(f"  F[{i}] = {bf!r}")
 
 # %% [markdown]
 # The constant node is removed, and its value is propagated into downstream
@@ -329,10 +330,12 @@ I = [
 
 bn = boolforge.BooleanNetwork(F, I)
 
-print("bn.F:", bn.F)
-print("bn.I:", bn.I)
 print("bn.variables:", bn.variables)
-
+print("bn.constants:", bn.constants)
+print("bn.I:", bn.I)
+print("bn.F:")
+for i, bf in enumerate(bn.F):
+    print(f"  F[{i}] = {bf!r}")
 
 # %% [markdown]
 # Although $x_1$ becomes fixed at 1 after one update, it is not treated as a

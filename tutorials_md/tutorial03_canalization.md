@@ -19,7 +19,6 @@ effective degree and input redundancy.
 
 ## Setup
 
-
 ```python
 import boolforge
 import matplotlib.pyplot as plt
@@ -55,13 +54,12 @@ We thus have $r\geq 0$, $k_i\geq 1$ and $k_1+\cdots+k_r$.
 
 In the following code, we define four 3-input functions with different canalizing properties.
 
-
 ```python
 # Non-canalizing XOR function
 f = boolforge.BooleanFunction("(x0 + x1 + x2) % 2")
 
 # 1-canalizing function
-g = boolforge.BooleanFunction("(x0 | (x1 & x2 | ~x1 & ~x2)) % 2")
+g = boolforge.BooleanFunction("(x0 | (x1 & x2 | !x1 & !x2)) % 2")
 
 # Nested canalizing function with all variables in one layer
 h = boolforge.BooleanFunction("~x0 & x1 & x2")
@@ -78,10 +76,10 @@ boolforge.display_truth_table(f, g, h, k, labels=labels)
     0	0	0	|	0	1	0	0
     0	0	1	|	1	0	0	0
     0	1	0	|	1	0	0	0
-    0	1	1	|	1	1	1	1
+    0	1	1	|	0	1	1	1
     1	0	0	|	1	1	0	1
-    1	0	1	|	1	1	0	1
-    1	1	0	|	1	1	0	1
+    1	0	1	|	0	1	0	1
+    1	1	0	|	0	1	0	1
     1	1	1	|	1	1	0	1
 
 
@@ -93,7 +91,6 @@ which we can also directly compute.
 As a reminder, an $n$-input function is canalizing if 
 its canalizing depth is non-zero and nested canalizing if its canalizing depth equals $n$.
 
-
 ```python
 for func, label in zip([f, g, h, k], labels):
     depth = func.get_canalizing_depth()
@@ -104,9 +101,9 @@ for func, label in zip([f, g, h, k], labels):
     print()
 ```
 
-    Canalizing depth of f: 3
-    f is canalizing: True
-    f is nested canalizing: True
+    Canalizing depth of f: 0
+    f is canalizing: False
+    f is nested canalizing: False
     
     Canalizing depth of g: 1
     g is canalizing: True
@@ -128,7 +125,6 @@ The full canalizing layer structure includes canalizing input values, canalized
 output values, the order of canalizing variables, the layer structure, and the
 remaining non-canalizing core function.
 
-
 ```python
 for func, label in zip([f, g, h, k], labels):
     info = func.get_layer_structure()
@@ -141,12 +137,12 @@ for func, label in zip([f, g, h, k], labels):
     print()
 ```
 
-    Canalizing input values of f: [1 1 1]
-    Canalized output values of f: [1 1 1]
-    Order of canalizing variables of f: [0 1 2]
-    Layer structure of f: [3]
-    Number of layers of f: 1
-    Core function of f: [0]
+    Canalizing input values of f: []
+    Canalized output values of f: []
+    Order of canalizing variables of f: []
+    Layer structure of f: []
+    Number of layers of f: 0
+    Core function of f: [0 1 1 0 1 0 0 1]
     
     Canalizing input values of g: [1]
     Canalized output values of g: [1]
@@ -202,7 +198,6 @@ It is fairly obvious that
 
 We can compute the $k$-set canalizing proportions for the four 3-input functions:
 
-
 ```python
 for func, label in zip([f, g, h, k], labels):
     print(f"1-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=1)}")
@@ -212,9 +207,9 @@ for func, label in zip([f, g, h, k], labels):
     print()
 ```
 
-    1-set canalizing proportion of f: 0.5
-    2-set canalizing proportion of f: 0.75
-    Normalized average sensitivity of f: 0.25
+    1-set canalizing proportion of f: 0.0
+    2-set canalizing proportion of f: 0.0
+    Normalized average sensitivity of f: 1.0
     3-set canalizing proportion of f: 1.0
     
     1-set canalizing proportion of g: 0.16666666666666666
@@ -248,7 +243,6 @@ It helps to consider the canalizing strength as a probability:
 Given that I know a random number of function inputs (drawn uniformly at random from $1,\ldots,n-1$), 
 how likely am I to already know the function output?
 
-
 ```python
 for func, label in zip([f, g, h, k], labels):
     strength = func.get_canalizing_strength()
@@ -256,7 +250,7 @@ for func, label in zip([f, g, h, k], labels):
     print()
 ```
 
-    Canalizing strength of f: 1.0
+    Canalizing strength of f: 0.0
     
     Canalizing strength of g: 0.5
     
@@ -271,7 +265,6 @@ for func, label in zip([f, g, h, k], labels):
 An enumeration of all non-degenerate 3-input Boolean functions reveals the distribution of the canalizing strength. 
 Note that this brute-force code can also run (in less than a minute) for all $2^{2^4}=2^{16}=65,536$ 
 4-input functions but will take days for all $2^{2^5}=2^{32}=4,294,967,296$ 5-input functions.
-
 
 ```python
 n = 3
@@ -292,7 +285,7 @@ plt.show()
 
 
     
-![png](tutorial03_canalization_files/tutorial03_canalization_14_0.png)
+![](tutorial03_canalization_files/tutorial03_canalization_14_0.png)
     
 
 
@@ -314,7 +307,6 @@ The average input redundancy serves as a measure of the canalization in a functi
 the optional `CANA` package must be installed (`pip install cana` or `pip install boolforge[cana]`). 
 To exemplify this, reconsider the four 3-input functions from above.
 
-
 ```python
 for func, label in zip([f, g, h, k], labels):
     edge_eff = func.get_edge_effectiveness()
@@ -331,30 +323,30 @@ for func, label in zip([f, g, h, k], labels):
     print()
 ```
 
-    Edge effectiveness of f: [0.41666666666666663, 0.41666666666666663, 0.41666666666666663]
-    Activities of f: [0.2504 0.2444 0.2515]
-    Excess canalization of f: [0.16626667 0.17226667 0.16516667]
-    Effective degree of f: 1.25
-    Average edge effectiveness of f: 0.4166666666666667
-    Normalized input redundancy of f: 0.5833333333333334
+    Edge effectiveness of f: [1.0, 1.0, 1.0]
+    Activities of f: [1. 1. 1.]
+    Excess canalization of f: [0. 0. 0.]
+    Effective degree of f: 3.0
+    Average edge effectiveness of f: 1.0
+    Normalized input redundancy of f: 0.0
     
     Edge effectiveness of g: [0.625, 0.625, 0.625]
-    Activities of g: [0.5015 0.4986 0.4986]
-    Excess canalization of g: [0.1235 0.1264 0.1264]
+    Activities of g: [0.5029 0.5014 0.5014]
+    Excess canalization of g: [0.1221 0.1236 0.1236]
     Effective degree of g: 1.875
     Average edge effectiveness of g: 0.625
     Normalized input redundancy of g: 0.375
     
     Edge effectiveness of h: [0.41666666666666663, 0.41666666666666663, 0.41666666666666663]
-    Activities of h: [0.2565 0.2529 0.2505]
-    Excess canalization of h: [0.16016667 0.16376667 0.16616667]
+    Activities of h: [0.2398 0.2441 0.2429]
+    Excess canalization of h: [0.17686667 0.17256667 0.17376667]
     Effective degree of h: 1.25
     Average edge effectiveness of h: 0.4166666666666667
     Normalized input redundancy of h: 0.5833333333333334
     
     Edge effectiveness of k: [0.8125, 0.375, 0.375]
-    Activities of k: [0.7551 0.2473 0.2525]
-    Excess canalization of k: [0.0574 0.1277 0.1225]
+    Activities of k: [0.7456 0.2493 0.2494]
+    Excess canalization of k: [0.0669 0.1257 0.1256]
     Effective degree of k: 1.5625
     Average edge effectiveness of k: 0.5208333333333334
     Normalized input redundancy of k: 0.4791666666666667

@@ -16,7 +16,6 @@ It is strongly recommended to complete the previous tutorials first.
 
 ## Setup
 
-
 ```python
 import boolforge
 import numpy as np
@@ -29,7 +28,6 @@ import scipy.stats as stats
 
 Using random sampling, we estimate how frequently Boolean functions of degree $n$
 exhibit a given canalizing depth.
-
 
 ```python
 n_simulations = 1000
@@ -77,15 +75,15 @@ print(out.to_string())
 
 
     
-![png](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_3_0.png)
+![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_3_0.png)
     
 
 
            k=0    k=1    k=2    k=3    k=4  k=5  k=6
-    n=2  0.185  0.000  0.815  0.000  0.000  0.0  0.0
-    n=3  0.605  0.116  0.000  0.279  0.000  0.0  0.0
-    n=4  0.953  0.031  0.004  0.000  0.012  0.0  0.0
-    n=5  1.000  0.000  0.000  0.000  0.000  0.0  0.0
+    n=2  0.231  0.000  0.769  0.000  0.000  0.0  0.0
+    n=3  0.596  0.110  0.000  0.294  0.000  0.0  0.0
+    n=4  0.954  0.028  0.006  0.000  0.012  0.0  0.0
+    n=5  0.998  0.002  0.000  0.000  0.000  0.0  0.0
     n=6  1.000  0.000  0.000  0.000  0.000  0.0  0.0
 
 
@@ -96,7 +94,6 @@ are nested canalizing very surprising (Kadelka et al., Science Advances, 2024).
 ### Restricting to canalizing functions
 
 To zoom in on the few functions that are canalizing for higher $n$, we can simply require `depth=1` and repeat the above analysis.
-
 
 ```python
 count_depths = np.zeros((len(ns), max(ns) + 1))
@@ -140,15 +137,15 @@ print(out.to_string())
 
 
     
-![png](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_6_0.png)
+![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_6_0.png)
     
 
 
          k=0    k=1    k=2    k=3    k=4    k=5  k=6
     n=2  0.0  0.000  1.000  0.000  0.000  0.000  0.0
-    n=3  0.0  0.269  0.000  0.731  0.000  0.000  0.0
-    n=4  0.0  0.653  0.098  0.000  0.249  0.000  0.0
-    n=5  0.0  0.965  0.022  0.004  0.000  0.009  0.0
+    n=3  0.0  0.295  0.000  0.705  0.000  0.000  0.0
+    n=4  0.0  0.671  0.097  0.000  0.232  0.000  0.0
+    n=5  0.0  0.957  0.026  0.006  0.000  0.011  0.0
     n=6  0.0  1.000  0.000  0.000  0.000  0.000  0.0
 
 
@@ -161,7 +158,6 @@ which is mathematically obvious due to the recursive nature of the definition of
 Using a similar setup, we can investigate if and how the various measures of collective canalization, 
 specifically canalizing strength (Kadelka et al., Adv in Appl Math, 2023) and the normalized input redundancy (Gates et al., PNAS, 2021), 
 change when the degree of the functions changes.
-
 
 ```python
 n_simulations = 100
@@ -210,7 +206,7 @@ plt.show()
 
 
     
-![png](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_9_0.png)
+![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_9_0.png)
     
 
 
@@ -223,7 +219,6 @@ If we stratify this analysis by canalizing depth
 we can confirm that functions with more conditionally canalizing variables tend to also have higher average collective canalization, 
 irrespective of how it is measured.
 In other words, the various measures of canalization are all highly correlated.
-
 
 ```python
 n_simulations = 100
@@ -309,7 +304,7 @@ plt.show()
 
 
     
-![png](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_12_0.png)
+![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_12_0.png)
     
 
 
@@ -317,7 +312,6 @@ plt.show()
 
 We can generate all (non-degenerate) Boolean functions of a certain degree $n$ 
 (only feasible up to $n=4$) and compare canalizing strength and input redundancy.
-
 
 ```python
 n = 3
@@ -352,7 +346,7 @@ stats.spearmanr(strengths[which], redundancies[which])
 
 
     
-![png](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_14_0.png)
+![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_14_0.png)
     
 
 
@@ -371,7 +365,6 @@ It remains an open question what drives this behavior.
 
 Basically all metrics used to assess the sensitivity of Boolean functions (canalization, absolute bias, average sensitivity) are correlated. 
 For example, functions with higher absolute bias are more likely to be canalizing.
-
 
 ```python
 ns = np.arange(2, 6)
@@ -407,7 +400,7 @@ plt.show()
 
 
     
-![png](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_17_0.png)
+![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_17_0.png)
     
 
 
@@ -415,7 +408,6 @@ plt.show()
 
 Similarly, the probability that a function is degenerate (i.e., that it does not depend on all its variables) 
 also increases as the absolute bias increases.
-
 
 ```python
 count_degenerate = np.zeros((len(ns), len(bias_values)), dtype=int)
@@ -446,7 +438,7 @@ plt.show()
 
 
     
-![png](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_19_0.png)
+![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_19_0.png)
     
 
 
@@ -466,7 +458,6 @@ That is, they have the same average sensitivity, canalizing strength and the sam
 Iterating over all possible absolute biases (parametrized by the possible Hamming weights), 
 we can thus generate all dynamically different types of n-input NCFs and investigate their average sensitivity, 
 which we can compute exactly for relatively low degree.
-
 
 ```python
 n = 5
@@ -520,7 +511,6 @@ and a near perfect correlation between average sensitivity and effective degree.
 To investigate the non-monotonic behavior further, 
 we can vary the degree and create line plots that reveal a clear pattern, as shown in Kadelka et al., Physica D, 2017.
 
-
 ```python
 ns = np.arange(5, 9)
 fig, ax = plt.subplots()
@@ -545,7 +535,7 @@ plt.show()
 
 
     
-![png](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_23_0.png)
+![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_23_0.png)
     
 
 

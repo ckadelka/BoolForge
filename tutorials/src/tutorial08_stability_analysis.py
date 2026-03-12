@@ -50,7 +50,12 @@ print("Number of nodes:", bn.N)
 
 # %%
 results_exact = bn.get_attractors_and_robustness_synchronous_exact()
-results_exact.keys()
+for key in results_exact.keys():
+    print(key)
+
+# %% [markdown]
+# For convenience, information about the dynamics (attractors, basin sizes, etc),
+# described in detail in the previous tutorial, is also returned by this method.
 
 # %%
 print("Number of attractors:", results_exact["NumberOfAttractors"])
@@ -77,13 +82,13 @@ print("Overall fragility:", results_exact["Fragility"])
 # %%
 df_basins = pd.DataFrame({
     "BasinSize": results_exact["BasinSizes"],
-    "BasinCoherence": results_exact["BasinCoherences"],
-    "BasinFragility": results_exact["BasinFragilities"],
+    "BasinCoherences": results_exact["BasinCoherences"],
+    "BasinFragilities": results_exact["BasinFragilities"],
 })
 
 df_attractors = pd.DataFrame({
-    "AttractorCoherence": results_exact["AttractorCoherences"],
-    "AttractorFragility": results_exact["AttractorFragilities"],
+    "AttractorCoherences": results_exact["AttractorCoherences"],
+    "AttractorFragilities": results_exact["AttractorFragilities"],
 })
 
 print("Basin-level robustness:")
@@ -99,29 +104,27 @@ print(df_attractors)
 #   change the final attractor.
 # - **Fragility** measures how much the attractor state changes.
 #
-# Importantly, attractors are often less stable than their basins,
-# a phenomenon explored in detail in Tutorial 10.
+# The robustness metrics considered thus far describe how a single perturbation affects
+# the network dynamics in the long-term, i.e., at the attractor. 
+# These metrics are very meaningful biologically because attractors typically 
+# correspond to cell types of phenotypes.
+#
+# It turns out that attractors in biological networks are often less stable 
+# than their basins, a phenomenon explored in detail in Tutorial 10.
 #
 #
 # ## Approximate robustness for larger networks
 #
-# For larger networks, exact enumeration of all 2^N states is infeasible.
+# For larger networks, exact enumeration of all $2^N$ states is infeasible.
 # BoolForge therefore provides a Monte Carlo approximation that samples
 # random initial conditions and perturbations.
 
 # %%
-results_approx = bn.get_attractors_and_robustness_synchronous(
-    n_simulations=500
-)
-
-for key in results_approx.keys():
-    print(key)
+results_approx = bn.get_attractors_and_robustness_synchronous(n_simulations=500)
 
 print("Lower bound on the number of attractors:", results_approx["LowerBoundOfNumberOfAttractors"])
 print("Approximate coherence:", results_approx["CoherenceApproximation"])
 print("Approximate fragility:", results_approx["FragilityApproximation"])
-print("Final Hamming distance approximation:",
-      results_approx["FinalHammingDistanceApproximation"])
 
 # %% [markdown]
 # Even when only using 500 random initial states, the approximate values closely match the exact ones.
@@ -130,17 +133,13 @@ print("Final Hamming distance approximation:",
 # %% [markdown]
 # ## Derrida value: dynamical sensitivity
 #
-# The robustness metrics considered thus far describe how a single perturbation affects
-# the network dynamics in the long-term, i.e., at the attractor. 
-# These metrics are very meaningful biologically because attractors typically 
-# correspond to cell types of phenotypes.
-#
 # An older and very popular robustness metric, the Derrida value, 
 # measures how perturbations *propagate* after one synchronous update.
 # It is defined as the expected Hamming distance between updated states that initially
 # differed in exactly one bit. 
-# BoolForge includes routines for its exact calculations and Monte Carlo simulations.
-# For small networks, the exact calculation is strongly preferable. It is faster and more accurate.
+#
+# BoolForge includes routines for the exact calculation and estimation of Derrida values.
+# For networks with low degree, the exact calculation is strongly preferable. It is faster and more accurate.
 
 # %%
 derrida_exact = bn.get_derrida_value(exact=True)
@@ -162,6 +161,7 @@ print("Approximate Derrida value:", derrida_approx)
 # ## Summary and outlook
 #
 # In this tutorial you learned how to:
+#
 # - compute exact robustness measures for small Boolean networks,
 # - interpret coherence and fragility at network, basin, and attractor levels,
 # - approximate robustness measures for larger networks, and

@@ -22,7 +22,6 @@ In this tutorial you will learn how to:
 
 ## Setup
 
-
 ```python
 import boolforge
 import numpy as np
@@ -46,7 +45,6 @@ A symmetry of a Boolean function is a permutation of input variables that does
 
 The following three Boolean functions exhibit full, partial, and no symmetry.
 
-
 ```python
 # Fully symmetric (parity / XOR)
 f = boolforge.BooleanFunction("(x0 + x1 + x2) % 2")
@@ -61,17 +59,16 @@ labels = ["f", "g", "h"]
 boolforge.display_truth_table(f, g, h, labels=labels)
 ```
 
-    x0	x1	x2	|	f	g	h
+    x1	x2	x3	|	f	g	h
     -------------------------------------------------
     0	0	0	|	0	0	0
     0	0	1	|	1	0	0
-    0	1	0	|	1	0	1
-    0	1	1	|	1	1	0
+    0	1	0	|	1	0	0
+    0	1	1	|	0	1	1
     1	0	0	|	1	1	1
-    1	0	1	|	1	1	1
-    1	1	0	|	1	1	1
+    1	0	1	|	0	1	1
+    1	1	0	|	0	1	1
     1	1	1	|	1	1	1
-
 
 
 ```python
@@ -91,8 +88,7 @@ for func, label in zip([f, g, h], labels):
     
     Symmetry groups of h:
        ['x0']
-       ['x1']
-       ['x2']
+       ['x1' '~x2']
     
 
 
@@ -108,7 +104,6 @@ canalizing layers, explored in later tutorials.
 ## Degenerate functions
 
 A function is **degenerate** if one or more inputs do not matter at all. 
-
 
 ```python
 print("f.is_degenerate()", f.is_degenerate())
@@ -205,7 +200,6 @@ Recommendation:
 To investigate how to compute the activities and the average sensitivity in `BoolForge`, 
 we work with the linear function `f` from above, as well as with the function `g`.
 
-
 ```python
 exact = True
 normalized = True
@@ -217,9 +211,9 @@ print("Normalized average sensitivity of f:", f.get_average_sensitivity(exact=ex
 print("Normalized average sensitivity of g:", g.get_average_sensitivity(exact=exact, normalized=normalized))
 ```
 
-    Activities of f: [0.25 0.25 0.25]
+    Activities of f: [1. 1. 1.]
     Activities of g: [0.75 0.25 0.25]
-    Normalized average sensitivity of f: 0.25
+    Normalized average sensitivity of f: 1.0
     Normalized average sensitivity of g: 0.4166666666666667
 
 
@@ -239,7 +233,6 @@ as (i) this is almost certainly the case anyways (the probability that an n-inpu
 and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). We thus suggest setting `allow_degenerate_functions=True`. 
 You find more on this and the `random_function` method in Tutorial 4. 
 
-
 ```python
 exact = False
 n = 25
@@ -254,8 +247,8 @@ print(
 )
 ```
 
-    Mean activity: 0.5008
-    Normalized average sensitivity: 0.5001
+    Mean activity: 0.4990
+    Normalized average sensitivity: 0.5008
 
 
 **Interpretation**

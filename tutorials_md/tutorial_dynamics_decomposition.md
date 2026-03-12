@@ -11,7 +11,6 @@ In this tutorial you will:
 
 ## Setup
 
-
 ```python
 import boolforge
 ```
@@ -66,7 +65,6 @@ As an example, consider a non-autonomous Boolean network with two regulated
 nodes A and B and an external input C. Assume the external input exhibits the 
 pattern (1, 1, 0, 1, 0, 1, 0, ...), i.e., it is 1 and then settles into a 2-cycle:
 
-
 ```python
 bn = boolforge.BooleanNetwork.from_string('''
                                           A = B and C
@@ -101,7 +99,6 @@ as True or omitted, `get_trajectories(...)` instead returns a NetworkX graph.
 ### Plotting trajectories
 BoolForge also provides functionality to plot compressed trajectory graphs:
 
-
 ```python
 G = bn.get_trajectories(non_periodic, periodic)
 boolforge.plot_trajectory(G, show = True);
@@ -109,7 +106,7 @@ boolforge.plot_trajectory(G, show = True);
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_5_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_5_0.png)
     
 
 
@@ -117,7 +114,6 @@ This process can also be performed manually, by calling `compress_trajectories(.
 on the list output of `get_trajectories(...)`. However, the `compress_trajectories(...)`
 function will require the number of non-input nodes in the network. This value
 is automatically computed and passed to the function when the merge_trajectories flag is True.
-
 
 ```python
 trajectories = bn.get_trajectories(transient_input_sequence = non_periodic, 
@@ -129,7 +125,7 @@ boolforge.plot_trajectory(G, show = True);
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_7_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_7_0.png)
     
 
 
@@ -140,7 +136,6 @@ compressed trajectory graphs, we can compute the product by calling
 `product_of_trajectories(...)`.
 
 For example, consider the examples 2.8 and 2.9:
-
 
 ```python
 n_2_8 = boolforge.BooleanNetwork([[0,0,0,1], [0,1], [0, 1]], [[1, 2], [0], [2]])
@@ -158,19 +153,19 @@ boolforge.plot_trajectory(G, show = True);
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_9_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_9_0.png)
     
 
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_9_1.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_9_1.png)
     
 
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_9_2.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_9_2.png)
     
 
 
@@ -180,7 +175,6 @@ from the manuscript ``Dynamics Decomposition of Boolean Networks" by Veliz-Cuba 
 
 ### Example 2.8
 
-
 ```python
 n = boolforge.BooleanNetwork([[0,0,0,1],[0,1],[0,1]],[[1,2],[0],[2]])
 boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), show = True);
@@ -188,12 +182,11 @@ boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), show = True);
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_12_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_12_0.png)
     
 
 
 ### Example 2.9
-
 
 ```python
 n = boolforge.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
@@ -202,12 +195,11 @@ boolforge.plot_trajectory(n.get_trajectories([[1]], [[1,0]]), show = True);
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_14_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_14_0.png)
     
 
 
 ### Example 2.10
-
 
 ```python
 n = boolforge.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
@@ -216,12 +208,11 @@ boolforge.plot_trajectory(n.get_trajectories([[]], [[0]]), show = True);
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_16_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_16_0.png)
     
 
 
 ### Example 3.2
-
 
 ```python
 T = [
@@ -240,13 +231,12 @@ boolforge.plot_trajectory(G, show = True);
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_18_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_18_0.png)
     
 
 
 ### Figure 11
 This is Figure 11a from the manuscript.
-
 
 ```python
 G1 = boolforge.compress_trajectories([([1,0],1)], 3)
@@ -259,12 +249,11 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_20_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_20_0.png)
     
 
 
 This is Figure 11b from the manuscript.
-
 
 ```python
 G1 = boolforge.compress_trajectories([([4,0],1),([0],1)], 3)
@@ -277,12 +266,11 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_22_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_22_0.png)
     
 
 
 This is Figure 11c from the manuscript.
-
 
 ```python
 G1 = boolforge.compress_trajectories([([3,5,2],2)], 3)
@@ -300,12 +288,11 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_24_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_24_0.png)
     
 
 
 This is Figure 11d from the manuscript.
-
 
 ```python
 G1 = boolforge.compress_trajectories([([6,5,2],2),([2,5],2)], 3)
@@ -323,12 +310,11 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_26_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_26_0.png)
     
 
 
 This is Figure 11e from the manuscript.
-
 
 ```python
 G1 = boolforge.compress_trajectories([([5,2],2)], 3)
@@ -346,12 +332,11 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_28_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_28_0.png)
     
 
 
 This is Figure 11f from the manuscript.
-
 
 ```python
 G1 = boolforge.compress_trajectories([([7],1)], 3)
@@ -361,6 +346,6 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 
 
     
-![png](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_30_0.png)
+![](tutorial_dynamics_decomposition_files/tutorial_dynamics_decomposition_30_0.png)
     
 

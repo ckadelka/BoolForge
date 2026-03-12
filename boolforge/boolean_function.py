@@ -337,7 +337,7 @@ def display_truth_table(*functions : "BooleanFunction", labels : Sequence[str] |
     if np.all([np.all(f.variables == g.variables) for g in functions]):
         header = "\t".join([f.variables[i] for i in range(f.n)]) 
     else:
-        header = "\t".join([f'x{i+1}' for i in range(f.n)]) 
+        header = "\t".join([f'x{i}' for i in range(f.n)]) 
     if labels is None:
         labels = [f"f{i}" for i in range(len(functions))]
     header += '\t|\t' + '\t'.join(labels)
@@ -1307,37 +1307,52 @@ class BooleanFunction(object):
         return int(self.f.sum())
         
     
-    def get_essential_variables(self) -> list:
+    def get_essential_variables(
+        self,
+        as_dict: bool = False
+    ) -> dict[int, bool] | np.ndarray:
         """
-        Determine the essential variables of the Boolean function.
+        Identify essential variables of the Boolean function.
     
-        A variable ``x_i`` is essential if there exists at least one assignment of
-        the remaining variables such that flipping ``x_i`` changes the output of
+        A variable ``x_i`` is essential if there exists an assignment of the
+        remaining variables such that flipping ``x_i`` changes the output of
         the function.
+    
+        Parameters
+        ----------
+        as_dict : bool, optional
+            If True, return a dictionary mapping variable indices to booleans.
+            If False (default), return an array of indices of essential variables.
     
         Returns
         -------
-        list[int]
-            Indices of all essential variables. If the truth table is empty, returns
-            an empty list.
+        dict[int, bool] or np.ndarray
+            If ``as_dict`` is True, a dictionary indicating which variables are
+            essential.
+            If ``as_dict`` is False, an array of indices of essential variables.
         """
+    
         if len(self.f) == 0:
-            return []
-        essential_variables = list(range(self.n))
-        for i in range(self.n):
-            dummy_add = (2**(self.n-1-i))
-            dummy = np.arange(2**self.n) % (2**(self.n-i)) // dummy_add
-            depends_on_i = False
-            for j in range(2**self.n):
-                if dummy[j] == 1:
-                    continue
-                else:
-                    if self.f[j] != self.f[j + dummy_add]:
-                        depends_on_i = True
+            is_essential = np.zeros(self.n, dtype=bool)
+        else:
+            is_essential = np.zeros(self.n, dtype=bool)
+    
+            for i in range(self.n):
+                step = 2 ** (self.n - i - 1)
+    
+                for start in range(0, 2**self.n, 2 * step):
+                    block0 = self.f[start : start + step]
+                    block1 = self.f[start + step : start + 2 * step]
+    
+                    if np.any(block0 != block1):
+                        is_essential[i] = True
                         break
-            if depends_on_i == False:
-                essential_variables.remove(i)
-        return essential_variables 
+    
+        if as_dict:
+            return dict(enumerate(is_essential.tolist()))
+    
+        return np.where(is_essential)[0]
+
 
     def get_number_of_essential_variables(self) -> int:
         """

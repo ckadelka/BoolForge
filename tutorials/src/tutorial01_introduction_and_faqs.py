@@ -118,7 +118,7 @@ a_and_b = a & b
 a_or_b = a | b
 a_xor_b = a ^ b
 
-labels = ["a", "b", "NOT a", "a AND b", "a OR b", "a XOR b"]
+labels = ["a", "b", "~a", "a&b", "a|b", "a^b"]
 boolforge.display_truth_table(a, b, not_a, a_and_b, a_or_b, a_xor_b, labels=labels)
 
 # %% [markdown]
@@ -162,23 +162,28 @@ print(boolforge.BooleanFunction("(y + z + x) % 2 == 0").variables)
 
 # %% [markdown]
 #The variable order determines how the truth table is indexed. 
-# For example, for variables [x,y,z], the entry in position i 
+# For example, if variables are sorted as [x,y,z], the entry in position i 
 # corresponds to the binary expansion of i over (x,y,z). 
+# E.g., row $i=4$ corresponds to $x=1,y=0,z=0$.
 # Therefore, the same expression with a different variable order 
-# results in a different right-side truth table ordering. 
+# results in a different truth table ordering. 
 # This becomes important when combining functions 
 # inside networks or importing networks from text files.
+# That said, it is all handled internally by BoolForge.
 
 # %% [markdown]
 # ## Basic properties of Boolean functions
 #
-# We can inspect various properties of a Boolean function. The degree, i.e., the number of inputs, is readily available via 'f.n'. Other properties can be computed.
+# We can inspect various properties of a Boolean function. 
+# The degree, i.e., the number of inputs, is readily available via 'f.n'. 
+# Other properties can be computed.
 #
 # - '.is_constant()' checks if the function is constant, 
 # - '.is_degenerate()' checks if the function contains non-essential variables, 
 # - '.get_essential_variables()' provides the indices (Python: starting at 0!) of the essential variables, 
 # - '.get_type_of_inputs()' describes the type of each input ('positive', 'negative', 'conditional', or 'non-essential').
 # - The Hamming weight is the number of 1s in the right side of the truth table.
+# - The bias is $\text{\#ones} / 2^n$. It equals 0.5 for unbiased functions.
 # - The absolute bias is $|\text{\#ones} - \text{\#zeros}| / 2^n$. It equals 1 for constant functions and 0 for unbiased functions.
 
 # %%
@@ -187,8 +192,9 @@ print("Is constant?", f.is_constant())
 print("Is degenerate?", f.is_degenerate())
 print("Essential variables:", f.get_essential_variables())
 print("Type of inputs:", f.get_type_of_inputs())
-print("Hamming weight:", f.get_hamming_weight())
-print("Absolute bias:", f.get_absolute_bias())
+print("Hamming weight:", f.hamming_weight)
+print("Bias:", f.bias)
+print("Absolute bias:", f.absolute_bias)
 
 
 # %% [markdown]
@@ -200,25 +206,29 @@ print("Is constant?", g.is_constant())
 print("Is degenerate?", g.is_degenerate())
 print("Essential variables:", g.get_essential_variables())
 print("Type of inputs:", g.get_type_of_inputs())
-print("Hamming weight:", g.get_hamming_weight())
-print("Absolute bias:", g.get_absolute_bias())
+print("Hamming weight:", g.hamming_weight)
+print("Bias:", g.bias)
+print("Absolute bias:", g.absolute_bias)
 
 # %% [markdown]
 # The `.summary()` method prints a human-readable overview of basic properties.
-# If more advanced properties have already been computed, e.g., by `.get_layer_structure()` or `get_type_of_inputs()`,
-# they are also displayed (or if the optional keyword `COMPUTE_ALL` is set to True, default False). 
 
 # %%
 f = boolforge.BooleanFunction("(A and B) OR NOT C")
 print(f.summary())
-print()
-
-# The computation of more advanced properties can also be manually triggered
-print(f.summary(compute_all=True)) #or simply print(f.summary(True))
-
 
 # %% [markdown]
-# The more advanced properties displayed here (e.g., all properties related to canalization) are the subject of later tutorials.
+# If more advanced properties have already been computed, 
+# e.g., by `.get_layer_structure()` or `get_type_of_inputs()`,
+# they are also displayed. This is also the case if the optional keyword `compute_all`
+#  is set to True; default is False to avoid potentially time-consuming computations. 
+
+# %%
+print(f.summary(compute_all=True)) #or simply print(f.summary(True))
+
+# %% [markdown]
+# The more advanced properties displayed here (e.g., all properties related to canalization)
+# are the subject of later tutorials.
 #
 # ## Logical and polynomial representations
 #
@@ -230,7 +240,7 @@ print(f"Polynomial form of {f.name}:", f.to_polynomial())
 
 
 # %% [markdown]
-# In addition, a `BooleanFunction` object can be turned into `BooleanNode` object from the [CANA package](https:www.github.com). 
+# In addition, a `BooleanFunction` object can be turned into `BooleanNode` object from the [CANA package](https:www.github.com/CASCI-lab/CANA). 
 # This requires the optional CANA package to be installed.
 
 # %%
@@ -293,7 +303,7 @@ print(type(cana_object))
 # ## Frequently Asked Questions
 # ### Why does the order of variables matter?
 # The order in which variables appear determines the ordering of the truth table.
-# For a function with variables `[A, B, C]`, the entry at position $i\in\{0,1,\ldots,2^n-1$ corresponds
+# For a function with variables `[A, B, C]`, the entry at position $i\in\{0,1,\ldots,2^n-1\}$ corresponds
 # to the binary representation of $i$ over `(A, B, C)`. For example, row 4 
 # (i.e., the fifth row since Python starts indexing at 0) corresponds to $A = 1, B = 0, C = 0$.
 #
@@ -323,20 +333,19 @@ print(boolforge.BooleanFunction('not B and A'))
 
 # %% [markdown]
 # ### What is the difference between `get_type_of_inputs()` and monotonicity?
-# The method `get_type_of_inputs()` classifies each input variable individually
-# according to how it influences the output:
+# The method `get_type_of_inputs()` classifies each input variable individually,
+# i.e., it describes how an increase in the variable can affect the function output:
 #
-# - positively increasing,
-# - negatively increasing,
-# - conditional,
-# - or non-essential.
+# - positive: the function value increases at least sometimes but never decreases,
+# - negative: the function value decreases at least sometimes but never increases,
+# - conditional: both positive and negative,
+# - non-essential: the function value never changes.
 #
 # Monotonicity, by contrast, is a **global property** of the Boolean function.
-# A function is monotone if **all** essential variables influence the output in a
-# consistent direction.
+# A function is monotone if **none** of its essential variables are conditional.
 #
-# A function can therefore be non-monotone even if individual inputs have a
-# well-defined influence type.
+# A function can therefore be non-monotone even if some individual inputs affect
+# it in a monotone manner.
 #
 # ### Quick Reference
 # 

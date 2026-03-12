@@ -4,6 +4,7 @@
 # In this tutorial, we study how to analyze curate biological Boolean networks.
 #
 # You will learn how to:
+#
 # - load repositories of curated biological Boolean network models,
 # - analyze these models,
 # - generate null models to test the statistical significance of features in biological models.
@@ -71,11 +72,4 @@ ax.semilogx(sizes,average_degrees,'rx',label = 'expert-curated (ckadelka)')
 ax.semilogx(sizes_sm,average_degrees_sm,'bo',label = 'pystablemotifs (jcrozum)')
 ax.set_xlabel('network size')
 ax.set_ylabel('average degree')
-ax.legend(loc='best',frameon=False)
-
-
-
-
-
-
-
+ax.legend(loc='best',frameon=False);

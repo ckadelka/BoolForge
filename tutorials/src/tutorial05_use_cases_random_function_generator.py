@@ -306,21 +306,22 @@ plt.figure(figsize=(5, 4))
 plt.scatter(strengths[which], redundancies[which], alpha=0.7)
 plt.xlabel("Canalizing strength")
 plt.ylabel("Normalized input redundancy")
-plt.title(f"n = {n}")
 plt.tight_layout()
 plt.show()
 
 stats.spearmanr(strengths[which], redundancies[which])
 
 # %% [markdown]
-# Both measures are highly correlated but markedly not the same.
+# Both measures are highly correlated but markedly not the same, 
+# which becomes even more evident when rerunnign the analysis for $n=4$.
 # Some functions possess relatively high canalizing strength but low input redundancy, and vice versa.
 # It remains an open question what drives this behavior.
 
 # %% [markdown]
 # ## Correlation between canalization and bias
 #
-# Basically all metrics used to assess the sensitivity of Boolean functions (canalization, absolute bias, average sensitivity) are correlated. 
+# All metrics used to assess the sensitivity of Boolean functions 
+# (canalization, absolute bias, average sensitivity) are correlated. 
 # For example, functions with higher absolute bias are more likely to be canalizing.
 
 # %%

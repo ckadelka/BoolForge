@@ -1,9 +1,27 @@
 \usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{caption}
 
-% Allow alt= key in \includegraphics without error
+% allow alt= in includegraphics
 \makeatletter
 \define@key{Gin}{alt}{}
 \makeatother
 
+% prevent oversized figures
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\makeatother
+
+\setkeys{Gin}{width=\maxwidth,height=0.8\textheight,keepaspectratio}
+
+% new page per tutorial
 \usepackage{etoolbox}
 \pretocmd{\section}{\clearpage}{}{}
+
+% nicer captions
+\captionsetup{
+  font=small,
+  labelfont=bf
+}
