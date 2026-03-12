@@ -175,7 +175,46 @@ class WiringDiagram(object):
                 self.weights.append(np.array(row, dtype=float))
         else:
             self.weights = None
+            
+        # ---- Properties (empty initially) -----------------------------------
+        self._properties_exact = {}
+        self._properties_estimated = {}
+        
+    def _make_property_key(self, name, context=None):
+        if context is None:
+            return name
+        context = str(context).lower()
+        return (name, context)
 
+    def _set_property(self, name, value, context=None, exact=True):
+        key = self._make_property_key(name, context)
+    
+        if exact:
+            self._properties_exact[key] = value
+            self._properties_estimated.pop(key, None)
+        elif key not in self._properties_exact:
+                self._properties_estimated[key] = value
+    
+    def _get_property(self, name, context=None):
+        key = self._make_property_key(name, context)
+    
+        if key in self._properties_exact:
+            return self._properties_exact[key], "exact"
+    
+        if key in self._properties_estimated:
+            return self._properties_estimated[key], "estimated"
+
+        # detect missing context argument
+        if context is None:
+            for dictionary in (self._properties_exact, self._properties_estimated):
+                for k in dictionary:
+                    if isinstance(k, tuple) and k[0] == name:
+                        raise ValueError(
+                            f"Property '{name}' depends on the context. Specify context."
+                        )
+            
+        return None, None
+                
 
     @classmethod
     def from_DiGraph(
@@ -352,6 +391,7 @@ class WiringDiagram(object):
         for regulators in self.I:
             for regulator in regulators:
                 outdegrees[regulator] += 1
+        self._set_property('out-degrees', outdegrees, context=None, exact=True)
         return outdegrees
 
 
@@ -405,7 +445,9 @@ class WiringDiagram(object):
         """
         edges = [(int(reg), target) for target, regs in enumerate(self.I) for reg in regs]
         subG = nx.DiGraph(edges)
-        return list(nx.strongly_connected_components(subG))
+        sccs = list(nx.strongly_connected_components(subG))
+        self._set_property('sccs', sccs, context=None, exact=True)
+        return sccs
 
 
     def get_modular_structure(self) -> set[tuple[int, int]]:
@@ -451,7 +493,7 @@ class WiringDiagram(object):
                         continue
     
                 dag.add((src, tgt))
-    
+        self._set_property('modular_DAG', dag, context=None, exact=True)
         return dag
 
 
@@ -512,9 +554,10 @@ class WiringDiagram(object):
                         types.append([direct, indirect1, indirect2])
         
         return_dict = {'FFLs' : ffls}
+        self._set_property('FFLs', ffls, context=None, exact=True)
         if types is not None:
             return_dict['Types'] = types
-        
+            self._set_property('FFL types', types, context=None, exact=True)
         return return_dict
     
         
@@ -607,6 +650,7 @@ class WiringDiagram(object):
             sccs.extend(scc for scc in nx.strongly_connected_components(H) if len(scc) > 1)
         
         return_dict = {'FBLs' : fbls}
+
         if self.weights is not None and classify:
             types,n_negative = self._get_types_of_fbls(fbls)
             return_dict['Types'] = types

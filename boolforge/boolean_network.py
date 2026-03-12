@@ -67,6 +67,7 @@ __all__ = [
 
 dict_weights = {'non-essential' : np.nan, 'conditional' : 0, 'positive' : 1, 'negative' : -1}
 
+
 def get_entropy_of_basin_size_distribution(
     basin_sizes: Sequence[float]
 ) -> float:
@@ -875,7 +876,9 @@ class BooleanNetwork(WiringDiagram):
         # ---- Optional simplification ----------------------------------------
         if simplify_functions:
             self.simplify_functions()
+        
 
+                
     def remove_constants(self) -> None:
         """
         Remove structurally constant nodes from the Boolean network.
@@ -1602,7 +1605,7 @@ class BooleanNetwork(WiringDiagram):
         as_dict: bool = False
     ) -> dict[int, bool] | np.ndarray:
         """
-        Identify identity (memory) nodes in the Boolean network.
+        Identify identity nodes in the Boolean network.
     
         An identity node is a node with a single self-regulatory edge whose
         Boolean update function is the identity function ``f(x) = x``. Such
@@ -2113,7 +2116,6 @@ class BooleanNetwork(WiringDiagram):
                     Fx[i] = nextstep
     
         return Fx
-
 
 
     def get_steady_states_asynchronous_exact(
@@ -2778,7 +2780,14 @@ class BooleanNetwork(WiringDiagram):
                 if count == n_steps_timeout:
                     n_timeout += 1
                     break
-    
+
+        self._set_property('Attractors', attractors,
+                           context='synchronous', exact=False)
+        self._set_property('NumberOfAttractors', len(attractors),
+                           context='synchronous', exact=False)
+        self._set_property('BasinSizes', basin_sizes,
+                           context='synchronous', exact=False)
+        
         return {
             "Attractors": attractors,
             "NumberOfAttractors": len(attractors),
@@ -2951,6 +2960,13 @@ class BooleanNetwork(WiringDiagram):
                     cur = fxdec
     
         basin_sizes = np.array(basin_sizes, dtype=np.float64) / (2**self.N)
+
+        self._set_property('Attractors', attractors,
+                           context='synchronous', exact=True)
+        self._set_property('NumberOfAttractors', len(attractors),
+                           context='synchronous', exact=True)
+        self._set_property('BasinSizes', basin_sizes,
+                           context='synchronous', exact=True)
     
         return {
             "Attractors": attractors,
@@ -3125,6 +3141,24 @@ class BooleanNetwork(WiringDiagram):
         # Single-attractor shortcut
         # ------------------------------------------------------------------
         if n_attractors == 1:
+            basin_coherence = np.ones(1, dtype=np.float64)
+            basin_fragility = np.zeros(1, dtype=np.float64)
+            attractor_coherence = np.ones(1, dtype=np.float64)
+            attractor_fragility = np.zeros(1, dtype=np.float64)
+            
+            self._set_property('Coherence', 1.0,
+                               context='synchronous', exact=True)
+            self._set_property('Fragility', 0.0,
+                               context='synchronous', exact=True)
+            self._set_property('Basin coherence', basin_coherence,
+                               context='synchronous', exact=True)
+            self._set_property('Basin fragility', basin_fragility,
+                               context='synchronous', exact=True)
+            self._set_property('Attractor coherence', attractor_coherence,
+                               context='synchronous', exact=True)
+            self._set_property('Attractor coherence', attractor_fragility,
+                               context='synchronous', exact=True)
+            
             return {
                 "Attractors": attractors,
                 "NumberOfAttractors": 1,
@@ -3132,10 +3166,10 @@ class BooleanNetwork(WiringDiagram):
                 "AttractorID": attractor_id,
                 "Coherence": 1.0,
                 "Fragility": 0.0,
-                "BasinCoherence": np.ones(1, dtype=np.float64),
-                "BasinFragility": np.zeros(1, dtype=np.float64),
-                "AttractorCoherence": np.ones(1, dtype=np.float64),
-                "AttractorFragility": np.zeros(1, dtype=np.float64),
+                "BasinCoherence": basin_coherence,
+                "BasinFragility": basin_fragility,
+                "AttractorCoherence": attractor_coherence,
+                "AttractorFragility": attractor_fragility,
             }
     
         # ------------------------------------------------------------------
@@ -3295,6 +3329,19 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # Final return
         # ------------------------------------------------------------------
+        self._set_property('Coherence', coherence,
+                           context='synchronous', exact=True)
+        self._set_property('Fragility', fragility,
+                           context='synchronous', exact=True)
+        self._set_property('Basin coherence', basin_coherences,
+                           context='synchronous', exact=True)
+        self._set_property('Basin fragility', basin_fragilities,
+                           context='synchronous', exact=True)
+        self._set_property('Attractor coherence', attractor_coherences,
+                           context='synchronous', exact=True)
+        self._set_property('Attractor coherence', attractor_fragilities,
+                           context='synchronous', exact=True)
+
         return_dict =  {
             "Attractors": attractors,
             "NumberOfAttractors": int(n_attractors),
@@ -3658,6 +3705,15 @@ class BooleanNetwork(WiringDiagram):
             approximate_basin_coherence,
             approximate_basin_fragility,
         ]
+        
+        self._set_property('Coherence', approximate_coherence,
+                           context='synchronous', exact=False)
+        self._set_property('Fragility', approximate_fragility,
+                           context='synchronous', exact=False)
+        self._set_property('Basin coherence', approximate_basin_coherence,
+                           context='synchronous', exact=False)
+        self._set_property('Basin fragility', approximate_basin_fragility,
+                           context='synchronous', exact=False)
     
         if not return_attractor_coherence:
             return dict(
@@ -3767,6 +3823,11 @@ class BooleanNetwork(WiringDiagram):
         )
     
         results[0] = attractors_original
+
+        self._set_property('Attractor coherence', attractor_coherence,
+                           context='synchronous', exact=False)
+        self._set_property('Attractor coherence', attractor_fragility,
+                           context='synchronous', exact=False)
     
         return dict(
             zip(
@@ -3834,72 +3895,76 @@ class BooleanNetwork(WiringDiagram):
         *Europhysics Letters*, 1(2), 45.
         """
     
-        # ------------------------------------------------------------------
-        # Exact computation
-        # ------------------------------------------------------------------
+
         if exact:
-            return float(
-                np.mean(
-                    [
-                        bf.get_average_sensitivity(
-                            exact=True, normalized=False
-                        )
-                        for bf in self.F
-                    ]
-                )
+            # ------------------------------------------------------------------
+            # Exact computation
+            # ------------------------------------------------------------------            value =  float(
+            derrida_value = np.mean(
+                [
+                    bf.get_average_sensitivity(
+                        exact=True, normalized=False
+                    )
+                    for bf in self.F
+                ]
             )
-    
-        # ------------------------------------------------------------------
-        # Monte Carlo approximation
-        # ------------------------------------------------------------------
-        rng = utils._coerce_rng(rng)
-    
-        if __LOADED_NUMBA__ and use_numba:
-            # Prepare Numba-friendly inputs
-            F_array_list = List(
-                [np.asarray(bf.f, dtype=np.uint8) for bf in self.F]
-            )
-            I_array_list = List(
-                [np.asarray(regs, dtype=np.int64) for regs in self.I]
-            )
-    
-            seed = int(rng.integers(0, 2**31 - 1))
-    
-            return float(
-                _derrida_simulation(
-                    F_array_list,
-                    I_array_list,
-                    int(self.N),
-                    int(n_simulations),
-                    seed,
-                )
-            )
-    
-        # ------------------------------------------------------------------
-        # Pure Python fallback
-        # ------------------------------------------------------------------
-        total_dist: float = 0.0
-    
-        for _ in range(int(n_simulations)):
-            x = rng.integers(0, 2, size=self.N, dtype=np.uint8)
-            y = x.copy()
-    
-            idx = int(rng.integers(0, self.N))
-            y[idx] ^= np.uint8(1)
-    
-            fx = np.asarray(
-                self._update_network_synchronously_unchecked(x),
-                dtype=np.uint8,
-            )
-            fy = np.asarray(
-                self._update_network_synchronously_unchecked(y),
-                dtype=np.uint8,
-            )
-    
-            total_dist += float(np.sum(fx != fy))
-    
-        return float(total_dist / float(n_simulations))
+        else:
+            # ------------------------------------------------------------------
+            # Monte Carlo approximation
+            # ------------------------------------------------------------------
+            rng = utils._coerce_rng(rng)
         
+            if __LOADED_NUMBA__ and use_numba:
+                # Prepare Numba-friendly inputs
+                F_array_list = List(
+                    [np.asarray(bf.f, dtype=np.uint8) for bf in self.F]
+                )
+                I_array_list = List(
+                    [np.asarray(regs, dtype=np.int64) for regs in self.I]
+                )
+        
+                seed = int(rng.integers(0, 2**31 - 1))
+        
+                derrida_value = float(
+                    _derrida_simulation(
+                        F_array_list,
+                        I_array_list,
+                        int(self.N),
+                        int(n_simulations),
+                        seed,
+                    )
+                )
+                
+            else:
+                # ------------------------------------------------------------------
+                # Pure Python fallback
+                # ------------------------------------------------------------------
+                total_dist: float = 0.0
+            
+                for _ in range(int(n_simulations)):
+                    x = rng.integers(0, 2, size=self.N, dtype=np.uint8)
+                    y = x.copy()
+            
+                    idx = int(rng.integers(0, self.N))
+                    y[idx] ^= np.uint8(1)
+            
+                    fx = np.asarray(
+                        self._update_network_synchronously_unchecked(x),
+                        dtype=np.uint8,
+                    )
+                    fy = np.asarray(
+                        self._update_network_synchronously_unchecked(y),
+                        dtype=np.uint8,
+                    )
+            
+                    total_dist += float(np.sum(fx != fy))
+            
+                derrida_value = float(total_dist / float(n_simulations))
+            
+        self._set_property('Derrida value', derrida_value,
+                           exact=exact)
+        return derrida_value
+            
 
 # ===================== #
 #   Modular BoolForge   #
