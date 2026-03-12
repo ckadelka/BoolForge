@@ -46,17 +46,17 @@ print("Edge effectiveness of f:", f.get_edge_effectiveness())
 
     x0	x1	x2	|	f_random_non_degenerate
     -------------------------------------------------------
-    0	0	0	|	1
+    0	0	0	|	0
     0	0	1	|	1
-    0	1	0	|	1
-    0	1	1	|	0
-    1	0	0	|	0
-    1	0	1	|	0
-    1	1	0	|	0
+    0	1	0	|	0
+    0	1	1	|	1
+    1	0	0	|	1
+    1	0	1	|	1
+    1	1	0	|	1
     1	1	1	|	0
     Is f degenerate? False
-    Activities of f: [0.75 0.25 0.25]
-    Edge effectiveness of f: [0.8125, 0.375, 0.375]
+    Activities of f: [0.75 0.25 0.75]
+    Edge effectiveness of f: [0.875, 0.375, 0.875]
 
 
 The rest of this tutorial describes the various constraints. 
@@ -77,9 +77,6 @@ print("Activities:", f.get_activities(exact=True))
 print("Edge effectiveness:", f.get_edge_effectiveness())
 print("Normalized average sensitivity:", f.get_average_sensitivity(exact=True))
 print("Canalizing strength:", f.get_canalizing_strength())
-
-# Parity functions are the only Boolean functions with activity 1 (for all variables),
-# normalized average sensitivity 1 and canalizing strength 0.
 ```
 
     x0	x1	x2	|	f_linear
@@ -98,19 +95,30 @@ print("Canalizing strength:", f.get_canalizing_strength())
     Canalizing strength: 0.0
 
 
+Parity functions are the only Boolean functions with activity 1 (for all variables),
+normalized average sensitivity 1 and canalizing strength 0.
+
 ## Functions with prescribed canalizing properties
 
-If `parity=False` (default), the canalizing layer structure can be specified
-via `layer_structure`. This specifies the number of conditionally canalizing variables in each layer of the randomly generated function. 
-If the optional argument `exact_depth=True` (default is False), 
-then this describes the exact layer structure, i.e., the core function cannot be canalizing.
-If `exact_depth=False` (the default), it is possible that the core function is canalizing, 
-meaning that the last described layer in `layer_structure` may have more conditionally canalizing variables, 
-or that there are additional canalizing layers. 
+If `parity=False` (default), canalizing properties can be specified via `layer_structure`
+and `depth`.
+
+### Functions with prescribed canalizing layer structure
+
+The canalizing layer structure can be specified via `layer_structure`. 
+This vector describes the number of conditionally canalizing variables
+in each layer of the randomly generated function. 
+
+- If the optional argument `exact_depth=True` (default is False), 
+then `layer_structure` describes the *exact* layer structure, i.e., the core function cannot be canalizing.
+- If `exact_depth=False` (the default), it is possible that the core function is canalizing
+(meaning that the last described layer in `layer_structure` may contain more 
+conditionally canalizing variables, or that there are additional canalizing layers). 
 
 Before generating any random function, `random_function()` goes through a number of checks 
 ensuring that the provided optional arguments make sense. 
 For example, it checks that the provided layer structure $(k_1,\ldots,k_r)$ satisfies
+
 - $k_i\geq 1$, 
 - $k_1 + \cdots + k_r \leq n$, and
 - if $k_1 + \cdots + k_r = n$, then $k_r \geq 2$ because the last layer of a nested canalizing function must always contain two or more variables.
@@ -135,23 +143,23 @@ for func, label in zip([f, g, h, k], labels):
 
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
-    0	0	0	|	1	0	1	0
-    0	0	1	|	1	0	1	0
-    0	1	0	|	0	1	1	0
-    0	1	1	|	1	0	1	0
-    1	0	0	|	1	1	1	1
+    0	0	0	|	1	1	1	0
+    0	0	1	|	1	1	1	0
+    0	1	0	|	0	1	1	1
+    0	1	1	|	1	1	1	1
+    1	0	0	|	1	1	1	0
     1	0	1	|	1	0	1	1
-    1	1	0	|	1	0	0	0
-    1	1	1	|	1	0	1	1
-    Canalizing depth of f: 3
-    Layer structure of f: [3]
+    1	1	0	|	1	0	1	1
+    1	1	1	|	0	1	0	1
+    Canalizing depth of f: 1
+    Layer structure of f: [1]
     Number of layers of f: 1
-    Core function of f: [0]
+    Core function of f: [0 1 1 0]
     
     Canalizing depth of g: 1
     Layer structure of g: [1]
     Number of layers of g: 1
-    Core function of g: [0 1 1 0]
+    Core function of g: [1 0 0 1]
     
     Canalizing depth of h: 3
     Layer structure of h: [3]
@@ -161,7 +169,7 @@ for func, label in zip([f, g, h, k], labels):
     Canalizing depth of k: 3
     Layer structure of k: [1, 2]
     Number of layers of k: 2
-    Core function of k: [0]
+    Core function of k: [1]
     
 
 
@@ -172,6 +180,8 @@ The 2-input core function of `g` is one of the two parity functions, each with 5
 Likewise, the core function for the other functions is simply [0] or [1], each with 50% probability. 
 Functions `h` and `k` are nested canalizing, i.e., their canalizing depth is 3. 
 Their layer structure is exactly as specified.
+
+### Functions with prescribed canalizing depth
 
 If we do not care about the specific layer structure but only about the canalizing depth, 
 we specify the optional argument `depth` instead of `layer_structure`.
@@ -199,13 +209,13 @@ for func, label in zip([f, g, h, k], labels):
 
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
-    0	0	0	|	0	0	1	0
-    0	0	1	|	1	1	1	0
-    0	1	0	|	1	1	1	1
-    0	1	1	|	1	0	1	1
-    1	0	0	|	0	0	0	0
-    1	0	1	|	1	0	1	0
-    1	1	0	|	0	1	1	1
+    0	0	0	|	0	0	1	1
+    0	0	1	|	0	1	1	1
+    0	1	0	|	0	1	1	0
+    0	1	1	|	0	1	1	0
+    1	0	0	|	0	1	0	1
+    1	0	1	|	0	1	1	0
+    1	1	0	|	0	0	1	0
     1	1	1	|	1	0	0	0
     Canalizing depth of f: 3
     
@@ -234,12 +244,16 @@ For example,
 
 It is possible that an n-input Boolean function does not depend on all its variables.
 For example, the function $f(x,y) = x$ depends on $x$ but not on $y$. 
-By default, such degenerate functions are never generated by `boolforge.random_function()`.
+**By default, such degenerate functions are never generated by `boolforge.random_function()`**.
 To enable the generation of possibly degenerate functions, we set `allow_degenerate_functions=True`.
-Although hardly of any practical value, we can even restrict the random generation to degenerate functions only, using `boolforge.random_degenerate_function(n,*args)`. 
+Although hardly of any practical value, we can even restrict the random generation to 
+degenerate functions only, using `boolforge.generate.random_degenerate_function(n,*args)`. 
 
-Note: When generating random canalizing functions, the value of `allow_degenerate_functions` is ignored. 
-The non-canalizing core function is assumed to always depend on all its variables.
+Note: When generating random canalizing functions, the value of `allow_degenerate_functions`
+is ignored. The non-canalizing core function is constructed to depend on all of its variables
+so that the number of essential variables equals the specified value. Otherwise degeneracy would
+reduce the number of essential variables and confound analyses of random Boolean networks,
+especially when the degree is small.
 
 Since degenerate functions occur much more frequently at low degree, we set `n=2`, 
 generate a large number of random, possibly degenerate functions and 
@@ -272,7 +286,7 @@ print("Error:", count_essential / n_simulations - expected)
 plt.show()
 ```
 
-    Error: [ 0.0024  0.0036 -0.006 ]
+    Error: [-0.0065 -0.0034  0.0099]
 
 
 
@@ -311,13 +325,13 @@ for func, label in zip([f, g, h], labels):
     x0	x1	x2	|	f	g	h
     -------------------------------------------------
     0	0	0	|	1	1	0
-    0	0	1	|	0	1	1
-    0	1	0	|	0	0	0
-    0	1	1	|	1	1	0
-    1	0	0	|	1	1	0
-    1	0	1	|	0	0	0
+    0	0	1	|	1	1	1
+    0	1	0	|	1	1	0
+    0	1	1	|	0	0	0
+    1	0	0	|	0	0	0
+    1	0	1	|	0	0	1
     1	1	0	|	1	1	0
-    1	1	1	|	1	0	1
+    1	1	1	|	1	1	0
     Hamming weight of f: 5
     Canalizing depth of f: 0
     Number of essential variables of f: 3
@@ -327,8 +341,8 @@ for func, label in zip([f, g, h], labels):
     Number of essential variables of g: 3
     
     Hamming weight of h: 2
-    Canalizing depth of h: 1
-    Number of essential variables of h: 3
+    Canalizing depth of h: 2
+    Number of essential variables of h: 2
     
 
 
@@ -338,7 +352,8 @@ While specifying the Hamming weight fixes the exact number of 1s in the truth ta
 specifying the bias or absolute bias acts slightly differently. 
 The bias $p$ describes the probability of selecting a 1 at any position in the truth table and can be modified using the optional argument `bias`. 
 Instead of specifying the bias, the absolute bias may also be specified. 
-Unbiased functions generated using $p=0.5$ have an absolute bias of $0$, the default.
+Unbiased functions contain an equal number of ones and zeros in their truth table 
+and have an absolute bias of $0$, the default.
 If, for example, we set `absolute_bias=0.5` and specify to use absolute bias (`use_absolute_bias=True`, default is False), 
 the bias used to generate the function is either 0.25 or 0.75, both with probability 50%. 
 Generally, if we set `use_absolute_bias=True; absolute_bias=a` for $a\in [0,1]$, 
@@ -357,19 +372,19 @@ counts = np.zeros((3, 2**n + 1), dtype=int)
 for _ in range(n_simulations):
     f = boolforge.random_function(n, bias=0.75)
     g = boolforge.random_function(n, absolute_bias=0.5, use_absolute_bias=True)
-    h = boolforge.random_function(n, absolute_bias=0.5)
+    h = boolforge.random_function(n, absolute_bias=0.5) #absolute_bias ignored!
 
     counts[0, f.get_hamming_weight()] += 1
     counts[1, g.get_hamming_weight()] += 1
     counts[2, h.get_hamming_weight()] += 1
 
-labels = ["bias 0.75", "absolute bias 0.5", "random"]
+labels = ["bias = 0.75", "absolute bias = 0.5", "random (bias = 0.5)"]
 x = np.arange(2**n + 1)
 width = 0.3
 
 fig, ax = plt.subplots()
-for i, label in enumerate(labels):
-    ax.bar(x - width + i * width, counts[i] / n_simulations, width=width, label=label)
+for i in range(3):
+    ax.bar(x - width + i * width, counts[i] / n_simulations, width=width, label=labels[i])
 
 ax.legend(frameon=False)
 ax.set_xticks(x)
@@ -390,11 +405,12 @@ This plot exemplifies the difference between bias and absolute bias:
 - Specifying the absolute bias yields random functions with a bimodal Hamming weight distribution. 
 
 Note that `absolute_bias=0.5` is ignored in the generation of `h`. 
-The desired use of absolute bias must be specified by `use_absolute_bias=True`.
+If the value of `absolute_bias` should be used, this must be specified via `use_absolute_bias=True`.
+By default, the value of `bias` (default 0.5) is used.
 
 In the above plot, we notice a lack of functions with Hamming weight 0 and $16=2^n$.
 These constant functions are degenerate and thus not generated unless we set `allow_degenerate_functions=True`, 
-which as we see below slightly modifies the resulting Hamming weight distributions.
+which as we see below, slightly modifies the resulting Hamming weight distributions.
 
 ```python
 counts[:] = 0
@@ -404,16 +420,16 @@ for _ in range(n_simulations):
     g = boolforge.random_function(
         n, absolute_bias=0.5, use_absolute_bias=True, allow_degenerate_functions=True
     )
-    h = boolforge.random_function(n, absolute_bias=0.5, allow_degenerate_functions=True)
+    h = boolforge.random_function(n, allow_degenerate_functions=True)
 
     counts[0, f.get_hamming_weight()] += 1
     counts[1, g.get_hamming_weight()] += 1
     counts[2, h.get_hamming_weight()] += 1
 
 fig, ax = plt.subplots()
-for i, label in enumerate(labels):
-    ax.bar(x - width + i * width, counts[i] / n_simulations, width=width, label=label)
-
+for i in range(3):
+    ax.bar(x - width + i * width, counts[i] / n_simulations, width=width, label=labels[i])
+    
 ax.legend(frameon=False)
 ax.set_xticks(x)
 ax.set_xlabel("Hamming weight")

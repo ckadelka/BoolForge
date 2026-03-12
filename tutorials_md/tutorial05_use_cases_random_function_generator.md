@@ -80,10 +80,10 @@ print(out.to_string())
 
 
            k=0    k=1    k=2    k=3    k=4  k=5  k=6
-    n=2  0.231  0.000  0.769  0.000  0.000  0.0  0.0
-    n=3  0.596  0.110  0.000  0.294  0.000  0.0  0.0
-    n=4  0.954  0.028  0.006  0.000  0.012  0.0  0.0
-    n=5  0.998  0.002  0.000  0.000  0.000  0.0  0.0
+    n=2  0.188  0.000  0.812  0.000  0.000  0.0  0.0
+    n=3  0.624  0.081  0.000  0.295  0.000  0.0  0.0
+    n=4  0.941  0.043  0.005  0.000  0.011  0.0  0.0
+    n=5  0.999  0.001  0.000  0.000  0.000  0.0  0.0
     n=6  1.000  0.000  0.000  0.000  0.000  0.0  0.0
 
 
@@ -141,12 +141,12 @@ print(out.to_string())
     
 
 
-         k=0    k=1    k=2    k=3    k=4    k=5  k=6
-    n=2  0.0  0.000  1.000  0.000  0.000  0.000  0.0
-    n=3  0.0  0.295  0.000  0.705  0.000  0.000  0.0
-    n=4  0.0  0.671  0.097  0.000  0.232  0.000  0.0
-    n=5  0.0  0.957  0.026  0.006  0.000  0.011  0.0
-    n=6  0.0  1.000  0.000  0.000  0.000  0.000  0.0
+         k=0    k=1    k=2    k=3    k=4   k=5  k=6
+    n=2  0.0  0.000  1.000  0.000  0.000  0.00  0.0
+    n=3  0.0  0.251  0.000  0.749  0.000  0.00  0.0
+    n=4  0.0  0.688  0.081  0.000  0.231  0.00  0.0
+    n=5  0.0  0.957  0.029  0.004  0.000  0.01  0.0
+    n=6  0.0  1.000  0.000  0.000  0.000  0.00  0.0
 
 
 This analysis reveals that among Boolean functions of degree $n\geq 5$, 
@@ -337,7 +337,6 @@ plt.figure(figsize=(5, 4))
 plt.scatter(strengths[which], redundancies[which], alpha=0.7)
 plt.xlabel("Canalizing strength")
 plt.ylabel("Normalized input redundancy")
-plt.title(f"n = {n}")
 plt.tight_layout()
 plt.show()
 
@@ -357,13 +356,15 @@ stats.spearmanr(strengths[which], redundancies[which])
 
 
 
-Both measures are highly correlated but markedly not the same.
+Both measures are highly correlated but markedly not the same, 
+which becomes even more evident when rerunnign the analysis for $n=4$.
 Some functions possess relatively high canalizing strength but low input redundancy, and vice versa.
 It remains an open question what drives this behavior.
 
 ## Correlation between canalization and bias
 
-Basically all metrics used to assess the sensitivity of Boolean functions (canalization, absolute bias, average sensitivity) are correlated. 
+All metrics used to assess the sensitivity of Boolean functions 
+(canalization, absolute bias, average sensitivity) are correlated. 
 For example, functions with higher absolute bias are more likely to be canalizing.
 
 ```python

@@ -71,12 +71,6 @@ ax.semilogx(sizes_sm,average_degrees_sm,'bo',label = 'pystablemotifs (jcrozum)')
 ax.set_xlabel('network size')
 ax.set_ylabel('average degree')
 ax.legend(loc='best',frameon=False);
-
-
-
-
-
-
 ```
 
 

@@ -181,9 +181,9 @@ print(dict_dynamics['BasinSizes'])
 # Monte Carlo simulation approximates the attractor landscape.
 
 # %%
-dict_dynamics = bn.get_attractors_synchronous(n_simulations=100)
+dict_dynamics = bn.get_attractors_synchronous(n_simulations=1000)
 print(dict_dynamics['Attractors'])
-print(dict_dynamics['BasinSizes'])
+print(dict_dynamics['BasinSizesApproximation'])
 
 
 # %% [markdown]
@@ -191,7 +191,12 @@ print(dict_dynamics['BasinSizes'])
 #
 # - sampled initial states,
 # - the number of timeouts (trajectories not reaching an attractor before timeout).
-#
+
+# %%
+for key in dict_dynamics:
+    print(key)
+
+# %% [markdown]
 # In the absence of timeouts: If an attractor has relative basin size $q$, 
 # the probability that it is found from $m$ random initializations is $1 - (1-q)^m$.
 
@@ -265,7 +270,10 @@ print(dict_dynamics['BasinSizes'] ==
 # %% [markdown]
 # Note that `BoolForge` currently does not detect complex cyclic attractors under
 # asynchronous update; for this task, specialized tools such as
-# `pystablemotifs` are recommended.
+# [`pystablemotifs`](https://github.com/jcrozum/pystablemotifs) are recommended. 
+#
+# In fact, some of BoolForge's asynchronous update methods fail when the network
+# contains no steady state. 
 
 
 # %% [markdown]

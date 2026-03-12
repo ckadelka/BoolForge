@@ -74,6 +74,7 @@ print("Basin sizes:", results_exact["BasinSizes"])
 print("Overall coherence:", results_exact["Coherence"])
 print("Overall fragility:", results_exact["Fragility"])
 
+# %% [markdown]
 # The same robustness metrics, coherence and fragility, can also be averaged
 # across a smaller set of states, e.g., all states in one basin of attraction, or
 # an even smaller set of states, e.g., all states that form an attractor.
@@ -81,7 +82,7 @@ print("Overall fragility:", results_exact["Fragility"])
 
 # %%
 df_basins = pd.DataFrame({
-    "BasinSize": results_exact["BasinSizes"],
+    "BasinSizes": results_exact["BasinSizes"],
     "BasinCoherences": results_exact["BasinCoherences"],
     "BasinFragilities": results_exact["BasinFragilities"],
 })
@@ -122,7 +123,7 @@ print(df_attractors)
 # %%
 results_approx = bn.get_attractors_and_robustness_synchronous(n_simulations=500)
 
-print("Lower bound on the number of attractors:", results_approx["LowerBoundOfNumberOfAttractors"])
+print("Number of attractors (lower bound):", results_approx["NumberOfAttractorsLowerBound"])
 print("Approximate coherence:", results_approx["CoherenceApproximation"])
 print("Approximate fragility:", results_approx["FragilityApproximation"])
 

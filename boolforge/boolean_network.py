@@ -2657,7 +2657,7 @@ class BooleanNetwork(WiringDiagram):
                 number of attractors).
             - BasinSizesApproximation : np.ndarray[float]
                 Approximate basin size (fraction of sampled trajectories that end in
-                each attractor). Sums to ~1 over discovered attractors.
+                each attractor). Sums to 1 in the absence of time-outs.
             - AttractorID : dict  
               Mapping from visited states (decimal) to attractor index.
             - InitialSamplePoints : list of int  
@@ -2772,7 +2772,7 @@ class BooleanNetwork(WiringDiagram):
                     break
         
         #normalize basin sizes to return proportions
-        basin_sizes = np.array(basin_sizes) / min(1,n_simulations)
+        basin_sizes = np.array(basin_sizes) / max(1,n_simulations)
         
         self._set_property('attractors', attractors,
                            context='synchronous', exact=False)

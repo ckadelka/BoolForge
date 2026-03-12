@@ -340,14 +340,19 @@ bn = boolforge.BooleanNetwork(F, I)
 
 print("bn.variables:", bn.variables)
 print("bn.constants:", bn.constants)
-print("bn.F:", bn.F)
 print("bn.I:", bn.I)
+print("bn.F:")
+for i, bf in enumerate(bn.F):
+    print(f"  F[{i}] = {bf!r}")
 ```
 
     bn.variables: ['x0' 'x1' 'x2']
     bn.constants: {'x3': 0}
-    bn.F: [BooleanFunction(name='x0', f=[0, 0, 0, 1]), BooleanFunction(name='x1', f=[0, 1]), BooleanFunction(name='x2', f=[0, 1])]
     bn.I: [array([1, 2]), array([0]), array([2])]
+    bn.F:
+      F[0] = BooleanFunction(name='x0', f=[0, 0, 0, 1])
+      F[1] = BooleanFunction(name='x1', f=[0, 1])
+      F[2] = BooleanFunction(name='x2', f=[0, 1])
 
 
 The constant node is removed, and its value is propagated into downstream
@@ -382,14 +387,21 @@ I = [
 
 bn = boolforge.BooleanNetwork(F, I)
 
-print("bn.F:", bn.F)
-print("bn.I:", bn.I)
 print("bn.variables:", bn.variables)
+print("bn.constants:", bn.constants)
+print("bn.I:", bn.I)
+print("bn.F:")
+for i, bf in enumerate(bn.F):
+    print(f"  F[{i}] = {bf!r}")
 ```
 
-    bn.F: [BooleanFunction(name='x0', f=[0, 0, 0, 1]), BooleanFunction(name='x1', f=[1, 1]), BooleanFunction(name='x2', f=[0, 1])]
-    bn.I: [array([1, 2]), array([0]), array([2])]
     bn.variables: ['x0' 'x1' 'x2']
+    bn.constants: {'x3': 1}
+    bn.I: [array([1, 2]), array([0]), array([2])]
+    bn.F:
+      F[0] = BooleanFunction(name='x0', f=[0, 0, 0, 1])
+      F[1] = BooleanFunction(name='x1', f=[1, 1])
+      F[2] = BooleanFunction(name='x2', f=[0, 1])
 
 
 Although $x_1$ becomes fixed at 1 after one update, it is not treated as a

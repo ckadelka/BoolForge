@@ -5,6 +5,7 @@
 # prescribed properties, enabling large-scale computational studies.
 #
 # Random Boolean function generation enables:
+#
 # 1. Null model comparisons: Are biological networks special?
 # 2. Ensemble studies: How do structural properties affect dynamics?
 # 3. Robustness testing: Sample the space of equivalent models

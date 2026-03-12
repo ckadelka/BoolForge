@@ -170,8 +170,8 @@ for func, label in zip([f, g, h, k], labels):
 Consider, for example, the output for `k`. The canalizing input values corresponding to
 $x_0, x_1, x_2$ are $1,0,0$, respectively, with the same canalized outputs. That is,
 
-- Layer 1: $x_0$ (if $x_0=1$, then $k=1$, regardless of $x_1$ and $x_2$)
-- Layer 2: $x_1, x_2$ (if $x_0=0$ and $x_1=0$ or $x_2=0$, then $k=0$)
+- Layer 1 contains $x_0$ (if $x_0=1$, then $k=1$, regardless of $x_1$ and $x_2$)
+- Layer 2 contains $x_1$ and $x_2$ (given $x_0=0$, if $x_1=0$ or $x_2=0$, then $k=0$)
 
 ## Collective canalization
 
@@ -183,16 +183,17 @@ Collective canalization asks: "Which *sets* of variables can determine output?"
 A Boolean function is *$k$-set canalizing* if there exists a set of $k$ variables
 whose fixed values determine the output irrespective of the remaining inputs.
 
-Consider, for example, the function $k(x_0,x_1,x_2) = x_0 \vee (x_1 \wedge x_2)$.
+Consider, for example, the function $k(x_0,x_1,x_2) = x_0 \vee (x_1 \wedge x_2)$, defined above.
 This function is 2-set canalizing because
 
 - $\{x_0,x_1\}$ can determine the output: if $(x_0,x_1)=(1,0)$, $k=1$ ($x_2$ irrelevant), or
 - $\{x_1,x_2\}$ can determine the output: if $(x_1,x_2)=(1,1)$, $k=1$ ($x_0$ irrelevant)
 
-The proportion of such $k$-sets, the $k$-set canalizing proportion denoted $P_k(f)$, is used to define the canalizing strength.
-It is fairly obvious that
+The proportion of such $k$-sets, the *$k$-set canalizing proportion* denoted $P_k(f)$, 
+is an important summary statistic. It is fairly obvious that
 
-- nested canalizing functions of a single layer such as `h` are the non-degenerate functions with highest k-set canalizing proportion $P_k(f) = 1-1/2^k$, and
+- nested canalizing functions of a single layer such as `h` are the non-degenerate functions 
+  with largest k-set canalizing proportion $P_k(f) = 1-1/2^k$, and
 - $P_{k-1}(f) \leq P_k(f)$, i.e., more knowledge about a function's inputs cannot result in less knowledge about its output,
 - the $n-1$-set canalizing proportion $P_{n-1}(f)$ is 1 minus the function's normalized average sensitivity.
 
@@ -202,29 +203,30 @@ We can compute the $k$-set canalizing proportions for the four 3-input functions
 for func, label in zip([f, g, h, k], labels):
     print(f"1-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=1)}")
     print(f"2-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=2)}")
-    print(f"Normalized average sensitivity of {label}: {func.get_average_sensitivity(exact=True, normalized=True)}")
+    print(f"Normalized average sensitivity of {label}:"
+          f"{func.get_average_sensitivity(exact=True, normalized=True)}")
     print(f"3-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=3)}")
     print()
 ```
 
     1-set canalizing proportion of f: 0.0
     2-set canalizing proportion of f: 0.0
-    Normalized average sensitivity of f: 1.0
+    Normalized average sensitivity of f:1.0
     3-set canalizing proportion of f: 1.0
     
     1-set canalizing proportion of g: 0.16666666666666666
     2-set canalizing proportion of g: 0.5
-    Normalized average sensitivity of g: 0.5
+    Normalized average sensitivity of g:0.5
     3-set canalizing proportion of g: 1.0
     
     1-set canalizing proportion of h: 0.5
     2-set canalizing proportion of h: 0.75
-    Normalized average sensitivity of h: 0.25
+    Normalized average sensitivity of h:0.25
     3-set canalizing proportion of h: 1.0
     
     1-set canalizing proportion of k: 0.16666666666666666
     2-set canalizing proportion of k: 0.5833333333333334
-    Normalized average sensitivity of k: 0.4166666666666667
+    Normalized average sensitivity of k:0.4166666666666667
     3-set canalizing proportion of k: 1.0
     
 
@@ -331,22 +333,22 @@ for func, label in zip([f, g, h, k], labels):
     Normalized input redundancy of f: 0.0
     
     Edge effectiveness of g: [0.625, 0.625, 0.625]
-    Activities of g: [0.5029 0.5014 0.5014]
-    Excess canalization of g: [0.1221 0.1236 0.1236]
+    Activities of g: [0.499  0.5015 0.5015]
+    Excess canalization of g: [0.126  0.1235 0.1235]
     Effective degree of g: 1.875
     Average edge effectiveness of g: 0.625
     Normalized input redundancy of g: 0.375
     
     Edge effectiveness of h: [0.41666666666666663, 0.41666666666666663, 0.41666666666666663]
-    Activities of h: [0.2398 0.2441 0.2429]
-    Excess canalization of h: [0.17686667 0.17256667 0.17376667]
+    Activities of h: [0.2586 0.2571 0.2593]
+    Excess canalization of h: [0.15806667 0.15956667 0.15736667]
     Effective degree of h: 1.25
     Average edge effectiveness of h: 0.4166666666666667
     Normalized input redundancy of h: 0.5833333333333334
     
     Edge effectiveness of k: [0.8125, 0.375, 0.375]
-    Activities of k: [0.7456 0.2493 0.2494]
-    Excess canalization of k: [0.0669 0.1257 0.1256]
+    Activities of k: [0.7504 0.2488 0.2529]
+    Excess canalization of k: [0.0621 0.1262 0.1221]
     Effective degree of k: 1.5625
     Average edge effectiveness of k: 0.5208333333333334
     Normalized input redundancy of k: 0.4791666666666667

@@ -94,19 +94,19 @@ report the average robustness of any network state when subjected to perturbatio
 ```python
 print("Overall coherence:", results_exact["Coherence"])
 print("Overall fragility:", results_exact["Fragility"])
-
-# The same robustness metrics, coherence and fragility, can also be averaged
-# across a smaller set of states, e.g., all states in one basin of attraction, or
-# an even smaller set of states, e.g., all states that form an attractor.
 ```
 
     Overall coherence: 0.3333333333333333
     Overall fragility: 0.3333333333333333
 
 
+The same robustness metrics, coherence and fragility, can also be averaged
+across a smaller set of states, e.g., all states in one basin of attraction, or
+an even smaller set of states, e.g., all states that form an attractor.
+
 ```python
 df_basins = pd.DataFrame({
-    "BasinSize": results_exact["BasinSizes"],
+    "BasinSizes": results_exact["BasinSizes"],
     "BasinCoherences": results_exact["BasinCoherences"],
     "BasinFragilities": results_exact["BasinFragilities"],
 })
@@ -124,10 +124,10 @@ print(df_attractors)
 ```
 
     Basin-level robustness:
-       BasinSize  BasinCoherences  BasinFragilities
-    0      0.125         0.000000          0.500000
-    1      0.500         0.333333          0.333333
-    2      0.375         0.444444          0.277778
+       BasinSizes  BasinCoherences  BasinFragilities
+    0       0.125         0.000000          0.500000
+    1       0.500         0.333333          0.333333
+    2       0.375         0.444444          0.277778
     Attractor-level robustness:
        AttractorCoherences  AttractorFragilities
     0             0.000000              0.500000
@@ -152,21 +152,21 @@ than their basins, a phenomenon explored in detail in Tutorial 10.
 
 ## Approximate robustness for larger networks
 
-For larger networks, exact enumeration of all 2^N states is infeasible.
+For larger networks, exact enumeration of all $2^N$ states is infeasible.
 BoolForge therefore provides a Monte Carlo approximation that samples
 random initial conditions and perturbations.
 
 ```python
 results_approx = bn.get_attractors_and_robustness_synchronous(n_simulations=500)
 
-print("Lower bound on the number of attractors:", results_approx["LowerBoundOfNumberOfAttractors"])
+print("Number of attractors (lower bound):", results_approx["NumberOfAttractorsLowerBound"])
 print("Approximate coherence:", results_approx["CoherenceApproximation"])
 print("Approximate fragility:", results_approx["FragilityApproximation"])
 ```
 
-    Lower bound on the number of attractors: 3
-    Approximate coherence: 0.334
-    Approximate fragility: 0.333
+    Number of attractors (lower bound): 3
+    Approximate coherence: 0.304
+    Approximate fragility: 0.34800000000000003
 
 
 Even when only using 500 random initial states, the approximate values closely match the exact ones.
@@ -191,7 +191,7 @@ print("Approximate Derrida value:", derrida_approx)
 ```
 
     Exact Derrida value: 1.0
-    Approximate Derrida value: 1.0005
+    Approximate Derrida value: 1.0125
 
 
 Interpretation:
@@ -205,6 +205,7 @@ and provide a complementary notion of robustness.
 ## Summary and outlook
 
 In this tutorial you learned how to:
+
 - compute exact robustness measures for small Boolean networks,
 - interpret coherence and fragility at network, basin, and attractor levels,
 - approximate robustness measures for larger networks, and

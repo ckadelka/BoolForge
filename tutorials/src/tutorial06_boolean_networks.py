@@ -227,13 +227,13 @@ print(bn_str.to_truth_table().to_string())
 # ### Interoperability with CANA
 #
 # `BoolForge` provides native interoperability with
-# the `CANA` package for the analysis of Boolean functions and Boolean networks.
-# Existing `BoolForge` networks can be converted into CANA objects and back
+# the [`CANA` package](https:www.github.com/CASCI-lab/CANA) for the analysis of Boolean functions and Boolean networks.
+# Existing `BoolForge` networks can be converted into `CANA` objects and back
 # without loss of information.
 #
-# In the example below, we convert a `BoolForge` Boolean network into its CANA
+# In the example below, we convert a `BoolForge` Boolean network into its `CANA`
 # representation using `to_cana()`, and then reconstruct a new `BoolForge`
-# Boolean network from that CANA object.
+# Boolean network from that `CANA` object.
 #
 # The final assertion verifies that this round-trip conversion preserves:
 #
@@ -241,8 +241,8 @@ print(bn_str.to_truth_table().to_string())
 # - the wiring diagram,
 # - and the variable names.
 #
-# This guarantees that `BoolForge` and CANA can be used interchangeably within
-# a workflow, allowing users to leverage CANA’s analytical tools while
+# This guarantees that `BoolForge` and `CANA` can be used interchangeably within
+# a workflow, allowing users to leverage `CANA`'s analytical tools while
 # continuing to build and manipulate models using `BoolForge`.
 
 # %%
@@ -383,12 +383,12 @@ bn.plot();
 # Just like BooleanFunction objects, BooleanNetwork possesses a`.summary()` method,
 # which prints a human-readable overview of basic properties.
 # If more advanced properties have already been computed, e.g., attractors,
-# this information is also displayed (or if the optional keyword `COMPUTE_ALL` is set to True, default False). 
+# this information is also displayed (or if the optional keyword `compute_all` is set to True, default False). 
 
 # %%
 print(bn.summary())
 print()
-print(bn.summary(compute_all=True)) #or simply print(f.summary(True))
+print(bn.summary(compute_all=True)) #or simply print(bn.summary(True))
 
 # %% [markdown]
 # The more advanced properties displayed here are the subject of the next two tutorials.
