@@ -1457,9 +1457,11 @@ class BooleanNetwork(WiringDiagram):
         regulated_nodes = self.variables[~indices_identity_nodes].tolist()
         identity_nodes = self.variables[indices_identity_nodes].tolist()
         
-        core_summary = {"Number of regulated nodes": N_regulated_nodes}
+        
+        core_summary = {"Number of nodes": self.N,
+                        "Number of regulated nodes": N_regulated_nodes}
         if N_identity_nodes>0:
-            core_summary["Number of identity nodes (inputs)"] = N_identity_nodes
+            core_summary["Number of identity nodes"] = N_identity_nodes
         if N_constants>0:
             core_summary["Number of constants (removed)"] =  N_constants
 

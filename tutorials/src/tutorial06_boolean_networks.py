@@ -377,6 +377,19 @@ print("bn.variables:", bn.variables)
 bn.plot();
 
 # %% [markdown]
+# Just like BooleanFunction objects, BooleanNetwork possesses a`.summary()` method,
+# which prints a human-readable overview of basic properties.
+# If more advanced properties have already been computed, e.g., attractors,
+# this information is also displayed (or if the optional keyword `COMPUTE_ALL` is set to True, default False). 
+
+# %%
+print(bn.summary())
+print()
+print(bn.summary(compute_all=True)) #or simply print(f.summary(True))
+
+# %% [markdown]
+# The more advanced properties displayed here are the subject of the next two tutorials.
+#
 # ## Outlook
 #
 # In the remaining tutorials, we build on this foundation to study the dynamical

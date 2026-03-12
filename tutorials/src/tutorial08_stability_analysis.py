@@ -77,13 +77,13 @@ print("Overall fragility:", results_exact["Fragility"])
 # %%
 df_basins = pd.DataFrame({
     "BasinSize": results_exact["BasinSizes"],
-    "BasinCoherence": results_exact["BasinCoherence"],
-    "BasinFragility": results_exact["BasinFragility"],
+    "BasinCoherence": results_exact["BasinCoherences"],
+    "BasinFragility": results_exact["BasinFragilities"],
 })
 
 df_attractors = pd.DataFrame({
-    "AttractorCoherence": results_exact["AttractorCoherence"],
-    "AttractorFragility": results_exact["AttractorFragility"],
+    "AttractorCoherence": results_exact["AttractorCoherences"],
+    "AttractorFragility": results_exact["AttractorFragilities"],
 })
 
 print("Basin-level robustness:")

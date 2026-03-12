@@ -213,8 +213,8 @@ f = boolforge.BooleanFunction("(A and B) OR NOT C")
 print(f.summary())
 print()
 
-# Trigger computation of more advanced properties
-print(f.summary(compute_all=True))
+# The computation of more advanced properties can also be manually triggered
+print(f.summary(compute_all=True)) #or simply print(f.summary(True))
 
 
 # %% [markdown]
