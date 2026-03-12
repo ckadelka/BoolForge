@@ -62,7 +62,7 @@ import matplotlib.pyplot as plt
 f = boolforge.BooleanFunction("(x0 + x1 + x2) % 2")
 
 # 1-canalizing function
-g = boolforge.BooleanFunction("(x0 | (x1 & x2 | ~x1 & ~x2)) % 2")
+g = boolforge.BooleanFunction("(x0 | (x1 & x2 | !x1 & !x2)) % 2")
 
 # Nested canalizing function with all variables in one layer
 h = boolforge.BooleanFunction("~x0 & x1 & x2")

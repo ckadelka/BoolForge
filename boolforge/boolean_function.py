@@ -120,6 +120,9 @@ def f_from_expression(
     - The expression is evaluated using ``eval`` with restricted builtins.
     - No syntactic or semantic validation of ``expr`` is performed beyond
       basic parsing.
+    - Arithmetic operators (+, -, *, %) must be surrounded by whitespace.
+      This restriction avoids conflicts with biological identifiers such as Ca2+ or IL-2.
+    - Whenever uncertain, use whitespace.
     
     Examples
     --------
@@ -140,7 +143,22 @@ def f_from_expression(
     # --------------------------------------------------
 
     expr = expr.replace("(", " ( ").replace(")", " ) ")
-
+    
+    # comparisons
+    for op in ["==", "!=", ">=", "<=", ">", "<"]:
+        expr = expr.replace(op, f" {op} ")
+        
+    expr = expr.replace('> =','>=')
+    expr = expr.replace('< =','<=')
+    
+    # logical double operators -> canonical
+    expr = expr.replace("&&", " & ")
+    expr = expr.replace("||", " | ")
+    
+    # single logical operators
+    for op in ["&", "|", "!", "~"]:
+        expr = expr.replace(op, f" {op} ")
+    
     raw_tokens = expr.split()
 
     tokens = []
