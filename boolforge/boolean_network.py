@@ -39,7 +39,7 @@ import pandas as pd
 from typing import TYPE_CHECKING
 
 from . import utils
-from .boolean_function import BooleanFunction
+from .boolean_function import BooleanFunction, f_from_expression
 from .wiring_diagram import WiringDiagram
 from .modularity import compress_trajectories
 
@@ -1052,7 +1052,7 @@ class BooleanNetwork(WiringDiagram):
         This compatibility method parses a string representation of Boolean update
         rules (one rule per line) and constructs a corresponding BooleanNetwork. 
         The input format is intended for legacy or trusted sources and supports 
-        logical expressions using AND/OR/NOT operators. See utils.f_from_expression
+        logical expressions using AND/OR/NOT operators. See boolean_function.f_from_expression
         for details.
     
         .. warning::
@@ -1116,7 +1116,7 @@ class BooleanNetwork(WiringDiagram):
         all_regulators = set()
     
         for lhs, rhs in rules:
-            f, regulators = utils.f_from_expression(rhs, max_degree=max_degree)
+            f, regulators = f_from_expression(rhs, max_degree=max_degree)
             parsed_rhs.append((lhs, rhs, f, regulators))
             for r in regulators:
                 all_regulators.add(r)
