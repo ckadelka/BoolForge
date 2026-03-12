@@ -147,6 +147,9 @@ class WiringDiagram(object):
         if variables is not None and len(I) != len(variables):
             raise ValueError("len(I) == len(variables) required if variable names are provided")
 
+        # ---- Properties (empty initially) -----------------------------------
+        self._properties_exact = {}
+        self._properties_estimated = {}
         
         self.I = [np.array(regulators,dtype=int) for regulators in I]
         self.N = len(I)
@@ -176,9 +179,7 @@ class WiringDiagram(object):
         else:
             self.weights = None
             
-        # ---- Properties (empty initially) -----------------------------------
-        self._properties_exact = {}
-        self._properties_estimated = {}
+
         
     def _make_property_key(self, name, context=None):
         if context is None:
@@ -391,7 +392,6 @@ class WiringDiagram(object):
         for regulators in self.I:
             for regulator in regulators:
                 outdegrees[regulator] += 1
-        self._set_property('out-degrees', outdegrees, context=None, exact=True)
         return outdegrees
 
 
@@ -478,7 +478,7 @@ class WiringDiagram(object):
             for node in scc:
                 scc_dict[node] = idx
     
-        dag = set()
+        modular_dag = set()
     
         for target, regulators in enumerate(self.I):
             for j, regulator in enumerate(regulators):
@@ -492,9 +492,9 @@ class WiringDiagram(object):
                     if np.isnan(self.weights[target][j]):
                         continue
     
-                dag.add((src, tgt))
-        self._set_property('modular_DAG', dag, context=None, exact=True)
-        return dag
+                modular_dag.add((src, tgt))
+        self._set_property('modular_dag', modular_dag, context=None, exact=True)
+        return modular_dag
 
 
     def get_ffls(
@@ -554,10 +554,10 @@ class WiringDiagram(object):
                         types.append([direct, indirect1, indirect2])
         
         return_dict = {'FFLs' : ffls}
-        self._set_property('FFLs', ffls, context=None, exact=True)
+        self._set_property('ffls', ffls, context=None, exact=True)
         if types is not None:
             return_dict['Types'] = types
-            self._set_property('FFL types', types, context=None, exact=True)
+            self._set_property('ffl_types', types, context=None, exact=True)
         return return_dict
     
         
@@ -650,11 +650,17 @@ class WiringDiagram(object):
             sccs.extend(scc for scc in nx.strongly_connected_components(H) if len(scc) > 1)
         
         return_dict = {'FBLs' : fbls}
+        self._set_property('fbls', fbls, 
+                           context=f"max_length={max_length}", exact=True)
 
         if self.weights is not None and classify:
             types,n_negative = self._get_types_of_fbls(fbls)
             return_dict['Types'] = types
             return_dict['NumberNegativeEdges'] = n_negative
+            self._set_property('fbl_types', types, 
+                               context=f"max_length={max_length}", exact=True)
+            self._set_property('fbl_negative_edges', n_negative, 
+                               context=f"max_length={max_length}", exact=True)
         return return_dict
 
 

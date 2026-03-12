@@ -2781,11 +2781,11 @@ class BooleanNetwork(WiringDiagram):
                     n_timeout += 1
                     break
 
-        self._set_property('Attractors', attractors,
+        self._set_property('attractors', attractors,
                            context='synchronous', exact=False)
-        self._set_property('NumberOfAttractors', len(attractors),
+        self._set_property('number_of_attractors', len(attractors),
                            context='synchronous', exact=False)
-        self._set_property('BasinSizes', basin_sizes,
+        self._set_property('basin_sizes', basin_sizes,
                            context='synchronous', exact=False)
         
         return {
@@ -2961,11 +2961,11 @@ class BooleanNetwork(WiringDiagram):
     
         basin_sizes = np.array(basin_sizes, dtype=np.float64) / (2**self.N)
 
-        self._set_property('Attractors', attractors,
+        self._set_property('attractors', attractors,
                            context='synchronous', exact=True)
-        self._set_property('NumberOfAttractors', len(attractors),
+        self._set_property('number_of_attractors', len(attractors),
                            context='synchronous', exact=True)
-        self._set_property('BasinSizes', basin_sizes,
+        self._set_property('basin_sizes', basin_sizes,
                            context='synchronous', exact=True)
     
         return {
@@ -3141,22 +3141,22 @@ class BooleanNetwork(WiringDiagram):
         # Single-attractor shortcut
         # ------------------------------------------------------------------
         if n_attractors == 1:
-            basin_coherence = np.ones(1, dtype=np.float64)
-            basin_fragility = np.zeros(1, dtype=np.float64)
-            attractor_coherence = np.ones(1, dtype=np.float64)
-            attractor_fragility = np.zeros(1, dtype=np.float64)
+            basin_coherences = np.ones(1, dtype=np.float64)
+            basin_fragilities = np.zeros(1, dtype=np.float64)
+            attractor_coherences = np.ones(1, dtype=np.float64)
+            attractor_fragilities = np.zeros(1, dtype=np.float64)
             
-            self._set_property('Coherence', 1.0,
+            self._set_property('coherence', 1.0,
                                context='synchronous', exact=True)
-            self._set_property('Fragility', 0.0,
+            self._set_property('fragility', 0.0,
                                context='synchronous', exact=True)
-            self._set_property('Basin coherence', basin_coherence,
+            self._set_property('basin_coherences', basin_coherences,
                                context='synchronous', exact=True)
-            self._set_property('Basin fragility', basin_fragility,
+            self._set_property('basin_fragilities', basin_fragilities,
                                context='synchronous', exact=True)
-            self._set_property('Attractor coherence', attractor_coherence,
+            self._set_property('attractor_coherences', attractor_coherences,
                                context='synchronous', exact=True)
-            self._set_property('Attractor coherence', attractor_fragility,
+            self._set_property('attractor_fragilities', attractor_fragilities,
                                context='synchronous', exact=True)
             
             return {
@@ -3166,10 +3166,10 @@ class BooleanNetwork(WiringDiagram):
                 "AttractorID": attractor_id,
                 "Coherence": 1.0,
                 "Fragility": 0.0,
-                "BasinCoherence": basin_coherence,
-                "BasinFragility": basin_fragility,
-                "AttractorCoherence": attractor_coherence,
-                "AttractorFragility": attractor_fragility,
+                "BasinCoherences": basin_coherences,
+                "BasinFragilities": basin_fragilities,
+                "AttractorCoherences": attractor_coherences,
+                "AttractorFragilities": attractor_fragilities,
             }
     
         # ------------------------------------------------------------------
@@ -3329,17 +3329,17 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # Final return
         # ------------------------------------------------------------------
-        self._set_property('Coherence', coherence,
+        self._set_property('coherence', coherence,
                            context='synchronous', exact=True)
-        self._set_property('Fragility', fragility,
+        self._set_property('fragility', fragility,
                            context='synchronous', exact=True)
-        self._set_property('Basin coherence', basin_coherences,
+        self._set_property('basin_coherences', basin_coherences,
                            context='synchronous', exact=True)
-        self._set_property('Basin fragility', basin_fragilities,
+        self._set_property('basin_fragilities', basin_fragilities,
                            context='synchronous', exact=True)
-        self._set_property('Attractor coherence', attractor_coherences,
+        self._set_property('attractor_coherences', attractor_coherences,
                            context='synchronous', exact=True)
-        self._set_property('Attractor coherence', attractor_fragilities,
+        self._set_property('attractor_fragilities', attractor_fragilities,
                            context='synchronous', exact=True)
 
         return_dict =  {
@@ -3349,15 +3349,15 @@ class BooleanNetwork(WiringDiagram):
             "AttractorID": attractor_id,
             "Coherence": coherence,
             "Fragility": fragility,
-            "BasinCoherence": basin_coherences,
-            "BasinFragility": basin_fragilities,
-            "AttractorCoherence": attractor_coherences,
-            "AttractorFragility": attractor_fragilities,
+            "BasinCoherences": basin_coherences,
+            "BasinFragilities": basin_fragilities,
+            "AttractorCoherences": attractor_coherences,
+            "AttractorFragilities": attractor_fragilities,
         }
         if get_stratified_coherences:
             return_dict['StratifiedCoherences'] = stratified_coherences
-            return_dict['DistanceFromAttractorCount'] = n_states_with_specific_distance_from_attractor
-            return_dict['DistanceFromAttractor'] = distances_from_attractor
+            return_dict['DistanceFromAttractorsCount'] = n_states_with_specific_distance_from_attractor
+            return_dict['DistanceFromAttractors'] = distances_from_attractor
         return return_dict
 
 
@@ -3706,13 +3706,13 @@ class BooleanNetwork(WiringDiagram):
             approximate_basin_fragility,
         ]
         
-        self._set_property('Coherence', approximate_coherence,
+        self._set_property('coherence', approximate_coherence,
                            context='synchronous', exact=False)
-        self._set_property('Fragility', approximate_fragility,
+        self._set_property('fragility', approximate_fragility,
                            context='synchronous', exact=False)
-        self._set_property('Basin coherence', approximate_basin_coherence,
+        self._set_property('basin_coherences', approximate_basin_coherence,
                            context='synchronous', exact=False)
-        self._set_property('Basin fragility', approximate_basin_fragility,
+        self._set_property('basin_fragilities', approximate_basin_fragility,
                            context='synchronous', exact=False)
     
         if not return_attractor_coherence:
@@ -3735,8 +3735,8 @@ class BooleanNetwork(WiringDiagram):
         # ------------------------------------------------------------------
         # Attractor-level coherence / fragility
         # ------------------------------------------------------------------
-        attractor_coherence = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
-        attractor_fragility = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
+        attractor_coherences = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
+        attractor_fragilities = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
     
         attractors_original = attractors[:]
     
@@ -3803,30 +3803,30 @@ class BooleanNetwork(WiringDiagram):
                             x_local = fx.copy()
     
                     if idx0 == idx1:
-                        attractor_coherence[idx0] += 1.0
+                        attractor_coherences[idx0] += 1.0
                     else:
-                        attractor_fragility[idx0] += np.sum(
+                        attractor_fragilities[idx0] += np.sum(
                             np.abs(
                                 mean_states_attractors[idx0]
                                 - mean_states_attractors[idx1]
                             )
                         )
     
-        attractor_coherence /= (
+        attractor_coherences /= (
             float(self.N)
             * np.asarray(list(map(len, attractors_original)), dtype=np.float64)
         )
     
-        attractor_fragility /= (
+        attractor_fragilities /= (
             float(self.N) ** 2
             * np.asarray(list(map(len, attractors_original)), dtype=np.float64)
         )
     
         results[0] = attractors_original
 
-        self._set_property('Attractor coherence', attractor_coherence,
+        self._set_property('attractor_coherences', attractor_coherences,
                            context='synchronous', exact=False)
-        self._set_property('Attractor coherence', attractor_fragility,
+        self._set_property('attractor_fragilities', attractor_fragilities,
                            context='synchronous', exact=False)
     
         return dict(
@@ -3843,7 +3843,7 @@ class BooleanNetwork(WiringDiagram):
                     "AttractorCoherence",
                     "AttractorFragility",
                 ],
-                results + [attractor_coherence, attractor_fragility],
+                results + [attractor_coherences, attractor_fragilities],
             )
         )
     
@@ -3961,7 +3961,7 @@ class BooleanNetwork(WiringDiagram):
             
                 derrida_value = float(total_dist / float(n_simulations))
             
-        self._set_property('Derrida value', derrida_value,
+        self._set_property('derrida_value', derrida_value,
                            exact=exact)
         return derrida_value
             
