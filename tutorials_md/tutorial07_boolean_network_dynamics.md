@@ -249,19 +249,33 @@ For larger networks, exhaustive enumeration is infeasible.
 Monte Carlo simulation approximates the attractor landscape.
 
 ```python
-dict_dynamics = bn.get_attractors_synchronous(n_simulations=100)
+dict_dynamics = bn.get_attractors_synchronous(n_simulations=1000)
 print(dict_dynamics['Attractors'])
 print(dict_dynamics['BasinSizesApproximation'])
 ```
 
-    [[5, 2], [7], [0]]
-    [56. 31. 13.]
+    [[7], [5, 2], [0]]
+    [0.384 0.483 0.133]
 
 
 The simulation returns additional information:
 
 - sampled initial states,
 - the number of timeouts (trajectories not reaching an attractor before timeout).
+
+```python
+for key in dict_dynamics:
+    print(key)
+```
+
+    Attractors
+    NumberOfAttractorsLowerBound
+    BasinSizesApproximation
+    AttractorID
+    InitialSamplePoints
+    STG
+    NumberOfTimeouts
+
 
 In the absence of timeouts: If an attractor has relative basin size $q$, 
 the probability that it is found from $m$ random initializations is $1 - (1-q)^m$.
@@ -282,7 +296,7 @@ plt.show()
 
 
     
-![](tutorial07_boolean_network_dynamics_files/tutorial07_boolean_network_dynamics_27_0.png)
+![](tutorial07_boolean_network_dynamics_files/tutorial07_boolean_network_dynamics_29_0.png)
     
 
 
@@ -365,7 +379,7 @@ print(dict_dynamics['BasinSizes'] ==
 
 Note that `BoolForge` currently does not detect complex cyclic attractors under
 asynchronous update; for this task, specialized tools such as
-`pystablemotifs` are recommended. 
+[`pystablemotifs`](https://github.com/jcrozum/pystablemotifs) are recommended. 
 
 In fact, some of BoolForge's asynchronous update methods fail when the network
 contains no steady state. 
@@ -390,7 +404,7 @@ print(dict_dynamics['BasinSizesApproximation'])
 
     [7, 0]
     2
-    [0.64 0.36]
+    [0.6 0.4]
 
 
 ### Sampling from a fixed initial condition
@@ -408,9 +422,9 @@ print(dict_dynamics['NumberOfSteadyStatesLowerBound'])
 print(dict_dynamics['BasinSizesApproximation'])
 ```
 
-    [0, 7, 9, 2]
+    [7, 2, 0, 9]
     4
-    [0.516 0.254 0.078 0.152]
+    [0.248 0.186 0.48  0.086]
 
 
 Note the equivalent analysis under synchronous update is trivial because the dynamics

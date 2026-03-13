@@ -1,7 +1,7 @@
 # %% [markdown]
 # # Curated biological Boolean network models
 #
-# In this tutorial, we study how to analyze curate biological Boolean networks.
+# In this tutorial, we study how to analyze curated biological Boolean networks.
 #
 # You will learn how to:
 #
@@ -20,7 +20,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # %% [markdown]
-# ## Loading model repositories.
+# ## Loading model repositories
 # BoolForge makes it very easy to load all models included in three different 
 # repositories of curated biological Boolean networks.
 
@@ -56,7 +56,7 @@ n_models_sm = len(bns_sm)
 # Note that the last repository is very large, which is why this code is commented out.
 
 # %% [markdown]
-# ## Analyzing model repositories.
+# ## Analyzing model repositories
 # By applying BoolForge functions to all models in a repository, we can swiftly
 # generate summary statistics, such as the size distribution of the models, or their average degree.
 

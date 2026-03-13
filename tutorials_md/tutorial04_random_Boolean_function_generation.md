@@ -4,6 +4,7 @@ This tutorial focuses on the random generation of Boolean functions with
 prescribed properties, enabling large-scale computational studies.
 
 Random Boolean function generation enables:
+
 1. Null model comparisons: Are biological networks special?
 2. Ensemble studies: How do structural properties affect dynamics?
 3. Robustness testing: Sample the space of equivalent models
@@ -48,15 +49,15 @@ print("Edge effectiveness of f:", f.get_edge_effectiveness())
     -------------------------------------------------------
     0	0	0	|	0
     0	0	1	|	1
-    0	1	0	|	0
+    0	1	0	|	1
     0	1	1	|	1
     1	0	0	|	1
     1	0	1	|	1
-    1	1	0	|	1
+    1	1	0	|	0
     1	1	1	|	0
     Is f degenerate? False
-    Activities of f: [0.75 0.25 0.75]
-    Edge effectiveness of f: [0.875, 0.375, 0.875]
+    Activities of f: [0.75 0.75 0.25]
+    Edge effectiveness of f: [0.875, 0.875, 0.375]
 
 
 The rest of this tutorial describes the various constraints. 
@@ -81,14 +82,14 @@ print("Canalizing strength:", f.get_canalizing_strength())
 
     x0	x1	x2	|	f_linear
     ----------------------------------------
-    0	0	0	|	0
-    0	0	1	|	1
-    0	1	0	|	1
-    0	1	1	|	0
-    1	0	0	|	1
-    1	0	1	|	0
-    1	1	0	|	0
-    1	1	1	|	1
+    0	0	0	|	1
+    0	0	1	|	0
+    0	1	0	|	0
+    0	1	1	|	1
+    1	0	0	|	0
+    1	0	1	|	1
+    1	1	0	|	1
+    1	1	1	|	0
     Activities: [1. 1. 1.]
     Edge effectiveness: [1.0, 1.0, 1.0]
     Normalized average sensitivity: 1.0
@@ -143,33 +144,33 @@ for func, label in zip([f, g, h, k], labels):
 
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
-    0	0	0	|	1	1	1	0
-    0	0	1	|	1	1	1	0
-    0	1	0	|	0	1	1	1
-    0	1	1	|	1	1	1	1
-    1	0	0	|	1	1	1	0
-    1	0	1	|	1	0	1	1
-    1	1	0	|	1	0	1	1
-    1	1	1	|	0	1	0	1
-    Canalizing depth of f: 1
-    Layer structure of f: [1]
+    0	0	0	|	0	0	0	1
+    0	0	1	|	0	1	0	1
+    0	1	0	|	0	0	0	0
+    0	1	1	|	0	0	0	0
+    1	0	0	|	0	1	0	1
+    1	0	1	|	0	0	0	0
+    1	1	0	|	1	0	0	0
+    1	1	1	|	0	0	1	0
+    Canalizing depth of f: 3
+    Layer structure of f: [3]
     Number of layers of f: 1
-    Core function of f: [0 1 1 0]
+    Core function of f: [1]
     
     Canalizing depth of g: 1
     Layer structure of g: [1]
     Number of layers of g: 1
-    Core function of g: [1 0 0 1]
+    Core function of g: [0 1 1 0]
     
     Canalizing depth of h: 3
     Layer structure of h: [3]
     Number of layers of h: 1
-    Core function of h: [0]
+    Core function of h: [1]
     
     Canalizing depth of k: 3
     Layer structure of k: [1, 2]
     Number of layers of k: 2
-    Core function of k: [1]
+    Core function of k: [0]
     
 
 
@@ -209,15 +210,15 @@ for func, label in zip([f, g, h, k], labels):
 
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
-    0	0	0	|	0	0	1	1
-    0	0	1	|	0	1	1	1
-    0	1	0	|	0	1	1	0
-    0	1	1	|	0	1	1	0
-    1	0	0	|	0	1	0	1
-    1	0	1	|	0	1	1	0
-    1	1	0	|	0	0	1	0
-    1	1	1	|	1	0	0	0
-    Canalizing depth of f: 3
+    0	0	0	|	0	1	0	0
+    0	0	1	|	0	1	1	0
+    0	1	0	|	0	1	0	1
+    0	1	1	|	1	0	0	1
+    1	0	0	|	0	0	1	0
+    1	0	1	|	1	0	0	1
+    1	1	0	|	1	0	0	1
+    1	1	1	|	0	1	0	1
+    Canalizing depth of f: 0
     
     Canalizing depth of g: 0
     
@@ -286,7 +287,7 @@ print("Error:", count_essential / n_simulations - expected)
 plt.show()
 ```
 
-    Error: [-0.0065 -0.0034  0.0099]
+    Error: [ 0.0023  0.0023 -0.0046]
 
 
 
@@ -325,15 +326,15 @@ for func, label in zip([f, g, h], labels):
     x0	x1	x2	|	f	g	h
     -------------------------------------------------
     0	0	0	|	1	1	0
-    0	0	1	|	1	1	1
-    0	1	0	|	1	1	0
-    0	1	1	|	0	0	0
-    1	0	0	|	0	0	0
-    1	0	1	|	0	0	1
-    1	1	0	|	1	1	0
-    1	1	1	|	1	1	0
+    0	0	1	|	1	0	0
+    0	1	0	|	0	1	0
+    0	1	1	|	1	0	0
+    1	0	0	|	1	1	0
+    1	0	1	|	1	1	0
+    1	1	0	|	0	0	1
+    1	1	1	|	0	1	1
     Hamming weight of f: 5
-    Canalizing depth of f: 0
+    Canalizing depth of f: 3
     Number of essential variables of f: 3
     
     Hamming weight of g: 5

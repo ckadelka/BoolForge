@@ -337,8 +337,8 @@ print(f"Polynomial form of {f.name}:", f.to_polynomial())
     Polynomial form of : (1 - A) * (1 - B) * (1 - C) + (1 - A) * B * (1 - C) + A * (1 - B) * (1 - C) + A * B * (1 - C) + A * B * C
 
 
-In addition, a `BooleanFunction` object can be turned into `BooleanNode` object from the [CANA package](https:www.github.com/CASCI-lab/CANA). 
-This requires the optional CANA package to be installed.
+In addition, a `BooleanFunction` object can be turned into `BooleanNode` object from the [`CANA` package](https:www.github.com/CASCI-lab/CANA). 
+This requires the optional `CANA` package to be installed.
 
 ```python
 cana_object = f.to_cana()
@@ -387,7 +387,8 @@ These properties help characterize the function’s behavior and are used
 throughout later tutorials.
 
 ### Conversions and interoperability
-BoolForge supports conversion between representations (truth table, polynomial, and logical form) and is compatible with external packages such as CANA for
+BoolForge supports conversion between representations (truth table, polynomial, 
+and logical form) and is compatible with external packages such as [`CANA`](https:www.github.com/CASCI-lab/CANA) for
 advanced analysis.  
 This makes it easy to move between analytical frameworks and reuse models.
 

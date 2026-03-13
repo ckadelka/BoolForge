@@ -1068,12 +1068,8 @@ class BooleanFunction(object):
         summary = core_summary.copy()
     
         if compute_all:
-            if self.n < 11:
-                activities = self.get_activities(exact=True)
-                avg_sensitivity = self.get_average_sensitivity(exact=True)
-            else:
-                activities = self.get_activities()
-                avg_sensitivity = self.get_average_sensitivity()
+            activities = self.get_activities()
+            avg_sensitivity = self.get_average_sensitivity()
             summary['Activities'] = [f"{x:.3f}" for x in activities]
             summary['Average sensitivity'] = avg_sensitivity
             
@@ -1477,7 +1473,7 @@ class BooleanFunction(object):
     def get_activities(
         self,
         nsim: int = 10000,
-        exact: bool = False,
+        exact: bool | None = None,
         *,
         rng=None
     ) -> np.ndarray:
@@ -1496,7 +1492,9 @@ class BooleanFunction(object):
             Number of random samples used when ``exact=False`` (default: 10000).
         exact : bool, optional
             If ``True``, compute activities exactly by enumerating all input states.
-            If ``False``, estimate activities via sampling (default: ``False``).
+            If ``False``, estimate activities via sampling.
+            If ``None`` (default), BoolForge automatically chooses the method
+            (exact for small functions with n<16, sampling for larger functions).
         rng : None or numpy.random.Generator, optional
             Random number generator passed to ``utils._coerce_rng``.
     
@@ -1504,7 +1502,9 @@ class BooleanFunction(object):
         -------
         np.ndarray
             Array of shape ``(n,)`` containing the activities of all variables.
-        """     
+        """
+        if exact is None:
+            exact = True if self.n <= 15 else False
         size_state_space = 2**self.n
         activities = np.zeros(self.n,dtype=np.float64)
         if exact:
@@ -1529,7 +1529,7 @@ class BooleanFunction(object):
     def get_average_sensitivity(
         self,
         nsim: int = 10000,
-        exact: bool = False,
+        exact: bool | None = None,
         normalized: bool = True,
         *,
         rng=None
@@ -1550,6 +1550,8 @@ class BooleanFunction(object):
         exact : bool, optional
             If ``True``, compute the exact activities by enumerating all input states.
             If ``False``, estimate them via sampling (default: ``False``).
+            If ``None`` (default), BoolForge automatically chooses the method
+            (exact for small functions with n<16, sampling for larger functions).
         normalized : bool, optional
             If ``True`` (default), return the average sensitivity divided by ``n``.
             If ``False``, return the sum of activities.
@@ -1561,6 +1563,8 @@ class BooleanFunction(object):
         float
             The (optionally normalized) average sensitivity of the Boolean function.
         """      
+        if exact is None:
+            exact = True if self.n <= 15 else False
         activities = self.get_activities(nsim,exact,rng=rng)
         s = sum(activities)
         if normalized:

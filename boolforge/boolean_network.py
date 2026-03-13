@@ -3822,7 +3822,7 @@ class BooleanNetwork(WiringDiagram):
     def get_derrida_value(
         self,
         n_simulations: int = 1000,
-        exact: bool = False,
+        exact: bool | None = None,
         use_numba: bool = True,
         *,
         rng=None,
@@ -3845,8 +3845,10 @@ class BooleanNetwork(WiringDiagram):
             Number of Monte Carlo simulations to perform (default is 1000).
             Ignored if ``exact`` is True.
         exact : bool, optional
-            If True, compute the exact Derrida value. If False (default),
-            approximate the Derrida value using Monte Carlo simulation.
+            If True, compute the exact Derrida value. 
+            If False,approximate using Monte Carlo simulation.
+            If None (default), compute exactly for small networks with N <= 15,
+            and approximate for larger networks.
         use_numba : bool, optional
             If True (default) and Numba is available, use a compiled kernel for
             Monte Carlo simulation.
@@ -3865,12 +3867,13 @@ class BooleanNetwork(WiringDiagram):
         Random networks of automata: a simple annealed approximation.
         *Europhysics Letters*, 1(2), 45.
         """
-    
+        if exact is None:
+            exact = True if self.N <= 15 else False
 
         if exact:
             # ------------------------------------------------------------------
             # Exact computation
-            # ------------------------------------------------------------------            value =  float(
+            # ------------------------------------------------------------------
             derrida_value = np.mean(
                 [
                     bf.get_average_sensitivity(

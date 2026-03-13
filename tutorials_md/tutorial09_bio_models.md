@@ -1,6 +1,6 @@
 # Curated biological Boolean network models
 
-In this tutorial, we study how to analyze curate biological Boolean networks.
+In this tutorial, we study how to analyze curated biological Boolean networks.
 
 You will learn how to:
 
@@ -30,12 +30,17 @@ n_models = len(bns)
 ```
 
 The function `get_bio_models_from_repository` loads, by default, all 122 distinct 
-biological Boolean network models, analyzed in Kadelka et al., Sci Adv, 2024.
+biological Boolean network models, analyzed in 
+[Kadelka et al., Sci Adv, 2024](https://www.science.org/doi/full/10.1126/sciadv.adj0822),
+and deposited in a [Github repository](https://github.com/ckadelka/DesignPrinciplesGeneNetworks).
 The models are parsed directly from the associated Github repository, meaning
 a wireless connection is required to successfully execute this function.
 
 Models from the two other available repositories can be loaded by selecting the 
-respective Github repository name.
+respective Github repository name:
+
+- ['pystablemotifs (jcrozum)'](https://github.com/jcrozum/pystablemotifs)
+- ['biodivine (sybila)'](https://github.com/sybila/biodivine-boolean-models)
 
 ```python
 models_sm = boolforge.get_bio_models_from_repository('pystablemotifs (jcrozum)')

@@ -1815,7 +1815,7 @@ def random_network(
     parity: bool = False,
     bias: float | list | np.ndarray = 0.5,
     absolute_bias: float | list | np.ndarray = 0.0,
-    use_absolute_bias: bool = True,
+    use_absolute_bias: bool = False,
     hamming_weight: int | list | np.ndarray | None = None,
     allow_self_loops: bool = False,
     strongly_connected: bool = False,
@@ -1920,7 +1920,7 @@ def random_network(
     use_absolute_bias : bool, optional
         If True, the bias of each rule is chosen at random from
         ``{0.5*(1-absolute_bias), 0.5*(1+absolute_bias)}``. If False, ``bias`` is
-        used directly. Default is True.
+        used directly. Default is False.
     hamming_weight : int, list of int, ndarray of int, or None, optional
         Exact Hamming weight (number of ones) of each truth table. Scalars are
         broadcast to length ``N``. Values must lie in ``{0, ..., 2^k}`` for a
