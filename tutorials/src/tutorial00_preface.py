@@ -44,39 +44,38 @@
 # **Together, these capabilities enable ensemble-based exploration of the
 # relationship between structure and dynamics in Boolean networks.**
 #
-# For example, we can recreate the classical random Boolean network result 
-# on the phase transition from order to chaos (see e.g., [Shmulevich & Kauffman,
-# Physical Review Letters, 2004](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.93.048701))
-# in a few lines of code.
+# For example, we can reproduce, in a few lines of code, the classical phase transition 
+# from order to chaos in random Boolean networks predicted by the annealed approximation of
+# [Derrida and Pomeau (1986)](https://hal.science/hal-03285912/document).
 
 # %%
 import boolforge as bf
 import matplotlib.pyplot as plt
 
-N = 100          # size of each network
-ks = range(1,5)  # connectivity values
+N = 100          # network size
+ks = range(1,5)  # constant in-degree
 n_networks = 50  # ensemble size
-p = 0.05          # bias p: probability of ones in truth table
+p = 0.5          # bias p: probability of ones in truth table
 
 derrida_values = []
-
 for k in ks:
     derrida_values.append([])
     for _ in range(n_networks):
-        bn = bf.random_network(N, k, bias = p, allow_degenerate_functions=False)
+        bn = bf.random_network(N, k, bias = p, allow_degenerate_functions=True)
         derrida_values[-1].append( bn.get_derrida_value(exact=True) )
 
 plt.boxplot(derrida_values, positions=list(ks))
 plt.axhline(1, linestyle="--", color="gray", label="critical value")
-# theoretical prediction for p = 0.5
-theory = [k/2 for k in ks]
 plt.plot(ks, [2*k*p*(1-p) for k in ks], "o-", label=r"$2kp(1-p)$ (annealed theory)")
 plt.xlabel("Constant in-degree k")
 plt.ylabel("Derrida value")
 plt.legend(frameon=False)
 
-
 # %% [markdown]
+# The Derrida value measures the average number of nodes affected by a single-bit 
+# random perturbation after one synchronous update of the network.
+#
+#
 # ## Structure of the tutorials
 #
 # The tutorials gradually introduce the main concepts and tools provided by

@@ -24,6 +24,7 @@ from .utils import (
     bin2dec,
     dec2bin,
     get_left_side_of_truth_table,
+    hamming_weight_to_ncf_layer_structure,
 )
 
 from .modularity import (
@@ -44,6 +45,7 @@ __all__ = [
     "bin2dec",
     "dec2bin",
     "get_left_side_of_truth_table",
+    "hamming_weight_to_ncf_layer_structure",
     "BooleanFunction",
     "display_truth_table",
     "get_layer_structure_from_canalized_outputs",

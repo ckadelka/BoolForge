@@ -1,11 +1,3 @@
----
-title: BoolForge Tutorials
-author: Claus Kadelka
-date: \today
-toc: true
-numbersections: true
----
-
 # Preface {-}
 
 **BoolForge** is a Python toolbox for generating, analyzing, and simulating
@@ -50,6 +42,55 @@ connecting function-level structure to network-level dynamics.
 
 **Together, these capabilities enable ensemble-based exploration of the
 relationship between structure and dynamics in Boolean networks.**
+
+For example, we can reproduce, in a few lines of code, the classical phase transition 
+from order to chaos in random Boolean networks predicted by the annealed approximation of
+[Derrida and Pomeau (1986)](https://hal.science/hal-03285912/document).
+
+```python
+import boolforge as bf
+import matplotlib.pyplot as plt
+
+N = 100          # network size
+ks = range(1,5)  # constant in-degree
+n_networks = 50  # ensemble size
+p = 0.5          # bias p: probability of ones in truth table
+
+derrida_values = []
+for k in ks:
+    derrida_values.append([])
+    for _ in range(n_networks):
+        bn = bf.random_network(N, k, bias = p, allow_degenerate_functions=True)
+        derrida_values[-1].append( bn.get_derrida_value(exact=True) )
+
+plt.boxplot(derrida_values, positions=list(ks))
+plt.axhline(1, linestyle="--", color="gray", label="critical value")
+plt.plot(ks, [2*k*p*(1-p) for k in ks], "o-", label=r"$2kp(1-p)$ (annealed theory)")
+plt.xlabel("Constant in-degree k")
+plt.ylabel("Derrida value")
+plt.legend(frameon=False)
+```
+
+
+
+
+    <matplotlib.legend.Legend at 0x10adea780>
+
+
+
+
+    
+![](tutorial00_preface_files/tutorial00_preface_1_1.png)
+    
+
+
+The Derrida value measures the average number of nodes affected by a single-bit 
+random perturbation after one synchronous update of the network.
+
+The resilience of Boolean networks to perturbations critically depends on the bias p,
+which can be seen by varying this parameter. Moreover, the classical result assumes that
+Boolean network update rules may be degenerate. If we disallow this, the results change
+substantially.
 
 ## Structure of the tutorials
 

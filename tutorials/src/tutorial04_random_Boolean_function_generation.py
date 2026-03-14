@@ -1,15 +1,14 @@
 # %% [markdown]
-# # Random Boolean Function Generation
+# # Random Boolean function generation
 #
 # This tutorial focuses on the random generation of Boolean functions with
 # prescribed properties, enabling large-scale computational studies.
 #
-# Random Boolean function generation enables:
+# Controlled random Boolean function generation enables:
 #
-# 1. Null model comparisons: Are biological networks special?
-# 2. Ensemble studies: How do structural properties affect dynamics?
-# 3. Robustness testing: Sample the space of equivalent models
-# 4. Theoretical predictions: Derive expected values for network properties
+# 1. Null model comparisons: Are biological regulatory rules special?
+# 2. Ensemble studies: How do structural properties affect dynamical properties?
+# 3. Theoretical predictions: Derive expected values for function properties
 #
 # ## What you will learn
 # In this tutorial you will learn how to generate random Boolean functions with:
@@ -233,7 +232,7 @@ labels = ["f", "g", "h"]
 boolforge.display_truth_table(f, g, h, labels=labels)
 
 for func, label in zip([f, g, h], labels):
-    print(f"Hamming weight of {label}: {func.get_hamming_weight()}")
+    print(f"Hamming weight of {label}: {func.hamming_weight}")
     print(f"Canalizing depth of {label}: {func.get_canalizing_depth()}")
     print(f"Number of essential variables of {label}: {func.get_number_of_essential_variables()}")
     print()
@@ -269,9 +268,9 @@ for _ in range(n_simulations):
     g = boolforge.random_function(n, absolute_bias=0.5, use_absolute_bias=True)
     h = boolforge.random_function(n, absolute_bias=0.5) #absolute_bias ignored!
 
-    counts[0, f.get_hamming_weight()] += 1
-    counts[1, g.get_hamming_weight()] += 1
-    counts[2, h.get_hamming_weight()] += 1
+    counts[0, f.hamming_weight] += 1
+    counts[1, g.hamming_weight] += 1
+    counts[2, h.hamming_weight] += 1
 
 labels = ["bias = 0.75", "absolute bias = 0.5", "random (bias = 0.5)"]
 x = np.arange(2**n + 1)
@@ -313,9 +312,9 @@ for _ in range(n_simulations):
     )
     h = boolforge.random_function(n, allow_degenerate_functions=True)
 
-    counts[0, f.get_hamming_weight()] += 1
-    counts[1, g.get_hamming_weight()] += 1
-    counts[2, h.get_hamming_weight()] += 1
+    counts[0, f.hamming_weight] += 1
+    counts[1, g.hamming_weight] += 1
+    counts[2, h.hamming_weight] += 1
 
 fig, ax = plt.subplots()
 for i in range(3):

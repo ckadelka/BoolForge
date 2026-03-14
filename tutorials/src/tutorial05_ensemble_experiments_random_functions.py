@@ -1,5 +1,5 @@
 # %% [markdown]
-# # Example Use Cases of the Random Function Generator
+# # Ensemble experiments with random Boolean functions
 #
 # In this tutorial, we explore how BoolForge’s random Boolean function generator 
 # can be used to generate large ensembles of Boolean functions with prescribed structural properties,
@@ -401,7 +401,7 @@ plt.show()
 
 # For nested canalizing functions of a given degree $n$, there exists a bijection 
 # between their absolute bias and their canalizing layer structure (Kadelka et al., Physica D, 2017).
-# The function `boolforge.utils.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
+# The function `boolforge.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
 # NCFs with the same layer structure have the same dynamical properties. 
 # That is, they have the same average sensitivity, canalizing strength and the same effective degree.
 # Iterating over all possible absolute biases (parametrized by the possible Hamming weights), 
@@ -411,7 +411,7 @@ plt.show()
 # %%
 n = 5
 all_hamming = np.arange(1, 2 ** (n - 1), 2)
-all_abs_bias = all_hamming / 2 ** (n - 1)
+all_abs_bias = 2 * np.abs(all_hamming/2**n - 0.5)
 
 avg_sens = np.zeros(2 ** (n - 2))
 can_strength = np.zeros_like(avg_sens)
@@ -419,7 +419,7 @@ eff_degree = np.zeros_like(avg_sens)
 layer_structures = []
 
 for i, w in enumerate(all_hamming):
-    layer = boolforge.utils.hamming_weight_to_ncf_layer_structure(n, w)
+    layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
     layer_structures.append(layer)
     f = boolforge.random_function(n, layer_structure=layer)
     avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
@@ -459,7 +459,7 @@ for n in ns:
     avg_sens = np.zeros(2 ** (n - 2))
 
     for i, w in enumerate(all_hamming_weights):
-        layer = boolforge.utils.hamming_weight_to_ncf_layer_structure(n, w)
+        layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
         f = boolforge.random_function(n, layer_structure=layer)
         avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
 

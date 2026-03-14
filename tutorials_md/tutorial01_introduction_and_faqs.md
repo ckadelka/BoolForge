@@ -223,10 +223,10 @@ We can inspect various properties of a Boolean function.
 The degree, i.e., the number of inputs, is readily available via 'f.n'. 
 Other properties can be computed.
 
-- '.is_constant()' checks if the function is constant, 
-- '.is_degenerate()' checks if the function contains non-essential variables, 
-- '.get_essential_variables()' provides the indices (Python: starting at 0!) of the essential variables, 
-- '.get_type_of_inputs()' describes the type of each input ('positive', 'negative', 'conditional', or 'non-essential').
+- 'is_constant()' checks if the function is constant, 
+- 'is_degenerate()' checks if the function contains non-essential variables, 
+- 'get_essential_variables()' provides the indices (Python: starting at 0!) of the essential variables, 
+- 'get_type_of_inputs()' describes the type of each input ('positive', 'negative', 'conditional', or 'non-essential').
 - The Hamming weight is the number of 1s in the right side of the truth table.
 - The bias is $\text{\#ones} / 2^n$. It equals 0.5 for unbiased functions.
 - The absolute bias is $|\text{\#ones} - \text{\#zeros}| / 2^n$. It equals 1 for constant functions and 0 for unbiased functions.
@@ -254,30 +254,9 @@ print("Absolute bias:", f.absolute_bias)
     Absolute bias: 0.5
 
 
-Repeating this for `g` illustrates how properties differ.
+You may repeat this for `g` and observe how the properties differ.
 
-```python
-print("Number of variables:", g.n)
-print("Is constant?", g.is_constant())
-print("Is degenerate?", g.is_degenerate())
-print("Essential variables:", g.get_essential_variables())
-print("Type of inputs:", g.get_type_of_inputs())
-print("Hamming weight:", g.hamming_weight)
-print("Bias:", g.bias)
-print("Absolute bias:", g.absolute_bias)
-```
-
-    Number of variables: 3
-    Is constant? False
-    Is degenerate? False
-    Essential variables: [0 1 2]
-    Type of inputs: ['conditional' 'positive' 'positive']
-    Hamming weight: 4
-    Bias: 0.5
-    Absolute bias: 0.0
-
-
-The `.summary()` method prints a human-readable overview of basic properties.
+Conveniently, the `.summary()` method prints a human-readable overview of basic properties.
 
 ```python
 f = boolforge.BooleanFunction("(A and B) OR NOT C")
@@ -294,7 +273,7 @@ print(f.summary())
 
 
 If more advanced properties have already been computed, 
-e.g., by `.get_layer_structure()` or `get_type_of_inputs()`,
+e.g., by `get_layer_structure()` or `get_type_of_inputs()`,
 they are also displayed. This is also the case if the optional keyword `compute_all`
  is set to True; default is False to avoid potentially time-consuming computations. 
 
