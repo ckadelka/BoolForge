@@ -1,4 +1,4 @@
-# Generating random Boolean functions with prescribed properties
+# Random Boolean function generation
 
 This tutorial focuses on the random generation of Boolean functions with
 prescribed properties, enabling large-scale computational studies.
@@ -46,17 +46,17 @@ print("Edge effectiveness of f:", f.get_edge_effectiveness())
 
     x0	x1	x2	|	f_random_non_degenerate
     -------------------------------------------------------
-    0	0	0	|	1
+    0	0	0	|	0
     0	0	1	|	1
-    0	1	0	|	0
-    0	1	1	|	0
-    1	0	0	|	0
+    0	1	0	|	1
+    0	1	1	|	1
+    1	0	0	|	1
     1	0	1	|	0
     1	1	0	|	1
     1	1	1	|	0
     Is f degenerate? False
-    Activities of f: [0.75 0.75 0.25]
-    Edge effectiveness of f: [0.875, 0.875, 0.375]
+    Activities of f: [0.75 0.25 0.75]
+    Edge effectiveness of f: [0.875, 0.375, 0.875]
 
 
 The rest of this tutorial describes the various constraints. 
@@ -81,14 +81,14 @@ print("Canalizing strength:", f.get_canalizing_strength())
 
     x0	x1	x2	|	f_linear
     ----------------------------------------
-    0	0	0	|	0
-    0	0	1	|	1
-    0	1	0	|	1
-    0	1	1	|	0
-    1	0	0	|	1
-    1	0	1	|	0
-    1	1	0	|	0
-    1	1	1	|	1
+    0	0	0	|	1
+    0	0	1	|	0
+    0	1	0	|	0
+    0	1	1	|	1
+    1	0	0	|	0
+    1	0	1	|	1
+    1	1	0	|	1
+    1	1	1	|	0
     Activities: [1. 1. 1.]
     Edge effectiveness: [1.0, 1.0, 1.0]
     Normalized average sensitivity: 1.0
@@ -143,33 +143,33 @@ for func, label in zip([f, g, h, k], labels):
 
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
-    0	0	0	|	1	1	0	1
-    0	0	1	|	0	0	0	1
-    0	1	0	|	1	0	0	0
-    0	1	1	|	1	0	0	0
-    1	0	0	|	0	0	0	1
-    1	0	1	|	0	1	1	0
-    1	1	0	|	0	0	0	0
-    1	1	1	|	0	0	0	0
+    0	0	0	|	1	0	0	1
+    0	0	1	|	1	1	1	0
+    0	1	0	|	1	1	1	1
+    0	1	1	|	1	1	1	0
+    1	0	0	|	1	1	1	1
+    1	0	1	|	1	1	1	0
+    1	1	0	|	0	0	1	1
+    1	1	1	|	1	1	1	1
     Canalizing depth of f: 3
-    Layer structure of f: [1, 2]
-    Number of layers of f: 2
+    Layer structure of f: [3]
+    Number of layers of f: 1
     Core function of f: [0]
     
     Canalizing depth of g: 1
     Layer structure of g: [1]
     Number of layers of g: 1
-    Core function of g: [1 0 0 1]
+    Core function of g: [0 1 1 0]
     
     Canalizing depth of h: 3
     Layer structure of h: [3]
     Number of layers of h: 1
-    Core function of h: [1]
+    Core function of h: [0]
     
     Canalizing depth of k: 3
     Layer structure of k: [1, 2]
     Number of layers of k: 2
-    Core function of k: [0]
+    Core function of k: [1]
     
 
 
@@ -209,19 +209,19 @@ for func, label in zip([f, g, h, k], labels):
 
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
-    0	0	0	|	0	1	1	0
-    0	0	1	|	0	0	1	1
+    0	0	0	|	1	0	1	1
+    0	0	1	|	0	0	0	1
     0	1	0	|	1	1	0	1
-    0	1	1	|	0	0	1	1
+    0	1	1	|	0	1	0	1
     1	0	0	|	0	1	1	1
-    1	0	1	|	1	1	1	1
+    1	0	1	|	0	0	0	1
     1	1	0	|	0	0	1	1
-    1	1	1	|	0	1	0	1
+    1	1	1	|	1	0	0	0
     Canalizing depth of f: 0
     
     Canalizing depth of g: 0
     
-    Canalizing depth of h: 1
+    Canalizing depth of h: 3
     
     Canalizing depth of k: 3
     
@@ -286,7 +286,7 @@ print("Error:", count_essential / n_simulations - expected)
 plt.show()
 ```
 
-    Error: [-3.4e-03 -1.0e-04  3.5e-03]
+    Error: [ 0.001  -0.0013  0.0003]
 
 
 
@@ -316,7 +316,7 @@ labels = ["f", "g", "h"]
 boolforge.display_truth_table(f, g, h, labels=labels)
 
 for func, label in zip([f, g, h], labels):
-    print(f"Hamming weight of {label}: {func.get_hamming_weight()}")
+    print(f"Hamming weight of {label}: {func.hamming_weight}")
     print(f"Canalizing depth of {label}: {func.get_canalizing_depth()}")
     print(f"Number of essential variables of {label}: {func.get_number_of_essential_variables()}")
     print()
@@ -324,16 +324,16 @@ for func, label in zip([f, g, h], labels):
 
     x0	x1	x2	|	f	g	h
     -------------------------------------------------
-    0	0	0	|	0	1	0
-    0	0	1	|	0	1	0
-    0	1	0	|	1	0	0
-    0	1	1	|	1	0	0
-    1	0	0	|	1	1	0
-    1	0	1	|	0	0	1
-    1	1	0	|	1	1	0
-    1	1	1	|	1	1	1
+    0	0	0	|	1	0	0
+    0	0	1	|	1	1	0
+    0	1	0	|	0	1	1
+    0	1	1	|	1	1	0
+    1	0	0	|	1	0	0
+    1	0	1	|	0	1	1
+    1	1	0	|	0	1	0
+    1	1	1	|	1	0	0
     Hamming weight of f: 5
-    Canalizing depth of f: 3
+    Canalizing depth of f: 0
     Number of essential variables of f: 3
     
     Hamming weight of g: 5
@@ -341,8 +341,8 @@ for func, label in zip([f, g, h], labels):
     Number of essential variables of g: 3
     
     Hamming weight of h: 2
-    Canalizing depth of h: 2
-    Number of essential variables of h: 2
+    Canalizing depth of h: 0
+    Number of essential variables of h: 3
     
 
 
@@ -374,9 +374,9 @@ for _ in range(n_simulations):
     g = boolforge.random_function(n, absolute_bias=0.5, use_absolute_bias=True)
     h = boolforge.random_function(n, absolute_bias=0.5) #absolute_bias ignored!
 
-    counts[0, f.get_hamming_weight()] += 1
-    counts[1, g.get_hamming_weight()] += 1
-    counts[2, h.get_hamming_weight()] += 1
+    counts[0, f.hamming_weight] += 1
+    counts[1, g.hamming_weight] += 1
+    counts[2, h.hamming_weight] += 1
 
 labels = ["bias = 0.75", "absolute bias = 0.5", "random (bias = 0.5)"]
 x = np.arange(2**n + 1)
@@ -422,9 +422,9 @@ for _ in range(n_simulations):
     )
     h = boolforge.random_function(n, allow_degenerate_functions=True)
 
-    counts[0, f.get_hamming_weight()] += 1
-    counts[1, g.get_hamming_weight()] += 1
-    counts[2, h.get_hamming_weight()] += 1
+    counts[0, f.hamming_weight] += 1
+    counts[1, g.hamming_weight] += 1
+    counts[2, h.hamming_weight] += 1
 
 fig, ax = plt.subplots()
 for i in range(3):

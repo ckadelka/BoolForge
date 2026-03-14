@@ -254,8 +254,8 @@ print(dict_dynamics['Attractors'])
 print(dict_dynamics['BasinSizesApproximation'])
 ```
 
-    [[7], [5, 2], [0]]
-    [0.384 0.483 0.133]
+    [[2, 5], [0], [7]]
+    [0.496 0.113 0.391]
 
 
 The simulation returns additional information:
@@ -296,7 +296,7 @@ plt.show()
 
 
     
-![](tutorial07_boolean_network_dynamics_files/tutorial07_boolean_network_dynamics_29_0.png)
+![](tutorial07_network_dynamics_files/tutorial07_network_dynamics_29_0.png)
     
 
 
@@ -404,7 +404,7 @@ print(dict_dynamics['BasinSizesApproximation'])
 
     [7, 0]
     2
-    [0.6 0.4]
+    [0.686 0.314]
 
 
 ### Sampling from a fixed initial condition
@@ -422,9 +422,9 @@ print(dict_dynamics['NumberOfSteadyStatesLowerBound'])
 print(dict_dynamics['BasinSizesApproximation'])
 ```
 
-    [7, 2, 0, 9]
+    [7, 0, 9, 4]
     4
-    [0.248 0.186 0.48  0.086]
+    [0.24  0.522 0.12  0.118]
 
 
 Note the equivalent analysis under synchronous update is trivial because the dynamics

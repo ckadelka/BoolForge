@@ -1,4 +1,4 @@
-# Example Use Cases of the Random Function Generator
+# Ensemble experiments with random Boolean functions
 
 In this tutorial, we explore how BoolForge’s random Boolean function generator 
 can be used to generate large ensembles of Boolean functions with prescribed structural properties,
@@ -75,14 +75,14 @@ print(out.to_string())
 
 
     
-![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_3_0.png)
+![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_3_0.png)
     
 
 
            k=0    k=1    k=2    k=3    k=4  k=5  k=6
-    n=2  0.188  0.000  0.812  0.000  0.000  0.0  0.0
-    n=3  0.624  0.081  0.000  0.295  0.000  0.0  0.0
-    n=4  0.941  0.043  0.005  0.000  0.011  0.0  0.0
+    n=2  0.211  0.000  0.789  0.000  0.000  0.0  0.0
+    n=3  0.604  0.105  0.000  0.291  0.000  0.0  0.0
+    n=4  0.958  0.019  0.009  0.000  0.014  0.0  0.0
     n=5  0.999  0.001  0.000  0.000  0.000  0.0  0.0
     n=6  1.000  0.000  0.000  0.000  0.000  0.0  0.0
 
@@ -137,16 +137,16 @@ print(out.to_string())
 
 
     
-![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_6_0.png)
+![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_6_0.png)
     
 
 
-         k=0    k=1    k=2    k=3    k=4   k=5  k=6
-    n=2  0.0  0.000  1.000  0.000  0.000  0.00  0.0
-    n=3  0.0  0.251  0.000  0.749  0.000  0.00  0.0
-    n=4  0.0  0.688  0.081  0.000  0.231  0.00  0.0
-    n=5  0.0  0.957  0.029  0.004  0.000  0.01  0.0
-    n=6  0.0  1.000  0.000  0.000  0.000  0.00  0.0
+         k=0    k=1    k=2    k=3    k=4    k=5  k=6
+    n=2  0.0  0.000  1.000  0.000  0.000  0.000  0.0
+    n=3  0.0  0.286  0.000  0.714  0.000  0.000  0.0
+    n=4  0.0  0.681  0.098  0.000  0.221  0.000  0.0
+    n=5  0.0  0.960  0.028  0.003  0.000  0.009  0.0
+    n=6  0.0  1.000  0.000  0.000  0.000  0.000  0.0
 
 
 This analysis reveals that among Boolean functions of degree $n\geq 5$, 
@@ -206,7 +206,7 @@ plt.show()
 
 
     
-![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_9_0.png)
+![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_9_0.png)
     
 
 
@@ -304,7 +304,7 @@ plt.show()
 
 
     
-![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_12_0.png)
+![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_12_0.png)
     
 
 
@@ -345,7 +345,7 @@ stats.spearmanr(strengths[which], redundancies[which])
 
 
     
-![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_14_0.png)
+![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_14_0.png)
     
 
 
@@ -401,7 +401,7 @@ plt.show()
 
 
     
-![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_17_0.png)
+![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_17_0.png)
     
 
 
@@ -439,7 +439,7 @@ plt.show()
 
 
     
-![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_19_0.png)
+![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_19_0.png)
     
 
 
@@ -453,7 +453,7 @@ such as canalizing strength or effective degree.
 
 For nested canalizing functions of a given degree $n$, there exists a bijection 
 between their absolute bias and their canalizing layer structure (Kadelka et al., Physica D, 2017).
-The function `boolforge.utils.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
+The function `boolforge.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
 NCFs with the same layer structure have the same dynamical properties. 
 That is, they have the same average sensitivity, canalizing strength and the same effective degree.
 Iterating over all possible absolute biases (parametrized by the possible Hamming weights), 
@@ -463,7 +463,7 @@ which we can compute exactly for relatively low degree.
 ```python
 n = 5
 all_hamming = np.arange(1, 2 ** (n - 1), 2)
-all_abs_bias = all_hamming / 2 ** (n - 1)
+all_abs_bias = 2 * np.abs(all_hamming/2**n - 0.5)
 
 avg_sens = np.zeros(2 ** (n - 2))
 can_strength = np.zeros_like(avg_sens)
@@ -471,7 +471,7 @@ eff_degree = np.zeros_like(avg_sens)
 layer_structures = []
 
 for i, w in enumerate(all_hamming):
-    layer = boolforge.utils.hamming_weight_to_ncf_layer_structure(n, w)
+    layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
     layer_structures.append(layer)
     f = boolforge.random_function(n, layer_structure=layer)
     avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
@@ -493,14 +493,14 @@ print(df.to_string())
 ```
 
        Hamming weight  Absolute bias Layer structure  Average sensitivity  Canalizing strength  Effective degree
-    0               1         0.0625             [5]               0.3125               1.0000            1.1250
-    1               3         0.1875          [3, 2]               0.6875               0.7705            1.3984
-    2               5         0.3125       [2, 1, 2]               0.9375               0.6369            1.5938
-    3               7         0.4375          [2, 3]               1.0625               0.5993            1.5833
-    4               9         0.5625       [1, 1, 3]               1.1875               0.5033            1.7266
-    5              11         0.6875    [1, 1, 1, 2]               1.3125               0.4657            1.8021
-    6              13         0.8125       [1, 2, 2]               1.3125               0.4657            1.7708
-    7              15         0.9375          [1, 4]               1.1875               0.5033            1.6094
+    0               1         0.9375             [5]               0.3125               1.0000            1.1250
+    1               3         0.8125          [3, 2]               0.6875               0.7705            1.3984
+    2               5         0.6875       [2, 1, 2]               0.9375               0.6369            1.5938
+    3               7         0.5625          [2, 3]               1.0625               0.5993            1.5833
+    4               9         0.4375       [1, 1, 3]               1.1875               0.5033            1.7266
+    5              11         0.3125    [1, 1, 1, 2]               1.3125               0.4657            1.8021
+    6              13         0.1875       [1, 2, 2]               1.3125               0.4657            1.7708
+    7              15         0.0625          [1, 4]               1.1875               0.5033            1.6094
 
 
 We notice that nested canalizing functions with higher absolute bias tend to be 
@@ -522,7 +522,7 @@ for n in ns:
     avg_sens = np.zeros(2 ** (n - 2))
 
     for i, w in enumerate(all_hamming_weights):
-        layer = boolforge.utils.hamming_weight_to_ncf_layer_structure(n, w)
+        layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
         f = boolforge.random_function(n, layer_structure=layer)
         avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
 
@@ -536,7 +536,7 @@ plt.show()
 
 
     
-![](tutorial05_use_cases_random_function_generator_files/tutorial05_use_cases_random_function_generator_23_0.png)
+![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_23_0.png)
     
 
 

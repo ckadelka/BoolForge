@@ -1,24 +1,16 @@
-# Generating random Boolean networks with prescribed properties
+# Random Boolean network generation
 
 This tutorial demonstrates how to generate **random Boolean networks with
 controlled structural and functional properties** using BoolForge.
-
-Controlled random network generation is essential for many types of studies.
-Specifically, it enables:
-
-1. **Null model comparisons**  
-   Are biological networks structurally or dynamically different from random networks?
-
-2. **Ensemble studies**  
-   How do structural properties such as degree or canalization affect network dynamics?
+This ability enables ensemble studies, which are exemplified in the next tutorial.
 
 ## What you will learn
-In this tutorial you will learn how to generate random Boolean networks with:
+In this tutorial you will learn how to generate random Boolean networks with
 
-- specific structural properties (e.g., degree, degree distribution, strongly connected),
+- prescribed structural properties (e.g., degree, degree distribution, strongly connected),
 - prescribed functional properties (e.g., canalization, bias),
 
-It is strongly recommended to complete Tutorial 4 on random function generation first.
+It is strongly recommended to complete Tutorials 4 and 5 on random function generation first.
 
 ## Setup
 
@@ -28,160 +20,278 @@ import numpy as np
 import matplotlib.pyplot as plt
 ```
 
-## Biased NK Kauffman networks
+## Generating random wiring diagrams
 
-One of the classical models of complex systems is the **NK random Boolean network**
-introduced by Stuart Kauffman.
+The function `random_network(N, n, *args)` generates a random $N$-node
+Boolean network with degree parameter `n`. 
+The generation follows a two-step process:
 
-In this model:
+- A random wiring diagram is created using `random_wiring_diagram(N, n, *args)`.
+- Random Boolean functions with prescribed properties are generated using 
+  `random_function(n, *args)`, which was discussed in depth in Tutorials 4 and 5.
 
-- The network contains N nodes.
-- Each node is regulated by k inputs.
-- Each update function is generated randomly with *bias* $p$, i.e.
-
-  - probability of output 1: `p`
-  - probability of output 0: `1-p`
-
-A key theoretical result due to Derrida and Pomeau predicts how a single-node perturbation
-propagates in large random Boolean networks. They showed that if two network states differ in one node, 
-the expected number of differences after one update step is $2kp(1-p)$.
-
-If this value is
-
-- $< 1$, then perturbations decrease on average (ordered regime)
-- $> 1$, then perturbations increase on average (chaotic regime)
-- $= 1$, then perturbations remain on average of equal size (critical boundary)
-
-The expected number of propagated perturbations is called the **Derrida value**.
+We first consider only the structural parameters that concern the generation of
+the random wiring diagram. In the absence of optional arguments,
+the in-degree distribution is assumed to be constant. That is, each node in the 
+network is regulated by `n` nodes.
 
 ```python
-N = 100          # network size
-ks = range(1,5)  # constant in-degree
-n_networks = 50  # ensemble size
-p = 0.5          # bias p: probability of ones in truth table
+N = 5
+n = 2
 
-derrida_values = []
-for k in ks:
-    derrida_values.append([])
-    for _ in range(n_networks):
-        bn = bf.random_network(N, k, bias = p, allow_degenerate_functions=True)
-        derrida_values[-1].append( bn.get_derrida_value(exact=True) )
+W = bf.random_wiring_diagram(N, n, rng=2)
 
-plt.boxplot(derrida_values, positions=list(ks))
-plt.axhline(1, linestyle="--", color="gray", label="critical value")
-plt.plot(ks, [2*k*p*(1-p) for k in ks], "o-", label=r"$2kp(1-p)$ (annealed theory)")
-plt.xlabel("Constant in-degree k")
-plt.ylabel("Derrida value")
-plt.legend(frameon=False)
+W.plot();
+```
+
+
+    
+![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_3_0.png)
+    
+
+
+The argument `rng` seeds the random number generator, ensuring reproducible results.
+
+The rest of this tutorial describes the various constraints / optional arguments. 
+Each optional argument restricts the family of networks from which
+`random_wiring_diagram()` and `random_network()` samples.
+
+### Allowing self-regulation
+
+BoolForge selects the `n` regulators of each node uniformly at random
+from the set of all other nodes. Thus, self-regulation is disallowed by default.
+Setting `allow_self_loops=True` allows nodes to regulate themselves.
+
+```python
+N = 5
+n = 2
+
+bn = bf.random_wiring_diagram(N,n,allow_self_loops=True,rng = 2)
+
+bn.plot();
+```
+
+
+    
+![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_5_0.png)
+    
+
+
+### Poisson in-degree distributions
+
+Classical random Boolean network theory (NK Kauffman models) assume a fixed in-degree,
+the default in BoolForge. However, this is a strong assumption since the in-degree
+in curated biological Boolean network models often appears approximately
+Poisson distributed.
+BoolForge provides the option to generate random wiring diagrams with Poisson distributed
+in-degree, using the optional parameter `indegree_distribution`.
+
+```python
+N = 5
+n = 2
+
+bn = bf.random_wiring_diagram(N,n,indegree_distribution='poisson',rng = 5)
+
+bn.plot();
+```
+
+
+    
+![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_7_0.png)
+    
+
+
+We see that some nodes ($x_1$ and $x_3$) are only regulated by one node,
+while others ($x_0$ and $x_4$) possess three regulators each.
+
+When using a Poisson-distributed in-degree, the in-degree of every node 
+is always at least 1. This avoids the artificial creation of identity nodes
+(with in-degree 0).
+
+### Avoiding output nodes
+
+In general, it is possible that some nodes in a generated Boolean network 
+will not regulate other nodes. By setting `min_out_degree_one=True`, we can
+force every node to regulate at least one node. That is, output nodes can be disallowed.
+
+### Strong connectedness
+
+The wiring diagram of the generated Boolean network may or may not be strongly
+connected. Setting `strongly_connected=True` (default False) forces strong
+connectedness. Uniform sampling among strongly connected networks cannot be achieved by
+a simple construction method. BoolForge therefore generates candidate
+networks and rejects them until a strongly connected network is obtained.
+
+Careful: When the number of nodes `N` is large and the degree `n` is small, this may take a
+long time. The number of unsuccessful attempts before raising an error is controlled
+by the optional parameter `max_strong_connectivity_attempts`. 
+
+### Fixed wiring diagrams
+
+All optional parameters thus far describe properties of the wiring diagram.
+An already generated wiring diagram (e.g., of an existing biological network model)
+can also be passed directly via optional parameter `I`. In that case,
+`random_network(I, *args)` does not require `N` and `n` because they are inferred from `I`.
+
+## Specifying functional constraints
+
+Once the wiring diagram is generated, the number of nodes `N` and the in-degree of each node are determined.
+In step 2, `random_network` now repeatedly calls `random_function` to generate 
+the random Boolean functions. The optional parameters regulating the functional constraints
+are practically identical to the ones discussed in depth in Tutorial 4, with one
+important distinction: Most parameters can be sequences of length `N`, in order to
+specify distinct functional behavior for the different nodes.
+
+In the following, we summarize the key concepts.
+
+### Parity functions
+If `parity=True` (default False), parity functions (also known as linear functions)
+are chosen for all nodes. Note that for any degree `n`, there are only two parity functions.
+
+### Canalizing functions
+If a specific `layer_structure` is provided, all functions possess at least these
+canalizing layers.
+
+```python
+bn = bf.random_network(N=4,n=3,layer_structure=[1],rng = 2)
+for f in bn.F:
+    print(f,f.get_layer_structure()['LayerStructure'])
+```
+
+    [0 1 1 0 0 0 0 0] [1]
+    [0 0 1 1 0 1 1 1] [1, 2]
+    [0 0 0 0 0 0 0 1] [3]
+    [1 1 1 0 1 1 1 1] [3]
+
+
+As we see, it is however possible for some functions to randomly possess more canalizing
+variables in a larger and/or more layers. To ensure `layer_structure` is interpreted
+as exact layer structure, set `exact_depth=True`. 
+
+```python
+bn = bf.random_network(N=4,n=3,layer_structure=[1],exact_depth=True,rng = 2)
+for f in bn.F:
+    print(f,f.get_layer_structure()['LayerStructure'])
+```
+
+    [0 1 1 0 0 0 0 0] [1]
+    [1 0 1 1 0 1 1 1] [1]
+    [1 1 0 1 0 1 1 1] [1]
+    [0 1 1 0 1 1 1 1] [1]
+
+
+Rather than specifying the exact layer structure, we can also describe the desired
+*canalizing depth* (i.e., the number of conditionally canalizing variables) via `depth`. 
+As before, the optional argument `exact_depth` (default False) determines if 
+`depth` is interpreted as exact canalizing depth, or as minimum canalizing depth.
+
+```python
+#Boolean network whose rules all have minimal canalizing depth 1
+bn1 = bf.random_network(N=4,n=3,depth=1,exact_depth=False,rng = 2)
+for f in bn1.F:
+    print(f.get_canalizing_depth(),f) 
+    
+#Boolean network whose rules all have exact canalizing depth 1
+bn2 = bf.random_network(N=4,n=3,depth=1,exact_depth=True,rng = 2)
+for f in bn2.F:
+    print(f.get_canalizing_depth(),f) 
+```
+
+    1 [0 1 1 0 0 0 0 0]
+    3 [0 0 0 0 0 0 1 0]
+    3 [1 1 0 0 1 1 1 0]
+    3 [0 1 1 1 0 0 0 0]
+    1 [0 1 1 0 0 0 0 0]
+    1 [1 0 0 0 0 0 1 0]
+    1 [1 1 0 1 0 1 1 1]
+    1 [0 0 1 0 1 0 0 0]
+
+
+Most optional parameters (e.g., `n`, `depth`, `layer_structure`, `bias`, `absolute_bias`) 
+can also be specified as sequences of length `N`.
+In that case, each entry applies to one node in the network, allowing
+different functional constraints for different nodes.
+
+```python
+bn = bf.random_network(
+    N=4,
+    n=[3,3,2,2],
+    depth=[3,1,2,0],
+    exact_depth=True,
+    rng=2
+)
+
+for f in bn.F:
+    print(f.get_canalizing_depth(),f) 
+```
+
+    3 [1 1 1 1 0 1 1 1]
+    1 [1 1 0 1 0 1 1 1]
+    2 [1 1 0 1]
+    0 [0 1 1 0]
+
+
+### Biased functions
+When `parity=False` and all canalization parameters are also at their default values,
+`random_network` generates each update function with a specified *bias*, i.e.
+
+  - probability of output 1: `bias`
+  - probability of output 0: `1-bias`
+
+The unbiased case (`bias=0.5`) is the default. Instead of the bias, users can
+also specify the absolute bias to generate functions with a bimodal Hamming weight
+distribution. For BoolForge to use the parameter provided via `absolute_bias`, 
+`use_absolute_bias=True` is required. The default is `use_absolute_bias=False`, 
+i.e., by default `bias` is used, resulting in a unimodal Hamming weight distribution.
+
+```python
+N = 1000 #network size
+n = 4   #constant in-degree
+
+bn1 = bf.random_network(N=N,n=n,bias=0.75)
+bn2 = bf.random_network(N=N,n=n,absolute_bias=0.5,use_absolute_bias=True)
+bn3 = bf.random_network(N=N,n=n,absolute_bias=0.5)
+bns = [bn1,bn2,bn3]
+
+labels = ["bias = 0.75", "absolute bias = 0.5", "bias = 0.5 (balanced)"]
+possible_hamming_weights = np.arange(2**n + 1)
+width = 0.3
+
+fig, ax = plt.subplots()
+for i,bn in enumerate(bns):
+    count = np.zeros(2**n + 1)
+    for f in bn.F:
+        count[f.hamming_weight] += 1
+    ax.bar(possible_hamming_weights - width + i * width, 
+           count / N, 
+           width=width, label=labels[i])
+
+ax.legend(frameon=False)
+ax.set_xticks(possible_hamming_weights)
+ax.set_xlabel("Hamming weight")
+ax.set_ylabel("Proportion of update functions")
 ```
 
 
 
 
-    <matplotlib.legend.Legend at 0x1125b5f10>
+    Text(0, 0.5, 'Proportion of update functions')
 
 
 
 
     
-![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_3_1.png)
+![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_17_1.png)
     
 
-
-The numerical results closely follow the theoretical prediction $2kp(1-p)$
-derived under the **annealed approximation**. 
-The phase transition occurs when the Derrida value crosses 1.
-
-For unbiased Boolean functions (with bias $p=0.5$), the theory predicts the
-critical connectivity $k=2$.
-
-## BoolForge philosophy: non-degenerate regulatory functions
-
-The classical NK model assumes that a Boolean function with $k$ inputs may
-**not actually depend on all of them**. Such functions are called **degenerate**.
-
-While this assumption is natural in statistical physics models (e.g. spin
-glasses), it is biologically questionable. 
-In gene regulatory networks, an input typically represents a *specific
-regulatory interaction*. If a transcription factor does not affect the
-gene, it should not appear as an input in the first place.
-**Therefore BoolForge assumes non-degenerate Boolean functions by default.**
-
-Degeneracy occurs frequently for small input sizes:
-
-- $k=1$: 2 out of 4 functions are degenerate (50%)
-- $k=2$: 6 out of 16 functions are degenerate
-- larger $k$: degeneracy becomes increasingly rare
-
-Disallowing degenerate functions therefore mainly affects **sparse networks**,
-precisely the regime most biological networks operate in (typical average
-in-degree $approx$ 2-3).
-
-We now repeat the previous experiment **disallowing degenerate functions**.
-
-The resilience of Boolean networks to perturbations critically depends on the bias p,
-which can be seen by varying this parameter. Moreover, the classical result assumes that
-Boolean network update rules may be degenerate. If we disallow this, the results change
-substantially.
-
-## BoolForge philosophy
-However, he assumed that a Boolean function in k inputs may be degenerate and not actually
-depend on all its inputs. While this makes sense physically, when thinking of spin glasses,
-it does not make much sense biologically, e.g. Either a TF regulates a gene or is does not.
-**Therefore, any random function and network sampler in BoolForge assumes, by default, that
-functions are non-degenerate**.
-
-Degeneracy randomly occurs predominarnly for low-input functions: Two out four (50%) of 
-1-input functions are degenerate. This fraction decreases to 6/16, ... for n=2,3,... 
-Not allowing degeneracy therefore affects primarily results for sparse random Boolean networks,
-specifically the regime most biological networks operate in (they have an average in-degree of around 2.5).
-
-Rerunning the above analysis, when disallowing degenerate functions, exemplifies the differences.
-
-```python
-derrida_values = []
-for k in ks:
-    derrida_values.append([])
-    for _ in range(n_networks):
-        bn = bf.random_network(N, k, bias = p, allow_degenerate_functions=False)
-        derrida_values[-1].append( bn.get_derrida_value(exact=True) )
-
-plt.boxplot(derrida_values, positions=list(ks))
-plt.axhline(1, linestyle="--", color="gray", label="critical value")
-plt.plot(ks, [2*k*p*(1-p) for k in ks], "o-", label=r"$2kp(1-p)$ (annealed theory)")
-plt.xlabel("Constant in-degree k")
-plt.ylabel("Derrida value")
-plt.legend(frameon=False)
-```
-
-
-
-
-    <matplotlib.legend.Legend at 0x114b38440>
-
-
-
-
-    
-![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_7_1.png)
-    
-
-
-The behavior changes substantially. For *unbiased, non-degenerate Boolean networks 
-(with bias $p=0.5$)* the phase transition occurs already at $k=1$,
-rather than $k=2$, as predicted by the classical NK theory.
-
-This illustrates how biologically motivated modeling assumptions
-can significantly affect the predicted dynamical regime of Boolean networks.
 
 ## Summary and outlook
 
 In this tutorial you learned how to:
 
-- compute exact robustness measures for small Boolean networks,
-- interpret coherence and fragility at network, basin, and attractor levels,
-- approximate robustness measures for larger networks, and
-- assess dynamical sensitivity using the Derrida value.
+- generate random wiring diagrams with prescribed structural constraints,
+- generate, for each node in a wiring diagram, random update functions 
+  with prescribed functional constraints.
 
-In Tutorial 9, we will finally analyze biological Boolean network models and
-design ensemble experiments. 
+In the next tutorial, we will explore several situations, in which the ability
+to generate large ensembles of controlled random Boolean networks is very useful. 

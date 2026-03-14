@@ -74,7 +74,7 @@ plt.legend(frameon=False)
 
 
 
-    <matplotlib.legend.Legend at 0x10adea780>
+    <matplotlib.legend.Legend at 0x10dc3bd40>
 
 
 
@@ -87,10 +87,6 @@ plt.legend(frameon=False)
 The Derrida value measures the average number of nodes affected by a single-bit 
 random perturbation after one synchronous update of the network.
 
-The resilience of Boolean networks to perturbations critically depends on the bias p,
-which can be seen by varying this parameter. Moreover, the classical result assumes that
-Boolean network update rules may be degenerate. If we disallow this, the results change
-substantially.
 
 ## Structure of the tutorials
 

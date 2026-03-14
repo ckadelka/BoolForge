@@ -178,7 +178,6 @@ class WiringDiagram(object):
                 self.weights.append(np.array(row, dtype=float))
         else:
             self.weights = None
-            
 
         
     def _make_property_key(self, name, context=None):
@@ -374,6 +373,9 @@ class WiringDiagram(object):
 
     def __repr__(self):
         return f"{type(self).__name__}(N={self.N})"
+
+    def __len__(self):
+        return self.N
 
     def get_outdegrees(self) -> np.ndarray:
         """

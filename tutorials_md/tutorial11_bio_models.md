@@ -19,7 +19,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 ```
 
-## Loading model repositories.
+## Loading model repositories
 BoolForge makes it very easy to load all models included in three different 
 repositories of curated biological Boolean networks.
 
@@ -54,7 +54,7 @@ n_models_sm = len(bns_sm)
 
 Note that the last repository is very large, which is why this code is commented out.
 
-## Analyzing model repositories.
+## Analyzing model repositories
 By applying BoolForge functions to all models in a repository, we can swiftly
 generate summary statistics, such as the size distribution of the models, or their average degree.
 
@@ -80,6 +80,6 @@ ax.legend(loc='best',frameon=False);
 
 
     
-![](tutorial09_bio_models_files/tutorial09_bio_models_10_0.png)
+![](tutorial11_bio_models_files/tutorial11_bio_models_10_0.png)
     
 

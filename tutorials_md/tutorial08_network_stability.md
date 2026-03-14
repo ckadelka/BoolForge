@@ -165,8 +165,8 @@ print("Approximate fragility:", results_approx["FragilityApproximation"])
 ```
 
     Number of attractors (lower bound): 3
-    Approximate coherence: 0.304
-    Approximate fragility: 0.34800000000000003
+    Approximate coherence: 0.36
+    Approximate fragility: 0.32
 
 
 Even when only using 500 random initial states, the approximate values closely match the exact ones.
@@ -191,7 +191,7 @@ print("Approximate Derrida value:", derrida_approx)
 ```
 
     Exact Derrida value: 1.0
-    Approximate Derrida value: 1.0125
+    Approximate Derrida value: 1.0
 
 
 Interpretation:

@@ -251,8 +251,8 @@ print(
 )
 ```
 
-    Mean activity: 0.5001
-    Normalized average sensitivity: 0.4989
+    Mean activity: 0.5008
+    Normalized average sensitivity: 0.5015
 
 
 **Interpretation**

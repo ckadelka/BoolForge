@@ -61,9 +61,9 @@ W.plot();
 N = 5
 n = 2
 
-bn = bf.random_wiring_diagram(N,n,allow_self_loops=True,rng = 2)
+W = bf.random_wiring_diagram(N,n,allow_self_loops=True,rng = 2)
 
-bn.plot();
+W.plot();
 
 # %% [markdown]
 # ### Poisson in-degree distributions
@@ -79,9 +79,9 @@ bn.plot();
 N = 5
 n = 2
 
-bn = bf.random_wiring_diagram(N,n,indegree_distribution='poisson',rng = 5)
+W = bf.random_wiring_diagram(N,n,indegree_distribution='poisson',rng = 5)
 
-bn.plot();
+W.plot();
 
 # %% [markdown]
 # We see that some nodes ($x_1$ and $x_3$) are only regulated by one node,
@@ -115,6 +115,13 @@ bn.plot();
 # An already generated wiring diagram (e.g., of an existing biological network model)
 # can also be passed directly via optional parameter `I`. In that case,
 # `random_network(I, *args)` does not require `N` and `n` because they are inferred from `I`.
+#
+# For example, using the last, generated wiring diagram, we can write
+
+# %%
+bn = bf.random_network(I=W)
+bn.plot();
+
 #
 # ## Specifying functional constraints
 #
