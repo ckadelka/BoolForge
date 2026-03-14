@@ -5,7 +5,9 @@
 # Rather than implementing perturbations manually, we leverage BoolForge’s
 # built-in robustness and sensitivity measures.
 #
+# ## What you will learn
 # You will learn how to:
+#
 # - quantify robustness and fragility of Boolean networks under synchronous update,
 # - interpret basin-level and attractor-level robustness measures,
 # - perform exact and approximate robustness computations, and
@@ -39,6 +41,7 @@ print("Number of nodes:", bn.N)
 # ## Exact attractors and robustness measures
 #
 # BoolForge provides a single method that computes:
+#
 # - all attractors,
 # - basin sizes,
 # - overall network coherence and fragility,
@@ -159,7 +162,7 @@ print("Approximate Derrida value:", derrida_approx)
 # and provide a complementary notion of robustness.
 
 # %% [markdown]
-# ## Summary and outlook
+# ## Summary
 #
 # In this tutorial you learned how to:
 #

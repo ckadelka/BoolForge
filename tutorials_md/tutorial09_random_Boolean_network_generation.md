@@ -66,9 +66,9 @@ Setting `allow_self_loops=True` allows nodes to regulate themselves.
 N = 5
 n = 2
 
-bn = bf.random_wiring_diagram(N,n,allow_self_loops=True,rng = 2)
+W = bf.random_wiring_diagram(N,n,allow_self_loops=True,rng = 2)
 
-bn.plot();
+W.plot();
 ```
 
 
@@ -90,9 +90,9 @@ in-degree, using the optional parameter `indegree_distribution`.
 N = 5
 n = 2
 
-bn = bf.random_wiring_diagram(N,n,indegree_distribution='poisson',rng = 5)
+W = bf.random_wiring_diagram(N,n,indegree_distribution='poisson',rng = 5)
 
-bn.plot();
+W.plot();
 ```
 
 
@@ -128,10 +128,23 @@ by the optional parameter `max_strong_connectivity_attempts`.
 
 ### Fixed wiring diagrams
 
-All optional parameters thus far describe properties of the wiring diagram.
-An already generated wiring diagram (e.g., of an existing biological network model)
-can also be passed directly via optional parameter `I`. In that case,
-`random_network(I, *args)` does not require `N` and `n` because they are inferred from `I`.
+All optional parameters discussed thus far describe properties of the wiring diagram.
+Instead of generating a new wiring diagram, an existing one (e.g., from a curated
+biological network model) can be passed directly to `random_network`.
+
+In that case, `random_network(I, *args)` does not require `N` and `n`, because
+these quantities are inferred from the wiring diagram, provided via optional parameter `I`.
+As described in detail in Tutorial 6, `I` can be either a `WiringDiagram` object 
+or a list of lists describing the regulators of each node.
+
+For example, using the previously generated wiring diagram, we can write
+
+```python
+bn = bf.random_network(I=W)
+```
+
+This feature allows multiple Boolean networks with different update functions
+to be generated on the same wiring diagram.
 
 ## Specifying functional constraints
 
@@ -190,7 +203,8 @@ As before, the optional argument `exact_depth` (default False) determines if
 bn1 = bf.random_network(N=4,n=3,depth=1,exact_depth=False,rng = 2)
 for f in bn1.F:
     print(f.get_canalizing_depth(),f) 
-    
+print()    
+
 #Boolean network whose rules all have exact canalizing depth 1
 bn2 = bf.random_network(N=4,n=3,depth=1,exact_depth=True,rng = 2)
 for f in bn2.F:
@@ -201,6 +215,7 @@ for f in bn2.F:
     3 [0 0 0 0 0 0 1 0]
     3 [1 1 0 0 1 1 1 0]
     3 [0 1 1 1 0 0 0 0]
+    
     1 [0 1 1 0 0 0 0 0]
     1 [1 0 0 0 0 0 1 0]
     1 [1 1 0 1 0 1 1 1]
@@ -269,19 +284,12 @@ for i,bn in enumerate(bns):
 ax.legend(frameon=False)
 ax.set_xticks(possible_hamming_weights)
 ax.set_xlabel("Hamming weight")
-ax.set_ylabel("Proportion of update functions")
+ax.set_ylabel("Proportion of update functions");
 ```
 
 
-
-
-    Text(0, 0.5, 'Proportion of update functions')
-
-
-
-
     
-![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_17_1.png)
+![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_19_0.png)
     
 
 

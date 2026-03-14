@@ -68,19 +68,12 @@ plt.axhline(1, linestyle="--", color="gray", label="critical value")
 plt.plot(ks, [2*k*p*(1-p) for k in ks], "o-", label=r"$2kp(1-p)$ (annealed theory)")
 plt.xlabel("Constant in-degree k")
 plt.ylabel("Derrida value")
-plt.legend(frameon=False)
+plt.legend(frameon=False);
 ```
 
 
-
-
-    <matplotlib.legend.Legend at 0x10dc3bd40>
-
-
-
-
     
-![](tutorial00_preface_files/tutorial00_preface_1_1.png)
+![](tutorial00_preface_files/tutorial00_preface_1_0.png)
     
 
 
@@ -105,6 +98,5 @@ network models and their dynamical analysis.
 
 Each tutorial contains executable code examples illustrating how these ideas
 can be explored using BoolForge.
-
 Readers are encouraged to run the code cells and modify the examples to
 explore their own Boolean functions and networks.

@@ -4,7 +4,7 @@
 # In this tutorial, we explore the dynamics decomposition functionality
 # available in BoolForge's modularity development branch.
 #
-# ## What you will Learn
+# ## What you will learn
 # In this tutorial you will:
 #
 # - compute the trajectory of a Boolean network

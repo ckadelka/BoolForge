@@ -26,7 +26,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 ```
 
-## Biased NK Kauffman networks
+## NK Kauffman networks
 
 One of the classical models of complex systems is the **NK random Boolean network**
 introduced by Stuart Kauffman.
@@ -40,7 +40,8 @@ In this model:
   - probability of output 1: `p`
   - probability of output 0: `1-p`
 
-A key theoretical result due to Derrida and Pomeau predicts how a single-node perturbation
+A key theoretical result due to [Derrida and Pomeau (1986)](https://hal.science/hal-03285912/document) 
+predicts how a single-node perturbation
 propagates in large random Boolean networks. They showed that if two network states differ in one node, 
 the expected number of differences after one update step is $2kp(1-p)$.
 
@@ -76,7 +77,7 @@ plt.legend(frameon=False)
 
 
 
-    <matplotlib.legend.Legend at 0x116aaf470>
+    <matplotlib.legend.Legend at 0x1180e41d0>
 
 
 
@@ -91,9 +92,13 @@ derived under the **annealed approximation**.
 The phase transition occurs when the Derrida value crosses 1.
 
 For unbiased Boolean functions (with bias $p=0.5$), the theory predicts the
-critical connectivity $k=2$.
+critical connectivity $k=2$, which we also observe in this BoolForge ensemble experiment. 
 
-## BoolForge philosophy: non-degenerate regulatory functions
+We encourage the reader to vary the bias $p$ in the above example. As the bias
+becomes more extreme, the Derrida value declines and networks with higher 
+connectivity exhibit critical dynamics.
+
+## BoolForge philosophy: regulatory functions are non-degenerate
 
 The classical NK model assumes that a Boolean function with $k$ inputs may
 **not actually depend on all of them**. Such functions are called **degenerate**.
@@ -115,26 +120,7 @@ Disallowing degenerate functions therefore mainly affects **sparse networks**,
 precisely the regime most biological networks operate in (typical average
 in-degree $approx$ 2-3).
 
-We now repeat the previous experiment **disallowing degenerate functions**.
-
-The resilience of Boolean networks to perturbations critically depends on the bias p,
-which can be seen by varying this parameter. Moreover, the classical result assumes that
-Boolean network update rules may be degenerate. If we disallow this, the results change
-substantially.
-
-## BoolForge philosophy
-However, he assumed that a Boolean function in k inputs may be degenerate and not actually
-depend on all its inputs. While this makes sense physically, when thinking of spin glasses,
-it does not make much sense biologically, e.g. Either a TF regulates a gene or is does not.
-**Therefore, any random function and network sampler in BoolForge assumes, by default, that
-functions are non-degenerate**.
-
-Degeneracy randomly occurs predominarnly for low-input functions: Two out four (50%) of 
-1-input functions are degenerate. This fraction decreases to 6/16, ... for n=2,3,... 
-Not allowing degeneracy therefore affects primarily results for sparse random Boolean networks,
-specifically the regime most biological networks operate in (they have an average in-degree of around 2.5).
-
-Rerunning the above analysis, when disallowing degenerate functions, exemplifies the differences.
+We now repeat the previous experiment, *disallowing degenerate functions*.
 
 ```python
 derrida_values = []
@@ -149,19 +135,12 @@ plt.axhline(1, linestyle="--", color="gray", label="critical value")
 plt.plot(ks, [2*k*p*(1-p) for k in ks], "o-", label=r"$2kp(1-p)$ (annealed theory)")
 plt.xlabel("Constant in-degree k")
 plt.ylabel("Derrida value")
-plt.legend(frameon=False)
+plt.legend(frameon=False);
 ```
 
 
-
-
-    <matplotlib.legend.Legend at 0x116b16720>
-
-
-
-
     
-![](tutorial10_ensemble_experiments_random_networks_files/tutorial10_ensemble_experiments_random_networks_7_1.png)
+![](tutorial10_ensemble_experiments_random_networks_files/tutorial10_ensemble_experiments_random_networks_6_0.png)
     
 
 
@@ -214,19 +193,12 @@ ax.plot(all_abs_bias, mean, 'bo--', label='steady states')
 ax.fill_between(all_abs_bias, mean-std, mean+std, color='b', alpha = 0.2)
 ax.set_xlabel("Absolute bias")
 ax.set_ylabel("Number")
-ax.legend(frameon=False,loc='best')
+ax.legend(frameon=False,loc='best');
 ```
 
 
-
-
-    <matplotlib.legend.Legend at 0x121f2cf50>
-
-
-
-
     
-![](tutorial10_ensemble_experiments_random_networks_files/tutorial10_ensemble_experiments_random_networks_9_1.png)
+![](tutorial10_ensemble_experiments_random_networks_files/tutorial10_ensemble_experiments_random_networks_8_0.png)
     
 
 
@@ -245,5 +217,5 @@ In this tutorial you learned how to:
 - approximate robustness measures for larger networks, and
 - assess dynamical sensitivity using the Derrida value.
 
-In Tutorial 9, we will finally analyze biological Boolean network models and
-design ensemble experiments. 
+In Tutorial 11, we will finally analyze biological Boolean network models and
+design null models and ensemble experiments. 

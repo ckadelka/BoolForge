@@ -111,17 +111,23 @@ W.plot();
 #
 # ### Fixed wiring diagrams
 #
-# All optional parameters thus far describe properties of the wiring diagram.
-# An already generated wiring diagram (e.g., of an existing biological network model)
-# can also be passed directly via optional parameter `I`. In that case,
-# `random_network(I, *args)` does not require `N` and `n` because they are inferred from `I`.
+# All optional parameters discussed thus far describe properties of the wiring diagram.
+# Instead of generating a new wiring diagram, an existing one (e.g., from a curated
+# biological network model) can be passed directly to `random_network`.
 #
-# For example, using the last, generated wiring diagram, we can write
+# In that case, `random_network(I, *args)` does not require `N` and `n`, because
+# these quantities are inferred from the wiring diagram, provided via optional parameter `I`.
+# As described in detail in Tutorial 6, `I` can be either a `WiringDiagram` object 
+# or a list of lists describing the regulators of each node.
+#
+# For example, using the previously generated wiring diagram, we can write
 
 # %%
 bn = bf.random_network(I=W)
-bn.plot();
 
+# %% [markdown]
+# This feature allows multiple Boolean networks with different update functions
+# to be generated on the same wiring diagram.
 #
 # ## Specifying functional constraints
 #
@@ -168,7 +174,8 @@ for f in bn.F:
 bn1 = bf.random_network(N=4,n=3,depth=1,exact_depth=False,rng = 2)
 for f in bn1.F:
     print(f.get_canalizing_depth(),f) 
-    
+print()    
+
 #Boolean network whose rules all have exact canalizing depth 1
 bn2 = bf.random_network(N=4,n=3,depth=1,exact_depth=True,rng = 2)
 for f in bn2.F:
@@ -231,10 +238,10 @@ for i,bn in enumerate(bns):
 ax.legend(frameon=False)
 ax.set_xticks(possible_hamming_weights)
 ax.set_xlabel("Hamming weight")
-ax.set_ylabel("Proportion of update functions")
+ax.set_ylabel("Proportion of update functions");
 
 # %% [markdown]
-# ## Summary and outlook
+# ## Summary
 #
 # In this tutorial you learned how to:
 #

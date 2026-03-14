@@ -238,7 +238,7 @@ for func, label in zip([f, g, h, k], labels):
 
 
 # %% [markdown]
-# ## Summary and next steps
+# ## Summary
 #
 # In this tutorial you learned how to:
 #

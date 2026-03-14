@@ -472,7 +472,7 @@ plt.show()
 
 
 # %% [markdown]
-# ## Summary and outlook
+# ## Summary
 #
 # This tutorial illustrated how ensembles of Boolean functions generated under
 # explicit constraints reveal systematic relationships between canalization,

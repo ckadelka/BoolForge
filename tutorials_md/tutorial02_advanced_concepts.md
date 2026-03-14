@@ -119,14 +119,14 @@ We can also identify the specific variables that cause a function to be degenera
 
 ```python
 nonessential = [
-    v for v, t in zip(k.variables, k.get_type_of_inputs())
+    str(v) for v, t in zip(k.variables, k.get_type_of_inputs())
     if t == "non-essential"
 ]
 
 print("Non-essential variables:", nonessential)
 ```
 
-    Non-essential variables: [np.str_('y')]
+    Non-essential variables: ['y']
 
 
 ## Activities and Sensitivities
@@ -251,8 +251,8 @@ print(
 )
 ```
 
-    Mean activity: 0.5008
-    Normalized average sensitivity: 0.5015
+    Mean activity: 0.5004
+    Normalized average sensitivity: 0.5018
 
 
 **Interpretation**

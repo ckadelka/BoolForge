@@ -29,7 +29,7 @@ import numpy as np
 
 
 # %% [markdown]
-# ## Symmetries in Boolean Functions
+# ## Symmetries in Boolean functions
 #
 # In gene regulation, symmetric variables might represent
 # redundant transcription factor binding sites or functionally equivalent 
@@ -96,14 +96,14 @@ print("k.is_degenerate()", k.is_degenerate())
 
 # %%
 nonessential = [
-    v for v, t in zip(k.variables, k.get_type_of_inputs())
+    str(v) for v, t in zip(k.variables, k.get_type_of_inputs())
     if t == "non-essential"
 ]
 
 print("Non-essential variables:", nonessential)
 
 # %% [markdown]
-# ## Activities and Sensitivities
+# ## Activities and sensitivities
 #
 # Activities and sensitivity quantify how much each input affects the output of
 # a Boolean function.

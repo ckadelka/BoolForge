@@ -90,12 +90,14 @@ $$
 $$
 
 ### Exact computation
-For each state, we can call `update_network_synchronously` to identify the next
-state under synchronous update.
+The update map $F$ can be evaluated directly for any state vector. In BoolForge,
+this is implemented by the method `update_network_synchronously`. For convenience,
+Boolean networks are callable, so that `bn(state)` evaluates the update map and
+is equivalent to `bn.update_network_synchronously(state)`.
 
 ```python
 for state in all_states:
-    print(state, "-->", bn.update_network_synchronously(state))
+    print(state, "-->", bn(state))
 ```
 
     [0 0 0] --> [0 0 0]
@@ -255,7 +257,7 @@ print(dict_dynamics['BasinSizesApproximation'])
 ```
 
     [[2, 5], [0], [7]]
-    [0.496 0.113 0.391]
+    [0.496 0.134 0.37 ]
 
 
 The simulation returns additional information:
@@ -404,7 +406,7 @@ print(dict_dynamics['BasinSizesApproximation'])
 
     [7, 0]
     2
-    [0.686 0.314]
+    [0.652 0.348]
 
 
 ### Sampling from a fixed initial condition
@@ -422,9 +424,9 @@ print(dict_dynamics['NumberOfSteadyStatesLowerBound'])
 print(dict_dynamics['BasinSizesApproximation'])
 ```
 
-    [7, 0, 9, 4]
-    4
-    [0.24  0.522 0.12  0.118]
+    [7, 0, 9]
+    3
+    [0.404 0.464 0.132]
 
 
 Note the equivalent analysis under synchronous update is trivial because the dynamics

@@ -5,6 +5,7 @@
 # Building on the construction and structural analysis from previous tutorials,
 # we now focus on characterizing the long-term behavior of Boolean networks.
 #
+# ## What you will learn
 # You will learn how to:
 #
 # - simulate Boolean network dynamics under different updating schemes,
@@ -76,12 +77,14 @@ print(pd.DataFrame(all_states, columns=bn.variables).to_string())
 
 # %% [markdown]
 # ### Exact computation
-# For each state, we can call `update_network_synchronously` to identify the next
-# state under synchronous update.
+# The update map $F$ can be evaluated directly for any state vector. In BoolForge,
+# this is implemented by the method `update_network_synchronously`. For convenience,
+# Boolean networks are callable, so that `bn(state)` evaluates the update map and
+# is equivalent to `bn.update_network_synchronously(state)`.
 
 # %%
 for state in all_states:
-    print(state, "-->", bn.update_network_synchronously(state))
+    print(state, "-->", bn(state))
 
 
 # %% [markdown]
@@ -321,7 +324,7 @@ dict_dynamics = bn.get_attractors_synchronous(n_simulations=1,
 dict_dynamics
 
 # %% [markdown]
-# ## Summary and outlook
+# ## Summary
 #
 # In this tutorial you learned how to:
 #

@@ -69,7 +69,7 @@ plt.axhline(1, linestyle="--", color="gray", label="critical value")
 plt.plot(ks, [2*k*p*(1-p) for k in ks], "o-", label=r"$2kp(1-p)$ (annealed theory)")
 plt.xlabel("Constant in-degree k")
 plt.ylabel("Derrida value")
-plt.legend(frameon=False)
+plt.legend(frameon=False);
 
 # %% [markdown]
 # The Derrida value measures the average number of nodes affected by a single-bit 
@@ -93,6 +93,5 @@ plt.legend(frameon=False)
 #
 # Each tutorial contains executable code examples illustrating how these ideas
 # can be explored using BoolForge.
-#
 # Readers are encouraged to run the code cells and modify the examples to
 # explore their own Boolean functions and networks.

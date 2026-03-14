@@ -35,7 +35,8 @@ import networkx as nx
 from collections.abc import Sequence
 
 from .boolean_function import BooleanFunction
-from .boolean_network import BooleanNetwork, WiringDiagram
+from .boolean_network import BooleanNetwork
+from .wiring_diagram import WiringDiagram
 from . import utils
 
 __all__ = [
@@ -983,7 +984,16 @@ def random_k_canalizing_function(
         "k, the canalizing depth, must satisfy 0 <= k <= n."
     )
     
-    if k==n-1 and n>1: #canalizing functions with depth n-1>0 really have depth n 
+    if k==0:
+        if exact_depth:
+            if n == 1:
+                raise ValueError(
+                    "No Boolean functions with canalizing depth 0 exist for n = 1."
+                )
+            return random_non_canalizing_non_degenerate_function(n, rng=rng)
+        else:
+            return random_non_degenerate_function(n, rng=rng)
+    elif k==n-1 and n>1: #canalizing functions with depth n-1>0 really have depth n 
         k=n
 
     # Step 1: canalizing inputs and variables
@@ -2145,7 +2155,12 @@ def random_null_model(
         
     The returned network has the same number of nodes as ``bn``. Depending
     on the selected options, the wiring diagram and/or the Boolean update
-    rules are randomized subject to specified invariants.
+    rules are randomized subject to specified invariants. 
+    
+    To ensure that the generated null models are structurally meaningful,
+    the original network ``bn`` must not contain degenerate Boolean functions
+    (i.e., functions with non-essential inputs). If such functions are present,
+    simplify the network first using ``bn.simplify_functions()``.
     
     Wiring diagram randomization
     ----------------------------
@@ -2220,13 +2235,19 @@ def random_null_model(
     RuntimeError
         If wiring-diagram randomization fails (e.g., strong connectivity
         cannot be achieved within the allowed number of attempts).
-    
+    ValueError
+        If the Boolean network contains degenerate functions. In that case,
+        simplify the network first using bn.simplify_functions(),
+        then recompute the null model.
+        
     Notes
     -----
     This function generates null models by selectively preserving structural
     and dynamical properties of an existing Boolean network. It is intended
     for hypothesis testing and comparative studies rather than for uniform
     sampling over all networks satisfying the given constraints.
+    
+    
     
     Examples
     --------
@@ -2269,6 +2290,19 @@ def random_null_model(
             continue
         if preserve_canalizing_depth:
             depth = f.get_canalizing_depth()
+            if f.n - depth == 1:
+                raise ValueError(
+                    f"Boolean function bn.F[{i}] is degenerate. "
+                    "Simplify the network first using bn.simplify_functions(), "
+                    "then recompute the null model."
+                )
+        else:
+            if f.is_degenerate():
+                raise ValueError(
+                    f"Boolean function bn.F[{i}] is degenerate. "
+                    "Simplify the network first using bn.simplify_functions(), "
+                    "then recompute the null model."
+                )            
         if preserve_bias and preserve_canalizing_depth:
             core_function = f.properties["CoreFunction"]
             can_outputs = f.properties["CanalizedOutputs"]
@@ -2309,9 +2343,8 @@ def random_null_model(
             newf[np.where(newf == -1)[0]] = core_function
             newf = BooleanFunction(newf)
         elif preserve_bias:  # and preserve_canalizing_depth==False
-            hamming_weight = f.get_hamming_weight()
             newf = random_function_with_exact_hamming_weight(
-                bn.indegrees[i], hamming_weight, rng=rng
+                bn.indegrees[i], f.hamming_weight, rng=rng
             )
         elif preserve_canalizing_depth:
             newf = random_k_canalizing_function(

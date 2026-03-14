@@ -238,7 +238,7 @@ print(type(cana_object))
 
 
 # %% [markdown]
-# ## Summary of Key Concepts
+# ## Summary
 # 
 # Before moving on to more advanced topics, here is a short summary of the
 # fundamental ideas introduced in this tutorial:
