@@ -15,7 +15,7 @@
 # ## Setup
 
 # %%
-import boolforge
+import boolforge as bf
 import numpy as np
 
 # %% [markdown]
@@ -60,7 +60,7 @@ I = [
     [1],
 ]
 
-W = boolforge.WiringDiagram(I=I)
+W = bf.WiringDiagram(I=I)
 
 print("W.N:", W.N)
 print("W.variables:", W.variables)
@@ -68,7 +68,6 @@ print("W.indegrees:", W.indegrees)
 print("W.outdegrees:", W.outdegrees)
 
 fig = W.plot(show=False);
-
 
 # %% [markdown]
 # The wiring diagram above consists of $N=3$ variables, and 
@@ -89,7 +88,7 @@ I = [
     [0, 1], 
 ]
 
-W = boolforge.WiringDiagram(I=I)
+W = bf.WiringDiagram(I=I)
 
 print("W.N:", W.N)
 print("W.variables:", W.variables)
@@ -97,8 +96,6 @@ print("W.indegrees:", W.indegrees)
 print("W.outdegrees:", W.outdegrees)
 
 fig = W.plot(show=False)
-
-
 
 # %% [markdown]
 # This wiring diagram encodes a **feed-forward loop**, one of the most common *network motifs* in 
@@ -126,10 +123,9 @@ I2 = [
     [1],
 ]
 
-W2 = boolforge.WiringDiagram(I=I2)
+W2 = bf.WiringDiagram(I=I2)
 fig = W2.plot(show=False)
 fig
-
 
 print("W2.get_fbls()", W2.get_fbls())
 
@@ -158,10 +154,9 @@ F = [
     [0, 1],
 ]
 
-bn = boolforge.BooleanNetwork(F=F, I=I)
+bn = bf.BooleanNetwork(F=F, I=I)
 
 print(bn.to_truth_table().to_string())
-
 
 # %% [markdown]
 # The full truth table of a Boolean network has size $N \times 2^N$ and therefore grows exponentially with the number of nodes.  
@@ -175,8 +170,6 @@ print(bn.to_truth_table().to_string())
 # namely $2^n$, where $n$ is the number of regulators of the corresponding node as specified in `I`. 
 # If any of these checks fail, an informative error is raised immediately, 
 # helping ensure that the resulting network is well-defined.
-
-
 
 # %% [markdown]
 # ### Creating networks from strings
@@ -198,7 +191,7 @@ y = x OR z
 z = y
 """
 
-bn_str = boolforge.BooleanNetwork.from_string(string, separator="=")
+bn_str = bf.BooleanNetwork.from_string(string, separator="=")
 print(bn_str.to_truth_table().to_string())
 
 # %% [markdown]
@@ -220,8 +213,6 @@ print(bn_str.to_truth_table().to_string())
 # This interface is particularly useful for loading Boolean network models from
 # external sources, such as `.bnet` files, or for quickly prototyping models in
 # an interactive setting.
-
-
 
 # %% [markdown]
 # ### Interoperability with CANA
@@ -247,14 +238,13 @@ print(bn_str.to_truth_table().to_string())
 
 # %%
 cana_bn = bn.to_cana()
-bn_from_cana = boolforge.BooleanNetwork.from_cana(cana_bn)
+bn_from_cana = bf.BooleanNetwork.from_cana(cana_bn)
 
 assert (
     np.all([np.all(bn.F[i].f == bn_from_cana.F[i].f) for i in range(bn.N)])
     and np.all([np.all(bn.I[i] == bn_from_cana.I[i]) for i in range(bn.N)])
     and np.all(bn.variables == bn_from_cana.variables)
 ), "BooleanNetwork CANA conversion failed"
-
 
 # %% [markdown]
 # ## Types of nodes in Boolean networks
@@ -288,14 +278,14 @@ I = [
     [],            # constant
 ]
 
-bn = boolforge.BooleanNetwork(F, I)
+bn = bf.BooleanNetwork(F, I)
 
 print("bn.variables:", bn.variables)
 print("bn.constants:", bn.constants)
 print("bn.I:", bn.I)
 print("bn.F:")
-for i, bf in enumerate(bn.F):
-    print(f"  F[{i}] = {bf!r}")
+for i, f in enumerate(bn.F):
+    print(f"  F[{i}] = {f!r}")
 
 # %% [markdown]
 # The constant node is removed, and its value is propagated into downstream
@@ -328,14 +318,14 @@ I = [
     [],
 ]
 
-bn = boolforge.BooleanNetwork(F, I)
+bn = bf.BooleanNetwork(F, I)
 
 print("bn.variables:", bn.variables)
 print("bn.constants:", bn.constants)
 print("bn.I:", bn.I)
 print("bn.F:")
-for i, bf in enumerate(bn.F):
-    print(f"  F[{i}] = {bf!r}")
+for i, f in enumerate(bn.F):
+    print(f"  F[{i}] = {f!r}")
 
 # %% [markdown]
 # Although $x_1$ becomes fixed at 1 after one update, it is not treated as a

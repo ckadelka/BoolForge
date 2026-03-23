@@ -293,7 +293,7 @@ ax.set_ylabel("Proportion of update functions");
     
 
 
-## Summary and outlook
+## Summary
 
 In this tutorial you learned how to:
 

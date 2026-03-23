@@ -22,7 +22,7 @@ In this tutorial you will:
 ## Setup
 
 ```python
-import boolforge
+import boolforge as bf
 ```
 
 
@@ -52,7 +52,7 @@ of the truth table, i.e., by providing a binary vector of length $2^n$ for any $
 For example, to create the AND function above, we can write
 
 ```python
-f = boolforge.BooleanFunction([0, 0, 0, 1], name="f_AND") #name is optional
+f = bf.BooleanFunction([0, 0, 0, 1], name="f_AND") #name is optional
 print("f:", f)
 print("Truth table of f:\n", f.to_truth_table().to_string())
 ```
@@ -80,7 +80,7 @@ Boolean functions can also be created from textual expressions.
 For example, to define the same function as f, we can write
 
 ```python
-f2 = boolforge.BooleanFunction("A and B")
+f2 = bf.BooleanFunction("A and B")
 print("f2:", f2)
 ```
 
@@ -90,7 +90,7 @@ print("f2:", f2)
 The text processor is fairly versatile. For example, we can define the same function as f also by writing
 
 ```python
-f3 = boolforge.BooleanFunction("A + B > 1")
+f3 = bf.BooleanFunction("A + B > 1")
 print("f3:", f3)
 ```
 
@@ -100,12 +100,12 @@ print("f3:", f3)
 Some examples of more complicated functions include:
 
 ```python
-g = boolforge.BooleanFunction("(A AND B) OR (NOT A AND C)")
-h = boolforge.BooleanFunction("(x + y + z) % 2 == 0")
-k = boolforge.BooleanFunction("(-1) * x + y + z > 0")
+g = bf.BooleanFunction("(A AND B) OR (NOT A AND C)")
+h = bf.BooleanFunction("(x + y + z) % 2 == 0")
+k = bf.BooleanFunction("(-1) * x + y + z > 0")
 
 labels = ["g", "h", "k"]
-boolforge.display_truth_table(g, h, k, labels=labels)
+bf.display_truth_table(g, h, k, labels=labels)
 ```
 
     x0	x1	x2	|	g	h	k
@@ -133,8 +133,8 @@ Supported operations include:
 - `^`  XOR
 
 ```python
-a = boolforge.BooleanFunction("X + Y == 1")
-b = boolforge.BooleanFunction("X OR Y")
+a = bf.BooleanFunction("X + Y == 1")
+b = bf.BooleanFunction("X OR Y")
 
 not_a = ~a
 a_and_b = a & b
@@ -142,7 +142,7 @@ a_or_b = a | b
 a_xor_b = a ^ b
 
 labels = ["a", "b", "~a", "a&b", "a|b", "a^b"]
-boolforge.display_truth_table(a, b, not_a, a_and_b, a_or_b, a_xor_b, labels=labels)
+bf.display_truth_table(a, b, not_a, a_and_b, a_or_b, a_xor_b, labels=labels)
 ```
 
     x0	x1	|	a	b	~a	a&b	a|b	a^b
@@ -199,8 +199,8 @@ print("h.variables:", h.variables)
 The variable order is determined by first occurrence in the expression. See e.g.,
 
 ```python
-print(boolforge.BooleanFunction("(x + y + z) % 2 == 0").variables)
-print(boolforge.BooleanFunction("(y + z + x) % 2 == 0").variables)
+print(bf.BooleanFunction("(x + y + z) % 2 == 0").variables)
+print(bf.BooleanFunction("(y + z + x) % 2 == 0").variables)
 ```
 
     ['x' 'y' 'z']
@@ -259,7 +259,7 @@ You may repeat this for `g` and observe how the properties differ.
 Conveniently, the `.summary()` method prints a human-readable overview of basic properties.
 
 ```python
-f = boolforge.BooleanFunction("(A and B) OR NOT C")
+f = bf.BooleanFunction("(A and B) OR NOT C")
 print(f.summary())
 ```
 
@@ -327,7 +327,7 @@ print(type(cana_object))
     <class 'cana.boolean_node.BooleanNode'>
 
 
-## Summary of Key Concepts
+## Summary
 
 Before moving on to more advanced topics, here is a short summary of the
 fundamental ideas introduced in this tutorial:
@@ -387,8 +387,8 @@ If two equivalent expressions list variables in different orders, their truth
 tables will be indexed differently. See, for example,
 
 ```python
-print(boolforge.BooleanFunction('A and not B'))
-print(boolforge.BooleanFunction('not B and A'))
+print(bf.BooleanFunction('A and not B'))
+print(bf.BooleanFunction('not B and A'))
 ```
 
     [0 0 1 0]

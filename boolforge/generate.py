@@ -605,7 +605,9 @@ def random_degenerate_function(
     rng = utils._coerce_rng(rng)
 
     # Generate an (n-1)-variable Boolean function
-    f_original = random_function_with_bias(n - 1, bias=bias, rng=rng)
+    f_original = random_function_with_bias(n - 1, 
+                                           bias=bias, 
+                                           rng=rng)
 
     # Choose the non-essential variable uniformly at random
     index_non_essential_variable = rng.integers(n)

@@ -19,6 +19,7 @@
 import boolforge as bf
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import ttest_rel
 
 # %% [markdown]
 # ## Loading model repositories
@@ -40,7 +41,7 @@ n_models = len(bns)
 # Setting the optional parameter `simplify_functions=True` ensures that all update functions
 # are non-degenerate. This is important for correct null model computation. By default,
 # because this procedure may be very time-confusing for networks with very high degree,
-# `simplify_functions=False`. Note that any BooleanNetwork object `bn` can be simplified at any time,
+# `simplify_functions=False`. Note that any `BooleanNetwork` object `bn` can be simplified at any time,
 # using `bn.simplify_functions()`.
 #
 # Models from the two other available repositories can be loaded by selecting the 
@@ -55,8 +56,8 @@ models_sm = bf.get_bio_models_from_repository('pystablemotifs (jcrozum)',
 bns_sm = models_sm['BooleanNetworks']
 n_models_sm = len(bns_sm)
 
-#models_bd = boolforge.get_bio_models_from_repository('biodivine (sybila)',
-#                                                     simplify_functions=True)
+#models_bd = bf.get_bio_models_from_repository('biodivine (sybila)',
+#                                              simplify_functions=True)
 #n_models_bd = len(models_bd)
 #bns_bd = models_bd['BooleanNetworks']
 
@@ -74,16 +75,19 @@ average_degrees = [np.mean(bn.indegrees) for bn in bns]
 
 # %% [markdown]
 # Plotting the size of a model against its average essential degree 
-# (essential because we removed all non-essential inputs by setting `simplify_functions=True`), 
-# we observe that, for these models, there exists no strong correlation between size and degree.
+# (essential because we removed all non-essential inputs by setting 
+# `simplify_functions=True`), we observe that, for these models, 
+# there exists no strong correlation between size and degree.
 
 # %%
 sizes_sm = [bn.N for bn in bns_sm]
 average_degrees_sm = [np.mean(bn.indegrees) for bn in bns_sm]
 
 f,ax = plt.subplots()
-ax.semilogx(sizes,average_degrees,'rx',label = 'expert-curated (ckadelka)')
-ax.semilogx(sizes_sm,average_degrees_sm,'bo',label = 'pystablemotifs (jcrozum)')
+ax.semilogx(sizes, average_degrees, 'rx', 
+            label = 'expert-curated (ckadelka)')
+ax.semilogx(sizes_sm, average_degrees_sm, 'bo', 
+            label = 'pystablemotifs (jcrozum)')
 ax.set_xlabel('network size')
 ax.set_ylabel('average essential degree')
 ax.legend(loc='best',frameon=False);
@@ -127,7 +131,8 @@ ax.legend(loc='best',frameon=False);
 # %%
 bn_orig = bf.random_network(N=8, n=2, indegree_distribution='Poisson', rng = 3)
 
-bn_null = bf.random_null_model(bn_orig, wiring_diagram='fixed_indegree')
+bn_null = bf.random_null_model(bn_orig, 
+                               wiring_diagram='fixed_indegree')
 
 print('bn_orig.in-degrees:',bn_orig.indegrees)
 print('bn_null.in-degrees:',bn_null.indegrees)
@@ -148,7 +153,8 @@ print('bn_null.out-degrees:',bn_null.outdegrees)
 # %%
 bn_orig = bf.random_network(N=8, n=2, indegree_distribution='Poisson', rng = 3)
 
-bn_null = bf.random_null_model(bn_orig, wiring_diagram='fixed_in_and_outdegree')
+bn_null = bf.random_null_model(bn_orig, 
+                               wiring_diagram='fixed_in_and_outdegree')
 
 print('bn_orig.in-degrees:',bn_orig.indegrees)
 print('bn_null.in-degrees:',bn_null.indegrees)
@@ -235,7 +241,7 @@ print('bn_null11:',
 #
 # For each biological network, we generate an ensemble of randomized null
 # models in which the wiring diagram is preserved but the Boolean update rules
-# are replaced by random functions. We then compare the coherence of the
+# are replaced by random Boolean functions. We then compare the coherence of the
 # biological model with the average coherence of its corresponding null models.
 #
 
@@ -260,16 +266,23 @@ for bn in bns_to_analyze:
 f,ax = plt.subplots()
 ax.plot(bio_data,np.mean(null_data,1),'x')
 ax.plot([0,1],[0,1],'r--')
-ax.set_xlabel('Biologcal network coherence')
-ax.set_ylabel('Average null model coherence');
+ax.set_aspect('equal', adjustable='box')
+ax.set_xlabel('Biological network coherence')
+ax.set_ylabel('Average null model coherence')
+stat, p = ttest_rel(bio_data,np.mean(null_data,1), alternative='greater')
+p_str = f"{p:.2g}" if p >= 1e-3 else "< 0.001"
+ax.set_title(f"One-sided paired t-test: p {('= ' if p >= 1e-3 else '')}{p_str}");
+
 
 # %% [markdown]
-# Most biological networks exhibit higher than expected coherence. This leads to
-# hypothesis that the reason for this higher coherence must be due to their 
-# highly biased and canalized regulatory logic.
+# We see that most biological networks exhibit higher than expected coherence. 
+# Even for this small ensemble of biological networks (restricted here to
+# networks with at most 16 nodes to allow exact dynamical analysis), this
+# is a statistically significant difference, as exemplified by the one-sided paired t-test.
 #
-# To test this, we can rerun the computational experiment, this time with null models
-# where bias and canalizing depth are preserved.
+# The higher coherence observed in biological networks is likely due to their highly biased 
+# and canalized regulatory logic. To test this, we can rerun the computational experiment, 
+# this time with null models where bias and/or canalizing depth are preserved.
 
 # %%
 null_data = []
@@ -286,10 +299,22 @@ for i,bn in enumerate(bns_to_analyze):
 f,ax = plt.subplots()
 ax.plot(bio_data,np.mean(null_data,1),'x')
 ax.plot([0,1],[0,1],'r--')
-ax.set_xlabel('Biologcal network coherence')
+ax.set_aspect('equal', adjustable='box')
+ax.set_xlabel('Biological network coherence')
 ax.set_ylabel('Average null model coherence');
+stat, p = ttest_rel(bio_data,np.mean(null_data,1), alternative='greater')
+p_str = f"{p:.2g}" if p >= 1e-3 else "< 0.001"
+ax.set_title(f"One-sided paired t-test: p {('= ' if p >= 1e-3 else '')}{p_str}");
 
 # %% [markdown]
+# We observe that matching canalizing depth and bias (or just one of them, try it!)
+# suffices to eliminate the significant difference in coherence between
+# biological networks and their null models.
+#
+# This illustrates how controlled null models can reveal which structural
+# properties of biological regulatory logic are responsible for observed
+# dynamical behavior.
+# 
 # ## Summary
 #
 # In this tutorial, we introduced **null models for Boolean networks** and

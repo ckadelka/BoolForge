@@ -71,19 +71,12 @@ plt.axhline(1, linestyle="--", color="gray", label="critical value")
 plt.plot(ks, [2*k*p*(1-p) for k in ks], "o-", label=r"$2kp(1-p)$ (annealed theory)")
 plt.xlabel("Constant in-degree k")
 plt.ylabel("Derrida value")
-plt.legend(frameon=False)
+plt.legend(frameon=False);
 ```
 
 
-
-
-    <matplotlib.legend.Legend at 0x1180e41d0>
-
-
-
-
     
-![](tutorial10_ensemble_experiments_random_networks_files/tutorial10_ensemble_experiments_random_networks_3_1.png)
+![](tutorial10_ensemble_experiments_random_networks_files/tutorial10_ensemble_experiments_random_networks_3_0.png)
     
 
 

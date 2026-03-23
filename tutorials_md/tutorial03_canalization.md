@@ -20,7 +20,7 @@ effective degree and input redundancy.
 ## Setup
 
 ```python
-import boolforge
+import boolforge as bf
 import matplotlib.pyplot as plt
 ```
 
@@ -56,19 +56,19 @@ In the following code, we define four 3-input functions with different canalizin
 
 ```python
 # Non-canalizing XOR function
-f = boolforge.BooleanFunction("(x0 + x1 + x2) % 2")
+f = bf.BooleanFunction("(x0 + x1 + x2) % 2")
 
 # 1-canalizing function
-g = boolforge.BooleanFunction("(x0 | (x1 & x2 | !x1 & !x2)) % 2")
+g = bf.BooleanFunction("(x0 | (x1 & x2 | !x1 & !x2)) % 2")
 
 # Nested canalizing function with all variables in one layer
-h = boolforge.BooleanFunction("~x0 & x1 & x2")
+h = bf.BooleanFunction("~x0 & x1 & x2")
 
 # Nested canalizing function with two canalizing layers
-k = boolforge.BooleanFunction("x0 | (x1 & x2)")
+k = bf.BooleanFunction("x0 | (x1 & x2)")
 
 labels = ["f", "g", "h", "k"]
-boolforge.display_truth_table(f, g, h, k, labels=labels)
+bf.display_truth_table(f, g, h, k, labels=labels)
 ```
 
     x0	x1	x2	|	f	g	h	k
@@ -270,11 +270,11 @@ Note that this brute-force code can also run (in less than a minute) for all $2^
 
 ```python
 n = 3
-all_functions = boolforge.get_left_side_of_truth_table(2**n)
+all_functions = bf.get_left_side_of_truth_table(2**n)
 
 canalizing_strengths = []
 for binary_vector in all_functions:
-    func = boolforge.BooleanFunction(f=binary_vector)
+    func = bf.BooleanFunction(f=binary_vector)
     if not func.is_degenerate():
         canalizing_strengths.append(func.get_canalizing_strength())
 
@@ -333,29 +333,29 @@ for func, label in zip([f, g, h, k], labels):
     Normalized input redundancy of f: 0.0
     
     Edge effectiveness of g: [0.625, 0.625, 0.625]
-    Activities of g: [0.499  0.5015 0.5015]
-    Excess canalization of g: [0.126  0.1235 0.1235]
+    Activities of g: [0.5 0.5 0.5]
+    Excess canalization of g: [0.125 0.125 0.125]
     Effective degree of g: 1.875
     Average edge effectiveness of g: 0.625
     Normalized input redundancy of g: 0.375
     
     Edge effectiveness of h: [0.41666666666666663, 0.41666666666666663, 0.41666666666666663]
-    Activities of h: [0.2586 0.2571 0.2593]
-    Excess canalization of h: [0.15806667 0.15956667 0.15736667]
+    Activities of h: [0.25 0.25 0.25]
+    Excess canalization of h: [0.16666667 0.16666667 0.16666667]
     Effective degree of h: 1.25
     Average edge effectiveness of h: 0.4166666666666667
     Normalized input redundancy of h: 0.5833333333333334
     
     Edge effectiveness of k: [0.8125, 0.375, 0.375]
-    Activities of k: [0.7504 0.2488 0.2529]
-    Excess canalization of k: [0.0621 0.1262 0.1221]
+    Activities of k: [0.75 0.25 0.25]
+    Excess canalization of k: [0.0625 0.125  0.125 ]
     Effective degree of k: 1.5625
     Average edge effectiveness of k: 0.5208333333333334
     Normalized input redundancy of k: 0.4791666666666667
     
 
 
-## Summary and next steps
+## Summary
 
 In this tutorial you learned how to:
 

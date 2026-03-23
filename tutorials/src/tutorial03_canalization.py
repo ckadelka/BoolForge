@@ -21,7 +21,7 @@
 # ## Setup
 
 # %%
-import boolforge
+import boolforge as bf
 import matplotlib.pyplot as plt
 
 
@@ -59,19 +59,19 @@ import matplotlib.pyplot as plt
 
 # %%
 # Non-canalizing XOR function
-f = boolforge.BooleanFunction("(x0 + x1 + x2) % 2")
+f = bf.BooleanFunction("(x0 + x1 + x2) % 2")
 
 # 1-canalizing function
-g = boolforge.BooleanFunction("(x0 | (x1 & x2 | !x1 & !x2)) % 2")
+g = bf.BooleanFunction("(x0 | (x1 & x2 | !x1 & !x2)) % 2")
 
 # Nested canalizing function with all variables in one layer
-h = boolforge.BooleanFunction("~x0 & x1 & x2")
+h = bf.BooleanFunction("~x0 & x1 & x2")
 
 # Nested canalizing function with two canalizing layers
-k = boolforge.BooleanFunction("x0 | (x1 & x2)")
+k = bf.BooleanFunction("x0 | (x1 & x2)")
 
 labels = ["f", "g", "h", "k"]
-boolforge.display_truth_table(f, g, h, k, labels=labels)
+bf.display_truth_table(f, g, h, k, labels=labels)
 
 
 # %% [markdown]
@@ -187,11 +187,11 @@ for func, label in zip([f, g, h, k], labels):
 
 # %%
 n = 3
-all_functions = boolforge.get_left_side_of_truth_table(2**n)
+all_functions = bf.get_left_side_of_truth_table(2**n)
 
 canalizing_strengths = []
 for binary_vector in all_functions:
-    func = boolforge.BooleanFunction(f=binary_vector)
+    func = bf.BooleanFunction(f=binary_vector)
     if not func.is_degenerate():
         canalizing_strengths.append(func.get_canalizing_strength())
 

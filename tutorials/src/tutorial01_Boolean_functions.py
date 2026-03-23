@@ -23,8 +23,7 @@
 # ## Setup
 
 # %%
-import boolforge
-
+import boolforge as bf
 
 # %% [markdown]
 # 
@@ -54,7 +53,7 @@ import boolforge
 # For example, to create the AND function above, we can write
 
 # %%
-f = boolforge.BooleanFunction([0, 0, 0, 1], name="f_AND") #name is optional
+f = bf.BooleanFunction([0, 0, 0, 1], name="f_AND") #name is optional
 print("f:", f)
 print("Truth table of f:\n", f.to_truth_table().to_string())
 
@@ -62,10 +61,10 @@ print("Truth table of f:\n", f.to_truth_table().to_string())
 # Any Boolean function is stored as right side of the truth table. 
 # That is, the outputs are ordered by the binary representation of inputs:
 #
-# - Position 0 → (A,B) = (0,0)
-# - Position 1 → (A,B) = (0,1)  
-# - Position 2 → (A,B) = (1,0)
-# - Position 3 → (A,B) = (1,1)
+# - Position 0 --> (A,B) = (0,0)
+# - Position 1 --> (A,B) = (0,1)  
+# - Position 2 --> (A,B) = (1,0)
+# - Position 3 --> (A,B) = (1,1)
 
 # %% [markdown]
 # ### Create Boolean functions from text
@@ -74,26 +73,26 @@ print("Truth table of f:\n", f.to_truth_table().to_string())
 # For example, to define the same function as f, we can write
 
 # %%
-f2 = boolforge.BooleanFunction("A and B")
+f2 = bf.BooleanFunction("A and B")
 print("f2:", f2)
 
 # %% [markdown]
 # The text processor is fairly versatile. For example, we can define the same function as f also by writing
 
 # %%
-f3 = boolforge.BooleanFunction("A + B > 1")
+f3 = bf.BooleanFunction("A + B > 1")
 print("f3:", f3)
 
 # %% [markdown]
 # Some examples of more complicated functions include:
 
 # %%
-g = boolforge.BooleanFunction("(A AND B) OR (NOT A AND C)")
-h = boolforge.BooleanFunction("(x + y + z) % 2 == 0")
-k = boolforge.BooleanFunction("(-1) * x + y + z > 0")
+g = bf.BooleanFunction("(A AND B) OR (NOT A AND C)")
+h = bf.BooleanFunction("(x + y + z) % 2 == 0")
+k = bf.BooleanFunction("(-1) * x + y + z > 0")
 
 labels = ["g", "h", "k"]
-boolforge.display_truth_table(g, h, k, labels=labels)
+bf.display_truth_table(g, h, k, labels=labels)
 
 
 # %% [markdown]
@@ -110,8 +109,8 @@ boolforge.display_truth_table(g, h, k, labels=labels)
 # - `^`  XOR
 
 # %%
-a = boolforge.BooleanFunction("X + Y == 1")
-b = boolforge.BooleanFunction("X OR Y")
+a = bf.BooleanFunction("X + Y == 1")
+b = bf.BooleanFunction("X OR Y")
 
 not_a = ~a
 a_and_b = a & b
@@ -119,7 +118,7 @@ a_or_b = a | b
 a_xor_b = a ^ b
 
 labels = ["a", "b", "~a", "a&b", "a|b", "a^b"]
-boolforge.display_truth_table(a, b, not_a, a_and_b, a_or_b, a_xor_b, labels=labels)
+bf.display_truth_table(a, b, not_a, a_and_b, a_or_b, a_xor_b, labels=labels)
 
 # %% [markdown]
 # ## Attributes of BooleanFunction
@@ -157,8 +156,8 @@ print("h.variables:", h.variables)
 # The variable order is determined by first occurrence in the expression. See e.g.,
 
 # %%
-print(boolforge.BooleanFunction("(x + y + z) % 2 == 0").variables)
-print(boolforge.BooleanFunction("(y + z + x) % 2 == 0").variables)
+print(bf.BooleanFunction("(x + y + z) % 2 == 0").variables)
+print(bf.BooleanFunction("(y + z + x) % 2 == 0").variables)
 
 # %% [markdown]
 #The variable order determines how the truth table is indexed. 
@@ -203,7 +202,7 @@ print("Absolute bias:", f.absolute_bias)
 # Conveniently, the `.summary()` method prints a human-readable overview of basic properties.
 
 # %%
-f = boolforge.BooleanFunction("(A and B) OR NOT C")
+f = bf.BooleanFunction("(A and B) OR NOT C")
 print(f.summary())
 
 # %% [markdown]
@@ -301,8 +300,8 @@ print(type(cana_object))
 # tables will be indexed differently. See, for example,
 
 # %%
-print(boolforge.BooleanFunction('A and not B'))
-print(boolforge.BooleanFunction('not B and A'))
+print(bf.BooleanFunction('A and not B'))
+print(bf.BooleanFunction('not B and A'))
 
 # %% [markdown]
 # To ensure reproducibility, always use consistent variable names and ordering.
@@ -319,7 +318,7 @@ print(boolforge.BooleanFunction('not B and A'))
 #
 # Use a **truth table** if:
 #
-# - you generated the table programmatically (e.g., using `boolforge.random_function`).
+# - you generated the table programmatically (e.g., using `bf.random_function`).
 
 # %% [markdown]
 # ### What is the difference between `get_type_of_inputs()` and monotonicity?

@@ -16,7 +16,7 @@
 # ## Setup
 
 # %%
-import boolforge
+import boolforge as bf
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -45,14 +45,14 @@ y = x OR z
 z = y
 """
 
-bn = boolforge.BooleanNetwork.from_string(string, separator="=")
+bn = bf.BooleanNetwork.from_string(string, separator="=")
 
 print("Variables:", bn.variables)
 print("N:", bn.N)
 print("bn.I:", bn.I)
 print("bn.F:")
-for i, bf in enumerate(bn.F):
-    print(f"  F[{i}] = {bf!r}")
+for i, f in enumerate(bn.F):
+    print(f"  F[{i}] = {f!r}")
 
 
 # %% [markdown]
@@ -60,7 +60,7 @@ for i, bf in enumerate(bn.F):
 # For small networks, we can enumerate all $2^N$ states explicitly.
 
 # %%
-all_states = boolforge.get_left_side_of_truth_table(bn.N)
+all_states = bf.get_left_side_of_truth_table(bn.N)
 print(pd.DataFrame(all_states, columns=bn.variables).to_string())
 
 
@@ -131,11 +131,11 @@ for state in range(2 ** bn.N):
     print(
         state,
         "=",
-        boolforge.dec2bin(state, bn.N),
+        bf.dec2bin(state, bn.N),
         "-->",
         next_state,
         "=",
-        boolforge.dec2bin(next_state, bn.N),
+        bf.dec2bin(next_state, bn.N),
     )
 
 # %% [markdown]
@@ -153,7 +153,7 @@ print(dict_dynamics['Attractors'])
 for attractor in dict_dynamics["Attractors"]:
     print(f"Attractor of length {len(attractor)}:")
     for state in attractor:
-        print(state, boolforge.dec2bin(state, bn.N))
+        print(state, bf.dec2bin(state, bn.N))
     print()
 
 # %% [markdown]
@@ -185,8 +185,8 @@ print(dict_dynamics['BasinSizes'])
 
 # %%
 dict_dynamics = bn.get_attractors_synchronous(n_simulations=1000)
-print(dict_dynamics['Attractors'])
-print(dict_dynamics['BasinSizesApproximation'])
+print('Discovered attractors:',dict_dynamics['Attractors'])
+print('Basin size approximation:',dict_dynamics['BasinSizesApproximation'])
 
 
 # %% [markdown]
@@ -232,8 +232,8 @@ plt.show()
 
 # %%
 dict_dynamics = bn.get_steady_states_asynchronous_exact()
-print(dict_dynamics['SteadyStates'])
-print(dict_dynamics['NumberOfSteadyStates'])
+print('Discovered steady states:',dict_dynamics['SteadyStates'])
+print('Number of steady states (lower bound):',dict_dynamics['NumberOfSteadyStates'])
 
 # %% [markdown]
 # The result reveals the same two steady states as in the synchronous case.
@@ -245,7 +245,7 @@ print(dict_dynamics['NumberOfSteadyStates'])
 
 # %%
 for state, successors in dict_dynamics["STGAsynchronous"].items():
-    print(state, successors)
+    print(state,'-->',successors)
 
 # %% [markdown]
 # The state transition graph describes for each state the possible next states 
@@ -266,9 +266,9 @@ print(dict_dynamics['FinalTransitionProbabilities'])
 # The size of each basin of attraction is the (column-wise) average of these probabilities.
 
 # %%
-print(dict_dynamics['BasinSizes'])
-print(dict_dynamics['BasinSizes'] == 
-      np.mean(dict_dynamics['FinalTransitionProbabilities'],0))
+assert np.all(dict_dynamics['BasinSizes'] == 
+              np.mean(dict_dynamics['FinalTransitionProbabilities'],0))
+print('Basin sizes:',dict_dynamics['BasinSizes'])
 
 # %% [markdown]
 # Note that `BoolForge` currently does not detect complex cyclic attractors under
@@ -282,20 +282,19 @@ print(dict_dynamics['BasinSizes'] ==
 # %% [markdown]
 # ### Monte Carlo approximation
 #
-# As in synchronous case, `BoolForge` also contains a Monte Carlo routine
+# As in the synchronous case, `BoolForge` also contains a Monte Carlo routine
 # for sampling asynchronous dynamics.
 #
 # The simulation provides:
 #
 # - a lower bound on the number of steady states,
 # - approximate basin size distributions,
-# - samples of the asynchronous state transition graph.
 
 # %%
 dict_dynamics = bn.get_steady_states_asynchronous(n_simulations=500)
-print(dict_dynamics['SteadyStates'])
-print(dict_dynamics['NumberOfSteadyStatesLowerBound'])
-print(dict_dynamics['BasinSizesApproximation'])
+print('Discovered steady states:', dict_dynamics['SteadyStates'])
+print('Number of steady states (lower bound):',dict_dynamics['NumberOfSteadyStatesLowerBound'])
+print('Basin size approximation:',dict_dynamics['BasinSizesApproximation'])
 
 # %% [markdown]
 # ### Sampling from a fixed initial condition
@@ -308,9 +307,9 @@ print(dict_dynamics['BasinSizesApproximation'])
 dict_dynamics = bn.get_steady_states_asynchronous_given_one_initial_condition(
     initial_condition=[0, 0, 1], n_simulations=500
 )
-print(dict_dynamics['SteadyStates'])
-print(dict_dynamics['NumberOfSteadyStatesLowerBound'])
-print(dict_dynamics['BasinSizesApproximation'])
+print('Discovered steady states:', dict_dynamics['SteadyStates'])
+print('Number of steady states (lower bound):',dict_dynamics['NumberOfSteadyStatesLowerBound'])
+print('Basin size approximation:',dict_dynamics['BasinSizesApproximation'])
 
 # %% [markdown]
 # Note the equivalent analysis under synchronous update is trivial because the dynamics

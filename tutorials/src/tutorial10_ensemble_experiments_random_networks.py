@@ -72,7 +72,7 @@ plt.axhline(1, linestyle="--", color="gray", label="critical value")
 plt.plot(ks, [2*k*p*(1-p) for k in ks], "o-", label=r"$2kp(1-p)$ (annealed theory)")
 plt.xlabel("Constant in-degree k")
 plt.ylabel("Derrida value")
-plt.legend(frameon=False)
+plt.legend(frameon=False);
 
 # %% [markdown]
 # The numerical results closely follow the theoretical prediction $2kp(1-p)$

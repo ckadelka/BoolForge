@@ -17,7 +17,7 @@ It is strongly recommended to complete the previous tutorials first.
 ## Setup
 
 ```python
-import boolforge
+import boolforge as bf
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -38,7 +38,7 @@ count_depths = np.zeros((len(ns), max(ns) + 1))
 
 for _ in range(n_simulations):
     for i, n in enumerate(ns):
-        f = boolforge.random_function(n)
+        f = bf.random_function(n)
         count_depths[i, f.get_canalizing_depth()] += 1
 
 count_depths /= n_simulations
@@ -80,10 +80,10 @@ print(out.to_string())
 
 
            k=0    k=1    k=2    k=3    k=4  k=5  k=6
-    n=2  0.211  0.000  0.789  0.000  0.000  0.0  0.0
-    n=3  0.604  0.105  0.000  0.291  0.000  0.0  0.0
-    n=4  0.958  0.019  0.009  0.000  0.014  0.0  0.0
-    n=5  0.999  0.001  0.000  0.000  0.000  0.0  0.0
+    n=2  0.208  0.000  0.792  0.000  0.000  0.0  0.0
+    n=3  0.607  0.095  0.000  0.298  0.000  0.0  0.0
+    n=4  0.954  0.024  0.005  0.000  0.017  0.0  0.0
+    n=5  1.000  0.000  0.000  0.000  0.000  0.0  0.0
     n=6  1.000  0.000  0.000  0.000  0.000  0.0  0.0
 
 
@@ -100,7 +100,7 @@ count_depths = np.zeros((len(ns), max(ns) + 1))
 
 for _ in range(n_simulations):
     for i, n in enumerate(ns):
-        f = boolforge.random_function(n, depth=1)
+        f = bf.random_function(n, depth=1)
         count_depths[i, f.get_canalizing_depth()] += 1
 
 count_depths /= n_simulations
@@ -143,9 +143,9 @@ print(out.to_string())
 
          k=0    k=1    k=2    k=3    k=4    k=5  k=6
     n=2  0.0  0.000  1.000  0.000  0.000  0.000  0.0
-    n=3  0.0  0.286  0.000  0.714  0.000  0.000  0.0
-    n=4  0.0  0.681  0.098  0.000  0.221  0.000  0.0
-    n=5  0.0  0.960  0.028  0.003  0.000  0.009  0.0
+    n=3  0.0  0.247  0.000  0.753  0.000  0.000  0.0
+    n=4  0.0  0.670  0.095  0.000  0.235  0.000  0.0
+    n=5  0.0  0.974  0.019  0.001  0.000  0.006  0.0
     n=6  0.0  1.000  0.000  0.000  0.000  0.000  0.0
 
 
@@ -168,7 +168,7 @@ input_redundancies = np.zeros((len(ns), n_simulations))
 
 for j in range(n_simulations):
     for i, n in enumerate(ns):
-        f = boolforge.random_function(n)
+        f = bf.random_function(n)
         canalizing_strengths[i, j] = f.get_canalizing_strength()
         input_redundancies[i, j] = f.get_input_redundancy()
 
@@ -233,7 +233,7 @@ input_redundancies = np.zeros((len(ns), max_depth + 1, n_simulations))
 for k in range(n_simulations):
     for i, n in enumerate(ns):
         for depth in np.append(np.arange(n - 1), n):
-            f = boolforge.random_function(n, depth=depth, exact_depth=exact_depth)
+            f = bf.random_function(n, depth=depth, exact_depth=exact_depth)
             canalizing_strengths[i, depth, k] = f.get_canalizing_strength()
             input_redundancies[i, depth, k] = f.get_input_redundancy()
 
@@ -320,12 +320,12 @@ degenerate = np.zeros(2 ** (2**n), dtype=bool)
 strengths = np.zeros(2 ** (2**n))
 redundancies = np.zeros(2 ** (2**n))
 
-for i, fvec in enumerate(boolforge.get_left_side_of_truth_table(2**n)):
-    bf = boolforge.BooleanFunction(fvec)
-    strengths[i] = bf.get_canalizing_strength()
-    redundancies[i] = bf.get_input_redundancy()
+for i, fvec in enumerate(bf.get_left_side_of_truth_table(2**n)):
+    f = bf.BooleanFunction(fvec)
+    strengths[i] = f.get_canalizing_strength()
+    redundancies[i] = f.get_input_redundancy()
     if not allow_degenerate_functions:
-        degenerate[i] = bf.is_degenerate()
+        degenerate[i] = f.is_degenerate()
         
 if allow_degenerate_functions:
     which = np.ones(2 ** (2**n), dtype=bool)
@@ -377,7 +377,7 @@ count_canalizing = np.zeros((len(ns), len(bias_values)), dtype=int)
 for i, n in enumerate(ns):
     for _ in range(n_simulations):
         for j, bias in enumerate(bias_values):
-            f = boolforge.random_function(n, bias=bias, allow_degenerate_functions=True)
+            f = bf.random_function(n, bias=bias, allow_degenerate_functions=True)
             if f.is_canalizing():
                 count_canalizing[i, j] += 1
 
@@ -416,7 +416,7 @@ count_degenerate = np.zeros((len(ns), len(bias_values)), dtype=int)
 for i, n in enumerate(ns):
     for _ in range(n_simulations):
         for j, bias in enumerate(bias_values):
-            f = boolforge.random_function(n, bias=bias, allow_degenerate_functions=True)
+            f = bf.random_function(n, bias=bias, allow_degenerate_functions=True)
             if f.is_degenerate():
                 count_degenerate[i, j] += 1
 
@@ -471,9 +471,9 @@ eff_degree = np.zeros_like(avg_sens)
 layer_structures = []
 
 for i, w in enumerate(all_hamming):
-    layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
+    layer = bf.hamming_weight_to_ncf_layer_structure(n, w)
     layer_structures.append(layer)
-    f = boolforge.random_function(n, layer_structure=layer)
+    f = bf.random_function(n, layer_structure=layer)
     avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
     can_strength[i] = f.get_canalizing_strength()
     eff_degree[i] = f.get_effective_degree()
@@ -522,8 +522,8 @@ for n in ns:
     avg_sens = np.zeros(2 ** (n - 2))
 
     for i, w in enumerate(all_hamming_weights):
-        layer = boolforge.hamming_weight_to_ncf_layer_structure(n, w)
-        f = boolforge.random_function(n, layer_structure=layer)
+        layer = bf.hamming_weight_to_ncf_layer_structure(n, w)
+        f = bf.random_function(n, layer_structure=layer)
         avg_sens[i] = f.get_average_sensitivity(exact=True, normalized=False)
 
     ax.plot(all_abs_bias, avg_sens, "x--", label=f"n={n}")
@@ -540,7 +540,7 @@ plt.show()
     
 
 
-## Summary and outlook
+## Summary
 
 This tutorial illustrated how ensembles of Boolean functions generated under
 explicit constraints reveal systematic relationships between canalization,

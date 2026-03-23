@@ -3,7 +3,7 @@
 In this tutorial, we explore the dynamics decomposition functionality
 available in BoolForge's modularity development branch.
 
-## What you will Learn
+## What you will learn
 In this tutorial you will:
 
 - compute the trajectory of a Boolean network
@@ -12,7 +12,7 @@ In this tutorial you will:
 ## Setup
 
 ```python
-import boolforge
+import boolforge as bf
 ```
 
 ## Trajectories
@@ -66,7 +66,7 @@ nodes A and B and an external input C. Assume the external input exhibits the
 pattern (1, 1, 0, 1, 0, 1, 0, ...), i.e., it is 1 and then settles into a 2-cycle:
 
 ```python
-bn = boolforge.BooleanNetwork.from_string('''
+bn = bf.BooleanNetwork.from_string('''
                                           A = B and C
                                           B = A''',
                                           separator='=')
@@ -101,7 +101,7 @@ BoolForge also provides functionality to plot compressed trajectory graphs:
 
 ```python
 G = bn.get_trajectories(non_periodic, periodic)
-boolforge.plot_trajectory(G, show = True);
+bf.plot_trajectory(G, show = True);
 ```
 
 
@@ -119,8 +119,8 @@ is automatically computed and passed to the function when the merge_trajectories
 trajectories = bn.get_trajectories(transient_input_sequence = non_periodic, 
                                    periodic_input_sequence = periodic, 
                                    merge_trajectories = False)
-G = boolforge.compress_trajectories(trajectories, 2)
-boolforge.plot_trajectory(G, show = True);
+G = bf.compress_trajectories(trajectories, 2)
+bf.plot_trajectory(G, show = True);
 ```
 
 
@@ -138,17 +138,17 @@ compressed trajectory graphs, we can compute the product by calling
 For example, consider the examples 2.8 and 2.9:
 
 ```python
-n_2_8 = boolforge.BooleanNetwork([[0,0,0,1], [0,1], [0, 1]], [[1, 2], [0], [2]])
+n_2_8 = bf.BooleanNetwork([[0,0,0,1], [0,1], [0, 1]], [[1, 2], [0], [2]])
 G_2_8 = n_2_8.get_trajectories([[1]], [[1,0]])
 
-n_2_9 = boolforge.BooleanNetwork([[0,0,0,1], [1,0], [0, 1]], [[1, 2], [0], [2]])
+n_2_9 = bf.BooleanNetwork([[0,0,0,1], [1,0], [0, 1]], [[1, 2], [0], [2]])
 G_2_9 = n_2_9.get_trajectories([[1]], [[1,0]])
 
-G = boolforge.product_of_trajectories(G_2_8, G_2_9)
+G = bf.product_of_trajectories(G_2_8, G_2_9)
 
-boolforge.plot_trajectory(G_2_8, show = True);
-boolforge.plot_trajectory(G_2_9, show = True);
-boolforge.plot_trajectory(G, show = True);
+bf.plot_trajectory(G_2_8, show = True);
+bf.plot_trajectory(G_2_9, show = True);
+bf.plot_trajectory(G, show = True);
 ```
 
 
@@ -176,8 +176,8 @@ from the manuscript ``Dynamics Decomposition of Boolean Networks" by Veliz-Cuba 
 ### Example 2.8
 
 ```python
-n = boolforge.BooleanNetwork([[0,0,0,1],[0,1],[0,1]],[[1,2],[0],[2]])
-boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), show = True);
+n = bf.BooleanNetwork([[0,0,0,1],[0,1],[0,1]],[[1,2],[0],[2]])
+bf.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), show = True);
 ```
 
 
@@ -189,8 +189,8 @@ boolforge.plot_trajectory(n.get_trajectories([[1]],[[1,0]]), show = True);
 ### Example 2.9
 
 ```python
-n = boolforge.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
-boolforge.plot_trajectory(n.get_trajectories([[1]], [[1,0]]), show = True);
+n = bf.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
+bf.plot_trajectory(n.get_trajectories([[1]], [[1,0]]), show = True);
 ```
 
 
@@ -202,8 +202,8 @@ boolforge.plot_trajectory(n.get_trajectories([[1]], [[1,0]]), show = True);
 ### Example 2.10
 
 ```python
-n = boolforge.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
-boolforge.plot_trajectory(n.get_trajectories([[]], [[0]]), show = True);
+n = bf.BooleanNetwork([[0,0,0,1],[1,0],[0,1]],[[1,2],[0],[2]])
+bf.plot_trajectory(n.get_trajectories([[]], [[0]]), show = True);
 ```
 
 
@@ -225,8 +225,8 @@ T = [
      ([5,2],2),
      ([7],1)
 ]
-G = boolforge.compress_trajectories(T, 3)
-boolforge.plot_trajectory(G, show = True);
+G = bf.compress_trajectories(T, 3)
+bf.plot_trajectory(G, show = True);
 ```
 
 
@@ -239,12 +239,12 @@ boolforge.plot_trajectory(G, show = True);
 This is Figure 11a from the manuscript.
 
 ```python
-G1 = boolforge.compress_trajectories([([1,0],1)], 3)
+G1 = bf.compress_trajectories([([1,0],1)], 3)
 
 T = [([0,1],1),([1,3,0,1],1),([2,0,1],1),([3,2,0,1],1)]
-G2 = boolforge.compress_trajectories(T, 2)
+G2 = bf.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
+bf.plot_trajectory(bf.product_of_trajectories(G1, G2), show = True);
 ```
 
 
@@ -256,12 +256,12 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 This is Figure 11b from the manuscript.
 
 ```python
-G1 = boolforge.compress_trajectories([([4,0],1),([0],1)], 3)
+G1 = bf.compress_trajectories([([4,0],1),([0],1)], 3)
 
 T = [([0,1],1),([1],1),([2,0,1],1),([3,0,1],1)]
-G2 = boolforge.compress_trajectories(T, 2)
+G2 = bf.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
+bf.plot_trajectory(bf.product_of_trajectories(G1, G2), show = True);
 ```
 
 
@@ -273,7 +273,7 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 This is Figure 11c from the manuscript.
 
 ```python
-G1 = boolforge.compress_trajectories([([3,5,2],2)], 3)
+G1 = bf.compress_trajectories([([3,5,2],2)], 3)
 
 T = [
      ([0,1,3,0,1],4),
@@ -281,9 +281,9 @@ T = [
      ([2,0,1,1,3],4),
      ([3,2,0,1,3,0,1],4)
 ]
-G2 = boolforge.compress_trajectories(T, 2)
+G2 = bf.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
+bf.plot_trajectory(bf.product_of_trajectories(G1, G2), show = True);
 ```
 
 
@@ -295,7 +295,7 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 This is Figure 11d from the manuscript.
 
 ```python
-G1 = boolforge.compress_trajectories([([6,5,2],2),([2,5],2)], 3)
+G1 = bf.compress_trajectories([([6,5,2],2),([2,5],2)], 3)
 
 T = [
      ([0,1,3,0,1],4),
@@ -303,9 +303,9 @@ T = [
      ([2,0,1,1,3],4),
      ([3,0,1,1],4)
 ]
-G2 = boolforge.compress_trajectories(T, 2)
+G2 = bf.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
+bf.plot_trajectory(bf.product_of_trajectories(G1, G2), show = True);
 ```
 
 
@@ -317,7 +317,7 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 This is Figure 11e from the manuscript.
 
 ```python
-G1 = boolforge.compress_trajectories([([5,2],2)], 3)
+G1 = bf.compress_trajectories([([5,2],2)], 3)
 
 T = [
      ([0,1,1,3],4),
@@ -325,9 +325,9 @@ T = [
      ([2,0,1,3,0,1],4),
      ([3,2,0,1,1,3],4)
 ]
-G2 = boolforge.compress_trajectories(T, 2)
+G2 = bf.compress_trajectories(T, 2)
 
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
+bf.plot_trajectory(bf.product_of_trajectories(G1, G2), show = True);
 ```
 
 
@@ -339,9 +339,9 @@ boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True
 This is Figure 11f from the manuscript.
 
 ```python
-G1 = boolforge.compress_trajectories([([7],1)], 3)
-G2 = boolforge.compress_trajectories([([0,1,3,2],4),([1,3,2,0],4),([3,2,0,1],4),([2,0,1,3],4)], 2)
-boolforge.plot_trajectory(boolforge.product_of_trajectories(G1, G2), show = True);
+G1 = bf.compress_trajectories([([7],1)], 3)
+G2 = bf.compress_trajectories([([0,1,3,2],4),([1,3,2,0],4),([3,2,0,1],4),([2,0,1,3],4)], 2)
+bf.plot_trajectory(bf.product_of_trajectories(G1, G2), show = True);
 ```
 
 

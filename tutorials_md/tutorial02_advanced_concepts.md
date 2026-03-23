@@ -23,11 +23,11 @@ In this tutorial you will learn how to:
 ## Setup
 
 ```python
-import boolforge
+import boolforge as bf
 import numpy as np
 ```
 
-## Symmetries in Boolean Functions
+## Symmetries in Boolean functions
 
 In gene regulation, symmetric variables might represent
 redundant transcription factor binding sites or functionally equivalent 
@@ -47,16 +47,16 @@ The following three Boolean functions exhibit full, partial, and no symmetry.
 
 ```python
 # Fully symmetric (parity / XOR)
-f = boolforge.BooleanFunction("(x0 + x1 + x2) % 2")
+f = bf.BooleanFunction("(x0 + x1 + x2) % 2")
 
 # Partially symmetric
-g = boolforge.BooleanFunction("x0 | (x1 & x2)")
+g = bf.BooleanFunction("x0 | (x1 & x2)")
 
 # No symmetry
-h = boolforge.BooleanFunction("x0 | (x1 & ~x2)")
+h = bf.BooleanFunction("x0 | (x1 & ~x2)")
 
 labels = ["f", "g", "h"]
-boolforge.display_truth_table(f, g, h, labels=labels)
+bf.display_truth_table(f, g, h, labels=labels)
 
 for func, label in zip([f, g, h], labels):
     print(f"Symmetry groups of {label}:")
@@ -104,7 +104,7 @@ A function is **degenerate** if one or more inputs do not matter at all.
 
 ```python
 print("f.is_degenerate()", f.is_degenerate())
-k = boolforge.BooleanFunction("(x AND y) OR x")
+k = bf.BooleanFunction("(x AND y) OR x")
 print("k.is_degenerate()", k.is_degenerate())
 ```
 
@@ -129,7 +129,7 @@ print("Non-essential variables:", nonessential)
     Non-essential variables: ['y']
 
 
-## Activities and Sensitivities
+## Activities and sensitivities
 
 Activities and sensitivity quantify how much each input affects the output of
 a Boolean function.
@@ -242,7 +242,7 @@ You find more on this and the `random_function` method in Tutorial 4.
 exact = False
 n = 25
 
-h = boolforge.random_function(n=n, allow_degenerate_functions=True)
+h = bf.random_function(n=n, allow_degenerate_functions=True)
 
 activities = h.get_activities(exact=exact)
 print(f"Mean activity: {np.mean(activities):.4f}")
@@ -251,8 +251,8 @@ print(
 )
 ```
 
-    Mean activity: 0.5004
-    Normalized average sensitivity: 0.5018
+    Mean activity: 0.4993
+    Normalized average sensitivity: 0.5009
 
 
 **Interpretation**

@@ -19,7 +19,7 @@
 # ## Setup
 
 # %%
-import boolforge
+import boolforge as bf
 import pandas as pd
 
 # %% [markdown]
@@ -32,7 +32,7 @@ y = x OR z
 z = y
 """
 
-bn = boolforge.BooleanNetwork.from_string(string, separator="=")
+bn = bf.BooleanNetwork.from_string(string, separator="=")
 
 print("Variables:", bn.variables)
 print("Number of nodes:", bn.N)

@@ -4,6 +4,7 @@ In this tutorial, we study how Boolean networks respond to perturbations.
 Rather than implementing perturbations manually, we leverage BoolForge’s
 built-in robustness and sensitivity measures.
 
+## What you will learn
 You will learn how to:
 
 - quantify robustness and fragility of Boolean networks under synchronous update,
@@ -17,7 +18,7 @@ Boolean network models in a principled and computationally efficient way.
 ## Setup
 
 ```python
-import boolforge
+import boolforge as bf
 import pandas as pd
 ```
 
@@ -30,7 +31,7 @@ y = x OR z
 z = y
 """
 
-bn = boolforge.BooleanNetwork.from_string(string, separator="=")
+bn = bf.BooleanNetwork.from_string(string, separator="=")
 
 print("Variables:", bn.variables)
 print("Number of nodes:", bn.N)
@@ -167,8 +168,8 @@ print("Approximate fragility:", results_approx["FragilityApproximation"])
 ```
 
     Number of attractors (lower bound): 3
-    Approximate coherence: 0.356
-    Approximate fragility: 0.322
+    Approximate coherence: 0.352
+    Approximate fragility: 0.324
 
 
 Even when only using 500 random initial states, the approximate values closely match the exact ones.
@@ -204,7 +205,7 @@ Interpretation:
 Derrida values are closely related to average sensitivity of the update functions,
 and provide a complementary notion of robustness.
 
-## Summary and outlook
+## Summary
 
 In this tutorial you learned how to:
 

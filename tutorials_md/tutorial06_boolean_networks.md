@@ -14,7 +14,7 @@ In this tutorial you will learn how to:
 ## Setup
 
 ```python
-import boolforge
+import boolforge as bf
 import numpy as np
 ```
 
@@ -58,7 +58,7 @@ I = [
     [1],
 ]
 
-W = boolforge.WiringDiagram(I=I)
+W = bf.WiringDiagram(I=I)
 
 print("W.N:", W.N)
 print("W.variables:", W.variables)
@@ -96,7 +96,7 @@ I = [
     [0, 1], 
 ]
 
-W = boolforge.WiringDiagram(I=I)
+W = bf.WiringDiagram(I=I)
 
 print("W.N:", W.N)
 print("W.variables:", W.variables)
@@ -104,8 +104,6 @@ print("W.indegrees:", W.indegrees)
 print("W.outdegrees:", W.outdegrees)
 
 fig = W.plot(show=False)
-
-
 ```
 
     W.N: 3
@@ -148,10 +146,9 @@ I2 = [
     [1],
 ]
 
-W2 = boolforge.WiringDiagram(I=I2)
+W2 = bf.WiringDiagram(I=I2)
 fig = W2.plot(show=False)
 fig
-
 
 print("W2.get_fbls()", W2.get_fbls())
 ```
@@ -188,7 +185,7 @@ F = [
     [0, 1],
 ]
 
-bn = boolforge.BooleanNetwork(F=F, I=I)
+bn = bf.BooleanNetwork(F=F, I=I)
 
 print(bn.to_truth_table().to_string())
 ```
@@ -216,8 +213,6 @@ namely $2^n$, where $n$ is the number of regulators of the corresponding node as
 If any of these checks fail, an informative error is raised immediately, 
 helping ensure that the resulting network is well-defined.
 
-
-
 ### Creating networks from strings
 
 Alternatively, Boolean networks can be specified using a human-readable
@@ -237,7 +232,7 @@ y = x OR z
 z = y
 """
 
-bn_str = boolforge.BooleanNetwork.from_string(string, separator="=")
+bn_str = bf.BooleanNetwork.from_string(string, separator="=")
 print(bn_str.to_truth_table().to_string())
 ```
 
@@ -271,8 +266,6 @@ This interface is particularly useful for loading Boolean network models from
 external sources, such as `.bnet` files, or for quickly prototyping models in
 an interactive setting.
 
-
-
 ### Interoperability with CANA
 
 `BoolForge` provides native interoperability with
@@ -296,7 +289,7 @@ continuing to build and manipulate models using `BoolForge`.
 
 ```python
 cana_bn = bn.to_cana()
-bn_from_cana = boolforge.BooleanNetwork.from_cana(cana_bn)
+bn_from_cana = bf.BooleanNetwork.from_cana(cana_bn)
 
 assert (
     np.all([np.all(bn.F[i].f == bn_from_cana.F[i].f) for i in range(bn.N)])
@@ -336,14 +329,14 @@ I = [
     [],            # constant
 ]
 
-bn = boolforge.BooleanNetwork(F, I)
+bn = bf.BooleanNetwork(F, I)
 
 print("bn.variables:", bn.variables)
 print("bn.constants:", bn.constants)
 print("bn.I:", bn.I)
 print("bn.F:")
-for i, bf in enumerate(bn.F):
-    print(f"  F[{i}] = {bf!r}")
+for i, f in enumerate(bn.F):
+    print(f"  F[{i}] = {f!r}")
 ```
 
     bn.variables: ['x0' 'x1' 'x2']
@@ -385,14 +378,14 @@ I = [
     [],
 ]
 
-bn = boolforge.BooleanNetwork(F, I)
+bn = bf.BooleanNetwork(F, I)
 
 print("bn.variables:", bn.variables)
 print("bn.constants:", bn.constants)
 print("bn.I:", bn.I)
 print("bn.F:")
-for i, bf in enumerate(bn.F):
-    print(f"  F[{i}] = {bf!r}")
+for i, f in enumerate(bn.F):
+    print(f"  F[{i}] = {f!r}")
 ```
 
     bn.variables: ['x0' 'x1' 'x2']

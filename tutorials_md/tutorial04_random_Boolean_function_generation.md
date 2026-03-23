@@ -22,7 +22,7 @@ It is strongly recommended to complete the previous tutorials first.
 ## Setup
 
 ```python
-import boolforge
+import boolforge as bf
 import numpy as np
 import matplotlib.pyplot as plt
 ```
@@ -35,9 +35,9 @@ Boolean function subject to optional constraints. By default, it generates a
 
 ```python
 n = 3
-f = boolforge.random_function(n)
+f = bf.random_function(n)
 
-boolforge.display_truth_table(f, labels="f_random_non_degenerate")
+bf.display_truth_table(f, labels="f_random_non_degenerate")
 
 print("Is f degenerate?", f.is_degenerate())
 print("Activities of f:", f.get_activities(exact=True))
@@ -46,14 +46,14 @@ print("Edge effectiveness of f:", f.get_edge_effectiveness())
 
     x0	x1	x2	|	f_random_non_degenerate
     -------------------------------------------------------
-    0	0	0	|	0
-    0	0	1	|	1
+    0	0	0	|	1
+    0	0	1	|	0
     0	1	0	|	1
-    0	1	1	|	1
+    0	1	1	|	0
     1	0	0	|	1
-    1	0	1	|	0
-    1	1	0	|	1
-    1	1	1	|	0
+    1	0	1	|	1
+    1	1	0	|	0
+    1	1	1	|	1
     Is f degenerate? False
     Activities of f: [0.75 0.25 0.75]
     Edge effectiveness of f: [0.875, 0.375, 0.875]
@@ -69,9 +69,9 @@ That is, each function satisfying a given set of constraints is selected with eq
 Setting `parity=True` generates *parity* functions, also known as non-degenerate *linear* functions.
 
 ```python
-f = boolforge.random_function(n, parity=True)
+f = bf.random_function(n, parity=True)
 
-boolforge.display_truth_table(f, labels="f_linear")
+bf.display_truth_table(f, labels="f_linear")
 
 print("Activities:", f.get_activities(exact=True))
 print("Edge effectiveness:", f.get_edge_effectiveness())
@@ -81,14 +81,14 @@ print("Canalizing strength:", f.get_canalizing_strength())
 
     x0	x1	x2	|	f_linear
     ----------------------------------------
-    0	0	0	|	1
-    0	0	1	|	0
-    0	1	0	|	0
-    0	1	1	|	1
-    1	0	0	|	0
-    1	0	1	|	1
-    1	1	0	|	1
-    1	1	1	|	0
+    0	0	0	|	0
+    0	0	1	|	1
+    0	1	0	|	1
+    0	1	1	|	0
+    1	0	0	|	1
+    1	0	1	|	0
+    1	1	0	|	0
+    1	1	1	|	1
     Activities: [1. 1. 1.]
     Edge effectiveness: [1.0, 1.0, 1.0]
     Normalized average sensitivity: 1.0
@@ -124,13 +124,13 @@ For example, it checks that the provided layer structure $(k_1,\ldots,k_r)$ sati
 - if $k_1 + \cdots + k_r = n$, then $k_r \geq 2$ because the last layer of a nested canalizing function must always contain two or more variables.
 
 ```python
-f = boolforge.random_function(n, layer_structure=[1])
-g = boolforge.random_function(n, layer_structure=[1], exact_depth=True)
-h = boolforge.random_function(n, layer_structure=[3])
-k = boolforge.random_function(n, layer_structure=[1, 2])
+f = bf.random_function(n, layer_structure=[1])
+g = bf.random_function(n, layer_structure=[1], exact_depth=True)
+h = bf.random_function(n, layer_structure=[3])
+k = bf.random_function(n, layer_structure=[1, 2])
 
 labels = ["f", "g", "h", "k"]
-boolforge.display_truth_table(f, g, h, k, labels=labels)
+bf.display_truth_table(f, g, h, k, labels=labels)
 
 for func, label in zip([f, g, h, k], labels):
     info = func.get_layer_structure()
@@ -143,18 +143,18 @@ for func, label in zip([f, g, h, k], labels):
 
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
-    0	0	0	|	1	0	0	1
-    0	0	1	|	1	1	1	0
-    0	1	0	|	1	1	1	1
-    0	1	1	|	1	1	1	0
-    1	0	0	|	1	1	1	1
-    1	0	1	|	1	1	1	0
-    1	1	0	|	0	0	1	1
-    1	1	1	|	1	1	1	1
+    0	0	0	|	0	1	1	0
+    0	0	1	|	1	1	0	0
+    0	1	0	|	0	1	0	0
+    0	1	1	|	0	1	0	1
+    1	0	0	|	1	0	0	0
+    1	0	1	|	1	1	0	1
+    1	1	0	|	1	1	0	0
+    1	1	1	|	1	0	0	1
     Canalizing depth of f: 3
-    Layer structure of f: [3]
-    Number of layers of f: 1
-    Core function of f: [0]
+    Layer structure of f: [1, 2]
+    Number of layers of f: 2
+    Core function of f: [1]
     
     Canalizing depth of g: 1
     Layer structure of g: [1]
@@ -164,12 +164,12 @@ for func, label in zip([f, g, h, k], labels):
     Canalizing depth of h: 3
     Layer structure of h: [3]
     Number of layers of h: 1
-    Core function of h: [0]
+    Core function of h: [1]
     
     Canalizing depth of k: 3
     Layer structure of k: [1, 2]
     Number of layers of k: 2
-    Core function of k: [1]
+    Core function of k: [0]
     
 
 
@@ -188,19 +188,19 @@ we specify the optional argument `depth` instead of `layer_structure`.
 
 ```python
 # any function has at least canalizing depth 0 so this is the same as boolforge.random_function(n)
-f = boolforge.random_function(n,depth=0)
+f = bf.random_function(n,depth=0)
 
 # a random non-canalizing function
-g = boolforge.random_function(n,depth=0,exact_depth=True)
+g = bf.random_function(n,depth=0,exact_depth=True)
 
 # a random canalizing function
-h = boolforge.random_function(n,depth=1)
+h = bf.random_function(n,depth=1)
 
 # a random nested canalizing function
-k = boolforge.random_function(n,depth=n)
+k = bf.random_function(n,depth=n)
 
 labels = ["f", "g", "h", "k"]
-boolforge.display_truth_table(f, g, h, k, labels=labels)
+bf.display_truth_table(f, g, h, k, labels=labels)
 
 for func, label in zip([f, g, h, k], labels):
     print(f"Canalizing depth of {label}: {func.get_canalizing_depth()}")
@@ -209,19 +209,19 @@ for func, label in zip([f, g, h, k], labels):
 
     x0	x1	x2	|	f	g	h	k
     ---------------------------------------------------------
-    0	0	0	|	1	0	1	1
-    0	0	1	|	0	0	0	1
-    0	1	0	|	1	1	0	1
-    0	1	1	|	0	1	0	1
-    1	0	0	|	0	1	1	1
-    1	0	1	|	0	0	0	1
-    1	1	0	|	0	0	1	1
-    1	1	1	|	1	0	0	0
-    Canalizing depth of f: 0
+    0	0	0	|	1	1	1	0
+    0	0	1	|	1	1	1	0
+    0	1	0	|	0	1	1	1
+    0	1	1	|	1	0	0	0
+    1	0	0	|	1	0	1	0
+    1	0	1	|	1	1	0	0
+    1	1	0	|	0	1	1	1
+    1	1	1	|	0	1	1	1
+    Canalizing depth of f: 3
     
     Canalizing depth of g: 0
     
-    Canalizing depth of h: 3
+    Canalizing depth of h: 1
     
     Canalizing depth of k: 3
     
@@ -266,7 +266,7 @@ n_simulations = 10000
 count_essential = np.zeros(n + 1, dtype=int)
 
 for _ in range(n_simulations):
-    f = boolforge.random_function(n, allow_degenerate_functions=True)
+    f = bf.random_function(n, allow_degenerate_functions=True)
     count_essential[f.get_number_of_essential_variables()] += 1
 
 expected = np.array([2 / 16, 4 / 16, 10 / 16])
@@ -286,7 +286,7 @@ print("Error:", count_essential / n_simulations - expected)
 plt.show()
 ```
 
-    Error: [ 0.001  -0.0013  0.0003]
+    Error: [ 0.0022  0.006  -0.0082]
 
 
 
@@ -308,12 +308,12 @@ we require $2\leq w\leq 2^n-2$ whenever canalizing functions are not permissible
 ```python
 n = 3
 
-f = boolforge.random_function(n, hamming_weight=5)
-g = boolforge.random_function(n, hamming_weight=5, exact_depth=True)
-h = boolforge.random_function(n, hamming_weight=2, allow_degenerate_functions=True)
+f = bf.random_function(n, hamming_weight=5)
+g = bf.random_function(n, hamming_weight=5, exact_depth=True)
+h = bf.random_function(n, hamming_weight=2, allow_degenerate_functions=True)
 
 labels = ["f", "g", "h"]
-boolforge.display_truth_table(f, g, h, labels=labels)
+bf.display_truth_table(f, g, h, labels=labels)
 
 for func, label in zip([f, g, h], labels):
     print(f"Hamming weight of {label}: {func.hamming_weight}")
@@ -324,14 +324,14 @@ for func, label in zip([f, g, h], labels):
 
     x0	x1	x2	|	f	g	h
     -------------------------------------------------
-    0	0	0	|	1	0	0
-    0	0	1	|	1	1	0
-    0	1	0	|	0	1	1
-    0	1	1	|	1	1	0
+    0	0	0	|	1	1	0
+    0	0	1	|	1	1	1
+    0	1	0	|	0	0	0
+    0	1	1	|	0	0	0
     1	0	0	|	1	0	0
     1	0	1	|	0	1	1
-    1	1	0	|	0	1	0
-    1	1	1	|	1	0	0
+    1	1	0	|	1	1	0
+    1	1	1	|	1	1	0
     Hamming weight of f: 5
     Canalizing depth of f: 0
     Number of essential variables of f: 3
@@ -341,8 +341,8 @@ for func, label in zip([f, g, h], labels):
     Number of essential variables of g: 3
     
     Hamming weight of h: 2
-    Canalizing depth of h: 0
-    Number of essential variables of h: 3
+    Canalizing depth of h: 2
+    Number of essential variables of h: 2
     
 
 
@@ -370,9 +370,9 @@ n_simulations = 10000
 counts = np.zeros((3, 2**n + 1), dtype=int)
 
 for _ in range(n_simulations):
-    f = boolforge.random_function(n, bias=0.75)
-    g = boolforge.random_function(n, absolute_bias=0.5, use_absolute_bias=True)
-    h = boolforge.random_function(n, absolute_bias=0.5) #absolute_bias ignored!
+    f = bf.random_function(n, bias=0.75)
+    g = bf.random_function(n, absolute_bias=0.5, use_absolute_bias=True)
+    h = bf.random_function(n, absolute_bias=0.5) #absolute_bias ignored!
 
     counts[0, f.hamming_weight] += 1
     counts[1, g.hamming_weight] += 1
@@ -416,11 +416,15 @@ which as we see below, slightly modifies the resulting Hamming weight distributi
 counts[:] = 0
 
 for _ in range(n_simulations):
-    f = boolforge.random_function(n, bias=0.75, allow_degenerate_functions=True)
-    g = boolforge.random_function(
+    f = bf.random_function(
+        n, bias=0.75, allow_degenerate_functions=True
+    )
+    g = bf.random_function(
         n, absolute_bias=0.5, use_absolute_bias=True, allow_degenerate_functions=True
     )
-    h = boolforge.random_function(n, allow_degenerate_functions=True)
+    h = bf.random_function(
+        n, allow_degenerate_functions=True
+    )
 
     counts[0, f.hamming_weight] += 1
     counts[1, g.hamming_weight] += 1

@@ -24,7 +24,7 @@
 # ## Setup
 
 # %%
-import boolforge
+import boolforge as bf
 import numpy as np
 
 
@@ -49,16 +49,16 @@ import numpy as np
 
 # %%
 # Fully symmetric (parity / XOR)
-f = boolforge.BooleanFunction("(x0 + x1 + x2) % 2")
+f = bf.BooleanFunction("(x0 + x1 + x2) % 2")
 
 # Partially symmetric
-g = boolforge.BooleanFunction("x0 | (x1 & x2)")
+g = bf.BooleanFunction("x0 | (x1 & x2)")
 
 # No symmetry
-h = boolforge.BooleanFunction("x0 | (x1 & ~x2)")
+h = bf.BooleanFunction("x0 | (x1 & ~x2)")
 
 labels = ["f", "g", "h"]
-boolforge.display_truth_table(f, g, h, labels=labels)
+bf.display_truth_table(f, g, h, labels=labels)
 
 for func, label in zip([f, g, h], labels):
     print(f"Symmetry groups of {label}:")
@@ -85,7 +85,7 @@ for func, label in zip([f, g, h], labels):
 
 # %%
 print("f.is_degenerate()", f.is_degenerate())
-k = boolforge.BooleanFunction("(x AND y) OR x")
+k = bf.BooleanFunction("(x AND y) OR x")
 print("k.is_degenerate()", k.is_degenerate())
 
 # %% [markdown]
@@ -210,7 +210,7 @@ print("Normalized average sensitivity of g:", g.get_average_sensitivity(exact=ex
 exact = False
 n = 25
 
-h = boolforge.random_function(n=n, allow_degenerate_functions=True)
+h = bf.random_function(n=n, allow_degenerate_functions=True)
 
 activities = h.get_activities(exact=exact)
 print(f"Mean activity: {np.mean(activities):.4f}")
