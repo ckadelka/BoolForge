@@ -1,0 +1,435 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Concepts for Boolean Functions &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Canalization" href="tutorial03_canalization.html" />
+    <link rel="prev" title="Working with Boolean Functions" href="tutorial01_Boolean_functions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial00_preface.html">Preface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial01_Boolean_functions.html">Working with Boolean Functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Advanced Concepts for Boolean Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Symmetries-in-Boolean-functions">Symmetries in Boolean functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Degenerate-functions">Degenerate functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Activities-and-sensitivities">Activities and sensitivities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Activity">Activity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Average-sensitivity">Average sensitivity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Exact-vs-Monte-Carlo-computation">Exact vs Monte Carlo computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Computing-activities-and-sensitivities">Computing activities and sensitivities</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04_random_Boolean_function_generation.html">Random Boolean function generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05_ensemble_experiments_random_functions.html">Ensemble experiments with random Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06_boolean_networks.html">Working with Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07_network_dynamics.html">Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_network_stability.html">Perturbation and sensitivity analysis of Boolean networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Advanced Concepts for Boolean Functions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial02_advanced_concepts.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Advanced-Concepts-for-Boolean-Functions">
+<h1>Advanced Concepts for Boolean Functions<a class="headerlink" href="#Advanced-Concepts-for-Boolean-Functions" title="Link to this heading"></a></h1>
+<p>Understanding the structure of a Boolean function is essential for analyzing the behavior of the Boolean networks they define. In this tutorial, we move beyond the basics of <code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code> and explore three core concepts:</p>
+<ul class="simple">
+<li><p>symmetries among inputs</p></li>
+<li><p>activities of inputs</p></li>
+<li><p>average sensitivity of a Boolean function</p></li>
+</ul>
+<p>These quantities are tied to redundancy, robustness, and dynamical behavior – concepts that will play a central role in later tutorials on canalization and network dynamics.</p>
+<section id="What-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
+<p>In this tutorial you will learn how to:</p>
+<ul class="simple">
+<li><p>identify symmetry groups of Boolean functions,</p></li>
+<li><p>compute activities and sensitivities,</p></li>
+<li><p>choose between exact computation and Monte Carlo estimation,</p></li>
+<li><p>interpret these quantities in terms of robustness and redundancy.</p></li>
+</ul>
+</section>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Symmetries-in-Boolean-functions">
+<h2>Symmetries in Boolean functions<a class="headerlink" href="#Symmetries-in-Boolean-functions" title="Link to this heading"></a></h2>
+<p>In gene regulation, symmetric variables might represent redundant transcription factor binding sites or functionally equivalent repressors. Identifying symmetries can:</p>
+<ul class="simple">
+<li><p>Reduce model complexity</p></li>
+<li><p>Suggest evolutionary mechanisms (gene duplication)</p></li>
+<li><p>Identify potential drug targets (symmetric inputs may compensate)</p></li>
+</ul>
+<p>A symmetry of a Boolean function is a permutation of input variables that does <strong>not</strong> change its output.</p>
+<ul class="simple">
+<li><p>Inputs in the same symmetry group can be swapped freely.</p></li>
+<li><p>Inputs in different groups cannot.</p></li>
+</ul>
+<p>The following three Boolean functions exhibit full, partial, and no symmetry.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fully symmetric (parity / XOR)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(x0 + x1 + x2) % 2&quot;</span><span class="p">)</span>
+
+<span class="c1"># Partially symmetric</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;x0 | (x1 &amp; x2)&quot;</span><span class="p">)</span>
+
+<span class="c1"># No symmetry</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;x0 | (x1 &amp; ~x2)&quot;</span><span class="p">)</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">]</span>
+<span class="n">bf</span><span class="o">.</span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Symmetry groups of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">func</span><span class="o">.</span><span class="n">get_symmetry_groups</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">group</span><span class="p">)])</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+x0      x1      x2      |       f       g       h
+-------------------------------------------------
+0       0       0       |       0       0       0
+0       0       1       |       1       0       0
+0       1       0       |       1       0       1
+0       1       1       |       0       1       0
+1       0       0       |       1       1       1
+1       0       1       |       0       1       1
+1       1       0       |       0       1       1
+1       1       1       |       1       1       1
+Symmetry groups of f:
+   [&#39;x0&#39; &#39;x1&#39; &#39;x2&#39;]
+
+Symmetry groups of g:
+   [&#39;x0&#39;]
+   [&#39;x1&#39; &#39;x2&#39;]
+
+Symmetry groups of h:
+   [&#39;x0&#39;]
+   [&#39;x1&#39;]
+   [&#39;x2&#39;]
+
+</pre></div></div>
+</div>
+<p><strong>Interpretation</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">f</span></code> is fully symmetric: all variables are interchangeable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">g</span></code> has partial symmetry: <code class="docutils literal notranslate"><span class="pre">x1</span></code> and <code class="docutils literal notranslate"><span class="pre">x2</span></code> are equivalent but <code class="docutils literal notranslate"><span class="pre">x0</span></code> is distinct.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">h</span></code> has no symmetries: all inputs play unique roles.</p></li>
+</ul>
+<p>These patterns foreshadow the concepts of canalization, and specifically canalizing layers, explored in later tutorials.</p>
+</section>
+<section id="Degenerate-functions">
+<h2>Degenerate functions<a class="headerlink" href="#Degenerate-functions" title="Link to this heading"></a></h2>
+<p>A function is <strong>degenerate</strong> if one or more inputs do not matter at all.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;f.is_degenerate()&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">())</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(x AND y) OR x&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;k.is_degenerate()&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+f.is_degenerate() False
+k.is_degenerate() True
+</pre></div></div>
+</div>
+<p>Detecting degeneracy is NP-hard in general. However even at relatively low degree, such functions are extremely rare unless intentionally created.</p>
+<p>We can also identify the specific variables that cause a function to be degenerate.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nonessential</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span> <span class="n">k</span><span class="o">.</span><span class="n">get_type_of_inputs</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;non-essential&quot;</span>
+<span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Non-essential variables:&quot;</span><span class="p">,</span> <span class="n">nonessential</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Non-essential variables: [&#39;y&#39;]
+</pre></div></div>
+</div>
+</section>
+<section id="Activities-and-sensitivities">
+<h2>Activities and sensitivities<a class="headerlink" href="#Activities-and-sensitivities" title="Link to this heading"></a></h2>
+<p>Activities and sensitivity quantify how much each input affects the output of a Boolean function.</p>
+<section id="Activity">
+<h3>Activity<a class="headerlink" href="#Activity" title="Link to this heading"></a></h3>
+<p>The activity of input <span class="math notranslate nohighlight">\(x_i\)</span> is the probability that flipping <span class="math notranslate nohighlight">\(x_i\)</span> changes the function’s output:</p>
+<div class="math notranslate nohighlight">
+\[a(f,x_i) = \Pr[f(\mathbf{x}) \neq f(\mathbf{x} \oplus e_i)],\]</div>
+<p>where <span class="math notranslate nohighlight">\(e_i=(0,\ldots,0,1,0,\ldots,0)\)</span> is the ith unit vector.</p>
+<ul class="simple">
+<li><p>If <span class="math notranslate nohighlight">\(a = 1\)</span>: the variable always matters.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(a = 0\)</span>: the variable is irrelevant (degenerate).</p></li>
+<li><p>In large random Boolean functions, <span class="math notranslate nohighlight">\(a \approx 0.5\)</span> for all variables.</p></li>
+</ul>
+</section>
+<section id="Average-sensitivity">
+<h3>Average sensitivity<a class="headerlink" href="#Average-sensitivity" title="Link to this heading"></a></h3>
+<p>The <em>average sensitivity</em> of a Boolean function describes how sensitive its output is to changes in its inputs, specifically to a random single-bit flip. The (unnormalized) average sensitivity is the sum of all its activities:</p>
+<div class="math notranslate nohighlight">
+\[S(f) = \sum_i a(f,x_i).\]</div>
+<p>Division by <span class="math notranslate nohighlight">\(n\)</span> yields the <em>normalized average sensitivity</em> <span class="math notranslate nohighlight">\(s(f)\)</span>, which can be readily compared between functions of different degree <span class="math notranslate nohighlight">\(n\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[s(f) = \frac{S(f)}{n}.\]</div>
+<p><strong>Interpretation</strong></p>
+<p>In Boolean network theory, the mean normalized average sensitivity <span class="math notranslate nohighlight">\(s(f)\)</span> determines how perturbations tend to propagate through the system.</p>
+<ul class="simple">
+<li><p>If <span class="math notranslate nohighlight">\(s(f) &lt; 1\)</span>, perturbations tend to die out (<em>ordered regime</em>).</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(s(f) &gt; 1\)</span>, perturbations typically amplify (<em>chaotic regime</em>).</p></li>
+<li><p>The boundary <span class="math notranslate nohighlight">\(s(f) = 1\)</span> defines the <em>critical regime</em>.</p></li>
+</ul>
+<p>The critical regime is believed to characterize many biological networks (see later tutorials). It represents a balance between order and chaos. Operating at this “edge of chaos” may optimize information processing and evolvability.</p>
+</section>
+<section id="Exact-vs-Monte-Carlo-computation">
+<h3>Exact vs Monte Carlo computation<a class="headerlink" href="#Exact-vs-Monte-Carlo-computation" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Exact (<code class="docutils literal notranslate"><span class="pre">exact=True</span></code>) computation enumerates all <span class="math notranslate nohighlight">\(2^n\)</span> states; feasible for small <span class="math notranslate nohighlight">\(n\)</span>.</p></li>
+<li><p>Monte Carlo (<code class="docutils literal notranslate"><span class="pre">exact=False</span></code>, default) simulation approximates using random samples; scalable to large <span class="math notranslate nohighlight">\(n\)</span>.</p></li>
+</ul>
+<p>Computational cost guide:</p>
+<ul class="simple">
+<li><p>Exact methods: <span class="math notranslate nohighlight">\(O(2^n)\)</span> time and space, where <span class="math notranslate nohighlight">\(n =\)</span> number of inputs.</p></li>
+<li><p>Monte Carlo: <span class="math notranslate nohighlight">\(O(k)\)</span> time, where <span class="math notranslate nohighlight">\(k =\)</span> number of samples.</p></li>
+</ul>
+<p>Recommendation:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(n \leq 10\)</span>: Use exact methods (fast, deterministic)</p></li>
+<li><p><span class="math notranslate nohighlight">\(10 &lt; n \leq 20\)</span>: Use exact if possible, Monte Carlo if repeated computation needed</p></li>
+<li><p>n &gt; 20: Use Monte Carlo (exact is infeasible)</p></li>
+</ul>
+</section>
+<section id="Computing-activities-and-sensitivities">
+<h3>Computing activities and sensitivities<a class="headerlink" href="#Computing-activities-and-sensitivities" title="Link to this heading"></a></h3>
+<p>To investigate how to compute the activities and the average sensitivity in <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code>, we work with the linear function <code class="docutils literal notranslate"><span class="pre">f</span></code> from above, as well as with the function <code class="docutils literal notranslate"><span class="pre">g</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exact</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">normalized</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Activities of f:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_activities</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Activities of g:&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">get_activities</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Normalized average sensitivity of f:&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">get_average_sensitivity</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">,</span>
+                                                                        <span class="n">normalized</span><span class="o">=</span><span class="n">normalized</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Normalized average sensitivity of g:&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">get_average_sensitivity</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">,</span>
+                                                                        <span class="n">normalized</span><span class="o">=</span><span class="n">normalized</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Activities of f: [1. 1. 1.]
+Activities of g: [0.75 0.25 0.25]
+Normalized average sensitivity of f: 1.0
+Normalized average sensitivity of g: 0.4166666666666667
+</pre></div></div>
+</div>
+<p><strong>Interpretation</strong></p>
+<ul class="simple">
+<li><p>For <code class="docutils literal notranslate"><span class="pre">f</span></code> (XOR), flipping any input always flips the output, so <span class="math notranslate nohighlight">\(s(f) = 1\)</span>.</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">g</span></code>, <span class="math notranslate nohighlight">\(x_0\)</span> influences the output more often than <span class="math notranslate nohighlight">\(x_1\)</span> or <span class="math notranslate nohighlight">\(x_2\)</span>. 75% of <span class="math notranslate nohighlight">\(x_0\)</span> flips and 25% of <span class="math notranslate nohighlight">\(x_1\)</span> or <span class="math notranslate nohighlight">\(x_2\)</span> flips change the output of <code class="docutils literal notranslate"><span class="pre">g</span></code>. Thus, the normalized average sensitivity of <code class="docutils literal notranslate"><span class="pre">g</span></code> is <span class="math notranslate nohighlight">\(\frac 13*75\% + \frac 23 25\% = \frac{5}{12}\)</span>.</p></li>
+</ul>
+<p>This unequal influence is a precursor to canalization, a property investigated in depth in the next tutorial.</p>
+<p>Exact computation is infeasible for large <span class="math notranslate nohighlight">\(n\)</span>, so Monte Carlo simulation must be used.</p>
+<p>When generating such a large function randomly (see Tutorial 4), it is not recommended to require that all inputs are essential, as (i) this is almost certainly the case anyways (the probability that an n-input function does not depend on input <span class="math notranslate nohighlight">\(x_i\)</span> is given <span class="math notranslate nohighlight">\(1/2^{n-1}\)</span>), and (ii) checking for input degeneracy is NP-hard (i.e., very computationally expensive). In this specific case, we thus suggest diverging from BoolForge’s default and setting <code class="docutils literal notranslate"><span class="pre">allow_degenerate_functions=True</span></code>.
+You find more on this and the <code class="docutils literal notranslate"><span class="pre">random_function</span></code> method in Tutorial 4.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exact</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">25</span>
+
+<span class="n">h</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">allow_degenerate_functions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">activities</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">get_activities</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean activity: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Normalized average sensitivity: </span><span class="si">{</span><span class="n">h</span><span class="o">.</span><span class="n">get_average_sensitivity</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Mean activity: 0.4993
+Normalized average sensitivity: 0.5009
+</pre></div></div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>Random Boolean functions satisfy:</p>
+<ul class="simple">
+<li><p>mean activity <span class="math notranslate nohighlight">\(\approx 0.5\)</span>,</p></li>
+<li><p>normalized average sensitivity <span class="math notranslate nohighlight">\(\approx 0.5\)</span>.</p></li>
+</ul>
+<p>Thus, the results for <code class="docutils literal notranslate"><span class="pre">h</span></code> align with known theoretical results. More generally, random Boolean function results define the typical behavior against which biological functions can be compared (see Tutorial 5).</p>
+</section>
+</section>
+<section id="Summary">
+<h2>Summary<a class="headerlink" href="#Summary" title="Link to this heading"></a></h2>
+<p>In this tutorial you learned:</p>
+<ul class="simple">
+<li><p>how to compute symmetry groups,</p></li>
+<li><p>how to test for input degeneracy,</p></li>
+<li><p>how to compute activities and sensitivities,</p></li>
+<li><p>how these quantities relate to robustness and structure.</p></li>
+</ul>
+<p>These concepts provide essential foundations for understanding</p>
+<ul class="simple">
+<li><p>canalization, the core concept of Tutorial 3,</p></li>
+<li><p>and the robustness of Boolean networks, explored in Tutorial 8.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial01_Boolean_functions.html" class="btn btn-neutral float-left" title="Working with Boolean Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial03_canalization.html" class="btn btn-neutral float-right" title="Canalization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

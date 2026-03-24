@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Boolean Function &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -65,6 +65,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.to_truth_table"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.to_truth_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.to_cana"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.to_cana()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.to_logical"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.to_logical()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.hamming_weight"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.hamming_weight</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.bias"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.bias</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.absolute_bias"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.absolute_bias</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.summary"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.is_constant"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.is_constant()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction.is_degenerate"><code class="docutils literal notranslate"><span class="pre">BooleanFunction.is_degenerate()</span></code></a></li>
@@ -93,6 +96,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.boolean_function.display_truth_table"><code class="docutils literal notranslate"><span class="pre">display_truth_table()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.boolean_function.get_layer_structure_from_canalized_outputs"><code class="docutils literal notranslate"><span class="pre">get_layer_structure_from_canalized_outputs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.boolean_function.f_from_expression"><code class="docutils literal notranslate"><span class="pre">f_from_expression()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="boolean_network.html">Boolean Network</a></li>
@@ -168,11 +172,14 @@ classes.</p>
 with variable names and optional metadata.</p>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>f<span class="classifier">list[int] | np.ndarray | str</span></dt><dd><p>Truth table of length <code class="docutils literal notranslate"><span class="pre">2**n</span></code> representing the outputs of a Boolean
-function with <code class="docutils literal notranslate"><span class="pre">n</span></code> inputs, or a Boolean expression string that can be
-evaluated. Expression strings are parsed using
-<code class="docutils literal notranslate"><span class="pre">utils.f_from_expression</span></code>.</p>
+<dl>
+<dt>f<span class="classifier">list[int] | np.ndarray | str</span></dt><dd><p>Either:</p>
+<ul class="simple">
+<li><p>a truth table of length <code class="docutils literal notranslate"><span class="pre">2**n</span></code> representing the outputs of a Boolean</p></li>
+</ul>
+<p>function with <code class="docutils literal notranslate"><span class="pre">n</span></code> inputs, or 
+- a Boolean expression string that can be evaluated. Expression strings 
+are parsed using <code class="docutils literal notranslate"><span class="pre">utils.f_from_expression</span></code>.</p>
 </dd>
 <dt>name<span class="classifier">str, optional</span></dt><dd><p>Name of the node regulated by the Boolean function. Default is <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>.</p>
 </dd>
@@ -199,7 +206,7 @@ values 0 and 1, representing the truth table of the Boolean function.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.from_cana">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_cana</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cana_BooleanNode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BooleanNode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.from_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.from_cana" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_cana</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cana_BooleanNode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cana.boolean_node.BooleanNode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.from_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.from_cana" title="Link to this definition"></a></dt>
 <dd><p>Construct a BoolForge BooleanFunction from a CANA BooleanNode.</p>
 <p>This compatibility method converts a
 <code class="docutils literal notranslate"><span class="pre">cana.boolean_node.BooleanNode</span></code> instance into a BoolForge
@@ -236,7 +243,7 @@ as the input CANA BooleanNode.</p>
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.__repr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.__repr__" title="Link to this definition"></a></dt>
 <dd><p>Return an unambiguous string representation of the BooleanFunction.</p>
-<p>For small functions (<code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&lt;</span> <span class="pre">6</span></code>), the full truth table is shown.
+<p>For small functions (<code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&lt;</span> <span class="pre">5</span></code>), the full truth table is shown.
 For larger functions, only the number of inputs is displayed to
 avoid excessive output.</p>
 </dd></dl>
@@ -424,7 +431,7 @@ in non-reduced disjunctive normal form (DNF).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.to_truth_table">
-<span class="sig-name descname"><span class="pre">to_truth_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">RETURN</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_truth_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_truth_table" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_truth_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_truth_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_truth_table" title="Link to this definition"></a></dt>
 <dd><p>Return or save the full truth table of the Boolean function.</p>
 <p>The truth table is represented as a pandas DataFrame in which each row
 corresponds to an input configuration and the final column contains the
@@ -432,7 +439,7 @@ output value of the Boolean function.</p>
 <section id="id16">
 <h3>Parameters<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>RETURN<span class="classifier">bool, optional</span></dt><dd><p>Whether to return the truth table as a DataFrame. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the
+<dt>return_output<span class="classifier">bool, optional</span></dt><dd><p>Whether to return the truth table as a DataFrame. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the
 truth table is only written to file when <code class="docutils literal notranslate"><span class="pre">filename</span></code> is provided.
 Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd>
@@ -445,7 +452,7 @@ provided, the truth table is automatically written to disk.</p>
 <section id="id17">
 <h3>Returns<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>pandas.DataFrame or None</dt><dd><p>The full truth table if <code class="docutils literal notranslate"><span class="pre">RETURN=True</span></code>; otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dt>pandas.DataFrame or None</dt><dd><p>The full truth table if <code class="docutils literal notranslate"><span class="pre">return_output=True</span></code>; otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd>
 </dl>
 </section>
@@ -475,7 +482,7 @@ the output format is determined by the file extension.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.to_cana">
-<span class="sig-name descname"><span class="pre">to_cana</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BooleanNode</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_cana" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_cana</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">cana.boolean_node.BooleanNode</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_cana"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_cana" title="Link to this definition"></a></dt>
 <dd><p>Convert the BooleanFunction to a CANA BooleanNode.</p>
 <p>This compatibility method constructs and returns a
 <code class="docutils literal notranslate"><span class="pre">cana.boolean_node.BooleanNode</span></code> instance corresponding to the
@@ -503,7 +510,7 @@ Boolean function.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.to_logical">
-<span class="sig-name descname"><span class="pre">to_logical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">AND</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&amp;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OR</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'|'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NOT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'!'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MINIMIZE_EXPRESSION</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_logical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_logical" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_logical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">and_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&amp;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">or_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'|'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'!'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimize_expression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.to_logical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.to_logical" title="Link to this definition"></a></dt>
 <dd><p>Convert the Boolean function to a logical expression.</p>
 <p>This method converts the Boolean function from its truth table
 representation to a logical expression. If the PyEDA package is
@@ -513,13 +520,13 @@ generated as a fallback.</p>
 <section id="id23">
 <h3>Parameters<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>AND<span class="classifier">str, optional</span></dt><dd><p>String used to represent the logical AND operator. Default is <code class="docutils literal notranslate"><span class="pre">&quot;&amp;&quot;</span></code>.</p>
+<dt>and_op<span class="classifier">str, optional</span></dt><dd><p>String used to represent the logical AND operator. Default is <code class="docutils literal notranslate"><span class="pre">&quot;&amp;&quot;</span></code>.</p>
 </dd>
-<dt>OR<span class="classifier">str, optional</span></dt><dd><p>String used to represent the logical OR operator. Default is <code class="docutils literal notranslate"><span class="pre">&quot;|&quot;</span></code>.</p>
+<dt>or_op<span class="classifier">str, optional</span></dt><dd><p>String used to represent the logical OR operator. Default is <code class="docutils literal notranslate"><span class="pre">&quot;|&quot;</span></code>.</p>
 </dd>
-<dt>NOT<span class="classifier">str, optional</span></dt><dd><p>String used to represent the logical NOT operator. Default is <code class="docutils literal notranslate"><span class="pre">&quot;!&quot;</span></code>.</p>
+<dt>not_op<span class="classifier">str, optional</span></dt><dd><p>String used to represent the logical NOT operator. Default is <code class="docutils literal notranslate"><span class="pre">&quot;!&quot;</span></code>.</p>
 </dd>
-<dt>MINIMIZE_EXPRESSION<span class="classifier">bool, optional</span></dt><dd><p>Whether to minimize the logical expression using the Espresso
+<dt>minimize_expression<span class="classifier">bool, optional</span></dt><dd><p>Whether to minimize the logical expression using the Espresso
 algorithm (via PyEDA). If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the expression is returned
 in non-minimized disjunctive normal form. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd>
@@ -539,9 +546,27 @@ non-minimized expression derived from the polynomial representation.</p>
 </section>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.hamming_weight">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">hamming_weight</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.hamming_weight" title="Link to this definition"></a></dt>
+<dd><p>Number of ones in the truth table.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.bias">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bias</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.bias" title="Link to this definition"></a></dt>
+<dd><p>Fraction of ones in the truth table.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.absolute_bias">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">absolute_bias</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.absolute_bias" title="Link to this definition"></a></dt>
+<dd><p>Absolute bias: <a href="#id93"><span class="problematic" id="id94">|2*bias − 1|</span></a>.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.summary">
-<span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">AS_DICT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">COMPUTE_ALL</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.summary" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compute_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.summary" title="Link to this definition"></a></dt>
 <dd><p>Return a concise summary of the Boolean function.</p>
 <p>The summary includes basic structural and statistical properties of the
 Boolean function and, optionally, additional properties that may require
@@ -549,12 +574,12 @@ nontrivial computation.</p>
 <section id="id26">
 <h3>Parameters<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>AS_DICT<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return the summary as a dictionary. If <code class="docutils literal notranslate"><span class="pre">False</span></code> (default),
-return a formatted string.</p>
-</dd>
-<dt>COMPUTE_ALL<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, additional properties are computed and included in the
+<dt>compute_all<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, additional properties are computed and included in the
 summary. These computations may be expensive. If <code class="docutils literal notranslate"><span class="pre">False</span></code> (default),
 only already available properties are included.</p>
+</dd>
+<dt>as_dict<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return the summary as a dictionary. If <code class="docutils literal notranslate"><span class="pre">False</span></code> (default),
+return a formatted string.</p>
 </dd>
 </dl>
 </section>
@@ -562,7 +587,7 @@ only already available properties are included.</p>
 <h3>Returns<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>str or dict</dt><dd><p>Summary of the Boolean function, either as a formatted string or as
-a dictionary depending on the value of <code class="docutils literal notranslate"><span class="pre">AS_DICT</span></code>.</p>
+a dictionary depending on the value of <code class="docutils literal notranslate"><span class="pre">as_dict</span></code>.</p>
 </dd>
 </dl>
 </section>
@@ -585,7 +610,7 @@ identical (all 0 or all 1).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.is_degenerate">
-<span class="sig-name descname"><span class="pre">is_degenerate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USE_NUMBA</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_degenerate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_degenerate" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_degenerate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_numba</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.is_degenerate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.is_degenerate" title="Link to this definition"></a></dt>
 <dd><p>Determine whether the Boolean function is degenerate.</p>
 <p>A Boolean function is degenerate if it contains at least one
 non-essential variable, i.e., a variable on which the function’s
@@ -593,7 +618,7 @@ output does not depend.</p>
 <section id="id29">
 <h3>Parameters<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>USE_NUMBA<span class="classifier">bool, optional</span></dt><dd><p>Whether to use Numba-accelerated computation when available.
+<dt>use_numba<span class="classifier">bool, optional</span></dt><dd><p>Whether to use Numba-accelerated computation when available.
 Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd>
 </dl>
@@ -736,16 +761,25 @@ evaluates to <code class="docutils literal notranslate"><span class="pre">1</spa
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_essential_variables">
-<span class="sig-name descname"><span class="pre">get_essential_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_essential_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_essential_variables" title="Link to this definition"></a></dt>
-<dd><p>Determine the essential variables of the Boolean function.</p>
-<p>A variable <code class="docutils literal notranslate"><span class="pre">x_i</span></code> is essential if there exists at least one assignment of
-the remaining variables such that flipping <code class="docutils literal notranslate"><span class="pre">x_i</span></code> changes the output of
+<span class="sig-name descname"><span class="pre">get_essential_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">as_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_essential_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_essential_variables" title="Link to this definition"></a></dt>
+<dd><p>Identify essential variables of the Boolean function.</p>
+<p>A variable <code class="docutils literal notranslate"><span class="pre">x_i</span></code> is essential if there exists an assignment of the
+remaining variables such that flipping <code class="docutils literal notranslate"><span class="pre">x_i</span></code> changes the output of
 the function.</p>
 <section id="id41">
-<h3>Returns<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<h3>Parameters<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>list[int]</dt><dd><p>Indices of all essential variables. If the truth table is empty, returns
-an empty list.</p>
+<dt>as_dict<span class="classifier">bool, optional</span></dt><dd><p>If True, return a dictionary mapping variable indices to booleans.
+If False (default), return an array of indices of essential variables.</p>
+</dd>
+</dl>
+</section>
+<section id="id42">
+<h3>Returns<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>dict[int, bool] or np.ndarray</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">as_dict</span></code> is True, a dictionary indicating which variables are
+essential.
+If <code class="docutils literal notranslate"><span class="pre">as_dict</span></code> is False, an array of indices of essential variables.</p>
 </dd>
 </dl>
 </section>
@@ -755,8 +789,8 @@ an empty list.</p>
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables">
 <span class="sig-name descname"><span class="pre">get_number_of_essential_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_number_of_essential_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_number_of_essential_variables" title="Link to this definition"></a></dt>
 <dd><p>Count the number of essential variables of the Boolean function.</p>
-<section id="id42">
-<h3>Returns<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<section id="id43">
+<h3>Returns<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>int</dt><dd><p>The number of essential variables.</p>
 </dd>
@@ -770,14 +804,14 @@ an empty list.</p>
 <dd><p>Classify each input variable of the Boolean function.</p>
 <p>Each variable is classified as one of:</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'non-essential'</span></code>: flipping the variable never changes the output</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">'positive'</span></code>: flipping the variable from 0 to 1 never decreases the output</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">'negative'</span></code>: flipping the variable from 0 to 1 never increases the output</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">'conditional'</span></code>: flipping the variable can both increase and decrease the output</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'non-essential'</span></code>: flipping the variable never changes the output</p></li>
 </ul>
 <p>The result is cached in <code class="docutils literal notranslate"><span class="pre">self.properties['InputTypes']</span></code>.</p>
-<section id="id43">
-<h3>Returns<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<section id="id44">
+<h3>Returns<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray</dt><dd><p>Array of shape <code class="docutils literal notranslate"><span class="pre">(n,)</span></code> with dtype <code class="docutils literal notranslate"><span class="pre">str</span></code> giving the type of each input
 variable.</p>
@@ -793,16 +827,16 @@ variable.</p>
 <p>Two variables belong to the same symmetry group if swapping their values
 leaves the Boolean function invariant for all assignments of the remaining
 variables.</p>
-<section id="id44">
-<h3>Returns<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
+<section id="id45">
+<h3>Returns<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>list[list[int]]</dt><dd><p>A list of symmetry groups, where each group is given by a list of
 variable indices.</p>
 </dd>
 </dl>
 </section>
-<section id="id45">
-<h3>Notes<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
+<section id="id46">
+<h3>Notes<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
 <p>This method has exponential time complexity in <code class="docutils literal notranslate"><span class="pre">n</span></code> and is intended for
 small Boolean functions.</p>
 </section>
@@ -816,8 +850,8 @@ small Boolean functions.</p>
 <p><code class="docutils literal notranslate"><span class="pre">|</span> <span class="pre">(H</span> <span class="pre">/</span> <span class="pre">2**(n-1))</span> <span class="pre">-</span> <span class="pre">1</span> <span class="pre">|</span></code>,</p>
 <p>where <code class="docutils literal notranslate"><span class="pre">H</span></code> is the Hamming weight of the function. It measures how far the
 output distribution deviates from being perfectly balanced.</p>
-<section id="id46">
-<h3>Returns<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<section id="id47">
+<h3>Returns<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>float</dt><dd><p>The absolute bias of the Boolean function.</p>
 </dd>
@@ -827,26 +861,28 @@ output distribution deviates from being perfectly balanced.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_activities">
-<span class="sig-name descname"><span class="pre">get_activities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_activities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_activities" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_activities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_activities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_activities" title="Link to this definition"></a></dt>
 <dd><p>Compute the activities of all input variables.</p>
 <p>The activity of a variable is the probability that flipping this variable
 (while keeping all others fixed) changes the output of the Boolean function.</p>
 <p>Activities can be computed exactly by enumerating all <code class="docutils literal notranslate"><span class="pre">2**n</span></code> input states
 or estimated via Monte Carlo sampling.</p>
-<section id="id47">
-<h3>Parameters<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<section id="id48">
+<h3>Parameters<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>nsim<span class="classifier">int, optional</span></dt><dd><p>Number of random samples used when <code class="docutils literal notranslate"><span class="pre">EXACT=False</span></code> (default: 10000).</p>
+<dt>nsim<span class="classifier">int, optional</span></dt><dd><p>Number of random samples used when <code class="docutils literal notranslate"><span class="pre">exact=False</span></code> (default: 10000).</p>
 </dd>
-<dt>EXACT<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, compute activities exactly by enumerating all input states.
-If <code class="docutils literal notranslate"><span class="pre">False</span></code>, estimate activities via sampling (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>).</p>
+<dt>exact<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, compute activities exactly by enumerating all input states.
+If <code class="docutils literal notranslate"><span class="pre">False</span></code>, estimate activities via sampling.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), BoolForge automatically chooses the method
+(exact for small functions with n&lt;16, sampling for larger functions).</p>
 </dd>
 <dt>rng<span class="classifier">None or numpy.random.Generator, optional</span></dt><dd><p>Random number generator passed to <code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
 </dd>
 </dl>
 </section>
-<section id="id48">
-<h3>Returns<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<section id="id49">
+<h3>Returns<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray</dt><dd><p>Array of shape <code class="docutils literal notranslate"><span class="pre">(n,)</span></code> containing the activities of all variables.</p>
 </dd>
@@ -856,29 +892,31 @@ If <code class="docutils literal notranslate"><span class="pre">False</span></co
 
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.get_average_sensitivity">
-<span class="sig-name descname"><span class="pre">get_average_sensitivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EXACT</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORMALIZED</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_average_sensitivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_average_sensitivity" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_average_sensitivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#BooleanFunction.get_average_sensitivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.get_average_sensitivity" title="Link to this definition"></a></dt>
 <dd><p>Compute the average sensitivity of the Boolean function.</p>
 <p>The (unnormalized) average sensitivity equals the sum of the activities of
-all variables. If <code class="docutils literal notranslate"><span class="pre">NORMALIZED=True</span></code>, the result is divided by <code class="docutils literal notranslate"><span class="pre">n</span></code>.</p>
+all variables. If <code class="docutils literal notranslate"><span class="pre">normalized=True</span></code>, the result is divided by <code class="docutils literal notranslate"><span class="pre">n</span></code>.</p>
 <p>The sensitivity can be computed exactly by enumerating all input states or
 estimated via Monte Carlo sampling.</p>
-<section id="id49">
-<h3>Parameters<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
+<section id="id50">
+<h3>Parameters<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>nsim<span class="classifier">int, optional</span></dt><dd><p>Number of random samples used when <code class="docutils literal notranslate"><span class="pre">EXACT=False</span></code> (default: 10000).</p>
+<dt>nsim<span class="classifier">int, optional</span></dt><dd><p>Number of random samples used when <code class="docutils literal notranslate"><span class="pre">exact=False</span></code> (default: 10000).</p>
 </dd>
-<dt>EXACT<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, compute the exact activities by enumerating all input states.
-If <code class="docutils literal notranslate"><span class="pre">False</span></code>, estimate them via sampling (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>).</p>
+<dt>exact<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, compute the exact activities by enumerating all input states.
+If <code class="docutils literal notranslate"><span class="pre">False</span></code>, estimate them via sampling (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>).
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), BoolForge automatically chooses the method
+(exact for small functions with n&lt;16, sampling for larger functions).</p>
 </dd>
-<dt>NORMALIZED<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return the average sensitivity divided by <code class="docutils literal notranslate"><span class="pre">n</span></code> (default:
-<code class="docutils literal notranslate"><span class="pre">True</span></code>). If <code class="docutils literal notranslate"><span class="pre">False</span></code>, return the sum of activities.</p>
+<dt>normalized<span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), return the average sensitivity divided by <code class="docutils literal notranslate"><span class="pre">n</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">False</span></code>, return the sum of activities.</p>
 </dd>
 <dt>rng<span class="classifier">None or numpy.random.Generator, optional</span></dt><dd><p>Random number generator passed to <code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
 </dd>
 </dl>
 </section>
-<section id="id50">
-<h3>Returns<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
+<section id="id51">
+<h3>Returns<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>float</dt><dd><p>The (optionally normalized) average sensitivity of the Boolean function.</p>
 </dd>
@@ -898,8 +936,8 @@ simultaneously.</p>
 <p>The decomposition yields the canalizing depth, the number of canalizing
 layers, the canalizing inputs and outputs, the order of canalizing
 variables, and the remaining non-canalizing core function.</p>
-<section id="id51">
-<h3>Returns<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
+<section id="id52">
+<h3>Returns<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary containing the canalizing layer structure with the
 following entries:</p>
@@ -923,18 +961,18 @@ Number of canalizing variables in each layer.</p></li>
 </dd>
 </dl>
 </section>
-<section id="id52">
-<h3>Notes<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<section id="id53">
+<h3>Notes<a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
 <p>The result is cached in <code class="docutils literal notranslate"><span class="pre">self.properties</span></code> and recomputed only if the
 canalizing structure has not been computed previously.</p>
 </section>
-<section id="id53">
-<h3>Notes<a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<section id="id54">
+<h3>Notes<a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
 <p>This method has exponential time complexity in <code class="docutils literal notranslate"><span class="pre">n</span></code> and is intended for
 smaller Boolean functions.</p>
 </section>
-<section id="id54">
-<h3>References<a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
+<section id="id55">
+<h3>References<a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>He, Q., &amp; Macauley, M. (2016).</dt><dd><p>Stratification and enumeration of Boolean functions by canalizing depth.
 <em>Physica D: Nonlinear Phenomena</em>, 314, 1–8.</p>
@@ -953,8 +991,8 @@ Algorithms and applications.
 <dd><p>Return the canalizing depth of the Boolean function.</p>
 <p>The canalizing depth is the total number of canalizing variables identified
 in the canalizing layer decomposition.</p>
-<section id="id55">
-<h3>Returns<a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
+<section id="id56">
+<h3>Returns<a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>int</dt><dd><p>Canalizing depth of the Boolean function.</p>
 </dd>
@@ -970,27 +1008,27 @@ in the canalizing layer decomposition.</p>
 chosen set of <code class="docutils literal notranslate"><span class="pre">k</span></code> variables canalizes the function, i.e., fixing those
 variables to some values forces the output regardless of the remaining
 variables.</p>
-<section id="id56">
-<h3>Parameters<a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
+<section id="id57">
+<h3>Parameters<a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>k<span class="classifier">int</span></dt><dd><p>Size of the variable set, with <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">k</span> <span class="pre">&lt;=</span> <span class="pre">n</span></code>.</p>
 </dd>
 </dl>
 </section>
-<section id="id57">
-<h3>Returns<a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
+<section id="id58">
+<h3>Returns<a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>float</dt><dd><p>Proportion of k-set canalizing input sets.</p>
 </dd>
 </dl>
 </section>
-<section id="id58">
-<h3>Notes<a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
+<section id="id59">
+<h3>Notes<a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
 <p>This method has exponential time complexity in <code class="docutils literal notranslate"><span class="pre">n</span></code> and is intended for
 small Boolean functions.</p>
 </section>
-<section id="id59">
-<h3>References<a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
+<section id="id60">
+<h3>References<a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023).</dt><dd><p>Collectively canalizing Boolean functions.
 <em>Advances in Applied Mathematics</em>, 145, 102475.</p>
@@ -1006,28 +1044,28 @@ small Boolean functions.</p>
 <p>For a given <code class="docutils literal notranslate"><span class="pre">k</span></code>, this method computes, for each variable, the proportion
 of k-variable input sets containing that variable which canalize the
 Boolean function.</p>
-<section id="id60">
-<h3>Parameters<a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
+<section id="id61">
+<h3>Parameters<a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>k<span class="classifier">int</span></dt><dd><p>Size of the variable set, with <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">k</span> <span class="pre">&lt;=</span> <span class="pre">n</span></code>.</p>
 </dd>
 </dl>
 </section>
-<section id="id61">
-<h3>Returns<a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
+<section id="id62">
+<h3>Returns<a class="headerlink" href="#id62" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray</dt><dd><p>Array of length <code class="docutils literal notranslate"><span class="pre">n</span></code> giving the proportion of k-set canalizing input
 sets containing each variable.</p>
 </dd>
 </dl>
 </section>
-<section id="id62">
-<h3>Notes<a class="headerlink" href="#id62" title="Link to this heading"></a></h3>
+<section id="id63">
+<h3>Notes<a class="headerlink" href="#id63" title="Link to this heading"></a></h3>
 <p>This method has exponential time complexity in <code class="docutils literal notranslate"><span class="pre">n</span></code> and is intended for
 small Boolean functions.</p>
 </section>
-<section id="id63">
-<h3>References<a class="headerlink" href="#id63" title="Link to this heading"></a></h3>
+<section id="id64">
+<h3>References<a class="headerlink" href="#id64" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023).</dt><dd><p>Collectively canalizing Boolean functions.
 <em>Advances in Applied Mathematics</em>, 145, 102475.</p>
@@ -1044,20 +1082,20 @@ small Boolean functions.</p>
 of k-set canalizing inputs for <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">...,</span> <span class="pre">n-1</span></code>. It equals 0 for minimally
 canalizing functions (e.g., parity functions) and 1 for maximally canalizing
 functions (e.g., nested canalizing functions with a single layer).</p>
-<section id="id64">
-<h3>Returns<a class="headerlink" href="#id64" title="Link to this heading"></a></h3>
+<section id="id65">
+<h3>Returns<a class="headerlink" href="#id65" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>float</dt><dd><p>Canalizing strength of the Boolean function.</p>
 </dd>
 </dl>
 </section>
-<section id="id65">
-<h3>Notes<a class="headerlink" href="#id65" title="Link to this heading"></a></h3>
+<section id="id66">
+<h3>Notes<a class="headerlink" href="#id66" title="Link to this heading"></a></h3>
 <p>This method has exponential time complexity in <code class="docutils literal notranslate"><span class="pre">n</span></code> and is intended for
 small Boolean functions.</p>
 </section>
-<section id="id66">
-<h3>References<a class="headerlink" href="#id66" title="Link to this heading"></a></h3>
+<section id="id67">
+<h3>References<a class="headerlink" href="#id67" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Kadelka, C., Keilty, B., &amp; Laubenbacher, R. (2023).</dt><dd><p>Collectively canalizing Boolean functions.
 <em>Advances in Applied Mathematics</em>, 145, 102475.</p>
@@ -1073,13 +1111,13 @@ small Boolean functions.</p>
 <p>The canalizing strength of a variable is defined as a weighted average of
 the proportions of k-set canalizing inputs containing that variable for
 <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">...,</span> <span class="pre">n-1</span></code>.</p>
-<section id="id67">
-<h3>Notes<a class="headerlink" href="#id67" title="Link to this heading"></a></h3>
+<section id="id68">
+<h3>Notes<a class="headerlink" href="#id68" title="Link to this heading"></a></h3>
 <p>This method has exponential time complexity in <code class="docutils literal notranslate"><span class="pre">n</span></code> and is intended for
 small Boolean functions.</p>
 </section>
-<section id="id68">
-<h3>Returns<a class="headerlink" href="#id68" title="Link to this heading"></a></h3>
+<section id="id69">
+<h3>Returns<a class="headerlink" href="#id69" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray</dt><dd><p>Array of length <code class="docutils literal notranslate"><span class="pre">n</span></code> containing the canalizing strength of each
 variable.</p>
@@ -1095,27 +1133,27 @@ variable.</p>
 <p>Input redundancy quantifies the fraction of inputs that are not required
 to determine the output. Constant functions have redundancy 1, whereas
 parity functions have redundancy 0.</p>
-<section id="id69">
-<h3>Returns<a class="headerlink" href="#id69" title="Link to this heading"></a></h3>
+<section id="id70">
+<h3>Returns<a class="headerlink" href="#id70" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>float</dt><dd><p>Normalized input redundancy in the interval <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
 </dd>
 </dl>
 </section>
-<section id="id70">
-<h3>Raises<a class="headerlink" href="#id70" title="Link to this heading"></a></h3>
+<section id="id71">
+<h3>Raises<a class="headerlink" href="#id71" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>ImportError</dt><dd><p>If the CANA package is not installed.</p>
 </dd>
 </dl>
 </section>
-<section id="id71">
-<h3>Notes<a class="headerlink" href="#id71" title="Link to this heading"></a></h3>
+<section id="id72">
+<h3>Notes<a class="headerlink" href="#id72" title="Link to this heading"></a></h3>
 <p>This method has exponential time complexity in <code class="docutils literal notranslate"><span class="pre">n</span></code> and is intended for
 small Boolean functions.</p>
 </section>
-<section id="id72">
-<h3>References<a class="headerlink" href="#id72" title="Link to this heading"></a></h3>
+<section id="id73">
+<h3>References<a class="headerlink" href="#id73" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Marques-Pita, M., &amp; Rocha, L. M. (2013).</dt><dd><p>Canalization and control in automata networks: body segmentation in
 <em>Drosophila melanogaster</em>. <em>PLoS One</em>, 8(3), e55946.</p>
@@ -1134,28 +1172,28 @@ Boolean networks. <em>Frontiers in Physiology</em>, 9, 1046.</p>
 <p>Edge effectiveness measures how strongly flipping an input variable
 influences the output. Non-essential inputs have effectiveness 0, whereas
 inputs that always flip the output have effectiveness 1.</p>
-<section id="id73">
-<h3>Returns<a class="headerlink" href="#id73" title="Link to this heading"></a></h3>
+<section id="id74">
+<h3>Returns<a class="headerlink" href="#id74" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>list[float]</dt><dd><p>List of length <code class="docutils literal notranslate"><span class="pre">n</span></code> containing edge effectiveness values in
 <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
 </dd>
 </dl>
 </section>
-<section id="id74">
-<h3>Raises<a class="headerlink" href="#id74" title="Link to this heading"></a></h3>
+<section id="id75">
+<h3>Raises<a class="headerlink" href="#id75" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>ImportError</dt><dd><p>If the CANA package is not installed.</p>
 </dd>
 </dl>
 </section>
-<section id="id75">
-<h3>Notes<a class="headerlink" href="#id75" title="Link to this heading"></a></h3>
+<section id="id76">
+<h3>Notes<a class="headerlink" href="#id76" title="Link to this heading"></a></h3>
 <p>This method has exponential time complexity in <code class="docutils literal notranslate"><span class="pre">n</span></code> and is intended for
 small Boolean functions.</p>
 </section>
-<section id="id76">
-<h3>References<a class="headerlink" href="#id76" title="Link to this heading"></a></h3>
+<section id="id77">
+<h3>References<a class="headerlink" href="#id77" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Marques-Pita, M., &amp; Rocha, L. M. (2013).</dt><dd><p>Canalization and control in automata networks: body segmentation in
 <em>Drosophila melanogaster</em>. <em>PLoS One</em>, 8(3), e55946.</p>
@@ -1173,27 +1211,27 @@ Boolean networks. <em>Frontiers in Physiology</em>, 9, 1046.</p>
 <dd><p>Compute the effective degree of the Boolean function.</p>
 <p>The effective degree is defined as the sum of the edge effectiveness
 values of all input variables.</p>
-<section id="id77">
-<h3>Returns<a class="headerlink" href="#id77" title="Link to this heading"></a></h3>
+<section id="id78">
+<h3>Returns<a class="headerlink" href="#id78" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>float</dt><dd><p>Effective degree of the Boolean function.</p>
 </dd>
 </dl>
 </section>
-<section id="id78">
-<h3>Raises<a class="headerlink" href="#id78" title="Link to this heading"></a></h3>
+<section id="id79">
+<h3>Raises<a class="headerlink" href="#id79" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>ImportError</dt><dd><p>If the CANA package is not installed.</p>
 </dd>
 </dl>
 </section>
-<section id="id79">
-<h3>Notes<a class="headerlink" href="#id79" title="Link to this heading"></a></h3>
+<section id="id80">
+<h3>Notes<a class="headerlink" href="#id80" title="Link to this heading"></a></h3>
 <p>This method has exponential time complexity in <code class="docutils literal notranslate"><span class="pre">n</span></code> and is intended for
 small Boolean functions.</p>
 </section>
-<section id="id80">
-<h3>References<a class="headerlink" href="#id80" title="Link to this heading"></a></h3>
+<section id="id81">
+<h3>References<a class="headerlink" href="#id81" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Marques-Pita, M., &amp; Rocha, L. M. (2013).</dt><dd><p>Canalization and control in automata networks: body segmentation in
 <em>Drosophila melanogaster</em>. <em>PLoS One</em>, 8(3), e55946.</p>
@@ -1214,10 +1252,10 @@ Boolean networks. <em>Frontiers in Physiology</em>, 9, 1046.</p>
 <dd><p>Display the full truth table of one or more Boolean functions.</p>
 <p>Each row displays an input configuration <code class="docutils literal notranslate"><span class="pre">(x1,</span> <span class="pre">...,</span> <span class="pre">xn)</span></code> together with
 the corresponding output values of the provided Boolean functions.</p>
-<section id="id81">
-<h2>Parameters<a class="headerlink" href="#id81" title="Link to this heading"></a></h2>
+<section id="id82">
+<h2>Parameters<a class="headerlink" href="#id82" title="Link to this heading"></a></h2>
 <dl class="simple">
-<dt>*functions<span class="classifier">BooleanFunction</span></dt><dd><p>One or more BooleanFunction objects with the same number of input
+<dt>functions<span class="classifier">BooleanFunction</span></dt><dd><p>One or more BooleanFunction objects with the same number of input
 variables.</p>
 </dd>
 <dt>labels<span class="classifier">Sequence[str] or None, optional</span></dt><dd><p>Column labels for the Boolean functions. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), labels
@@ -1225,8 +1263,8 @@ are generated automatically as <code class="docutils literal notranslate"><span 
 </dd>
 </dl>
 </section>
-<section id="id82">
-<h2>Raises<a class="headerlink" href="#id82" title="Link to this heading"></a></h2>
+<section id="id83">
+<h2>Raises<a class="headerlink" href="#id83" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>ValueError</dt><dd><p>If no Boolean functions are provided, if the functions do not all have
 the same number of variables, or if the number of labels does not match
@@ -1234,8 +1272,8 @@ the number of functions.</p>
 </dd>
 </dl>
 </section>
-<section id="id83">
-<h2>Examples<a class="headerlink" href="#id83" title="Link to this heading"></a></h2>
+<section id="id84">
+<h2>Examples<a class="headerlink" href="#id84" title="Link to this heading"></a></h2>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">BooleanFunction</span><span class="p">(</span><span class="s2">&quot;(x1 &amp; ~x2) | x3&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">display_truth_table</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 </pre></div>
@@ -1245,25 +1283,89 @@ the number of functions.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.boolean_function.get_layer_structure_from_canalized_outputs">
-<span class="sig-prename descclassname"><span class="pre">boolforge.boolean_function.</span></span><span class="sig-name descname"><span class="pre">get_layer_structure_from_canalized_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">can_outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#get_layer_structure_from_canalized_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.get_layer_structure_from_canalized_outputs" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.boolean_function.</span></span><span class="sig-name descname"><span class="pre">get_layer_structure_from_canalized_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#get_layer_structure_from_canalized_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.get_layer_structure_from_canalized_outputs" title="Link to this definition"></a></dt>
 <dd><p>Compute the canalizing layer structure from canalized outputs.</p>
 <p>Consecutive identical canalized output values are grouped into the same
 canalizing layer. The size of each layer corresponds to the number of
 variables in that layer.</p>
-<section id="id84">
-<h2>Parameters<a class="headerlink" href="#id84" title="Link to this heading"></a></h2>
+<section id="id85">
+<h2>Parameters<a class="headerlink" href="#id85" title="Link to this heading"></a></h2>
 <dl class="simple">
-<dt>can_outputs<span class="classifier">Sequence[int]</span></dt><dd><p>Sequence of canalized output values in the order in which canalizing
+<dt>outputs<span class="classifier">Sequence[int]</span></dt><dd><p>Sequence of canalized output values in the order in which canalizing
 variables are identified.</p>
 </dd>
 </dl>
 </section>
-<section id="id85">
-<h2>Returns<a class="headerlink" href="#id85" title="Link to this heading"></a></h2>
+<section id="id86">
+<h2>Returns<a class="headerlink" href="#id86" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>list[int]</dt><dd><p>List specifying the number of variables in each canalizing layer.</p>
 </dd>
 </dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.boolean_function.f_from_expression">
+<span class="sig-prename descclassname"><span class="pre">boolforge.boolean_function.</span></span><span class="sig-name descname"><span class="pre">f_from_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/boolforge/boolean_function.html#f_from_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_function.f_from_expression" title="Link to this definition"></a></dt>
+<dd><p>Construct a Boolean function from a string expression.</p>
+<p>The expression is evaluated symbolically over all Boolean input
+combinations to produce the truth table of the corresponding Boolean
+function. Variables are detected automatically based on their first
+occurrence in the expression.</p>
+<section id="id87">
+<h2>Parameters<a class="headerlink" href="#id87" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>expr<span class="classifier">str</span></dt><dd><p>Boolean expression to evaluate. The expression may contain logical
+operators (<code class="docutils literal notranslate"><span class="pre">AND</span></code>, <code class="docutils literal notranslate"><span class="pre">OR</span></code>, <code class="docutils literal notranslate"><span class="pre">NOT</span></code> or their lowercase equivalents),
+arithmetic operators, and comparisons.</p>
+</dd>
+<dt>max_degree<span class="classifier">int, optional</span></dt><dd><p>Maximum number of variables allowed. If the number of detected
+variables exceeds <code class="docutils literal notranslate"><span class="pre">max_degree</span></code>, an empty truth table is returned.</p>
+</dd>
+</dl>
+</section>
+<section id="id88">
+<h2>Returns<a class="headerlink" href="#id88" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>f<span class="classifier">np.ndarray</span></dt><dd><p>Boolean function values as an array of shape <code class="docutils literal notranslate"><span class="pre">(2**n,)</span></code> with entries
+in <code class="docutils literal notranslate"><span class="pre">{0,</span> <span class="pre">1}</span></code>, where <code class="docutils literal notranslate"><span class="pre">n</span></code> is the number of detected variables.</p>
+</dd>
+<dt>variables<span class="classifier">np.ndarray</span></dt><dd><p>Variable names in the order they were first encountered in the
+expression.</p>
+</dd>
+</dl>
+</section>
+<section id="id89">
+<h2>Notes<a class="headerlink" href="#id89" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Variables are ordered by first occurrence in <code class="docutils literal notranslate"><span class="pre">expr</span></code>.</p></li>
+<li><p>Truth-table rows follow the standard lexicographic ordering with the
+most significant bit first.</p></li>
+<li><p>The expression is evaluated using <code class="docutils literal notranslate"><span class="pre">eval</span></code> with restricted builtins.</p></li>
+<li><p>No syntactic or semantic validation of <code class="docutils literal notranslate"><span class="pre">expr</span></code> is performed beyond
+basic parsing.</p></li>
+<li><p>Arithmetic operators (+, -, <a href="#id90"><span class="problematic" id="id91">*</span></a>, %) must be surrounded by whitespace.
+This restriction avoids conflicts with biological identifiers such as Ca2+ or IL-2.</p></li>
+<li><p>Whenever uncertain, use whitespace.</p></li>
+</ul>
+</section>
+<section id="id92">
+<h2>Examples<a class="headerlink" href="#id92" title="Link to this heading"></a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f_from_expression</span><span class="p">(</span><span class="s1">&#39;A AND NOT B&#39;</span><span class="p">)</span>
+<span class="go">(array([0, 0, 1, 0], dtype=uint8), array([&#39;A&#39;, &#39;B&#39;], dtype=&#39;&lt;U1&#39;))</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f_from_expression</span><span class="p">(</span><span class="s1">&#39;x1 + x2 + x3 &gt; 1&#39;</span><span class="p">)</span>
+<span class="go">(array([0, 0, 0, 1, 0, 1, 1, 1], dtype=uint8),</span>
+<span class="go"> array([&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;], dtype=&#39;&lt;U2&#39;))</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f_from_expression</span><span class="p">(</span><span class="s1">&#39;(x1 + x2 + x3) % 2 == 0&#39;</span><span class="p">)</span>
+<span class="go">(array([1, 0, 0, 1, 0, 1, 1, 0], dtype=uint8),</span>
+<span class="go"> array([&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;], dtype=&#39;&lt;U2&#39;))</span>
+</pre></div>
+</div>
 </section>
 </dd></dl>
 

@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Boolean network generation &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Ensemble experiments with random Boolean networks" href="tutorial10_ensemble_experiments_random_networks.html" />
+    <link rel="prev" title="Perturbation and sensitivity analysis of Boolean networks" href="tutorial08_network_stability.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial00_preface.html">Preface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial01_Boolean_functions.html">Working with Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_concepts.html">Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04_random_Boolean_function_generation.html">Random Boolean function generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05_ensemble_experiments_random_functions.html">Ensemble experiments with random Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06_boolean_networks.html">Working with Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07_network_dynamics.html">Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_network_stability.html">Perturbation and sensitivity analysis of Boolean networks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Random Boolean network generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Generating-random-wiring-diagrams">Generating random wiring diagrams</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Allowing-self-regulation">Allowing self-regulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Poisson-in-degree-distributions">Poisson in-degree distributions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Avoiding-output-nodes">Avoiding output nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Strong-connectedness">Strong connectedness</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Fixed-wiring-diagrams">Fixed wiring diagrams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Specifying-functional-constraints">Specifying functional constraints</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Parity-functions">Parity functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Canalizing-functions">Canalizing functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Biased-functions">Biased functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Random Boolean network generation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial09_random_Boolean_network_generation.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Random-Boolean-network-generation">
+<h1>Random Boolean network generation<a class="headerlink" href="#Random-Boolean-network-generation" title="Link to this heading"></a></h1>
+<p>This tutorial demonstrates how to generate <strong>random Boolean networks with controlled structural and functional properties</strong> using BoolForge. This ability enables ensemble studies, which are exemplified in the next tutorial.</p>
+<section id="What-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
+<p>In this tutorial you will learn how to generate random Boolean networks with</p>
+<ul class="simple">
+<li><p>prescribed structural properties (e.g., degree, degree distribution, strongly connected),</p></li>
+<li><p>prescribed functional properties (e.g., canalization, bias),</p></li>
+</ul>
+<p>It is strongly recommended to complete Tutorials 4 and 5 on random function generation first.</p>
+</section>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Generating-random-wiring-diagrams">
+<h2>Generating random wiring diagrams<a class="headerlink" href="#Generating-random-wiring-diagrams" title="Link to this heading"></a></h2>
+<p>The function <code class="docutils literal notranslate"><span class="pre">random_network(N,</span> <span class="pre">n,</span> <span class="pre">*args)</span></code> generates a random <span class="math notranslate nohighlight">\(N\)</span>-node Boolean network with degree parameter <code class="docutils literal notranslate"><span class="pre">n</span></code>. The generation follows a two-step process:</p>
+<ul class="simple">
+<li><p>A random wiring diagram is created using <code class="docutils literal notranslate"><span class="pre">random_wiring_diagram(N,</span> <span class="pre">n,</span> <span class="pre">*args)</span></code>.</p></li>
+<li><p>Random Boolean functions with prescribed properties are generated using <code class="docutils literal notranslate"><span class="pre">random_function(n,</span> <span class="pre">*args)</span></code>, which was discussed in depth in Tutorials 4 and 5.</p></li>
+</ul>
+<p>We first consider only the structural parameters that concern the generation of the random wiring diagram. In the absence of optional arguments, the in-degree distribution is assumed to be constant. That is, each node in the network is regulated by <code class="docutils literal notranslate"><span class="pre">n</span></code> nodes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_wiring_diagram</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">W</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial09_random_Boolean_network_generation_3_0.png" src="../_images/tutorials_tutorial09_random_Boolean_network_generation_3_0.png" />
+</div>
+</div>
+<p>The argument <code class="docutils literal notranslate"><span class="pre">rng</span></code> seeds the random number generator, ensuring reproducible results.</p>
+<p>The rest of this tutorial describes the various constraints / optional arguments. Each optional argument restricts the family of networks from which <code class="docutils literal notranslate"><span class="pre">random_wiring_diagram()</span></code> and <code class="docutils literal notranslate"><span class="pre">random_network()</span></code> samples.</p>
+<section id="Allowing-self-regulation">
+<h3>Allowing self-regulation<a class="headerlink" href="#Allowing-self-regulation" title="Link to this heading"></a></h3>
+<p>BoolForge selects the <code class="docutils literal notranslate"><span class="pre">n</span></code> regulators of each node uniformly at random from the set of all other nodes. Thus, self-regulation is disallowed by default. Setting <code class="docutils literal notranslate"><span class="pre">allow_self_loops=True</span></code> allows nodes to regulate themselves.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_wiring_diagram</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">allow_self_loops</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">rng</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">W</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial09_random_Boolean_network_generation_5_0.png" src="../_images/tutorials_tutorial09_random_Boolean_network_generation_5_0.png" />
+</div>
+</div>
+</section>
+<section id="Poisson-in-degree-distributions">
+<h3>Poisson in-degree distributions<a class="headerlink" href="#Poisson-in-degree-distributions" title="Link to this heading"></a></h3>
+<p>Classical random Boolean network theory (NK Kauffman models) assume a fixed in-degree, the default in BoolForge. However, this is a strong assumption since the in-degree in curated biological Boolean network models often appears approximately Poisson distributed. BoolForge provides the option to generate random wiring diagrams with Poisson distributed in-degree, using the optional parameter <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">W</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_wiring_diagram</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">indegree_distribution</span><span class="o">=</span><span class="s1">&#39;poisson&#39;</span><span class="p">,</span><span class="n">rng</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="n">W</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial09_random_Boolean_network_generation_7_0.png" src="../_images/tutorials_tutorial09_random_Boolean_network_generation_7_0.png" />
+</div>
+</div>
+<p>We see that some nodes (<span class="math notranslate nohighlight">\(x_1\)</span> and <span class="math notranslate nohighlight">\(x_3\)</span>) are only regulated by one node, while others (<span class="math notranslate nohighlight">\(x_0\)</span> and <span class="math notranslate nohighlight">\(x_4\)</span>) possess three regulators each.</p>
+<p>When using a Poisson-distributed in-degree, the in-degree of every node is always at least 1. This avoids the artificial creation of identity nodes (with in-degree 0).</p>
+</section>
+<section id="Avoiding-output-nodes">
+<h3>Avoiding output nodes<a class="headerlink" href="#Avoiding-output-nodes" title="Link to this heading"></a></h3>
+<p>In general, it is possible that some nodes in a generated Boolean network will not regulate other nodes. By setting <code class="docutils literal notranslate"><span class="pre">min_out_degree_one=True</span></code>, we can force every node to regulate at least one node. That is, output nodes can be disallowed.</p>
+</section>
+<section id="Strong-connectedness">
+<h3>Strong connectedness<a class="headerlink" href="#Strong-connectedness" title="Link to this heading"></a></h3>
+<p>The wiring diagram of the generated Boolean network may or may not be strongly connected. Setting <code class="docutils literal notranslate"><span class="pre">strongly_connected=True</span></code> (default False) forces strong connectedness. Uniform sampling among strongly connected networks cannot be achieved by a simple construction method. BoolForge therefore generates candidate networks and rejects them until a strongly connected network is obtained.</p>
+<p>Careful: When the number of nodes <code class="docutils literal notranslate"><span class="pre">N</span></code> is large and the degree <code class="docutils literal notranslate"><span class="pre">n</span></code> is small, this may take a long time. The number of unsuccessful attempts before raising an error is controlled by the optional parameter <code class="docutils literal notranslate"><span class="pre">max_strong_connectivity_attempts</span></code>.</p>
+</section>
+<section id="Fixed-wiring-diagrams">
+<h3>Fixed wiring diagrams<a class="headerlink" href="#Fixed-wiring-diagrams" title="Link to this heading"></a></h3>
+<p>All optional parameters discussed thus far describe properties of the wiring diagram. Instead of generating a new wiring diagram, an existing one (e.g., from a curated biological network model) can be passed directly to <code class="docutils literal notranslate"><span class="pre">random_network</span></code>.</p>
+<p>In that case, <code class="docutils literal notranslate"><span class="pre">random_network(I,</span> <span class="pre">*args)</span></code> does not require <code class="docutils literal notranslate"><span class="pre">N</span></code> and <code class="docutils literal notranslate"><span class="pre">n</span></code>, because these quantities are inferred from the wiring diagram, provided via optional parameter <code class="docutils literal notranslate"><span class="pre">I</span></code>. As described in detail in Tutorial 6, <code class="docutils literal notranslate"><span class="pre">I</span></code> can be either a <code class="docutils literal notranslate"><span class="pre">WiringDiagram</span></code> object or a list of lists describing the regulators of each node.</p>
+<p>For example, using the previously generated wiring diagram, we can write</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bn</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">I</span><span class="o">=</span><span class="n">W</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>This feature allows multiple Boolean networks with different update functions to be generated on the same wiring diagram.</p>
+</section>
+</section>
+<section id="Specifying-functional-constraints">
+<h2>Specifying functional constraints<a class="headerlink" href="#Specifying-functional-constraints" title="Link to this heading"></a></h2>
+<p>Once the wiring diagram is generated, the number of nodes <code class="docutils literal notranslate"><span class="pre">N</span></code> and the in-degree of each node are determined. In step 2, <code class="docutils literal notranslate"><span class="pre">random_network</span></code> now repeatedly calls <code class="docutils literal notranslate"><span class="pre">random_function</span></code> to generate the random Boolean functions. The optional parameters regulating the functional constraints are practically identical to the ones discussed in depth in Tutorial 4, with one important distinction: Most parameters can be sequences of length <code class="docutils literal notranslate"><span class="pre">N</span></code>, in order to specify distinct functional behavior for the
+different nodes.</p>
+<p>In the following, we summarize the key concepts.</p>
+<section id="Parity-functions">
+<h3>Parity functions<a class="headerlink" href="#Parity-functions" title="Link to this heading"></a></h3>
+<p>If <code class="docutils literal notranslate"><span class="pre">parity=True</span></code> (default False), parity functions (also known as linear functions) are chosen for all nodes. Note that for any degree <code class="docutils literal notranslate"><span class="pre">n</span></code>, there are only two parity functions.</p>
+</section>
+<section id="Canalizing-functions">
+<h3>Canalizing functions<a class="headerlink" href="#Canalizing-functions" title="Link to this heading"></a></h3>
+<p>If a specific <code class="docutils literal notranslate"><span class="pre">layer_structure</span></code> is provided, all functions possess at least these canalizing layers.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bn</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">layer_structure</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">rng</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">f</span><span class="o">.</span><span class="n">get_layer_structure</span><span class="p">()[</span><span class="s1">&#39;LayerStructure&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[0 1 1 0 0 0 0 0] [1]
+[0 0 1 1 0 1 1 1] [1, 2]
+[0 0 0 0 0 0 0 1] [3]
+[1 1 1 0 1 1 1 1] [3]
+</pre></div></div>
+</div>
+<p>As we see, it is however possible for some functions to randomly possess more canalizing variables in a larger and/or more layers. To ensure <code class="docutils literal notranslate"><span class="pre">layer_structure</span></code> is interpreted as exact layer structure, set <code class="docutils literal notranslate"><span class="pre">exact_depth=True</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bn</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">layer_structure</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">exact_depth</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">rng</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">f</span><span class="o">.</span><span class="n">get_layer_structure</span><span class="p">()[</span><span class="s1">&#39;LayerStructure&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[0 1 1 0 0 0 0 0] [1]
+[1 0 1 1 0 1 1 1] [1]
+[1 1 0 1 0 1 1 1] [1]
+[0 1 1 0 1 1 1 1] [1]
+</pre></div></div>
+</div>
+<p>Rather than specifying the exact layer structure, we can also describe the desired <em>canalizing depth</em> (i.e., the number of conditionally canalizing variables) via <code class="docutils literal notranslate"><span class="pre">depth</span></code>. As before, the optional argument <code class="docutils literal notranslate"><span class="pre">exact_depth</span></code> (default False) determines if <code class="docutils literal notranslate"><span class="pre">depth</span></code> is interpreted as exact canalizing depth, or as minimum canalizing depth.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Boolean network whose rules all have minimal canalizing depth 1</span>
+<span class="n">bn1</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">exact_depth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">rng</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn1</span><span class="o">.</span><span class="n">F</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">(),</span><span class="n">f</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="c1">#Boolean network whose rules all have exact canalizing depth 1</span>
+<span class="n">bn2</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">exact_depth</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">rng</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn2</span><span class="o">.</span><span class="n">F</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">(),</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1 [0 1 1 0 0 0 0 0]
+3 [0 0 0 0 0 0 1 0]
+3 [1 1 0 0 1 1 1 0]
+3 [0 1 1 1 0 0 0 0]
+
+1 [0 1 1 0 0 0 0 0]
+1 [1 0 0 0 0 0 1 0]
+1 [1 1 0 1 0 1 1 1]
+1 [0 0 1 0 1 0 0 0]
+</pre></div></div>
+</div>
+<p>Most optional parameters (e.g., <code class="docutils literal notranslate"><span class="pre">n</span></code>, <code class="docutils literal notranslate"><span class="pre">depth</span></code>, <code class="docutils literal notranslate"><span class="pre">layer_structure</span></code>, <code class="docutils literal notranslate"><span class="pre">bias</span></code>, <code class="docutils literal notranslate"><span class="pre">absolute_bias</span></code>) can also be specified as sequences of length <code class="docutils literal notranslate"><span class="pre">N</span></code>. In that case, each entry applies to one node in the network, allowing different functional constraints for different nodes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bn</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span>
+    <span class="n">N</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">n</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span>
+    <span class="n">depth</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">exact_depth</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">(),</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+3 [1 1 1 1 0 1 1 1]
+1 [1 1 0 1 0 1 1 1]
+2 [1 1 0 1]
+0 [0 1 1 0]
+</pre></div></div>
+</div>
+</section>
+<section id="Biased-functions">
+<h3>Biased functions<a class="headerlink" href="#Biased-functions" title="Link to this heading"></a></h3>
+<p>When <code class="docutils literal notranslate"><span class="pre">parity=False</span></code> and all canalization parameters are also at their default values, <code class="docutils literal notranslate"><span class="pre">random_network</span></code> generates each update function with a specified <em>bias</em>, i.e.</p>
+<ul class="simple">
+<li><p>probability of output 1: <code class="docutils literal notranslate"><span class="pre">bias</span></code></p></li>
+<li><p>probability of output 0: <code class="docutils literal notranslate"><span class="pre">1-bias</span></code></p></li>
+</ul>
+<p>The unbiased case (<code class="docutils literal notranslate"><span class="pre">bias=0.5</span></code>) is the default. Instead of the bias, users can also specify the absolute bias to generate functions with a bimodal Hamming weight distribution. For BoolForge to use the parameter provided via <code class="docutils literal notranslate"><span class="pre">absolute_bias</span></code>, <code class="docutils literal notranslate"><span class="pre">use_absolute_bias=True</span></code> is required. The default is <code class="docutils literal notranslate"><span class="pre">use_absolute_bias=False</span></code>, i.e., by default <code class="docutils literal notranslate"><span class="pre">bias</span></code> is used, resulting in a unimodal Hamming weight distribution.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1">#network size</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">4</span>   <span class="c1">#constant in-degree</span>
+
+<span class="n">bn1</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span><span class="n">bias</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+<span class="n">bn2</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span><span class="n">absolute_bias</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">use_absolute_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bn3</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span><span class="n">absolute_bias</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">bns</span> <span class="o">=</span> <span class="p">[</span><span class="n">bn1</span><span class="p">,</span><span class="n">bn2</span><span class="p">,</span><span class="n">bn3</span><span class="p">]</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bias = 0.75&quot;</span><span class="p">,</span> <span class="s2">&quot;absolute bias = 0.5&quot;</span><span class="p">,</span> <span class="s2">&quot;bias = 0.5 (balanced)&quot;</span><span class="p">]</span>
+<span class="n">possible_hamming_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">bn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bns</span><span class="p">):</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">:</span>
+        <span class="n">count</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">hamming_weight</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">possible_hamming_weights</span> <span class="o">-</span> <span class="n">width</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">width</span><span class="p">,</span>
+           <span class="n">count</span> <span class="o">/</span> <span class="n">N</span><span class="p">,</span>
+           <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">possible_hamming_weights</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Hamming weight&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Proportion of update functions&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial09_random_Boolean_network_generation_19_0.png" src="../_images/tutorials_tutorial09_random_Boolean_network_generation_19_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Summary">
+<h2>Summary<a class="headerlink" href="#Summary" title="Link to this heading"></a></h2>
+<p>In this tutorial you learned how to:</p>
+<ul class="simple">
+<li><p>generate random wiring diagrams with prescribed structural constraints,</p></li>
+<li><p>generate, for each node in a wiring diagram, random update functions with prescribed functional constraints.</p></li>
+</ul>
+<p>In the next tutorial, we will explore several situations, in which the ability to generate large ensembles of controlled random Boolean networks is very useful.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial08_network_stability.html" class="btn btn-neutral float-left" title="Perturbation and sensitivity analysis of Boolean networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial10_ensemble_experiments_random_networks.html" class="btn btn-neutral float-right" title="Ensemble experiments with random Boolean networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

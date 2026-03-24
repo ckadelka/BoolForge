@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>boolforge.bio_models &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
@@ -103,21 +103,28 @@
 <span class="sd">Example</span>
 <span class="sd">-------</span>
 <span class="sd">&gt;&gt;&gt; from boolforge import bio_models</span>
-<span class="sd">&gt;&gt;&gt; result = bio_models.get_bio_models_from_repository(&#39;expert-curated (ckadelka)&#39;)</span>
+<span class="sd">&gt;&gt;&gt; result = bio_models.get_bio_models_from_repository(&#39;&#39;)</span>
 <span class="sd">&gt;&gt;&gt; len(result[&#39;BooleanNetworks&#39;])</span>
 <span class="sd">122</span>
-<span class="sd">&gt;&gt;&gt; result[&#39;BooleanNetworks&#39;][0].variables[:5]</span>
-<span class="sd">[&#39;GeneA&#39;, &#39;GeneB&#39;, &#39;GeneC&#39;, &#39;GeneD&#39;, &#39;GeneE&#39;]</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">boolforge.boolean_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanNetwork</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">boolean_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanNetwork</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+        <span class="s2">&quot;The optional dependency &#39;requests&#39; is required for bio_models. &quot;</span>
+        <span class="s2">&quot;Install it with `pip install requests`.&quot;</span>
+    <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.boolean_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanNetwork</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;load_model&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_bio_models_from_repository&#39;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_content_in_remote_folder</span><span class="p">(</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -162,8 +169,6 @@
                     <span class="n">e</span><span class="p">,</span>
                 <span class="p">)</span>
 
-<div class="viewcode-block" id="get_content_in_remote_folder">
-<a class="viewcode-back" href="../../bio_models.html#boolforge.bio_models.get_content_in_remote_folder">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_content_in_remote_folder</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Retrieve file names and raw download URLs from a GitHub repository folder.</span>
@@ -184,12 +189,9 @@
     <span class="n">file_names</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">file_download_urls</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">_get_content_in_remote_folder</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_names</span><span class="p">,</span> <span class="n">file_download_urls</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">file_names</span><span class="p">,</span> <span class="n">file_download_urls</span></div>
+    <span class="k">return</span> <span class="n">file_names</span><span class="p">,</span> <span class="n">file_download_urls</span>
 
 
-
-<div class="viewcode-block" id="fetch_file">
-<a class="viewcode-back" href="../../bio_models.html#boolforge.bio_models.fetch_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fetch_file</span><span class="p">(</span><span class="n">download_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Download raw text content from a remote file.</span>
@@ -206,12 +208,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">download_url</span><span class="p">)</span>
     <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span></div>
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
 
 
-
-<div class="viewcode-block" id="fetch_file_bytes">
-<a class="viewcode-back" href="../../bio_models.html#boolforge.bio_models.fetch_file_bytes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fetch_file_bytes</span><span class="p">(</span><span class="n">download_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Download raw binary content from a remote file.</span>
@@ -228,8 +227,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">download_url</span><span class="p">)</span>
     <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span></div>
-
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span>
 
 
 <div class="viewcode-block" id="load_model">
@@ -237,11 +235,9 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span>
     <span class="n">download_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">max_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span>
-    <span class="n">possible_separators</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;* =&#39;</span><span class="p">,</span> <span class="s1">&#39;*=&#39;</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="p">],</span>
-    <span class="n">original_not</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;NOT&#39;</span><span class="p">,</span>
-    <span class="n">original_and</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;AND&#39;</span><span class="p">,</span>
-    <span class="n">original_or</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;OR&#39;</span><span class="p">,</span>
-    <span class="n">IGNORE_FIRST_LINE</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">possible_separators</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;* =&#39;</span><span class="p">,</span> <span class="s1">&#39;*=&#39;</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="p">],</span>
+    <span class="n">ignore_first_line</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">simplify_functions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanNetwork</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load and parse a Boolean network model from a remote text file.</span>
@@ -254,15 +250,12 @@
 <span class="sd">        Maximum allowed in-degree for nodes (default: 24).</span>
 <span class="sd">    possible_separators : list[str], optional</span>
 <span class="sd">        Possible assignment separators used in the model file.</span>
-<span class="sd">    original_not : str, optional</span>
-<span class="sd">        Logical negation operator used in the model file.</span>
-<span class="sd">    original_and : str, optional</span>
-<span class="sd">        Logical AND operator used in the model file.</span>
-<span class="sd">    original_or : str, optional</span>
-<span class="sd">        Logical OR operator used in the model file.</span>
-<span class="sd">    IGNORE_FIRST_LINE : bool, optional</span>
+<span class="sd">    ignore_first_line : bool, optional</span>
 <span class="sd">        If True, skip the first line of the file (default: False).</span>
-
+<span class="sd">    simplify_functions : bool, optional</span>
+<span class="sd">        If True, Boolean update functions are simplified after initialization.</span>
+<span class="sd">        Default is False.</span>
+<span class="sd">        </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    BooleanNetwork</span>
@@ -274,24 +267,33 @@
 <span class="sd">        If the model cannot be parsed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">string</span> <span class="o">=</span> <span class="n">fetch_file</span><span class="p">(</span><span class="n">download_url</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">IGNORE_FIRST_LINE</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="n">ignore_first_line</span><span class="p">:</span>
         <span class="n">string</span> <span class="o">=</span> <span class="n">string</span><span class="p">[</span><span class="n">string</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">bn</span> <span class="o">=</span> <span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span>
-            <span class="n">string</span><span class="p">,</span>
-            <span class="n">possible_separators</span><span class="p">,</span>
-            <span class="n">max_degree</span><span class="p">,</span>
-            <span class="n">original_not</span><span class="p">,</span>
-            <span class="n">original_and</span><span class="p">,</span>
-            <span class="n">original_or</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Failed to parse Boolean network model from </span><span class="si">{</span><span class="n">download_url</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">sep</span> <span class="ow">in</span> <span class="n">possible_separators</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span>
+                <span class="n">string</span><span class="p">,</span>
+                <span class="n">separator</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span>
+                <span class="n">max_degree</span><span class="o">=</span><span class="n">max_degree</span><span class="p">,</span>
+                <span class="n">simplify_functions</span><span class="o">=</span><span class="n">simplify_functions</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sep</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">bn</span></div>
+    <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;separator &#39;</span><span class="si">{</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39; failed with: </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">sep</span><span class="p">,</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">errors</span>
+    <span class="p">)</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Failed to parse Boolean network model from </span><span class="si">{</span><span class="n">download_url</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;using any separator.</span><span class="se">\n</span><span class="s2">Attempted separators: </span><span class="si">{</span><span class="n">possible_separators</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Errors:</span><span class="se">\n</span><span class="si">{</span><span class="n">error_msg</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_bio_models_from_repository">
@@ -299,6 +301,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_bio_models_from_repository</span><span class="p">(</span>
     <span class="n">repository</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;expert-curated (ckadelka)&#39;</span><span class="p">,</span>
     <span class="n">download_urls_pystablemotifs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span>
+    <span class="n">simplify_functions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load Boolean network models from selected online repositories.</span>
@@ -320,6 +324,11 @@
 <span class="sd">        Optional list of direct download URLs for PyStableMotifs models.</span>
 <span class="sd">        If provided, these URLs are used instead of querying the GitHub API (faster).</span>
 <span class="sd">        If None (default), model URLs are fetched dynamically from GitHub.</span>
+<span class="sd">    max_degree : int, optional</span>
+<span class="sd">        Maximum allowed in-degree for nodes (default: 24).</span>
+<span class="sd">    simplify_functions : bool, optional</span>
+<span class="sd">        If True, Boolean update functions are simplified after initialization.</span>
+<span class="sd">        Default is False.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -365,13 +374,16 @@
                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">constants</span><span class="p">)):</span>
                             <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
                             <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
-                        <span class="n">bn</span> <span class="o">=</span> <span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">var</span> <span class="o">+</span> <span class="n">constants</span><span class="p">)</span>
+                        <span class="n">bn</span> <span class="o">=</span> <span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> 
+                                            <span class="n">I</span><span class="p">,</span> 
+                                            <span class="n">var</span> <span class="o">+</span> <span class="n">constants</span><span class="p">,</span>
+                                            <span class="n">simplify_functions</span><span class="o">=</span><span class="n">simplify_functions</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">bn</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span>
                             <span class="n">download_url</span><span class="p">,</span>
-                            <span class="n">original_and</span><span class="o">=</span><span class="s2">&quot; AND &quot;</span><span class="p">,</span>
-                            <span class="n">original_or</span><span class="o">=</span><span class="s2">&quot; OR &quot;</span><span class="p">,</span>
-                            <span class="n">original_not</span><span class="o">=</span><span class="s2">&quot; NOT &quot;</span><span class="p">,</span>
+                            <span class="n">possible_separators</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;=&#39;</span><span class="p">],</span>
+                            <span class="n">simplify_functions</span><span class="o">=</span><span class="n">simplify_functions</span><span class="p">,</span>
+                            <span class="n">max_degree</span> <span class="o">=</span> <span class="n">max_degree</span><span class="p">,</span>
                         <span class="p">)</span>
 
                     <span class="n">successful_download_urls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">download_url</span><span class="p">)</span>
@@ -393,9 +405,11 @@
                     <span class="n">bn</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span>
                         <span class="n">download_url</span><span class="p">,</span>
                         <span class="n">possible_separators</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;*    =&#39;</span><span class="p">,</span> <span class="s1">&#39;*   =&#39;</span><span class="p">,</span> <span class="s1">&#39;*  =&#39;</span><span class="p">,</span> <span class="s1">&#39;* =&#39;</span><span class="p">,</span> <span class="s1">&#39;*=&#39;</span><span class="p">],</span>
-                        <span class="n">original_and</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot; and &quot;</span><span class="p">,</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">],</span>
-                        <span class="n">original_or</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot; or &quot;</span><span class="p">,</span> <span class="s2">&quot;|&quot;</span><span class="p">],</span>
-                        <span class="n">original_not</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot; not &quot;</span><span class="p">,</span> <span class="s2">&quot; !&quot;</span><span class="p">],</span>
+                        <span class="c1"># original_and=[&quot; and &quot;, &quot;&amp;&quot;],</span>
+                        <span class="c1"># original_or=[&quot; or &quot;, &quot;|&quot;],</span>
+                        <span class="c1"># original_not=[&quot; not &quot;, &quot; !&quot;],</span>
+                        <span class="n">simplify_functions</span><span class="o">=</span><span class="n">simplify_functions</span><span class="p">,</span>
+                        <span class="n">max_degree</span> <span class="o">=</span> <span class="n">max_degree</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">successful_download_urls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">download_url</span><span class="p">)</span>
                     <span class="n">bns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bn</span><span class="p">)</span>
@@ -420,10 +434,12 @@
                 <span class="p">)</span>
                 <span class="n">bn</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span>
                     <span class="n">download_url</span><span class="p">,</span>
-                    <span class="n">original_and</span><span class="o">=</span><span class="s2">&quot; &amp; &quot;</span><span class="p">,</span>
-                    <span class="n">original_or</span><span class="o">=</span><span class="s2">&quot; | &quot;</span><span class="p">,</span>
-                    <span class="n">original_not</span><span class="o">=</span><span class="s2">&quot;!&quot;</span><span class="p">,</span>
-                    <span class="n">IGNORE_FIRST_LINE</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="c1"># original_and=&quot; &amp; &quot;,</span>
+                    <span class="c1"># original_or=&quot; | &quot;,</span>
+                    <span class="c1"># original_not=&quot;!&quot;,</span>
+                    <span class="n">ignore_first_line</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">simplify_functions</span><span class="o">=</span><span class="n">simplify_functions</span><span class="p">,</span>
+                    <span class="n">max_degree</span><span class="o">=</span><span class="n">max_degree</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">successful_download_urls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">download_url</span><span class="p">)</span>
                 <span class="n">bns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bn</span><span class="p">)</span>

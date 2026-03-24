@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Utils &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -55,8 +55,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.bin2dec"><code class="docutils literal notranslate"><span class="pre">bin2dec()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.dec2bin"><code class="docutils literal notranslate"><span class="pre">dec2bin()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.bool_to_poly"><code class="docutils literal notranslate"><span class="pre">bool_to_poly()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.f_from_expression"><code class="docutils literal notranslate"><span class="pre">f_from_expression()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.hamming_weight_to_ncf_layer_structure"><code class="docutils literal notranslate"><span class="pre">hamming_weight_to_ncf_layer_structure()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.get_left_side_of_truth_table"><code class="docutils literal notranslate"><span class="pre">get_left_side_of_truth_table()</span></code></a></li>
 </ul>
@@ -110,10 +108,10 @@ the stable public API.</p>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">boolforge</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">utils</span><span class="o">.</span><span class="n">bin2dec</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boolforge</span><span class="o">.</span><span class="n">bin2dec</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="go">5</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">utils</span><span class="o">.</span><span class="n">dec2bin</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">boolforge</span><span class="o">.</span><span class="n">dec2bin</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 <span class="go">array([1, 0, 1])</span>
 </pre></div>
 </div>
@@ -194,114 +192,6 @@ significant bits are truncated.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="boolforge.utils.bool_to_poly">
-<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">bool_to_poly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#bool_to_poly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.bool_to_poly" title="Link to this definition"></a></dt>
-<dd><p>Convert a Boolean function from truth-table form to disjunctive normal form.</p>
-<p>The returned expression is a non-reduced disjunctive normal form (DNF),
-expressed as a sum of monomials corresponding to truth-table entries where
-the function evaluates to 1.</p>
-<section id="id7">
-<h2>Parameters<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>f<span class="classifier">list</span></dt><dd><p>Boolean function values ordered according to the standard truth-table
-convention. The length of <code class="docutils literal notranslate"><span class="pre">f</span></code> must be <code class="docutils literal notranslate"><span class="pre">2**n</span></code> for some integer <code class="docutils literal notranslate"><span class="pre">n</span></code>.</p>
-</dd>
-<dt>variables<span class="classifier">list of str or None, optional</span></dt><dd><p>Variable names to use in the expression. If None or if the length does
-not match the required number of variables, default names
-<code class="docutils literal notranslate"><span class="pre">['x0',</span> <span class="pre">'x1',</span> <span class="pre">...,</span> <span class="pre">'x{n-1}']</span></code> are used.</p>
-</dd>
-<dt>prefix<span class="classifier">str, optional</span></dt><dd><p>Prefix for automatically generated variable names. Ignored if
-<code class="docutils literal notranslate"><span class="pre">variables</span></code> is provided with the correct length.</p>
-</dd>
-</dl>
-</section>
-<section id="id8">
-<h2>Returns<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>str</dt><dd><p>Boolean expression in non-reduced disjunctive normal form. Returns
-<code class="docutils literal notranslate"><span class="pre">'0'</span></code> if the function is identically zero.</p>
-</dd>
-</dl>
-</section>
-<section id="id9">
-<h2>Notes<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Variables are ordered from most significant bit to least significant bit.</p></li>
-<li><p>Each monomial corresponds to a single truth-table row where <code class="docutils literal notranslate"><span class="pre">f</span> <span class="pre">==</span> <span class="pre">1</span></code>.</p></li>
-<li><p>No simplification or reduction of the DNF is performed.</p></li>
-</ul>
-</section>
-<section id="id10">
-<h2>Examples<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bool_to_poly</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="go">&#39;(1 - x0) * x1 + x0 * (1 - x1)&#39;</span>
-</pre></div>
-</div>
-</section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="boolforge.utils.f_from_expression">
-<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">f_from_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#f_from_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.f_from_expression" title="Link to this definition"></a></dt>
-<dd><p>Construct a Boolean function from a string expression.</p>
-<p>The expression is evaluated symbolically over all Boolean input
-combinations to produce the truth table of the corresponding Boolean
-function. Variables are detected automatically based on their first
-occurrence in the expression.</p>
-<section id="id11">
-<h2>Parameters<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>expr<span class="classifier">str</span></dt><dd><p>Boolean expression to evaluate. The expression may contain logical
-operators (<code class="docutils literal notranslate"><span class="pre">AND</span></code>, <code class="docutils literal notranslate"><span class="pre">OR</span></code>, <code class="docutils literal notranslate"><span class="pre">NOT</span></code> or their lowercase equivalents),
-arithmetic operators, and comparisons.</p>
-</dd>
-<dt>max_degree<span class="classifier">int, optional</span></dt><dd><p>Maximum number of variables allowed. If the number of detected
-variables exceeds <code class="docutils literal notranslate"><span class="pre">max_degree</span></code>, an empty truth table is returned.</p>
-</dd>
-</dl>
-</section>
-<section id="id12">
-<h2>Returns<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>f<span class="classifier">np.ndarray</span></dt><dd><p>Boolean function values as an array of shape <code class="docutils literal notranslate"><span class="pre">(2**n,)</span></code> with entries
-in <code class="docutils literal notranslate"><span class="pre">{0,</span> <span class="pre">1}</span></code>, where <code class="docutils literal notranslate"><span class="pre">n</span></code> is the number of detected variables.</p>
-</dd>
-<dt>variables<span class="classifier">np.ndarray</span></dt><dd><p>Variable names in the order they were first encountered in the
-expression.</p>
-</dd>
-</dl>
-</section>
-<section id="id13">
-<h2>Notes<a class="headerlink" href="#id13" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Variables are ordered by first occurrence in <code class="docutils literal notranslate"><span class="pre">expr</span></code>.</p></li>
-<li><p>Truth-table rows follow the standard lexicographic ordering with the
-most significant bit first.</p></li>
-<li><p>The expression is evaluated using <code class="docutils literal notranslate"><span class="pre">eval</span></code> with restricted builtins.</p></li>
-<li><p>No syntactic or semantic validation of <code class="docutils literal notranslate"><span class="pre">expr</span></code> is performed beyond
-basic parsing.</p></li>
-</ul>
-</section>
-<section id="id14">
-<h2>Examples<a class="headerlink" href="#id14" title="Link to this heading"></a></h2>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f_from_expression</span><span class="p">(</span><span class="s1">&#39;A AND NOT B&#39;</span><span class="p">)</span>
-<span class="go">(array([0, 0, 1, 0], dtype=uint8), array([&#39;A&#39;, &#39;B&#39;], dtype=&#39;&lt;U1&#39;))</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f_from_expression</span><span class="p">(</span><span class="s1">&#39;x1 + x2 + x3 &gt; 1&#39;</span><span class="p">)</span>
-<span class="go">(array([0, 0, 0, 1, 0, 1, 1, 1], dtype=uint8),</span>
-<span class="go"> array([&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;], dtype=&#39;&lt;U2&#39;))</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f_from_expression</span><span class="p">(</span><span class="s1">&#39;(x1 + x2 + x3) % 2 == 0&#39;</span><span class="p">)</span>
-<span class="go">(array([1, 0, 0, 1, 0, 1, 1, 0], dtype=uint8),</span>
-<span class="go"> array([&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;], dtype=&#39;&lt;U2&#39;))</span>
-</pre></div>
-</div>
-</section>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="boolforge.utils.hamming_weight_to_ncf_layer_structure">
 <span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">hamming_weight_to_ncf_layer_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#hamming_weight_to_ncf_layer_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.hamming_weight_to_ncf_layer_structure" title="Link to this definition"></a></dt>
 <dd><p>Compute the canalizing layer structure of a nested canalizing function (NCF)
@@ -309,8 +199,8 @@ from its Hamming weight.</p>
 <p>For nested canalizing functions, there is a bijection between the (odd)
 Hamming weight <code class="docutils literal notranslate"><span class="pre">w</span></code> and the canalizing layer structure, with <code class="docutils literal notranslate"><span class="pre">w</span></code> and
 <code class="docutils literal notranslate"><span class="pre">2**n</span> <span class="pre">-</span> <span class="pre">w</span></code> corresponding to the same structure.</p>
-<section id="id15">
-<h2>Parameters<a class="headerlink" href="#id15" title="Link to this heading"></a></h2>
+<section id="id7">
+<h2>Parameters<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>n<span class="classifier">int</span></dt><dd><p>Number of input variables of the NCF.</p>
 </dd>
@@ -318,8 +208,8 @@ Hamming weight <code class="docutils literal notranslate"><span class="pre">w</s
 </dd>
 </dl>
 </section>
-<section id="id16">
-<h2>Returns<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
+<section id="id8">
+<h2>Returns<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>list of int</dt><dd><p>Canalizing layer structure <code class="docutils literal notranslate"><span class="pre">[k_1,</span> <span class="pre">...,</span> <span class="pre">k_r]</span></code>.</p>
 </dd>
@@ -334,8 +224,8 @@ Hamming weight <code class="docutils literal notranslate"><span class="pre">w</s
 </dd>
 </dl>
 </section>
-<section id="id17">
-<h2>Notes<a class="headerlink" href="#id17" title="Link to this heading"></a></h2>
+<section id="id9">
+<h2>Notes<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>All nested canalizing functions have odd Hamming weight.</p></li>
 <li><p>The binary expansion of <code class="docutils literal notranslate"><span class="pre">w</span></code> (with <code class="docutils literal notranslate"><span class="pre">n</span></code> bits) determines the layer
@@ -357,31 +247,31 @@ Physica D: Nonlinear Phenomena, 353, 39-47.</p>
 <p>The left-hand side is the binary representation of all <code class="docutils literal notranslate"><span class="pre">2**N</span></code> input
 combinations for <code class="docutils literal notranslate"><span class="pre">N</span></code> Boolean variables, ordered lexicographically from
 <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">2**N</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
-<section id="id18">
-<h2>Parameters<a class="headerlink" href="#id18" title="Link to this heading"></a></h2>
+<section id="id10">
+<h2>Parameters<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>N<span class="classifier">int</span></dt><dd><p>Number of Boolean variables.</p>
 </dd>
 </dl>
 </section>
-<section id="id19">
-<h2>Returns<a class="headerlink" href="#id19" title="Link to this heading"></a></h2>
+<section id="id11">
+<h2>Returns<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>np.ndarray</dt><dd><p>Array of shape <code class="docutils literal notranslate"><span class="pre">(2**N,</span> <span class="pre">N)</span></code> with entries in <code class="docutils literal notranslate"><span class="pre">{0,</span> <span class="pre">1}</span></code>. Columns are
 ordered from most significant bit to least significant bit.</p>
 </dd>
 </dl>
 </section>
-<section id="id20">
-<h2>Notes<a class="headerlink" href="#id20" title="Link to this heading"></a></h2>
+<section id="id12">
+<h2>Notes<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The result is cached by <code class="docutils literal notranslate"><span class="pre">N</span></code> to avoid recomputation.</p></li>
 <li><p>Row <code class="docutils literal notranslate"><span class="pre">i</span></code> corresponds to the binary expansion of integer <code class="docutils literal notranslate"><span class="pre">i</span></code>.</p></li>
 <li><p>The most significant bit appears in column 0.</p></li>
 </ul>
 </section>
-<section id="id21">
-<h2>Examples<a class="headerlink" href="#id21" title="Link to this heading"></a></h2>
+<section id="id13">
+<h2>Examples<a class="headerlink" href="#id13" title="Link to this heading"></a></h2>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="go">array([[0, 0],</span>
 <span class="go">       [0, 1],</span>

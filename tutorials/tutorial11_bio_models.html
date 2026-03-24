@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Curated biological Boolean networks and null models &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Dynamics Decomposition" href="tutorial12_dynamics_decomposition.html" />
+    <link rel="prev" title="Ensemble experiments with random Boolean networks" href="tutorial10_ensemble_experiments_random_networks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial00_preface.html">Preface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial01_Boolean_functions.html">Working with Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_concepts.html">Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04_random_Boolean_function_generation.html">Random Boolean function generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05_ensemble_experiments_random_functions.html">Ensemble experiments with random Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06_boolean_networks.html">Working with Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07_network_dynamics.html">Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_network_stability.html">Perturbation and sensitivity analysis of Boolean networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Curated biological Boolean networks and null models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Loading-model-repositories">Loading model repositories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Analyzing-model-repositories">Analyzing model repositories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Null-models">Null models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Randomization-of-the-wiring-diagram">Randomization of the wiring diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Randomization-of-the-update-functions">Randomization of the update functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Example-use-case:-high-coherence-of-biological-networks">Example use case: high coherence of biological networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Curated biological Boolean networks and null models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial11_bio_models.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Curated-biological-Boolean-networks-and-null-models">
+<h1>Curated biological Boolean networks and null models<a class="headerlink" href="#Curated-biological-Boolean-networks-and-null-models" title="Link to this heading"></a></h1>
+<p>In this tutorial, we study how to analyze curated biological Boolean networks.</p>
+<section id="What-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
+<p>You will learn how to:</p>
+<ul class="simple">
+<li><p>load repositories of curated biological Boolean network models,</p></li>
+<li><p>analyze these models,</p></li>
+<li><p>generate null models to test the statistical significance of features in biological models.</p></li>
+</ul>
+<p>These tools enable real research findings, namely the identification of design principles of regulatory functions and networks.</p>
+</section>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">ttest_rel</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Loading-model-repositories">
+<h2>Loading model repositories<a class="headerlink" href="#Loading-model-repositories" title="Link to this heading"></a></h2>
+<p>BoolForge makes it very easy to load all models included in three different repositories of curated biological Boolean networks.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">get_bio_models_from_repository</span><span class="p">(</span><span class="n">simplify_functions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bns</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="s1">&#39;BooleanNetworks&#39;</span><span class="p">]</span>
+<span class="n">n_models</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bns</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The function <code class="docutils literal notranslate"><span class="pre">get_bio_models_from_repository</span></code> loads, by default, all 122 distinct biological Boolean network models, analyzed in <a class="reference external" href="https://www.science.org/doi/full/10.1126/sciadv.adj0822">Kadelka et al., Sci Adv, 2024</a>, and deposited in a <a class="reference external" href="https://github.com/ckadelka/DesignPrinciplesGeneNetworks">Github repository</a>. The models are parsed directly from the associated Github repository, meaning a wireless connection is required to successfully execute this function. Setting the optional
+parameter <code class="docutils literal notranslate"><span class="pre">simplify_functions=True</span></code> ensures that all update functions are non-degenerate. This is important for correct null model computation. By default, because this procedure may be very time-confusing for networks with very high degree, <code class="docutils literal notranslate"><span class="pre">simplify_functions=False</span></code>. Note that any <code class="docutils literal notranslate"><span class="pre">BooleanNetwork</span></code> object <code class="docutils literal notranslate"><span class="pre">bn</span></code> can be simplified at any time, using <code class="docutils literal notranslate"><span class="pre">bn.simplify_functions()</span></code>.</p>
+<p>Models from the two other available repositories can be loaded by selecting the respective Github repository name:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/jcrozum/pystablemotifs">‘pystablemotifs (jcrozum)’</a></p></li>
+<li><p><a class="reference external" href="https://github.com/sybila/biodivine-boolean-models">‘biodivine (sybila)’</a></p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models_sm</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">get_bio_models_from_repository</span><span class="p">(</span><span class="s1">&#39;pystablemotifs (jcrozum)&#39;</span><span class="p">,</span>
+                                              <span class="n">simplify_functions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bns_sm</span> <span class="o">=</span> <span class="n">models_sm</span><span class="p">[</span><span class="s1">&#39;BooleanNetworks&#39;</span><span class="p">]</span>
+<span class="n">n_models_sm</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bns_sm</span><span class="p">)</span>
+
+<span class="c1">#models_bd = boolforge.get_bio_models_from_repository(&#39;biodivine (sybila)&#39;,</span>
+<span class="c1">#                                                     simplify_functions=True)</span>
+<span class="c1">#n_models_bd = len(models_bd)</span>
+<span class="c1">#bns_bd = models_bd[&#39;BooleanNetworks&#39;]</span>
+</pre></div>
+</div>
+</div>
+<p>Note that the last repository is very large, which is why this code is commented out.</p>
+</section>
+<section id="Analyzing-model-repositories">
+<h2>Analyzing model repositories<a class="headerlink" href="#Analyzing-model-repositories" title="Link to this heading"></a></h2>
+<p>By applying BoolForge functions to all models in a repository, we can swiftly generate summary statistics, such as the size distribution of the models, or their average degree.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">bn</span><span class="o">.</span><span class="n">N</span> <span class="k">for</span> <span class="n">bn</span> <span class="ow">in</span> <span class="n">bns</span><span class="p">]</span>
+<span class="n">average_degrees</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span> <span class="k">for</span> <span class="n">bn</span> <span class="ow">in</span> <span class="n">bns</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Plotting the size of a model against its average essential degree (essential because we removed all non-essential inputs by setting <code class="docutils literal notranslate"><span class="pre">simplify_functions=True</span></code>), we observe that, for these models, there exists no strong correlation between size and degree.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sizes_sm</span> <span class="o">=</span> <span class="p">[</span><span class="n">bn</span><span class="o">.</span><span class="n">N</span> <span class="k">for</span> <span class="n">bn</span> <span class="ow">in</span> <span class="n">bns_sm</span><span class="p">]</span>
+<span class="n">average_degrees_sm</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span> <span class="k">for</span> <span class="n">bn</span> <span class="ow">in</span> <span class="n">bns_sm</span><span class="p">]</span>
+
+<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">sizes</span><span class="p">,</span><span class="n">average_degrees</span><span class="p">,</span><span class="s1">&#39;rx&#39;</span><span class="p">,</span><span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;expert-curated (ckadelka)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">sizes_sm</span><span class="p">,</span><span class="n">average_degrees_sm</span><span class="p">,</span><span class="s1">&#39;bo&#39;</span><span class="p">,</span><span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;pystablemotifs (jcrozum)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;network size&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;average essential degree&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial11_bio_models_10_0.png" src="../_images/tutorials_tutorial11_bio_models_10_0.png" />
+</div>
+</div>
+</section>
+<section id="Null-models">
+<h2>Null models<a class="headerlink" href="#Null-models" title="Link to this heading"></a></h2>
+<p>Observed properties of Boolean networks are often difficult to interpret in isolation. For example, a network may exhibit a certain number of attractors, a particular robustness to perturbations, or a specific Derrida value. However, it is not immediately clear whether such properties are meaningful or simply typical for networks with the same size and structural characteristics.</p>
+<p>To address this question, researchers compare observed networks with <strong>null models</strong>: randomly generated Boolean networks that preserve selected structural features, such as the number of nodes, the wiring diagram, or the bias of regulatory functions. By analyzing ensembles of such randomized networks, it becomes possible to determine whether the behavior of a given network is unusual or expected.</p>
+<p>The BoolForge function <code class="docutils literal notranslate"><span class="pre">random_null_model(BooleanNetwork,</span> <span class="pre">*args)</span></code> provides extensive tools for generating these null models and for performing ensemble-based analyses that connect structural properties of Boolean functions and networks with their dynamical behavior.</p>
+<p>The function takes as required input a Boolean network. Important: This network may not contain any degenerate update functions. If it does, these functions must be simplified via <code class="docutils literal notranslate"><span class="pre">bn.simplify_functions()</span></code> prior to generating null models. The avoid repeating this step many times, this simplification is not performed inside <code class="docutils literal notranslate"><span class="pre">random_null_model</span></code>. The type of null model is specified by optional arguments. Both the wiring diagram and the Boolean update rules can be randomized subject to specified
+invariants.</p>
+<section id="Randomization-of-the-wiring-diagram">
+<h3>Randomization of the wiring diagram<a class="headerlink" href="#Randomization-of-the-wiring-diagram" title="Link to this heading"></a></h3>
+<p>By default, the wiring diagram of the provided Boolean network is not changed. However, setting <code class="docutils literal notranslate"><span class="pre">wiring_diagram=&quot;fixed_indegree&quot;</span></code> generates a new wiring diagram using <code class="docutils literal notranslate"><span class="pre">random_wiring_diagram</span></code>. Each node in the new wiring diagram has exactly the same in-degree as in the provided Boolean network.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bn_orig</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">indegree_distribution</span><span class="o">=</span><span class="s1">&#39;Poisson&#39;</span><span class="p">,</span> <span class="n">rng</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">bn_null</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_null_model</span><span class="p">(</span><span class="n">bn_orig</span><span class="p">,</span> <span class="n">wiring_diagram</span><span class="o">=</span><span class="s1">&#39;fixed_indegree&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_orig.in-degrees:&#39;</span><span class="p">,</span><span class="n">bn_orig</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null.in-degrees:&#39;</span><span class="p">,</span><span class="n">bn_null</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_orig.out-degrees:&#39;</span><span class="p">,</span><span class="n">bn_orig</span><span class="o">.</span><span class="n">outdegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null.out-degrees:&#39;</span><span class="p">,</span><span class="n">bn_null</span><span class="o">.</span><span class="n">outdegrees</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+bn_orig.in-degrees: [1 2 1 2 1 2 3 2]
+bn_null.in-degrees: [1 2 1 2 1 2 3 2]
+
+bn_orig.out-degrees: [4 3 1 0 1 0 1 4]
+bn_null.out-degrees: [2 2 1 3 0 1 3 2]
+</pre></div></div>
+</div>
+<p>We see that the in-degrees of the original Boolean network are preserved, while the out-degrees change substantially. Additional optional arguments in the <code class="docutils literal notranslate"><span class="pre">fixed_indegree</span></code> mode include <code class="docutils literal notranslate"><span class="pre">strongly_connected</span></code>, <code class="docutils literal notranslate"><span class="pre">allow_self_loops</span></code>, and <code class="docutils literal notranslate"><span class="pre">min_out_degree_one</span></code>, as described in detail in Tutorial 9.</p>
+<p>A more constrained null model fixes the out-degree in addition to the in-degree. This can be obtained by setting <code class="docutils literal notranslate"><span class="pre">wiring_diagram=&quot;fixed_in_and_outdegree&quot;</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bn_orig</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">indegree_distribution</span><span class="o">=</span><span class="s1">&#39;Poisson&#39;</span><span class="p">,</span> <span class="n">rng</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">bn_null</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_null_model</span><span class="p">(</span><span class="n">bn_orig</span><span class="p">,</span> <span class="n">wiring_diagram</span><span class="o">=</span><span class="s1">&#39;fixed_in_and_outdegree&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_orig.in-degrees:&#39;</span><span class="p">,</span><span class="n">bn_orig</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null.in-degrees:&#39;</span><span class="p">,</span><span class="n">bn_null</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_orig.out-degrees:&#39;</span><span class="p">,</span><span class="n">bn_orig</span><span class="o">.</span><span class="n">outdegrees</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null.out-degrees:&#39;</span><span class="p">,</span><span class="n">bn_null</span><span class="o">.</span><span class="n">outdegrees</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+bn_orig.in-degrees: [1 2 1 2 1 2 3 2]
+bn_null.in-degrees: [1 2 1 2 1 2 3 2]
+
+bn_orig.out-degrees: [4 3 1 0 1 0 1 4]
+bn_null.out-degrees: [4 3 1 0 1 0 1 4]
+</pre></div></div>
+</div>
+<p>In the <code class="docutils literal notranslate"><span class="pre">fixed_in_and_outdegree</span></code> mode, the original wiring diagram is rewired through an edge-swapping algorithm. Additional optional arguments that can be used in this mode include <code class="docutils literal notranslate"><span class="pre">allow_new_self_loops</span></code> and <code class="docutils literal notranslate"><span class="pre">allow_self_loop_rewiring</span></code>.</p>
+</section>
+<section id="Randomization-of-the-update-functions">
+<h3>Randomization of the update functions<a class="headerlink" href="#Randomization-of-the-update-functions" title="Link to this heading"></a></h3>
+<p>In addition to the wiring diagram, the Boolean update functions can also be randomized. This behavior is controlled by two Boolean flags:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">preserve_bias</span></code>: If True (default), the newly generated update function of each node has the same Hamming weight (number of ones in the truth table) as the original update function.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">preserve_canalizing_depth</span></code>: If True (default), the newly generated update function of each node has the same canalizing depth as the original update function.</p></li>
+</ul>
+<p>If both flags are True (the default), both properties are preserved simultaneously. If neither flag is True, the newly generated update rules may be any non-degenerate Boolean function consistent with the given in-degree.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 8-node network governed by 3-input functions with minimum canalizing depth 1</span>
+<span class="n">bn_orig</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rng</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span>
+
+<span class="n">bn_null00</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_null_model</span><span class="p">(</span><span class="n">bn_orig</span><span class="p">,</span>
+                                <span class="n">preserve_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">preserve_canalizing_depth</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">bn_null01</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_null_model</span><span class="p">(</span><span class="n">bn_orig</span><span class="p">,</span>
+                                <span class="n">preserve_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">preserve_canalizing_depth</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bn_null10</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_null_model</span><span class="p">(</span><span class="n">bn_orig</span><span class="p">,</span>
+                                <span class="n">preserve_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">preserve_canalizing_depth</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">bn_null11</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_null_model</span><span class="p">(</span><span class="n">bn_orig</span><span class="p">,</span>
+                                <span class="n">preserve_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">preserve_canalizing_depth</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Canalizing depths:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_orig:  &#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_orig</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null00:&#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_null00</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null01:&#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_null01</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null10:&#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_null10</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null11:&#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_null11</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Hamming weights:&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_orig:  &#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">hamming_weight</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_orig</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null00:&#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">hamming_weight</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_null00</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null01:&#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">hamming_weight</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_null01</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null10:&#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">hamming_weight</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_null10</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bn_null11:&#39;</span><span class="p">,</span>
+      <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">hamming_weight</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">bn_null11</span><span class="o">.</span><span class="n">F</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Canalizing depths:
+bn_orig:   [3, 3, 1, 1, 3, 3, 1, 3]
+bn_null00: [0, 3, 3, 0, 3, 3, 1, 0]
+bn_null01: [3, 3, 1, 1, 3, 3, 1, 3]
+bn_null10: [0, 0, 1, 1, 3, 0, 2, 3]
+bn_null11: [3, 3, 1, 1, 3, 3, 1, 3]
+
+Hamming weights:
+bn_orig:   [3, 5, 6, 6, 1, 5, 2, 7]
+bn_null00: [3, 7, 7, 5, 5, 3, 6, 3]
+bn_null01: [5, 3, 2, 2, 7, 5, 2, 5]
+bn_null10: [3, 5, 6, 6, 1, 5, 2, 7]
+bn_null11: [3, 5, 6, 6, 1, 5, 2, 7]
+</pre></div></div>
+</div>
+<p>We see that the preserved structural constraints determine which properties of the original network are retained in the null models. Such controlled randomization allows systematic investigation of how structural features influence network dynamics.</p>
+</section>
+</section>
+<section id="Example-use-case:-high-coherence-of-biological-networks">
+<h2>Example use case: high coherence of biological networks<a class="headerlink" href="#Example-use-case:-high-coherence-of-biological-networks" title="Link to this heading"></a></h2>
+<p>As an example, we compare the <em>coherence</em> of curated biological Boolean network models with the coherence expected under randomized null models. Coherence measures the long-term resilience of a network to small perturbations.</p>
+<p>For each biological network, we generate an ensemble of randomized null models in which the wiring diagram is preserved but the Boolean update rules are replaced by random Boolean functions. We then compare the coherence of the biological model with the average coherence of its corresponding null models.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_null_models</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">bns_to_analyze</span> <span class="o">=</span> <span class="p">[</span><span class="n">bn</span> <span class="k">for</span> <span class="n">bn</span> <span class="ow">in</span> <span class="n">bns</span> <span class="k">if</span> <span class="n">bn</span><span class="o">.</span><span class="n">N</span> <span class="o">&lt;=</span> <span class="mi">16</span><span class="p">]</span>
+<span class="n">bio_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">bn</span><span class="o">.</span><span class="n">get_attractors_and_robustness_synchronous_exact</span><span class="p">()[</span><span class="s1">&#39;Coherence&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">bn</span> <span class="ow">in</span> <span class="n">bns_to_analyze</span><span class="p">]</span>
+
+<span class="n">null_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">bn</span> <span class="ow">in</span> <span class="n">bns_to_analyze</span><span class="p">:</span>
+    <span class="n">null_data</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_null_models</span><span class="p">):</span>
+        <span class="n">null_model</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_null_model</span><span class="p">(</span><span class="n">bn</span><span class="p">,</span>
+                                   <span class="n">preserve_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                   <span class="n">preserve_canalizing_depth</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">null_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">null_model</span><span class="o">.</span><span class="n">get_attractors_and_robustness_synchronous_exact</span><span class="p">()[</span><span class="s1">&#39;Coherence&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bio_data</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">null_data</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;r--&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s1">&#39;box&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Biological network coherence&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Average null model coherence&#39;</span><span class="p">)</span>
+<span class="n">stat</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">ttest_rel</span><span class="p">(</span><span class="n">bio_data</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">null_data</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;greater&#39;</span><span class="p">)</span>
+<span class="n">p_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">.2g</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mf">1e-3</span> <span class="k">else</span> <span class="s2">&quot;&lt; 0.001&quot;</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One-sided paired t-test: p </span><span class="si">{</span><span class="p">(</span><span class="s1">&#39;= &#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">1e-3</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}{</span><span class="n">p_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial11_bio_models_18_0.png" src="../_images/tutorials_tutorial11_bio_models_18_0.png" />
+</div>
+</div>
+<p>We see that most biological networks exhibit higher than expected coherence. Even for this small ensemble of biological networks (restricted here to networks with at most 16 nodes to allow exact dynamical analysis), this is a statistically significant difference, as exemplified by the one-sided paired t-test.</p>
+<p>The higher coherence observed in biological networks is likely due to their highly biased and canalized regulatory logic. To test this, we can rerun the computational experiment, this time with null models where bias and/or canalizing depth are preserved.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">null_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">bn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bns_to_analyze</span><span class="p">):</span>
+    <span class="n">null_data</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_null_models</span><span class="p">):</span>
+        <span class="n">null_model</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_null_model</span><span class="p">(</span><span class="n">bn</span><span class="p">,</span>
+                                   <span class="n">preserve_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">preserve_canalizing_depth</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">null_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">null_model</span><span class="o">.</span><span class="n">get_attractors_and_robustness_synchronous_exact</span><span class="p">()[</span><span class="s1">&#39;Coherence&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bio_data</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">null_data</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;r--&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s1">&#39;box&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Biological network coherence&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Average null model coherence&#39;</span><span class="p">);</span>
+<span class="n">stat</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">ttest_rel</span><span class="p">(</span><span class="n">bio_data</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">null_data</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;greater&#39;</span><span class="p">)</span>
+<span class="n">p_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">.2g</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mf">1e-3</span> <span class="k">else</span> <span class="s2">&quot;&lt; 0.001&quot;</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One-sided paired t-test: p </span><span class="si">{</span><span class="p">(</span><span class="s1">&#39;= &#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">1e-3</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}{</span><span class="n">p_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial11_bio_models_20_0.png" src="../_images/tutorials_tutorial11_bio_models_20_0.png" />
+</div>
+</div>
+<p>We observe that matching canalizing depth and bias (or just one of them, try it!) suffices to eliminate the significant difference in coherence between biological networks and their null models.</p>
+<p>This illustrates how controlled null models can reveal which structural properties of biological regulatory logic are responsible for observed dynamical behavior.</p>
+</section>
+<section id="Summary">
+<h2>Summary<a class="headerlink" href="#Summary" title="Link to this heading"></a></h2>
+<p>In this tutorial, we introduced <strong>null models for Boolean networks</strong> and demonstrated how BoolForge can generate randomized networks while preserving selected structural properties. Such null models provide a statistical baseline that helps determine whether observed structural or dynamical properties of a Boolean network are unusual or simply typical for networks with similar characteristics.</p>
+<p>We considered two main classes of null models:</p>
+<ul class="simple">
+<li><p><strong>Wiring diagram randomization</strong>, where the regulatory graph is modified while preserving invariants such as node in-degrees or both in- and out-degrees.</p></li>
+<li><p><strong>Update function randomization</strong>, where Boolean update rules are replaced by new functions that preserve properties such as bias or canalizing depth.</p></li>
+</ul>
+<p>In addition, we demonstrated how Boolean network models can be <strong>loaded from biological model repositories</strong> and analyzed using the same structural and dynamical tools provided by BoolForge. This enables systematic investigation of curated regulatory network models and comparison with appropriate null models.</p>
+<p>Together, these capabilities allow researchers to study how structural features of regulatory networks influence their dynamical behavior and to place biological models in the broader context of ensembles of randomized networks.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial10_ensemble_experiments_random_networks.html" class="btn btn-neutral float-left" title="Ensemble experiments with random Boolean networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial12_dynamics_decomposition.html" class="btn btn-neutral float-right" title="Dynamics Decomposition" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

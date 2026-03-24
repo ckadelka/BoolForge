@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ensemble experiments with random Boolean networks &mdash; BoolForge 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Curated biological Boolean networks and null models" href="tutorial11_bio_models.html" />
+    <link rel="prev" title="Random Boolean network generation" href="tutorial09_random_Boolean_network_generation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial00_preface.html">Preface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial01_Boolean_functions.html">Working with Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_concepts.html">Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial04_random_Boolean_function_generation.html">Random Boolean function generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial05_ensemble_experiments_random_functions.html">Ensemble experiments with random Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial06_boolean_networks.html">Working with Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial07_network_dynamics.html">Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial08_network_stability.html">Perturbation and sensitivity analysis of Boolean networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ensemble experiments with random Boolean networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#NK-Kauffman-networks">NK Kauffman networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#BoolForge-philosophy:-regulatory-functions-are-non-degenerate">BoolForge philosophy: regulatory functions are non-degenerate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Random-networks-with-prescribed-canalization">Random networks with prescribed canalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Summary-and-outlook">Summary and outlook</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Ensemble experiments with random Boolean networks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial10_ensemble_experiments_random_networks.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Ensemble-experiments-with-random-Boolean-networks">
+<h1>Ensemble experiments with random Boolean networks<a class="headerlink" href="#Ensemble-experiments-with-random-Boolean-networks" title="Link to this heading"></a></h1>
+<p>This tutorial demonstrates how BoolForge’s ability to generate <strong>random Boolean networks with controlled structural and functional properties</strong> is essential for many types of studies. Specifically, it enables:</p>
+<ol class="arabic">
+<li><div class="line-block">
+<div class="line"><strong>Null model comparisons</strong></div>
+<div class="line">Are biological networks structurally or dynamically different from random networks?</div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><strong>Ensemble studies</strong></div>
+<div class="line">How do structural properties such as degree or canalization affect network dynamics?</div>
+</div>
+</li>
+</ol>
+<section id="What-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
+<p>In this tutorial you will learn how to generate random Boolean networks with:</p>
+<ul class="simple">
+<li><p>specific structural properties (e.g., degree, degree distribution, strongly connected),</p></li>
+<li><p>prescribed functional properties (e.g., canalization, bias),</p></li>
+</ul>
+<p>It is strongly recommended to complete Tutorials 4 and 5 on random function generation first.</p>
+</section>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boolforge</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="NK-Kauffman-networks">
+<h2>NK Kauffman networks<a class="headerlink" href="#NK-Kauffman-networks" title="Link to this heading"></a></h2>
+<p>One of the classical models of complex systems is the <strong>NK random Boolean network</strong> introduced by Stuart Kauffman.</p>
+<p>In this model:</p>
+<ul class="simple">
+<li><p>The network contains N nodes.</p></li>
+<li><p>Each node is regulated by k inputs.</p></li>
+<li><p>Each update function is generated randomly with <em>bias</em> <span class="math notranslate nohighlight">\(p\)</span>, i.e.</p>
+<ul>
+<li><p>probability of output 1: <code class="docutils literal notranslate"><span class="pre">p</span></code></p></li>
+<li><p>probability of output 0: <code class="docutils literal notranslate"><span class="pre">1-p</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p>A key theoretical result due to <a class="reference external" href="https://hal.science/hal-03285912/document">Derrida and Pomeau (1986)</a> predicts how a single-node perturbation propagates in large random Boolean networks. They showed that if two network states differ in one node, the expected number of differences after one update step is <span class="math notranslate nohighlight">\(2kp(1-p)\)</span>.</p>
+<p>If this value is</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(&lt; 1\)</span>, then perturbations decrease on average (ordered regime)</p></li>
+<li><p><span class="math notranslate nohighlight">\(&gt; 1\)</span>, then perturbations increase on average (chaotic regime)</p></li>
+<li><p><span class="math notranslate nohighlight">\(= 1\)</span>, then perturbations remain on average of equal size (critical boundary)</p></li>
+</ul>
+<p>The expected number of propagated perturbations is called the <strong>Derrida value</strong>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">100</span>          <span class="c1"># network size</span>
+<span class="n">ks</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># constant in-degree</span>
+<span class="n">n_networks</span> <span class="o">=</span> <span class="mi">50</span>  <span class="c1"># ensemble size</span>
+<span class="n">p</span> <span class="o">=</span> <span class="mf">0.5</span>          <span class="c1"># bias p: probability of ones in truth table</span>
+
+<span class="n">derrida_values</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ks</span><span class="p">:</span>
+    <span class="n">derrida_values</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_networks</span><span class="p">):</span>
+        <span class="n">bn</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="n">p</span><span class="p">,</span> <span class="n">allow_degenerate_functions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">derrida_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_derrida_value</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">derrida_values</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ks</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;critical value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">k</span><span class="o">*</span><span class="n">p</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ks</span><span class="p">],</span> <span class="s2">&quot;o-&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$2kp(1-p)$ (annealed theory)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Constant in-degree k&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Derrida value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial10_ensemble_experiments_random_networks_3_0.png" src="../_images/tutorials_tutorial10_ensemble_experiments_random_networks_3_0.png" />
+</div>
+</div>
+<p>The numerical results closely follow the theoretical prediction <span class="math notranslate nohighlight">\(2kp(1-p)\)</span> derived under the <strong>annealed approximation</strong>. The phase transition occurs when the Derrida value crosses 1.</p>
+<p>For unbiased Boolean functions (with bias <span class="math notranslate nohighlight">\(p=0.5\)</span>), the theory predicts the critical connectivity <span class="math notranslate nohighlight">\(k=2\)</span>, which we also observe in this BoolForge ensemble experiment.</p>
+<p>We encourage the reader to vary the bias <span class="math notranslate nohighlight">\(p\)</span> in the above example. As the bias becomes more extreme, the Derrida value declines and networks with higher connectivity exhibit critical dynamics.</p>
+</section>
+<section id="BoolForge-philosophy:-regulatory-functions-are-non-degenerate">
+<h2>BoolForge philosophy: regulatory functions are non-degenerate<a class="headerlink" href="#BoolForge-philosophy:-regulatory-functions-are-non-degenerate" title="Link to this heading"></a></h2>
+<p>The classical NK model assumes that a Boolean function with <span class="math notranslate nohighlight">\(k\)</span> inputs may <strong>not actually depend on all of them</strong>. Such functions are called <strong>degenerate</strong>.</p>
+<p>While this assumption is natural in statistical physics models (e.g. spin glasses), it is biologically questionable. In gene regulatory networks, an input typically represents a <em>specific regulatory interaction</em>. If a transcription factor does not affect the gene, it should not appear as an input in the first place. <strong>Therefore BoolForge assumes non-degenerate Boolean functions by default.</strong></p>
+<p>Degeneracy occurs frequently for small input sizes:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k=1\)</span>: 2 out of 4 functions are degenerate (50%)</p></li>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>: 6 out of 16 functions are degenerate</p></li>
+<li><p>larger <span class="math notranslate nohighlight">\(k\)</span>: degeneracy becomes increasingly rare</p></li>
+</ul>
+<p>Disallowing degenerate functions therefore mainly affects <strong>sparse networks</strong>, precisely the regime most biological networks operate in (typical average in-degree <span class="math notranslate nohighlight">\(approx\)</span> 2-3).</p>
+<p>We now repeat the previous experiment, <em>disallowing degenerate functions</em>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">derrida_values</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ks</span><span class="p">:</span>
+    <span class="n">derrida_values</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_networks</span><span class="p">):</span>
+        <span class="n">bn</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="n">p</span><span class="p">,</span> <span class="n">allow_degenerate_functions</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">derrida_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_derrida_value</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">derrida_values</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ks</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;critical value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">k</span><span class="o">*</span><span class="n">p</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ks</span><span class="p">],</span> <span class="s2">&quot;o-&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$2kp(1-p)$ (annealed theory)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Constant in-degree k&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Derrida value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial10_ensemble_experiments_random_networks_6_0.png" src="../_images/tutorials_tutorial10_ensemble_experiments_random_networks_6_0.png" />
+</div>
+</div>
+<p>The behavior changes substantially. For <em>unbiased, non-degenerate Boolean networks (with bias :math:`p=0.5`)</em> the phase transition occurs already at <span class="math notranslate nohighlight">\(k=1\)</span>, rather than <span class="math notranslate nohighlight">\(k=2\)</span>, as predicted by the classical NK theory.</p>
+<p>This illustrates how biologically motivated modeling assumptions can significantly affect the predicted dynamical regime of Boolean networks.</p>
+</section>
+<section id="Random-networks-with-prescribed-canalization">
+<h2>Random networks with prescribed canalization<a class="headerlink" href="#Random-networks-with-prescribed-canalization" title="Link to this heading"></a></h2>
+<p>A major advantage of BoolForge is its ability to generate Boolean functions with <strong>controlled canalization properties</strong>. This is important because canalization is a common feature of biological regulatory networks.</p>
+<p>To display the impact of the canalizing layer structure, we generate ensembles of Boolean networks of fixed size and fixed in-degree, which are governed by nested canalizing functions of variable layer structure.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">12</span>           <span class="c1"># network size</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">5</span>            <span class="c1"># constant in-degree</span>
+<span class="n">n_networks</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1"># ensemble size</span>
+
+<span class="n">all_hamming</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">all_abs_bias</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">all_hamming</span><span class="o">/</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+
+<span class="n">number_attractors</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">number_steady_states</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_hamming</span><span class="p">):</span>
+    <span class="n">layer_structure</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">hamming_weight_to_ncf_layer_structure</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+    <span class="n">number_attractors</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+    <span class="n">number_steady_states</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_networks</span><span class="p">):</span>
+        <span class="n">bn</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">layer_structure</span><span class="o">=</span><span class="n">layer_structure</span><span class="p">)</span>
+        <span class="n">attr_info</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_attractors_synchronous_exact</span><span class="p">()</span>
+        <span class="n">n_attractors</span> <span class="o">=</span> <span class="n">attr_info</span><span class="p">[</span><span class="s1">&#39;NumberOfAttractors&#39;</span><span class="p">]</span>
+        <span class="n">number_attractors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">n_attractors</span> <span class="p">)</span>
+        <span class="n">number_steady_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attr_info</span><span class="p">[</span><span class="s1">&#39;Attractors&#39;</span><span class="p">]])</span>
+        <span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">mean</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">number_attractors</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">number_attractors</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">all_abs_bias</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="s1">&#39;rx:&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;attractors&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">all_abs_bias</span><span class="p">,</span> <span class="n">mean</span><span class="o">-</span><span class="n">std</span><span class="p">,</span> <span class="n">mean</span><span class="o">+</span><span class="n">std</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">mean</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">number_steady_states</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">number_steady_states</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">all_abs_bias</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="s1">&#39;bo--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;steady states&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">all_abs_bias</span><span class="p">,</span> <span class="n">mean</span><span class="o">-</span><span class="n">std</span><span class="p">,</span> <span class="n">mean</span><span class="o">+</span><span class="n">std</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Absolute bias&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Number&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial10_ensemble_experiments_random_networks_8_0.png" src="../_images/tutorials_tutorial10_ensemble_experiments_random_networks_8_0.png" />
+</div>
+</div>
+<p>This plot shows: The higher the absolute bias of the governing nested canalizing functions, the more ordered the dynamics, characterized by the presence of only a few network attractors, which are primarily steady states.</p>
+</section>
+<section id="Summary-and-outlook">
+<h2>Summary and outlook<a class="headerlink" href="#Summary-and-outlook" title="Link to this heading"></a></h2>
+<p>In this tutorial you learned how to:</p>
+<ul class="simple">
+<li><p>compute exact robustness measures for small Boolean networks,</p></li>
+<li><p>interpret coherence and fragility at network, basin, and attractor levels,</p></li>
+<li><p>approximate robustness measures for larger networks, and</p></li>
+<li><p>assess dynamical sensitivity using the Derrida value.</p></li>
+</ul>
+<p>In Tutorial 11, we will finally analyze biological Boolean network models and design null models and ensemble experiments.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial09_random_Boolean_network_generation.html" class="btn btn-neutral float-left" title="Random Boolean network generation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial11_bio_models.html" class="btn btn-neutral float-right" title="Curated biological Boolean networks and null models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

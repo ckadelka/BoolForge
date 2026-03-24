@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutorials &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -20,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="#1: Working with Boolean Functions" href="tutorials/tutorial01_introduction_and_faqs.html" />
+    <link rel="next" title="Preface" href="tutorials/tutorial00_preface.html" />
     <link rel="prev" title="Utils" href="utils.html" /> 
 </head>
 
@@ -47,15 +47,19 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs.html">Documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html">#1: Working with Boolean Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Frequently-Asked-Questions-(FAQ)">Frequently Asked Questions (FAQ)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html">BoolForge Tutorial 3: Canalization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html">BoolForge Tutorial 4: Random Boolean Function Generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html">BoolForge Tutorial 5: Example Use Cases of the Random Function Generator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html">BoolForge Tutorial 6: Working with Boolean Networks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html">BoolForge Tutorial 7: Dynamics of Boolean Networks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html">BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial00_preface.html">Preface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html">Working with Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html">Advanced Concepts for Boolean Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html">Canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html">Random Boolean function generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html">Ensemble experiments with random Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html">Working with Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html">Dynamics of Boolean Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_network_stability.html">Perturbation and sensitivity analysis of Boolean networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
@@ -89,148 +93,216 @@
 <h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html">#1: Working with Boolean Functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#What-you-will-learn">What you will learn</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#0.-Setup">0. Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#1.-Create-a-Boolean-function">1. Create a Boolean function</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#1.1-Create-Boolean-functions-from-a-truth-table">1.1 Create Boolean functions from a truth table</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#1.2-Create-Boolean-functions-from-text">1.2 Create Boolean functions from text</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#1.3-Combining-BooleanFunction-objects">1.3 Combining BooleanFunction objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial00_preface.html">Preface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial00_preface.html#Philosophy-and-scope-of-BoolForge">Philosophy and scope of BoolForge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial00_preface.html#Structure-of-the-tutorials">Structure of the tutorials</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#2.-Attributes-of-BooleanFunction">2. Attributes of BooleanFunction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#3.-Basic-properties-of-Boolean-functions">3. Basic properties of Boolean functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#4.-Logical-and-polynomial-representations">4. Logical and polynomial representations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#5.-Summary-of-Key-Concepts">5. Summary of Key Concepts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Boolean-functions"><strong>Boolean functions</strong></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Representations-of-Boolean-functions"><strong>Representations of Boolean functions</strong></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Variable-names-and-ordering"><strong>Variable names and ordering</strong></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Basic-properties-of-Boolean-functions"><strong>Basic properties of Boolean functions</strong></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Conversions-and-interoperability"><strong>Conversions and interoperability</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html">Working with Boolean Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Create-a-Boolean-function">Create a Boolean function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Create-Boolean-functions-from-a-truth-table">Create Boolean functions from a truth table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Create-Boolean-functions-from-text">Create Boolean functions from text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Combining-BooleanFunction-objects">Combining BooleanFunction objects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Attributes-of-BooleanFunction">Attributes of BooleanFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Basic-properties-of-Boolean-functions">Basic properties of Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Logical-and-polynomial-representations">Logical and polynomial representations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Summary">Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Boolean-functions">Boolean functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Representations-of-Boolean-functions">Representations of Boolean functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Variable-names-and-ordering">Variable names and ordering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#id1">Basic properties of Boolean functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Conversions-and-interoperability">Conversions and interoperability</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Frequently-Asked-Questions">Frequently Asked Questions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Why-does-the-order-of-variables-matter?">Why does the order of variables matter?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#How-do-I-choose-between-defining-a-function-via-a-truth-table-or-via-an-expression?">How do I choose between defining a function via a truth table or via an expression?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#What-is-the-difference-between-get_type_of_inputs()-and-monotonicity?">What is the difference between <code class="docutils literal notranslate"><span class="pre">get_type_of_inputs()</span></code> and monotonicity?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial01_Boolean_functions.html#Quick-Reference">Quick Reference</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial01_introduction_and_faqs.html#Frequently-Asked-Questions-(FAQ)">Frequently Asked Questions (FAQ)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html">BoolForge Tutorial 2: Advanced Concepts for Boolean Functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#What-you-will-learn">What you will learn</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#0.-Setup">0. Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#1.-Symmetries-in-Boolean-Functions">1. Symmetries in Boolean Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#1.1-What-is-a-symmetry?">1.1 What is a symmetry?</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#1.2-Examples">1.2 Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html">Advanced Concepts for Boolean Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#Symmetries-in-Boolean-functions">Symmetries in Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#Degenerate-functions">Degenerate functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#Activities-and-sensitivities">Activities and sensitivities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#Activity">Activity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#Average-sensitivity">Average sensitivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#Exact-vs-Monte-Carlo-computation">Exact vs Monte Carlo computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#Computing-activities-and-sensitivities">Computing activities and sensitivities</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#2.-Degenerate-functions">2. Degenerate functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#3.-Activities-and-Sensitivities">3. Activities and Sensitivities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#3.1-Activity">3.1 Activity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#3.2-Average-sensitivity">3.2 Average sensitivity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#3.3-Exact-vs-Monte-Carlo-computation">3.3 Exact vs Monte Carlo computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#3.4-Computing-activities-and-sensitivities">3.4 Computing activities and sensitivities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#Example:-random-25-input-function">Example: random 25-input function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_concepts.html#Summary">Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial02_advanced_boolean_functions.html#4.-Summary">4. Summary</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial03_canalization.html">BoolForge Tutorial 3: Canalization</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial03_canalization.html">Canalization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#What-you-will-learn">What you will learn</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#0.-Setup">0. Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#1.-Canalizing-variables-and-layers">1. Canalizing variables and layers</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial03_canalization.html#1.1-Examples">1.1 Examples</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial03_canalization.html#1.2-Canalizing-depth-and-nested-canalization">1.2 Canalizing depth and nested canalization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial03_canalization.html#1.3-Canalizing-layer-structure">1.3 Canalizing layer structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#Canalizing-variables-and-layers">Canalizing variables and layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial03_canalization.html#Canalizing-depth-and-nested-canalization">Canalizing depth and nested canalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial03_canalization.html#Canalizing-layer-structure">Canalizing layer structure</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#2.-Collective-canalization">2. Collective canalization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial03_canalization.html#2.1-Canalizing-strength">2.1 Canalizing strength</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial03_canalization.html#2.2.-Distribution-of-canalizing-strength">2.2. Distribution of canalizing strength</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#Collective-canalization">Collective canalization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial03_canalization.html#Canalizing-strength">Canalizing strength</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial03_canalization.html#Distribution-of-canalizing-strength">Distribution of canalizing strength</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#3.-Canalization-as-a-measure-of-input-redundancy">3. Canalization as a measure of input redundancy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#4.-Summary-and-next-steps">4. Summary and next steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#Canalization-as-a-measure-of-input-redundancy">Canalization as a measure of input redundancy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial03_canalization.html#Summary">Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html">BoolForge Tutorial 4: Random Boolean Function Generation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html">Random Boolean function generation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#What-you-will-learn">What you will learn</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#0.-Setup">0. Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#1.-Generating-random-Boolean-functions">1. Generating random Boolean functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#2.-Linear-functions">2. Linear functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#3.-Functions-with-prescribed-canalizing-properties">3. Functions with prescribed canalizing properties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#4.-Allowing-degenerate-functions">4. Allowing degenerate functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#5.-Functions-with-prescribed-Hamming-weight">5. Functions with prescribed Hamming weight</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#6.-Biased-and-absolutely-biased-functions">6. Biased and absolutely biased functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#7.-Summary,-interpretation,-and-outlook">7. Summary, interpretation, and outlook</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#8.-Common-pitfalls">8. Common pitfalls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Generating-random-Boolean-functions">Generating random Boolean functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Parity-functions">Parity functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Functions-with-prescribed-canalizing-properties">Functions with prescribed canalizing properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Functions-with-prescribed-canalizing-layer-structure">Functions with prescribed canalizing layer structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Functions-with-prescribed-canalizing-depth">Functions with prescribed canalizing depth</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html">BoolForge Tutorial 5: Example Use Cases of the Random Function Generator</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#What-you-will-learn">What you will learn</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#0.-Setup">0. Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#1.-Prevalence-of-canalization">1. Prevalence of canalization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#Restricting-to-canalizing-functions">Restricting to canalizing functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Allowing-degenerate-functions">Allowing degenerate functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Functions-with-prescribed-Hamming-weight">Functions with prescribed Hamming weight</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Biased-and-absolutely-biased-functions">Biased and absolutely biased functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Summary">Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial04_random_Boolean_function_generation.html#Common-pitfalls">Common pitfalls</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#2.-Collective-canalization-vs-degree">2. Collective canalization vs degree</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#Stratification-by-canalizing-depth">Stratification by canalizing depth</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#Correlation-between-canalizing-strength-and-input-redundancy">Correlation between canalizing strength and input redundancy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html">Ensemble experiments with random Boolean functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Prevalence-of-canalization">Prevalence of canalization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Restricting-to-canalizing-functions">Restricting to canalizing functions</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#3.-Correlation-between-canalization-and-bias">3. Correlation between canalization and bias</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#Degeneracy-vs-bias">Degeneracy vs bias</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Collective-canalization-vs-degree">Collective canalization vs degree</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Stratification-by-canalizing-depth">Stratification by canalizing depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Correlation-between-canalizing-strength-and-input-redundancy">Correlation between canalizing strength and input redundancy</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#4.-Analyzing-functions-with-specific-canalizing-layer-structure">4. Analyzing functions with specific canalizing layer structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_use_cases_random_function_generator.html#5.-Summary-and-outlook">5. Summary and outlook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Correlation-between-canalization-and-bias">Correlation between canalization and bias</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Degeneracy-vs-bias">Degeneracy vs bias</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html">BoolForge Tutorial 6: Working with Boolean Networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Analyzing-functions-with-specific-canalizing-layer-structure">Analyzing functions with specific canalizing layer structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial05_ensemble_experiments_random_functions.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html">Working with Boolean Networks</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#What-you-will-learn">What you will learn</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#0.-Setup">0. Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#1.-Boolean-network-theory">1. Boolean network theory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#2.-Wiring-diagrams">2. Wiring diagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Boolean-network-theory">Boolean network theory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Wiring-diagrams">Wiring diagrams</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Example-with-constants-and-unequal-degrees">Example with constants and unequal degrees</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#3.-Creating-Boolean-networks">3. Creating Boolean networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Creating-Boolean-networks">Creating Boolean networks</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Creating-networks-from-strings">Creating networks from strings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Interoperability-with-CANA">Interoperability with CANA</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#4.-Boolean-networks-with-constants">4. Boolean networks with constants</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Effect-of-constant-value-=-1">Effect of constant value = 1</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#5.-Boolean-network-properties">5. Boolean network properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Types-of-nodes-in-Boolean-networks">Types of nodes in Boolean networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Boolean-network-properties">Boolean network properties</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial06_boolean_networks.html#Outlook">Outlook</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html">BoolForge Tutorial 7: Dynamics of Boolean Networks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#0.-Setup">0. Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#1.-State-space-of-a-Boolean-network">1. State space of a Boolean network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#2.-Dynamics-of-synchronous-Boolean-networks">2. Dynamics of synchronous Boolean networks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#2.1-Exact-computation">2.1 Exact computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#Exhaustive-attractor-computation">Exhaustive attractor computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#2.2-Monte-Carlo-simulation">2.2 Monte Carlo simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html">Dynamics of Boolean Networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#State-space-of-a-Boolean-network">State space of a Boolean network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Dynamics-of-synchronous-Boolean-networks">Dynamics of synchronous Boolean networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Exact-computation">Exact computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Exhaustive-attractor-computation">Exhaustive attractor computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Monte-Carlo-simulation">Monte Carlo simulation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#3.-Dynamics-of-asynchronous-Boolean-networks">3. Dynamics of asynchronous Boolean networks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#3.1-Steady-states-under-general-asynchronous-update">3.1 Steady states under general asynchronous update</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#Monte-Carlo-approximation">Monte Carlo approximation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#Sampling-from-a-fixed-initial-condition">Sampling from a fixed initial condition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Dynamics-of-asynchronous-Boolean-networks">Dynamics of asynchronous Boolean networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Steady-states-under-general-asynchronous-update">Steady states under general asynchronous update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Monte-Carlo-approximation">Monte Carlo approximation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Sampling-from-a-fixed-initial-condition">Sampling from a fixed initial condition</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_boolean_network_dynamics.html#Summary-and-outlook">Summary and outlook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial07_network_dynamics.html#Summary">Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html">BoolForge Tutorial #8: Perturbation and sensitivity analysis of Boolean networks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html#0.-Setup">0. Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html#1.-A-running-example-Boolean-network">1. A running example Boolean network</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html#2.-Exact-attractors-and-robustness-measures">2. Exact attractors and robustness measures</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html#3.-Basin-level-and-attractor-level-robustness">3. Basin-level and attractor-level robustness</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html#4.-Visualization-of-basin-robustness">4. Visualization of basin robustness</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html#5.-Approximate-robustness-for-larger-networks">5. Approximate robustness for larger networks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html#6.-Derrida-value:-dynamical-sensitivity">6. Derrida value: dynamical sensitivity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_stability_analysis.html#7.-Summary-and-outlook">7. Summary and outlook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial08_network_stability.html">Perturbation and sensitivity analysis of Boolean networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_network_stability.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_network_stability.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_network_stability.html#Exact-attractors-and-robustness-measures">Exact attractors and robustness measures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_network_stability.html#Network-,-basin--and-attractor-level-robustness">Network-, basin- and attractor-level robustness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_network_stability.html#Approximate-robustness-for-larger-networks">Approximate robustness for larger networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_network_stability.html#Derrida-value:-dynamical-sensitivity">Derrida value: dynamical sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial08_network_stability.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Generating-random-wiring-diagrams">Generating random wiring diagrams</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Allowing-self-regulation">Allowing self-regulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Poisson-in-degree-distributions">Poisson in-degree distributions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Avoiding-output-nodes">Avoiding output nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Strong-connectedness">Strong connectedness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Fixed-wiring-diagrams">Fixed wiring diagrams</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Specifying-functional-constraints">Specifying functional constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Parity-functions">Parity functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Canalizing-functions">Canalizing functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Biased-functions">Biased functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial09_random_Boolean_network_generation.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial10_ensemble_experiments_random_networks.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial10_ensemble_experiments_random_networks.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial10_ensemble_experiments_random_networks.html#NK-Kauffman-networks">NK Kauffman networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial10_ensemble_experiments_random_networks.html#BoolForge-philosophy:-regulatory-functions-are-non-degenerate">BoolForge philosophy: regulatory functions are non-degenerate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial10_ensemble_experiments_random_networks.html#Random-networks-with-prescribed-canalization">Random networks with prescribed canalization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial10_ensemble_experiments_random_networks.html#Summary-and-outlook">Summary and outlook</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial11_bio_models.html">Curated biological Boolean networks and null models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial11_bio_models.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial11_bio_models.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial11_bio_models.html#Loading-model-repositories">Loading model repositories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial11_bio_models.html#Analyzing-model-repositories">Analyzing model repositories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial11_bio_models.html#Null-models">Null models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial11_bio_models.html#Randomization-of-the-wiring-diagram">Randomization of the wiring diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial11_bio_models.html#Randomization-of-the-update-functions">Randomization of the update functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial11_bio_models.html#Example-use-case:-high-coherence-of-biological-networks">Example use case: high coherence of biological networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial11_bio_models.html#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#What-you-will-learn">What you will learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Trajectories">Trajectories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Computing-trajectories">Computing trajectories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Plotting-trajectories">Plotting trajectories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Computing-the-product-of-trajectories">Computing the product of trajectories</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Example-2.8">Example 2.8</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Example-2.9">Example 2.9</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Example-2.10">Example 2.10</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Example-3.2">Example 3.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial12_dynamics_decomposition.html#Figure-11">Figure 11</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -242,7 +314,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="utils.html" class="btn btn-neutral float-left" title="Utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tutorials/tutorial01_introduction_and_faqs.html" class="btn btn-neutral float-right" title="#1: Working with Boolean Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tutorials/tutorial00_preface.html" class="btn btn-neutral float-right" title="Preface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

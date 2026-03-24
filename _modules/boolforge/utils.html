@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>boolforge.utils &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
@@ -91,10 +91,10 @@
 
 <span class="sd">Examples</span>
 <span class="sd">--------</span>
-<span class="sd">&gt;&gt;&gt; from boolforge import utils</span>
-<span class="sd">&gt;&gt;&gt; utils.bin2dec([1, 0, 1])</span>
+<span class="sd">&gt;&gt;&gt; import boolforge</span>
+<span class="sd">&gt;&gt;&gt; boolforge.bin2dec([1, 0, 1])</span>
 <span class="sd">5</span>
-<span class="sd">&gt;&gt;&gt; utils.dec2bin(5, 3)</span>
+<span class="sd">&gt;&gt;&gt; boolforge.dec2bin(5, 3)</span>
 <span class="sd">array([1, 0, 1])</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -108,12 +108,21 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;bin2dec&quot;</span><span class="p">,</span>
     <span class="s2">&quot;dec2bin&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;bool_to_poly&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;f_from_expression&quot;</span><span class="p">,</span>
     <span class="s2">&quot;hamming_weight_to_ncf_layer_structure&quot;</span><span class="p">,</span>
     <span class="s2">&quot;get_left_side_of_truth_table&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;left_side_of_truth_tables&quot;</span>
+    <span class="s2">&quot;left_side_of_truth_tables&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_require_cana</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">cana.boolean_node</span>
+        <span class="k">return</span> <span class="n">cana</span><span class="o">.</span><span class="n">boolean_node</span>
+    <span class="k">except</span> <span class="ne">ModuleNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="s2">&quot;This functionality requires CANA. &quot;</span>
+            <span class="s2">&quot;Install it with `pip install cana`.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_coerce_rng</span><span class="p">(</span>
     <span class="n">rng</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">_NPGen</span> <span class="o">|</span> <span class="n">_NPRandomState</span> <span class="o">|</span> <span class="n">_py_random</span><span class="o">.</span><span class="n">Random</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -167,6 +176,16 @@
         <span class="c1"># simpler: entropy = [rng.getrandbits(32) for _ in range(4)]</span>
         <span class="k">return</span> <span class="n">default_rng</span><span class="p">(</span><span class="n">SeedSequence</span><span class="p">(</span><span class="n">entropy</span><span class="p">))</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported rng type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_number</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if token is a pure numeric literal.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
 
 <span class="k">def</span><span class="w"> </span><span class="nf">is_float</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -366,7 +385,6 @@
 
     <span class="k">return</span> <span class="n">res</span>
 
-
 <span class="k">def</span><span class="w"> </span><span class="nf">check_if_empty</span><span class="p">(</span><span class="n">my_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check whether a list or NumPy array is empty.</span>
@@ -434,7 +452,6 @@
 
     <span class="k">return</span> <span class="kc">False</span>
 
-
 <span class="k">def</span><span class="w"> </span><span class="nf">is_list_or_array_of_floats</span><span class="p">(</span>
     <span class="n">x</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">required_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -477,167 +494,6 @@
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="kc">False</span>
-
-
-<div class="viewcode-block" id="bool_to_poly">
-<a class="viewcode-back" href="../../utils.html#boolforge.utils.bool_to_poly">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">bool_to_poly</span><span class="p">(</span>
-    <span class="n">f</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
-    <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a Boolean function from truth-table form to disjunctive normal form.</span>
-
-<span class="sd">    The returned expression is a non-reduced disjunctive normal form (DNF),</span>
-<span class="sd">    expressed as a sum of monomials corresponding to truth-table entries where</span>
-<span class="sd">    the function evaluates to 1.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    f : list</span>
-<span class="sd">        Boolean function values ordered according to the standard truth-table</span>
-<span class="sd">        convention. The length of ``f`` must be ``2**n`` for some integer ``n``.</span>
-<span class="sd">    variables : list of str or None, optional</span>
-<span class="sd">        Variable names to use in the expression. If None or if the length does</span>
-<span class="sd">        not match the required number of variables, default names</span>
-<span class="sd">        ``[&#39;x0&#39;, &#39;x1&#39;, ..., &#39;x{n-1}&#39;]`` are used.</span>
-<span class="sd">    prefix : str, optional</span>
-<span class="sd">        Prefix for automatically generated variable names. Ignored if</span>
-<span class="sd">        ``variables`` is provided with the correct length.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        Boolean expression in non-reduced disjunctive normal form. Returns</span>
-<span class="sd">        ``&#39;0&#39;`` if the function is identically zero.</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    - Variables are ordered from most significant bit to least significant bit.</span>
-<span class="sd">    - Each monomial corresponds to a single truth-table row where ``f == 1``.</span>
-<span class="sd">    - No simplification or reduction of the DNF is performed.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; bool_to_poly([0, 1, 1, 0])</span>
-<span class="sd">    &#39;(1 - x0) * x1 + x0 * (1 - x1)&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">len_f</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">len_f</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
-        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
-
-    <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-    <span class="n">num_values</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">n</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_values</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">monomial</span> <span class="o">=</span> <span class="s1">&#39; * &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">v</span> <span class="k">if</span> <span class="n">entry</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;(1 - </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">)&#39;</span>
-                    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">left_side_of_truth_table</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-            <span class="n">text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">monomial</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s1">&#39;0&#39;</span></div>
-
-
-
-
-<div class="viewcode-block" id="f_from_expression">
-<a class="viewcode-back" href="../../utils.html#boolforge.utils.f_from_expression">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">f_from_expression</span><span class="p">(</span>
-    <span class="n">expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">max_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Construct a Boolean function from a string expression.</span>
-<span class="sd">    </span>
-<span class="sd">    The expression is evaluated symbolically over all Boolean input</span>
-<span class="sd">    combinations to produce the truth table of the corresponding Boolean</span>
-<span class="sd">    function. Variables are detected automatically based on their first</span>
-<span class="sd">    occurrence in the expression.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    expr : str</span>
-<span class="sd">        Boolean expression to evaluate. The expression may contain logical</span>
-<span class="sd">        operators (``AND``, ``OR``, ``NOT`` or their lowercase equivalents),</span>
-<span class="sd">        arithmetic operators, and comparisons.</span>
-<span class="sd">    max_degree : int, optional</span>
-<span class="sd">        Maximum number of variables allowed. If the number of detected</span>
-<span class="sd">        variables exceeds ``max_degree``, an empty truth table is returned.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    f : np.ndarray</span>
-<span class="sd">        Boolean function values as an array of shape ``(2**n,)`` with entries</span>
-<span class="sd">        in ``{0, 1}``, where ``n`` is the number of detected variables.</span>
-<span class="sd">    variables : np.ndarray</span>
-<span class="sd">        Variable names in the order they were first encountered in the</span>
-<span class="sd">        expression.</span>
-<span class="sd">    </span>
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    - Variables are ordered by first occurrence in ``expr``.</span>
-<span class="sd">    - Truth-table rows follow the standard lexicographic ordering with the</span>
-<span class="sd">      most significant bit first.</span>
-<span class="sd">    - The expression is evaluated using ``eval`` with restricted builtins.</span>
-<span class="sd">    - No syntactic or semantic validation of ``expr`` is performed beyond</span>
-<span class="sd">      basic parsing.</span>
-<span class="sd">    </span>
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; f_from_expression(&#39;A AND NOT B&#39;)</span>
-<span class="sd">    (array([0, 0, 1, 0], dtype=uint8), array([&#39;A&#39;, &#39;B&#39;], dtype=&#39;&lt;U1&#39;))</span>
-<span class="sd">    </span>
-<span class="sd">    &gt;&gt;&gt; f_from_expression(&#39;x1 + x2 + x3 &gt; 1&#39;)</span>
-<span class="sd">    (array([0, 0, 0, 1, 0, 1, 1, 1], dtype=uint8),</span>
-<span class="sd">     array([&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;], dtype=&#39;&lt;U2&#39;))</span>
-<span class="sd">    </span>
-<span class="sd">    &gt;&gt;&gt; f_from_expression(&#39;(x1 + x2 + x3) % 2 == 0&#39;)</span>
-<span class="sd">    (array([1, 0, 0, 1, 0, 1, 1, 0], dtype=uint8),</span>
-<span class="sd">     array([&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;], dtype=&#39;&lt;U2&#39;))</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">expr_mod</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39; ( &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39; ) &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;!&#39;</span><span class="p">,</span><span class="s1">&#39;not &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">,</span><span class="s1">&#39;not &#39;</span><span class="p">)</span>
-    <span class="n">expr_split</span> <span class="o">=</span> <span class="n">expr_mod</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-    <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">dict_var</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="n">n_var</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">expr_split</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;(&#39;</span><span class="p">,</span><span class="s1">&#39;)&#39;</span><span class="p">,</span><span class="s1">&#39;and&#39;</span><span class="p">,</span><span class="s1">&#39;or&#39;</span><span class="p">,</span><span class="s1">&#39;not&#39;</span><span class="p">,</span><span class="s1">&#39;AND&#39;</span><span class="p">,</span><span class="s1">&#39;OR&#39;</span><span class="p">,</span><span class="s1">&#39;NOT&#39;</span><span class="p">,</span><span class="s1">&#39;&amp;&#39;</span><span class="p">,</span><span class="s1">&#39;|&#39;</span><span class="p">,</span><span class="s1">&#39;+&#39;</span><span class="p">,</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s1">&#39;*&#39;</span><span class="p">,</span><span class="s1">&#39;%&#39;</span><span class="p">,</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;&gt;=&#39;</span><span class="p">,</span><span class="s1">&#39;==&#39;</span><span class="p">,</span><span class="s1">&#39;&lt;=&#39;</span><span class="p">,</span><span class="s1">&#39;&lt;&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_float</span><span class="p">(</span><span class="n">el</span><span class="p">):</span><span class="c1">#el.isdigit():</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">new_var</span> <span class="o">=</span> <span class="n">dict_var</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="n">new_var</span> <span class="o">=</span> <span class="s1">&#39;x[</span><span class="si">%i</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="n">n_var</span>
-                <span class="n">dict_var</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">el</span><span class="p">:</span> <span class="n">new_var</span><span class="p">})</span>
-                <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
-                <span class="n">n_var</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">expr_split</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">el</span>
-        <span class="k">elif</span> <span class="n">el</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;AND&#39;</span><span class="p">,</span> <span class="s1">&#39;and&#39;</span><span class="p">]:</span>
-            <span class="n">expr_split</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&amp;&#39;</span>
-        <span class="k">elif</span> <span class="n">el</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;OR&#39;</span><span class="p">,</span> <span class="s1">&#39;or&#39;</span><span class="p">]:</span>
-            <span class="n">expr_split</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span>
-        <span class="k">elif</span> <span class="n">el</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;NOT&#39;</span><span class="p">,</span> <span class="s1">&#39;not&#39;</span><span class="p">]:</span>
-            <span class="n">expr_split</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;~&#39;</span>
-    <span class="n">expr_mod</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expr_split</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">n_var</span> <span class="o">&lt;=</span> <span class="n">max_degree</span><span class="p">:</span>
-        <span class="n">truth_table</span> <span class="o">=</span> <span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="n">n_var</span><span class="p">)</span>
-        <span class="n">local_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">var</span><span class="p">:</span> <span class="n">truth_table</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">variables</span><span class="p">)}</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">expr_mod</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;__builtins__&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span> <span class="n">local_dict</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span></div>
-
-
 
 <span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">object</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>

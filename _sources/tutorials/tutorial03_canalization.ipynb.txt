@@ -2,10 +2,10 @@
  "cells": [
   {
    "cell_type": "markdown",
-   "id": "f3962d29",
+   "id": "457d1f21",
    "metadata": {},
    "source": [
-    "# BoolForge Tutorial 3: Canalization\n",
+    "# Canalization\n",
     "\n",
     "Canalization is a key property of biological Boolean functions that confers\n",
     "robustness: when a canalizing variable takes its canalizing value, the output\n",
@@ -24,37 +24,36 @@
     "- compute properties related to collective canalization, such as canalizing strength, \n",
     "effective degree and input redundancy.\n",
     "\n",
-    "---\n",
-    "## 0. Setup"
+    "## Setup"
    ]
   },
   {
    "cell_type": "code",
    "execution_count": 1,
-   "id": "d29e3d00",
+   "id": "99a2e351",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-15T17:23:53.250507Z",
-     "iopub.status.busy": "2026-01-15T17:23:53.250200Z",
-     "iopub.status.idle": "2026-01-15T17:23:53.988602Z",
-     "shell.execute_reply": "2026-01-15T17:23:53.988283Z"
+     "iopub.execute_input": "2026-03-14T21:16:36.813884Z",
+     "iopub.status.busy": "2026-03-14T21:16:36.813579Z",
+     "iopub.status.idle": "2026-03-14T21:16:38.367125Z",
+     "shell.execute_reply": "2026-03-14T21:16:38.366832Z"
     },
     "lines_to_next_cell": 2
    },
    "outputs": [],
    "source": [
-    "import boolforge\n",
-    "import numpy as np\n",
+    "import boolforge as bf\n",
     "import matplotlib.pyplot as plt"
    ]
   },
   {
    "cell_type": "markdown",
-   "id": "56eefe5b",
-   "metadata": {},
+   "id": "3b981319",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
    "source": [
-    "---\n",
-    "## 1. Canalizing variables and layers\n",
+    "## Canalizing variables and layers\n",
     "\n",
     "A Boolean function $f(x_1, \\ldots, x_n)$ is *canalizing* if there exists at least one\n",
     "*canalizing variable* $x_i$ and a *canalizing input value* $a \\in \\{0,1\\}$ such that\n",
@@ -82,21 +81,19 @@
     "The *canalizing layer structure* $[k_1,\\ldots,k_r]$ describes the number of variables in each canalizing layer. \n",
     "We thus have $r\\geq 0$, $k_i\\geq 1$ and $k_1+\\cdots+k_r$.\n",
     "\n",
-    "In the following code, we define four 3-input functions with different canalizing properties.\n",
-    "\n",
-    "### 1.1 Examples"
+    "In the following code, we define four 3-input functions with different canalizing properties."
    ]
   },
   {
    "cell_type": "code",
    "execution_count": 2,
-   "id": "afc5dc4f",
+   "id": "39bb0a05",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-15T17:23:53.990841Z",
-     "iopub.status.busy": "2026-01-15T17:23:53.990595Z",
-     "iopub.status.idle": "2026-01-15T17:23:53.993168Z",
-     "shell.execute_reply": "2026-01-15T17:23:53.992951Z"
+     "iopub.execute_input": "2026-03-14T21:16:38.368691Z",
+     "iopub.status.busy": "2026-03-14T21:16:38.368541Z",
+     "iopub.status.idle": "2026-03-14T21:16:38.371370Z",
+     "shell.execute_reply": "2026-03-14T21:16:38.371016Z"
     },
     "lines_to_next_cell": 2
    },
@@ -120,27 +117,27 @@
    ],
    "source": [
     "# Non-canalizing XOR function\n",
-    "f = boolforge.BooleanFunction(\"(x0 + x1 + x2) % 2\")\n",
+    "f = bf.BooleanFunction(\"(x0 + x1 + x2) % 2\")\n",
     "\n",
     "# 1-canalizing function\n",
-    "g = boolforge.BooleanFunction(\"(x0 | (x1 & x2 | ~x1 & ~x2)) % 2\")\n",
+    "g = bf.BooleanFunction(\"(x0 | (x1 & x2 | !x1 & !x2)) % 2\")\n",
     "\n",
     "# Nested canalizing function with all variables in one layer\n",
-    "h = boolforge.BooleanFunction(\"~x0 & x1 & x2\")\n",
+    "h = bf.BooleanFunction(\"~x0 & x1 & x2\")\n",
     "\n",
     "# Nested canalizing function with two canalizing layers\n",
-    "k = boolforge.BooleanFunction(\"x0 | (x1 & x2)\")\n",
+    "k = bf.BooleanFunction(\"x0 | (x1 & x2)\")\n",
     "\n",
     "labels = [\"f\", \"g\", \"h\", \"k\"]\n",
-    "boolforge.display_truth_table(f, g, h, k, labels=labels)"
+    "bf.display_truth_table(f, g, h, k, labels=labels)"
    ]
   },
   {
    "cell_type": "markdown",
-   "id": "0961b763",
+   "id": "89e05c94",
    "metadata": {},
    "source": [
-    "### 1.2 Canalizing depth and nested canalization\n",
+    "### Canalizing depth and nested canalization\n",
     "\n",
     "For each function, we can determine whether it is canalizing and/or nested canalizing. \n",
     "This is determined by the canalizing depth (the number of conditionally canalizing variables), \n",
@@ -152,13 +149,13 @@
   {
    "cell_type": "code",
    "execution_count": 3,
-   "id": "e3b145a1",
+   "id": "82ee9e64",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-15T17:23:53.994251Z",
-     "iopub.status.busy": "2026-01-15T17:23:53.994157Z",
-     "iopub.status.idle": "2026-01-15T17:23:53.996847Z",
-     "shell.execute_reply": "2026-01-15T17:23:53.996522Z"
+     "iopub.execute_input": "2026-03-14T21:16:38.372786Z",
+     "iopub.status.busy": "2026-03-14T21:16:38.372685Z",
+     "iopub.status.idle": "2026-03-14T21:16:38.375577Z",
+     "shell.execute_reply": "2026-03-14T21:16:38.375339Z"
     },
     "lines_to_next_cell": 2
    },
@@ -198,10 +195,10 @@
   },
   {
    "cell_type": "markdown",
-   "id": "bfba54c8",
+   "id": "70f9b060",
    "metadata": {},
    "source": [
-    "### 1.3 Canalizing layer structure\n",
+    "### Canalizing layer structure\n",
     "\n",
     "The full canalizing layer structure includes canalizing input values, canalized\n",
     "output values, the order of canalizing variables, the layer structure, and the\n",
@@ -211,13 +208,13 @@
   {
    "cell_type": "code",
    "execution_count": 4,
-   "id": "116d266c",
+   "id": "b224da6b",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-15T17:23:53.998275Z",
-     "iopub.status.busy": "2026-01-15T17:23:53.998187Z",
-     "iopub.status.idle": "2026-01-15T17:23:54.000608Z",
-     "shell.execute_reply": "2026-01-15T17:23:54.000387Z"
+     "iopub.execute_input": "2026-03-14T21:16:38.376783Z",
+     "iopub.status.busy": "2026-03-14T21:16:38.376689Z",
+     "iopub.status.idle": "2026-03-14T21:16:38.379438Z",
+     "shell.execute_reply": "2026-03-14T21:16:38.379176Z"
     },
     "lines_to_next_cell": 2
    },
@@ -271,41 +268,42 @@
   },
   {
    "cell_type": "markdown",
-   "id": "37bb3697",
+   "id": "1cd351ff",
    "metadata": {},
    "source": [
     "Consider, for example, the output for `k`. The canalizing input values corresponding to\n",
     "$x_0, x_1, x_2$ are $1,0,0$, respectively, with the same canalized outputs. That is,\n",
     "\n",
-    "- Layer 1: $x_0$ (if $x_0=1$, then $k=1$, regardless of $x_1$ and $x_2$)\n",
-    "- Layer 2: $x_1, x_2$ (if $x_0=0$ and $x_1=0$ or $x_2=0$, then $k=0$)"
+    "- Layer 1 contains $x_0$ (if $x_0=1$, then $k=1$, regardless of $x_1$ and $x_2$)\n",
+    "- Layer 2 contains $x_1$ and $x_2$ (given $x_0=0$, if $x_1=0$ or $x_2=0$, then $k=0$)"
    ]
   },
   {
    "cell_type": "markdown",
-   "id": "4bced039",
+   "id": "2e24b1a0",
    "metadata": {},
    "source": [
-    "---\n",
-    "## 2. Collective canalization\n",
+    "## Collective canalization\n",
     "\n",
     "Collective canalization treats canalization as a property of the function rather\n",
-    "than individual variables (Reichhardt & Bassler, J. Phys. A, 2007).\n",
+    "than individual variables (Reichhardt & Bassler, J. Phys. A, 2007). \n",
+    "Individual canalization asks: \"Which *single* variables can determine output?\"\n",
+    "Collective canalization asks: \"Which *sets* of variables can determine output?\"\n",
     "\n",
     "A Boolean function is *$k$-set canalizing* if there exists a set of $k$ variables\n",
     "whose fixed values determine the output irrespective of the remaining inputs.\n",
     "\n",
-    "Individual canalization asks: \"Which single variables can determine output?\"\n",
-    "Collective canalization asks: \"Which SETS of variables can determine output?\"\n",
+    "Consider, for example, the function $k(x_0,x_1,x_2) = x_0 \\vee (x_1 \\wedge x_2)$, defined above.\n",
+    "This function is 2-set canalizing because\n",
     "\n",
-    "A 2-set canalizing example: If $k(x_0,x_1,x_2) = x_0 \\| (x_1 \\& x_2)$,\n",
-    "- $\\{x_0,x_1\\}$ can determine the output: if $(x_0,x_1)=(1,0)$, $k=1$ ($x_2$ irrelevant),\n",
+    "- $\\{x_0,x_1\\}$ can determine the output: if $(x_0,x_1)=(1,0)$, $k=1$ ($x_2$ irrelevant), or\n",
     "- $\\{x_1,x_2\\}$ can determine the output: if $(x_1,x_2)=(1,1)$, $k=1$ ($x_0$ irrelevant)\n",
     "\n",
-    "The proportion of such $k$-sets, the $k$-set canalizing proportion denoted $P_k(f)$, is used to define the canalizing strength.\n",
-    "It is fairly obvious that\n",
+    "The proportion of such $k$-sets, the *$k$-set canalizing proportion* denoted $P_k(f)$, \n",
+    "is an important summary statistic. It is fairly obvious that\n",
     "\n",
-    "- nested canalizing functions of a single layer such as `h` are the non-degenerate functions with highest k-set canalizing proportion $P_k(f) = 1-1/2^k$, and\n",
+    "- nested canalizing functions of a single layer such as `h` are the non-degenerate functions \n",
+    "  with largest k-set canalizing proportion $P_k(f) = 1-1/2^k$, and\n",
     "- $P_{k-1}(f) \\leq P_k(f)$, i.e., more knowledge about a function's inputs cannot result in less knowledge about its output,\n",
     "- the $n-1$-set canalizing proportion $P_{n-1}(f)$ is 1 minus the function's normalized average sensitivity.\n",
     "\n",
@@ -315,13 +313,13 @@
   {
    "cell_type": "code",
    "execution_count": 5,
-   "id": "18549eae",
+   "id": "364f736f",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-15T17:23:54.001788Z",
-     "iopub.status.busy": "2026-01-15T17:23:54.001705Z",
-     "iopub.status.idle": "2026-01-15T17:23:54.004618Z",
-     "shell.execute_reply": "2026-01-15T17:23:54.004423Z"
+     "iopub.execute_input": "2026-03-14T21:16:38.380707Z",
+     "iopub.status.busy": "2026-03-14T21:16:38.380598Z",
+     "iopub.status.idle": "2026-03-14T21:16:38.383942Z",
+     "shell.execute_reply": "2026-03-14T21:16:38.383704Z"
     },
     "lines_to_next_cell": 2
    },
@@ -332,22 +330,22 @@
      "text": [
       "1-set canalizing proportion of f: 0.0\n",
       "2-set canalizing proportion of f: 0.0\n",
-      "Normalized average sensitivity of f: 1.0\n",
+      "Normalized average sensitivity of f:1.0\n",
       "3-set canalizing proportion of f: 1.0\n",
       "\n",
       "1-set canalizing proportion of g: 0.16666666666666666\n",
       "2-set canalizing proportion of g: 0.5\n",
-      "Normalized average sensitivity of g: 0.5\n",
+      "Normalized average sensitivity of g:0.5\n",
       "3-set canalizing proportion of g: 1.0\n",
       "\n",
       "1-set canalizing proportion of h: 0.5\n",
       "2-set canalizing proportion of h: 0.75\n",
-      "Normalized average sensitivity of h: 0.25\n",
+      "Normalized average sensitivity of h:0.25\n",
       "3-set canalizing proportion of h: 1.0\n",
       "\n",
       "1-set canalizing proportion of k: 0.16666666666666666\n",
       "2-set canalizing proportion of k: 0.5833333333333334\n",
-      "Normalized average sensitivity of k: 0.4166666666666667\n",
+      "Normalized average sensitivity of k:0.4166666666666667\n",
       "3-set canalizing proportion of k: 1.0\n",
       "\n"
      ]
@@ -357,17 +355,18 @@
     "for func, label in zip([f, g, h, k], labels):\n",
     "    print(f\"1-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=1)}\")\n",
     "    print(f\"2-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=2)}\")\n",
-    "    print(f\"Normalized average sensitivity of {label}: {func.get_average_sensitivity(EXACT=True)}\")\n",
+    "    print(f\"Normalized average sensitivity of {label}:\"\n",
+    "          f\"{func.get_average_sensitivity(exact=True, normalized=True)}\")\n",
     "    print(f\"3-set canalizing proportion of {label}: {func.get_kset_canalizing_proportion(k=3)}\")\n",
     "    print()"
    ]
   },
   {
    "cell_type": "markdown",
-   "id": "c9aa878a",
+   "id": "90b440f6",
    "metadata": {},
    "source": [
-    "### 2.1 Canalizing strength\n",
+    "### Canalizing strength\n",
     "\n",
     "The *canalizing strength* summarizes collective canalization as a weighted average of\n",
     "the $k$-set canalizing proportions (Kadelka et al., Adv Appl Math, 2023). It ranges from:\n",
@@ -385,13 +384,13 @@
   {
    "cell_type": "code",
    "execution_count": 6,
-   "id": "0e1d645c",
+   "id": "cb0c828b",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-15T17:23:54.005673Z",
-     "iopub.status.busy": "2026-01-15T17:23:54.005603Z",
-     "iopub.status.idle": "2026-01-15T17:23:54.007723Z",
-     "shell.execute_reply": "2026-01-15T17:23:54.007530Z"
+     "iopub.execute_input": "2026-03-14T21:16:38.385080Z",
+     "iopub.status.busy": "2026-03-14T21:16:38.385004Z",
+     "iopub.status.idle": "2026-03-14T21:16:38.387371Z",
+     "shell.execute_reply": "2026-03-14T21:16:38.387120Z"
     },
     "lines_to_next_cell": 2
    },
@@ -420,11 +419,10 @@
   },
   {
    "cell_type": "markdown",
-   "id": "eb1cd212",
+   "id": "f1212b08",
    "metadata": {},
    "source": [
-    "---\n",
-    "### 2.2. Distribution of canalizing strength\n",
+    "### Distribution of canalizing strength\n",
     "\n",
     "An enumeration of all non-degenerate 3-input Boolean functions reveals the distribution of the canalizing strength. \n",
     "Note that this brute-force code can also run (in less than a minute) for all $2^{2^4}=2^{16}=65,536$ \n",
@@ -434,13 +432,13 @@
   {
    "cell_type": "code",
    "execution_count": 7,
-   "id": "a32dea2d",
+   "id": "d1f1b317",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-15T17:23:54.008761Z",
-     "iopub.status.busy": "2026-01-15T17:23:54.008688Z",
-     "iopub.status.idle": "2026-01-15T17:23:54.308371Z",
-     "shell.execute_reply": "2026-01-15T17:23:54.308169Z"
+     "iopub.execute_input": "2026-03-14T21:16:38.388502Z",
+     "iopub.status.busy": "2026-03-14T21:16:38.388423Z",
+     "iopub.status.idle": "2026-03-14T21:16:38.836336Z",
+     "shell.execute_reply": "2026-03-14T21:16:38.836061Z"
     },
     "lines_to_next_cell": 2
    },
@@ -458,11 +456,11 @@
    ],
    "source": [
     "n = 3\n",
-    "all_functions = boolforge.get_left_side_of_truth_table(2**n)\n",
+    "all_functions = bf.get_left_side_of_truth_table(2**n)\n",
     "\n",
     "canalizing_strengths = []\n",
     "for binary_vector in all_functions:\n",
-    "    func = boolforge.BooleanFunction(f=binary_vector)\n",
+    "    func = bf.BooleanFunction(f=binary_vector)\n",
     "    if not func.is_degenerate():\n",
     "        canalizing_strengths.append(func.get_canalizing_strength())\n",
     "\n",
@@ -475,11 +473,10 @@
   },
   {
    "cell_type": "markdown",
-   "id": "d35794f5",
+   "id": "05755bfc",
    "metadata": {},
    "source": [
-    "---\n",
-    "## 3. Canalization as a measure of input redundancy\n",
+    "## Canalization as a measure of input redundancy\n",
     "\n",
     "Canalization, symmetry and redundancy are related concepts. \n",
     "A highly symmetry Boolean function with few (e.g., one) symmetry groups\n",
@@ -490,25 +487,24 @@
     "which describes the proportion of times that this variable is needed to determine the output of the function. \n",
     "Edge effectiveness is very similar to the activity of a variable \n",
     "but is not the same (the difference is defined as *excess canalization*).\n",
-    "The sum of all edge effectivenesses of the inputs of a function is known as its *effective degree*.\n",
+    "The sum of all edge effectiveness values of the inputs of a function is known as its *effective degree*.\n",
     "The average input redundancy serves as a measure of the canalization in a function.\n",
     "\n",
-    "In `BoolForge`, all these quantities can be computed, however not directly.\n",
-    "Instead, they are computed using the `CANA` package, \n",
-    "which must be installed (`pip install cana`) to enjoy this functionality. \n",
-    "To exemplify this, we reconsider the four 3-input functions from above."
+    "`BoolForge` can compute all these quantities. To use this functionality, \n",
+    "the optional `CANA` package must be installed (`pip install cana` or `pip install boolforge[cana]`). \n",
+    "To exemplify this, reconsider the four 3-input functions from above."
    ]
   },
   {
    "cell_type": "code",
    "execution_count": 8,
-   "id": "090e0384",
+   "id": "ee0a4bcc",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-01-15T17:23:54.309538Z",
-     "iopub.status.busy": "2026-01-15T17:23:54.309410Z",
-     "iopub.status.idle": "2026-01-15T17:23:54.313051Z",
-     "shell.execute_reply": "2026-01-15T17:23:54.312846Z"
+     "iopub.execute_input": "2026-03-14T21:16:38.837784Z",
+     "iopub.status.busy": "2026-03-14T21:16:38.837611Z",
+     "iopub.status.idle": "2026-03-14T21:16:38.850419Z",
+     "shell.execute_reply": "2026-03-14T21:16:38.850147Z"
     },
     "lines_to_next_cell": 2
    },
@@ -525,22 +521,22 @@
       "Normalized input redundancy of f: 0.0\n",
       "\n",
       "Edge effectiveness of g: [0.625, 0.625, 0.625]\n",
-      "Activities of g: [0.4949 0.499  0.499 ]\n",
-      "Excess canalization of g: [0.1301 0.126  0.126 ]\n",
+      "Activities of g: [0.5 0.5 0.5]\n",
+      "Excess canalization of g: [0.125 0.125 0.125]\n",
       "Effective degree of g: 1.875\n",
       "Average edge effectiveness of g: 0.625\n",
       "Normalized input redundancy of g: 0.375\n",
       "\n",
       "Edge effectiveness of h: [0.41666666666666663, 0.41666666666666663, 0.41666666666666663]\n",
-      "Activities of h: [0.2501 0.2508 0.2408]\n",
-      "Excess canalization of h: [0.16656667 0.16586667 0.17586667]\n",
+      "Activities of h: [0.25 0.25 0.25]\n",
+      "Excess canalization of h: [0.16666667 0.16666667 0.16666667]\n",
       "Effective degree of h: 1.25\n",
       "Average edge effectiveness of h: 0.4166666666666667\n",
       "Normalized input redundancy of h: 0.5833333333333334\n",
       "\n",
       "Edge effectiveness of k: [0.8125, 0.375, 0.375]\n",
-      "Activities of k: [0.7453 0.2533 0.2481]\n",
-      "Excess canalization of k: [0.0672 0.1217 0.1269]\n",
+      "Activities of k: [0.75 0.25 0.25]\n",
+      "Excess canalization of k: [0.0625 0.125  0.125 ]\n",
       "Effective degree of k: 1.5625\n",
       "Average edge effectiveness of k: 0.5208333333333334\n",
       "Normalized input redundancy of k: 0.4791666666666667\n",
@@ -566,11 +562,10 @@
   },
   {
    "cell_type": "markdown",
-   "id": "00d6ed82",
+   "id": "23ff8b62",
    "metadata": {},
    "source": [
-    "---\n",
-    "## 4. Summary and next steps\n",
+    "## Summary\n",
     "\n",
     "In this tutorial you learned how to:\n",
     "\n",

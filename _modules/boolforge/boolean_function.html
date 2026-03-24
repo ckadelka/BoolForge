@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>boolforge.boolean_function &mdash; BoolForge 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
@@ -111,29 +111,20 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Tuple</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">cana.boolean_node</span>
+    <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+<span class="c1"># load optional but desirable package</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">boolforge.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">utils</span>
-
-
-<span class="c1"># load optional packages</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pyeda.inter</span><span class="w"> </span><span class="kn">import</span> <span class="n">exprvar</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">espresso_exprs</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pyeda.boolalg.expr</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrOp</span><span class="p">,</span> <span class="n">AndOp</span><span class="p">,</span> <span class="n">NotOp</span><span class="p">,</span> <span class="n">Complement</span>
-    <span class="n">__LOADED_PyEDA__</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-    <span class="n">__LOADED_PyEDA__</span> <span class="o">=</span> <span class="kc">False</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">cana.boolean_node</span>
-    <span class="n">__LOADED_CANA__</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-    <span class="n">__LOADED_CANA__</span> <span class="o">=</span> <span class="kc">False</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">njit</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numba</span>
+    <span class="n">njit</span> <span class="o">=</span> <span class="n">numba</span><span class="o">.</span><span class="n">njit</span>
     <span class="n">__LOADED_NUMBA__</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="n">__LOADED_NUMBA__</span> <span class="o">=</span> <span class="kc">False</span>
@@ -142,7 +133,204 @@
     <span class="s2">&quot;BooleanFunction&quot;</span><span class="p">,</span>
     <span class="s2">&quot;display_truth_table&quot;</span><span class="p">,</span>
     <span class="s2">&quot;get_layer_structure_from_canalized_outputs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;f_from_expression&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
+<span class="n">_LOGIC_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;AND&quot;</span><span class="p">:</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;and&quot;</span><span class="p">:</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;&amp;&amp;&quot;</span><span class="p">:</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;&amp;&quot;</span><span class="p">:</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;or&quot;</span><span class="p">:</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;||&quot;</span><span class="p">:</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;|&quot;</span><span class="p">:</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NOT&quot;</span><span class="p">:</span> <span class="s2">&quot;~&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not&quot;</span><span class="p">:</span> <span class="s2">&quot;~&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;!&quot;</span><span class="p">:</span> <span class="s2">&quot;~&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;~&quot;</span><span class="p">:</span> <span class="s2">&quot;~&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_COMPARE_OPS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="s2">&quot;!=&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">}</span>
+
+<span class="n">_ARITH_OPS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;%&quot;</span><span class="p">}</span>
+
+<div class="viewcode-block" id="f_from_expression">
+<a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.f_from_expression">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">f_from_expression</span><span class="p">(</span>
+    <span class="n">expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">max_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct a Boolean function from a string expression.</span>
+<span class="sd">    </span>
+<span class="sd">    The expression is evaluated symbolically over all Boolean input</span>
+<span class="sd">    combinations to produce the truth table of the corresponding Boolean</span>
+<span class="sd">    function. Variables are detected automatically based on their first</span>
+<span class="sd">    occurrence in the expression.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    expr : str</span>
+<span class="sd">        Boolean expression to evaluate. The expression may contain logical</span>
+<span class="sd">        operators (``AND``, ``OR``, ``NOT`` or their lowercase equivalents),</span>
+<span class="sd">        arithmetic operators, and comparisons.</span>
+<span class="sd">    max_degree : int, optional</span>
+<span class="sd">        Maximum number of variables allowed. If the number of detected</span>
+<span class="sd">        variables exceeds ``max_degree``, an empty truth table is returned.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    f : np.ndarray</span>
+<span class="sd">        Boolean function values as an array of shape ``(2**n,)`` with entries</span>
+<span class="sd">        in ``{0, 1}``, where ``n`` is the number of detected variables.</span>
+<span class="sd">    variables : np.ndarray</span>
+<span class="sd">        Variable names in the order they were first encountered in the</span>
+<span class="sd">        expression.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Variables are ordered by first occurrence in ``expr``.</span>
+<span class="sd">    - Truth-table rows follow the standard lexicographic ordering with the</span>
+<span class="sd">      most significant bit first.</span>
+<span class="sd">    - The expression is evaluated using ``eval`` with restricted builtins.</span>
+<span class="sd">    - No syntactic or semantic validation of ``expr`` is performed beyond</span>
+<span class="sd">      basic parsing.</span>
+<span class="sd">    - Arithmetic operators (+, -, *, %) must be surrounded by whitespace.</span>
+<span class="sd">      This restriction avoids conflicts with biological identifiers such as Ca2+ or IL-2.</span>
+<span class="sd">    - Whenever uncertain, use whitespace.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; f_from_expression(&#39;A AND NOT B&#39;)</span>
+<span class="sd">    (array([0, 0, 1, 0], dtype=uint8), array([&#39;A&#39;, &#39;B&#39;], dtype=&#39;&lt;U1&#39;))</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; f_from_expression(&#39;x1 + x2 + x3 &gt; 1&#39;)</span>
+<span class="sd">    (array([0, 0, 0, 1, 0, 1, 1, 1], dtype=uint8),</span>
+<span class="sd">     array([&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;], dtype=&#39;&lt;U2&#39;))</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; f_from_expression(&#39;(x1 + x2 + x3) % 2 == 0&#39;)</span>
+<span class="sd">    (array([1, 0, 0, 1, 0, 1, 1, 0], dtype=uint8),</span>
+<span class="sd">     array([&#39;x1&#39;, &#39;x2&#39;, &#39;x3&#39;], dtype=&#39;&lt;U2&#39;))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># --------------------------------------------------</span>
+    <span class="c1"># 1. Normalize parentheses spacing</span>
+    <span class="c1"># --------------------------------------------------</span>
+
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot; ( &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot; ) &quot;</span><span class="p">)</span>
+    
+    <span class="c1"># comparisons</span>
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;==&quot;</span><span class="p">,</span> <span class="s2">&quot;!=&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">]:</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">)</span>
+        
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&gt; =&#39;</span><span class="p">,</span><span class="s1">&#39;&gt;=&#39;</span><span class="p">)</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt; =&#39;</span><span class="p">,</span><span class="s1">&#39;&lt;=&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># logical double operators -&gt; canonical</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&amp;&amp;&quot;</span><span class="p">,</span> <span class="s2">&quot; &amp; &quot;</span><span class="p">)</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;||&quot;</span><span class="p">,</span> <span class="s2">&quot; | &quot;</span><span class="p">)</span>
+    
+    <span class="c1"># single logical operators</span>
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&amp;&quot;</span><span class="p">,</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span> <span class="s2">&quot;!&quot;</span><span class="p">,</span> <span class="s2">&quot;~&quot;</span><span class="p">]:</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">)</span>
+    
+    <span class="n">raw_tokens</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="c1"># --------------------------------------------------</span>
+    <span class="c1"># 2. Token classification</span>
+    <span class="c1"># --------------------------------------------------</span>
+
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">raw_tokens</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;)&quot;</span><span class="p">}:</span>
+            <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">_LOGIC_MAP</span><span class="p">:</span>
+            <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_LOGIC_MAP</span><span class="p">[</span><span class="n">token</span><span class="p">])</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">_COMPARE_OPS</span><span class="p">:</span>
+            <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">continue</span>
+        
+        <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">_ARITH_OPS</span><span class="p">:</span>
+            <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">_is_number</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Otherwise: biological identifier</span>
+        <span class="k">if</span> <span class="n">token</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+        <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="n">max_degree</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="c1"># --------------------------------------------------</span>
+    <span class="c1"># 3. Map biological names → safe Python names</span>
+    <span class="c1"># --------------------------------------------------</span>
+
+    <span class="n">safe_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">var</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;v</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">variables</span><span class="p">)}</span>
+
+    <span class="n">safe_tokens</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">safe_map</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">safe_map</span> <span class="k">else</span> <span class="n">token</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span>
+    <span class="p">]</span>
+
+    <span class="n">expr_mod</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">safe_tokens</span><span class="p">)</span>
+
+    <span class="c1"># --------------------------------------------------</span>
+    <span class="c1"># 4. Build evaluation environment</span>
+    <span class="c1"># --------------------------------------------------</span>
+
+    <span class="n">truth_table</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="n">local_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">safe_map</span><span class="p">[</span><span class="n">var</span><span class="p">]:</span> <span class="n">truth_table</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1"># --------------------------------------------------</span>
+    <span class="c1"># 5. Evaluate expression</span>
+    <span class="c1"># --------------------------------------------------</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">expr_mod</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;__builtins__&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span> <span class="n">local_dict</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Error evaluating expression:</span><span class="se">\n</span><span class="si">{</span><span class="n">expr</span><span class="si">}</span><span class="se">\n</span><span class="s2">Parsed as:</span><span class="se">\n</span><span class="si">{</span><span class="n">expr_mod</span><span class="si">}</span><span class="se">\n</span><span class="s2">Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># --------------------------------------------------</span>
+    <span class="c1"># 6. Enforce Boolean semantics</span>
+    <span class="c1"># --------------------------------------------------</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">result</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+    <span class="c1"># Fix NOT and enforce {0,1}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">&amp;</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span></div>
+
+
 
 <span class="k">if</span> <span class="n">__LOADED_NUMBA__</span><span class="p">:</span>
     <span class="nd">@njit</span>
@@ -195,7 +383,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    \*functions : BooleanFunction</span>
+<span class="sd">    functions : BooleanFunction</span>
 <span class="sd">        One or more BooleanFunction objects with the same number of input</span>
 <span class="sd">        variables.</span>
 <span class="sd">    labels : Sequence[str] or None, optional</span>
@@ -228,7 +416,7 @@
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">variables</span> <span class="o">==</span> <span class="n">g</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">]):</span>
         <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">n</span><span class="p">)])</span> 
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;x</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">n</span><span class="p">)])</span> 
+        <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;x</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">n</span><span class="p">)])</span> 
     <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;f</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">functions</span><span class="p">))]</span>
     <span class="n">header</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">|</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
@@ -246,7 +434,7 @@
 <div class="viewcode-block" id="get_layer_structure_from_canalized_outputs">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.get_layer_structure_from_canalized_outputs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_structure_from_canalized_outputs</span><span class="p">(</span>
-        <span class="n">can_outputs</span> <span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+        <span class="n">outputs</span> <span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the canalizing layer structure from canalized outputs.</span>
@@ -257,7 +445,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    can_outputs : Sequence[int]</span>
+<span class="sd">    outputs : Sequence[int]</span>
 <span class="sd">        Sequence of canalized output values in the order in which canalizing</span>
 <span class="sd">        variables are identified.</span>
 
@@ -266,13 +454,13 @@
 <span class="sd">    list[int]</span>
 <span class="sd">        List specifying the number of variables in each canalizing layer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">canalizing_depth</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">can_outputs</span><span class="p">)</span>
+    <span class="n">canalizing_depth</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">canalizing_depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="n">size_of_layer</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">layer_structure</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">canalizing_depth</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">can_outputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">can_outputs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">outputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">outputs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
             <span class="n">size_of_layer</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">layer_structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size_of_layer</span><span class="p">)</span>
@@ -295,10 +483,12 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    f : list[int] | np.ndarray | str</span>
-<span class="sd">        Truth table of length ``2**n`` representing the outputs of a Boolean</span>
-<span class="sd">        function with ``n`` inputs, or a Boolean expression string that can be</span>
-<span class="sd">        evaluated. Expression strings are parsed using</span>
-<span class="sd">        ``utils.f_from_expression``.</span>
+<span class="sd">        Either:</span>
+<span class="sd">            </span>
+<span class="sd">        - a truth table of length ``2**n`` representing the outputs of a Boolean</span>
+<span class="sd">        function with ``n`` inputs, or </span>
+<span class="sd">        - a Boolean expression string that can be evaluated. Expression strings </span>
+<span class="sd">        are parsed using ``utils.f_from_expression``.</span>
 <span class="sd">    name : str, optional</span>
 <span class="sd">        Name of the node regulated by the Boolean function. Default is ``&quot;&quot;``.</span>
 <span class="sd">    variables : list[str] | np.ndarray | None, optional</span>
@@ -349,8 +539,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">f_from_expression</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            
+            <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">f_from_expression</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;f must be a list, numpy array or interpretable string&quot;</span><span class="p">)</span>
@@ -471,7 +660,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
-        <span class="c1">#return f&quot;{self.f.tolist()}&quot;</span>
     
 <div class="viewcode-block" id="BooleanFunction.__repr__">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.__repr__">[docs]</a>
@@ -479,14 +667,16 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return an unambiguous string representation of the BooleanFunction.</span>
 <span class="sd">    </span>
-<span class="sd">        For small functions (``n &lt; 6``), the full truth table is shown.</span>
+<span class="sd">        For small functions (``n &lt; 5``), the full truth table is shown.</span>
 <span class="sd">        For larger functions, only the number of inputs is displayed to</span>
 <span class="sd">        avoid excessive output.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(f=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;name=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;, &quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">f=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(n=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">n=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="si">}</span><span class="s2">, bias=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span></div>
 
     
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -730,15 +920,30 @@
 <span class="sd">        str</span>
 <span class="sd">            Polynomial representation of the Boolean function in non-reduced DNF.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">bool_to_poly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span></div>
+        <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">num_values</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">[]</span>
 
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_values</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">monomial</span> <span class="o">=</span> <span class="s1">&#39; * &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">v</span> <span class="k">if</span> <span class="n">entry</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;(1 - </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">)&#39;</span>
+                        <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span> <span class="n">left_side_of_truth_table</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">monomial</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;0&#39;</span></div>
 
 
 <div class="viewcode-block" id="BooleanFunction.to_truth_table">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.to_truth_table">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_truth_table</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">RETURN</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">return_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -750,7 +955,7 @@
 <span class="sd">    </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        RETURN : bool, optional</span>
+<span class="sd">        return_output : bool, optional</span>
 <span class="sd">            Whether to return the truth table as a DataFrame. If ``False``, the</span>
 <span class="sd">            truth table is only written to file when ``filename`` is provided.</span>
 <span class="sd">            Default is ``True``.</span>
@@ -762,7 +967,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        pandas.DataFrame or None</span>
-<span class="sd">            The full truth table if ``RETURN=True``; otherwise ``None``.</span>
+<span class="sd">            The full truth table if ``return_output=True``; otherwise ``None``.</span>
 <span class="sd">    </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -799,7 +1004,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">truth_table</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     
-        <span class="k">if</span> <span class="n">RETURN</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">return_output</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">truth_table</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
@@ -830,21 +1035,19 @@
 <span class="sd">        -----</span>
 <span class="sd">        This method requires the CANA package to be installed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">__LOADED_CANA__</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;CANA is required for to_cana()&quot;</span><span class="p">)</span>
-    
-        <span class="k">return</span> <span class="n">cana</span><span class="o">.</span><span class="n">boolean_node</span><span class="o">.</span><span class="n">BooleanNode</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">)</span></div>
+        <span class="n">cana_boolean_node</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_require_cana</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cana_boolean_node</span><span class="o">.</span><span class="n">BooleanNode</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">)</span></div>
 
-    
-    
+        
+
 <div class="viewcode-block" id="BooleanFunction.to_logical">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.to_logical">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_logical</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">AND</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">,</span>
-        <span class="n">OR</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span>
-        <span class="n">NOT</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;!&quot;</span><span class="p">,</span>
-        <span class="n">MINIMIZE_EXPRESSION</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">and_op</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">,</span>
+        <span class="n">or_op</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span>
+        <span class="n">not_op</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;!&quot;</span><span class="p">,</span>
+        <span class="n">minimize_expression</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert the Boolean function to a logical expression.</span>
@@ -857,13 +1060,13 @@
 <span class="sd">    </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        AND : str, optional</span>
+<span class="sd">        and_op : str, optional</span>
 <span class="sd">            String used to represent the logical AND operator. Default is ``&quot;&amp;&quot;``.</span>
-<span class="sd">        OR : str, optional</span>
+<span class="sd">        or_op : str, optional</span>
 <span class="sd">            String used to represent the logical OR operator. Default is ``&quot;|&quot;``.</span>
-<span class="sd">        NOT : str, optional</span>
+<span class="sd">        not_op : str, optional</span>
 <span class="sd">            String used to represent the logical NOT operator. Default is ``&quot;!&quot;``.</span>
-<span class="sd">        MINIMIZE_EXPRESSION : bool, optional</span>
+<span class="sd">        minimize_expression : bool, optional</span>
 <span class="sd">            Whether to minimize the logical expression using the Espresso</span>
 <span class="sd">            algorithm (via PyEDA). If ``False``, the expression is returned</span>
 <span class="sd">            in non-minimized disjunctive normal form. Default is ``True``.</span>
@@ -878,6 +1081,13 @@
 <span class="sd">        If the PyEDA package is not installed, the method falls back to a</span>
 <span class="sd">        non-minimized expression derived from the polynomial representation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">pyeda.inter</span><span class="w"> </span><span class="kn">import</span> <span class="n">exprvar</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">espresso_exprs</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">pyeda.boolalg.expr</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrOp</span><span class="p">,</span> <span class="n">AndOp</span><span class="p">,</span> <span class="n">NotOp</span><span class="p">,</span> <span class="n">Complement</span>
+            <span class="n">__LOADED_PyEDA__</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+            <span class="n">__LOADED_PyEDA__</span> <span class="o">=</span> <span class="kc">False</span>
+            
         <span class="k">if</span> <span class="n">__LOADED_PyEDA__</span><span class="p">:</span>
             <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">exprvar</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">))</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span>
             <span class="n">minterms</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
@@ -897,37 +1107,55 @@
             <span class="k">if</span> <span class="n">func_expr</span><span class="o">.</span><span class="n">is_zero</span><span class="p">():</span>
                 <span class="k">return</span> <span class="s2">&quot;0&quot;</span>
     
-            <span class="k">if</span> <span class="n">MINIMIZE_EXPRESSION</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">minimize_expression</span><span class="p">:</span>
                 <span class="n">func_expr</span><span class="p">,</span> <span class="o">=</span> <span class="n">espresso_exprs</span><span class="p">(</span><span class="n">func_expr</span><span class="p">)</span>
     
             <span class="k">def</span><span class="w"> </span><span class="nf">__pyeda_to_string__</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">OrOp</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;)</span><span class="si">{</span><span class="n">OR</span><span class="si">}</span><span class="s2">(&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="k">return</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;)</span><span class="si">{</span><span class="n">or_op</span><span class="si">}</span><span class="s2">(&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">xs</span>
                     <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">AndOp</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="n">AND</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">xs</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">and_op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">xs</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">NotOp</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NOT</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">not_op</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Complement</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">NOT</span><span class="si">}{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">not_op</span><span class="si">}{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span><span class="si">}</span><span class="s2">)&quot;</span>
                 <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
     
             <span class="k">return</span> <span class="n">__pyeda_to_string__</span><span class="p">(</span><span class="n">func_expr</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Fallback without PyEDA</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">to_polynomial</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; * &quot;</span><span class="p">,</span> <span class="n">and_op</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; + &quot;</span><span class="p">,</span> <span class="n">or_op</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;1 - &quot;</span><span class="p">,</span> <span class="n">not_op</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hamming_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of ones in the truth table.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hamming_weight</span><span class="p">()</span>
     
-        <span class="c1"># Fallback without PyEDA</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">to_polynomial</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; * &quot;</span><span class="p">,</span> <span class="n">AND</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; + &quot;</span><span class="p">,</span> <span class="n">OR</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;1 - &quot;</span><span class="p">,</span> <span class="n">NOT</span><span class="p">)</span>
-        <span class="p">)</span></div>
-
-
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bias</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fraction of ones in the truth table.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hamming_weight</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
+    
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">absolute_bias</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Absolute bias: |2*bias − 1|.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+    
     
 <div class="viewcode-block" id="BooleanFunction.summary">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.summary">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">AS_DICT</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">COMPUTE_ALL</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compute_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a concise summary of the Boolean function.</span>
 <span class="sd">    </span>
@@ -937,69 +1165,66 @@
 <span class="sd">    </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        AS_DICT : bool, optional</span>
-<span class="sd">            If ``True``, return the summary as a dictionary. If ``False`` (default),</span>
-<span class="sd">            return a formatted string.</span>
-<span class="sd">    </span>
-<span class="sd">        COMPUTE_ALL : bool, optional</span>
+<span class="sd">        compute_all : bool, optional</span>
 <span class="sd">            If ``True``, additional properties are computed and included in the</span>
 <span class="sd">            summary. These computations may be expensive. If ``False`` (default),</span>
 <span class="sd">            only already available properties are included.</span>
+<span class="sd">        as_dict : bool, optional</span>
+<span class="sd">            If ``True``, return the summary as a dictionary. If ``False`` (default),</span>
+<span class="sd">            return a formatted string.</span>
 <span class="sd">    </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str or dict</span>
 <span class="sd">            Summary of the Boolean function, either as a formatted string or as</span>
-<span class="sd">            a dictionary depending on the value of ``AS_DICT``.</span>
+<span class="sd">            a dictionary depending on the value of ``as_dict``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
     
-        <span class="n">ones</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
-        <span class="n">bias</span> <span class="o">=</span> <span class="n">ones</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span>
-        <span class="n">abs_bias</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">bias</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
-
-        <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">core_summary</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;Number of variables&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
-            <span class="s2">&quot;Hamming Weight&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">ones</span><span class="p">),</span>
-            <span class="s2">&quot;Bias&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">bias</span><span class="p">),</span>
-            <span class="s2">&quot;Absolute bias&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">abs_bias</span><span class="p">),</span>
-            <span class="s2">&quot;Variables&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span>
+            <span class="s2">&quot;Hamming Weight&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hamming_weight</span><span class="p">,</span>
+            <span class="s2">&quot;Bias&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span>
+            <span class="s2">&quot;Absolute bias&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">absolute_bias</span><span class="p">,</span>
+            <span class="s2">&quot;Variables&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
         <span class="p">}</span>
+        
+        <span class="n">special_formatting</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Absolute bias&quot;</span> <span class="p">:</span> <span class="s2">&quot;.3f&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Bias&quot;</span> <span class="p">:</span> <span class="s2">&quot;.3f&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Average sensitivity&quot;</span> <span class="p">:</span> <span class="s2">&quot;.3f&quot;</span>
+        <span class="p">}</span>
+        
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">core_summary</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     
-        <span class="c1"># Optional properties (only if already computed / cached)</span>
-        <span class="k">if</span> <span class="n">COMPUTE_ALL</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_layer_structure</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_type_of_inputs</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">compute_all</span><span class="p">:</span>
+            <span class="n">activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_activities</span><span class="p">()</span>
+            <span class="n">avg_sensitivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_average_sensitivity</span><span class="p">()</span>
+            <span class="n">summary</span><span class="p">[</span><span class="s1">&#39;Activities&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">activities</span><span class="p">]</span>
+            <span class="n">summary</span><span class="p">[</span><span class="s1">&#39;Average sensitivity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_sensitivity</span>
             
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_type_of_inputs</span><span class="p">()</span>            
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_layer_structure</span><span class="p">()</span>
+    
         <span class="n">summary</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
-                
-        <span class="k">if</span> <span class="n">AS_DICT</span><span class="p">:</span>
+    
+        <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">summary</span>
     
-        <span class="c1"># Pretty formatting</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;BooleanFunction summary&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;Number of variables:        </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;Number of variables&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;Hamming Weight:             </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;Hamming Weight&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;Bias:                       </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;Bias&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;Absolute bias:              </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;Absolute bias&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;Variables:                  </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;Variables&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">]</span>
-    
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">summary</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>
-                <span class="s2">&quot;Number of variables&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Hamming Weight&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Bias&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Absolute bias&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Variables&quot;</span>
-            <span class="p">}:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">:&quot;</span><span class="o">+</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">*</span><span class="p">(</span><span class="mi">27</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)))</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;BooleanFunction&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+            
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">title</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">title</span><span class="p">)]</span>
+        
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">special_formatting</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="si">:</span><span class="s2">27</span><span class="si">}{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="si">:</span><span class="s2">27</span><span class="si">}{</span><span class="n">value</span><span class="si">:{</span><span class="n">special_formatting</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
-
-    
+        
 <div class="viewcode-block" id="BooleanFunction.is_constant">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_constant">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1019,7 +1244,7 @@
         
 <div class="viewcode-block" id="BooleanFunction.is_degenerate">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.is_degenerate">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_degenerate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">USE_NUMBA</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_degenerate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_numba</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine whether the Boolean function is degenerate.</span>
 <span class="sd">    </span>
@@ -1029,7 +1254,7 @@
 <span class="sd">    </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        USE_NUMBA : bool, optional</span>
+<span class="sd">        use_numba : bool, optional</span>
 <span class="sd">            Whether to use Numba-accelerated computation when available.</span>
 <span class="sd">            Default is ``True``.</span>
 <span class="sd">    </span>
@@ -1039,7 +1264,7 @@
 <span class="sd">            ``True`` if the Boolean function contains at least one</span>
 <span class="sd">            non-essential variable, ``False`` if all variables are essential.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">__LOADED_NUMBA__</span> <span class="ow">and</span> <span class="n">USE_NUMBA</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">__LOADED_NUMBA__</span> <span class="ow">and</span> <span class="n">use_numba</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
             <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">_is_degenerate_numba</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1231,37 +1456,52 @@
     
 <div class="viewcode-block" id="BooleanFunction.get_essential_variables">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_essential_variables">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_essential_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_essential_variables</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Determine the essential variables of the Boolean function.</span>
+<span class="sd">        Identify essential variables of the Boolean function.</span>
 <span class="sd">    </span>
-<span class="sd">        A variable ``x_i`` is essential if there exists at least one assignment of</span>
-<span class="sd">        the remaining variables such that flipping ``x_i`` changes the output of</span>
+<span class="sd">        A variable ``x_i`` is essential if there exists an assignment of the</span>
+<span class="sd">        remaining variables such that flipping ``x_i`` changes the output of</span>
 <span class="sd">        the function.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        as_dict : bool, optional</span>
+<span class="sd">            If True, return a dictionary mapping variable indices to booleans.</span>
+<span class="sd">            If False (default), return an array of indices of essential variables.</span>
 <span class="sd">    </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        list[int]</span>
-<span class="sd">            Indices of all essential variables. If the truth table is empty, returns</span>
-<span class="sd">            an empty list.</span>
+<span class="sd">        dict[int, bool] or np.ndarray</span>
+<span class="sd">            If ``as_dict`` is True, a dictionary indicating which variables are</span>
+<span class="sd">            essential.</span>
+<span class="sd">            If ``as_dict`` is False, an array of indices of essential variables.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+    
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
-        <span class="n">essential_variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
-            <span class="n">dummy_add</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">))</span>
-            <span class="n">dummy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">))</span> <span class="o">//</span> <span class="n">dummy_add</span>
-            <span class="n">depends_on_i</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">dummy</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="n">dummy_add</span><span class="p">]:</span>
-                        <span class="n">depends_on_i</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">is_essential</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">is_essential</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    
+                <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">step</span><span class="p">):</span>
+                    <span class="n">block0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="n">step</span><span class="p">]</span>
+                    <span class="n">block1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">start</span> <span class="o">+</span> <span class="n">step</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">step</span><span class="p">]</span>
+    
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">block0</span> <span class="o">!=</span> <span class="n">block1</span><span class="p">):</span>
+                        <span class="n">is_essential</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
                         <span class="k">break</span>
-            <span class="k">if</span> <span class="n">depends_on_i</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
-                <span class="n">essential_variables</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">essential_variables</span> </div>
+    
+        <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">is_essential</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+    
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_essential</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
 
 
 <div class="viewcode-block" id="BooleanFunction.get_number_of_essential_variables">
@@ -1287,10 +1527,10 @@
 <span class="sd">    </span>
 <span class="sd">        Each variable is classified as one of:</span>
 <span class="sd">    </span>
+<span class="sd">        - ``&#39;non-essential&#39;``: flipping the variable never changes the output</span>
 <span class="sd">        - ``&#39;positive&#39;``: flipping the variable from 0 to 1 never decreases the output</span>
 <span class="sd">        - ``&#39;negative&#39;``: flipping the variable from 0 to 1 never increases the output</span>
 <span class="sd">        - ``&#39;conditional&#39;``: flipping the variable can both increase and decrease the output</span>
-<span class="sd">        - ``&#39;non-essential&#39;``: flipping the variable never changes the output</span>
 <span class="sd">    </span>
 <span class="sd">        The result is cached in ``self.properties[&#39;InputTypes&#39;]``.</span>
 <span class="sd">    </span>
@@ -1306,33 +1546,33 @@
     
         <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
         <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+    
         <span class="n">types</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
     
-        <span class="c1"># Compute all pairwise differences for each bit position simultaneously</span>
-        <span class="c1"># Each variable toggles every 2**i entries in the truth table.</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-            <span class="n">period</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">half</span> <span class="o">=</span> <span class="n">period</span> <span class="o">//</span> <span class="mi">2</span>
-            <span class="c1"># Vectorized reshape pattern: consecutive blocks of 0...1 transitions</span>
-            <span class="n">f_reshaped</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-            <span class="n">diff</span> <span class="o">=</span> <span class="n">f_reshaped</span><span class="p">[:,</span> <span class="n">half</span><span class="p">:]</span> <span class="o">-</span> <span class="n">f_reshaped</span><span class="p">[:,</span> <span class="p">:</span><span class="n">half</span><span class="p">]</span>
-            <span class="n">min_diff</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-            <span class="n">max_diff</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">min_diff</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">max_diff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;non-essential&#39;</span>
-            <span class="k">elif</span> <span class="n">min_diff</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">max_diff</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;conditional&#39;</span>
-            <span class="k">elif</span> <span class="n">min_diff</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">max_diff</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;positive&#39;</span>
-            <span class="k">elif</span> <span class="n">min_diff</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">max_diff</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Compute all pairwise differences for each bit position simultaneously # Each variable toggles every 2**i entries in the truth table. </span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span> 
+            <span class="n">period</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> 
+            <span class="n">half</span> <span class="o">=</span> <span class="n">period</span> <span class="o">//</span> <span class="mi">2</span> 
+            
+            <span class="c1"># Vectorized reshape pattern: consecutive blocks of 0...1 transitions </span>
+            <span class="n">f_reshaped</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span> 
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">f_reshaped</span><span class="p">[:,</span> <span class="n">half</span><span class="p">:]</span> <span class="o">-</span> <span class="n">f_reshaped</span><span class="p">[:,</span> <span class="p">:</span><span class="n">half</span><span class="p">]</span> 
+            <span class="n">min_diff</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> 
+            <span class="n">max_diff</span> <span class="o">=</span> <span class="n">diff</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> 
+            <span class="k">if</span> <span class="n">min_diff</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">max_diff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> 
+                <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;non-essential&#39;</span> 
+            <span class="k">elif</span> <span class="n">min_diff</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">max_diff</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> 
+                <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;conditional&#39;</span> 
+            <span class="k">elif</span> <span class="n">min_diff</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">max_diff</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> 
+                <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;positive&#39;</span> 
+            <span class="k">elif</span> <span class="n">min_diff</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">max_diff</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span> 
                 <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;negative&#39;</span>
-    
-        <span class="n">types</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">types</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+                
+        <span class="n">types</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">types</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#flip because of BoolForge logic ordering</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;InputTypes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">types</span>
-        <span class="k">return</span> <span class="n">types</span></div>
+        <span class="k">return</span> <span class="n">types</span> </div>
 
-
-
+        
     
 <div class="viewcode-block" id="BooleanFunction.get_symmetry_groups">
 <a class="viewcode-back" href="../../boolean_function.html#boolforge.boolean_function.BooleanFunction.get_symmetry_groups">[docs]</a>
@@ -1401,7 +1641,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_activities</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">nsim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-        <span class="n">EXACT</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">exact</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">rng</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -1417,10 +1657,12 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        nsim : int, optional</span>
-<span class="sd">            Number of random samples used when ``EXACT=False`` (default: 10000).</span>
-<span class="sd">        EXACT : bool, optional</span>
+<span class="sd">            Number of random samples used when ``exact=False`` (default: 10000).</span>
+<span class="sd">        exact : bool, optional</span>
 <span class="sd">            If ``True``, compute activities exactly by enumerating all input states.</span>
-<span class="sd">            If ``False``, estimate activities via sampling (default: ``False``).</span>
+<span class="sd">            If ``False``, estimate activities via sampling.</span>
+<span class="sd">            If ``None`` (default), BoolForge automatically chooses the method</span>
+<span class="sd">            (exact for small functions with n&lt;16, sampling for larger functions).</span>
 <span class="sd">        rng : None or numpy.random.Generator, optional</span>
 <span class="sd">            Random number generator passed to ``utils._coerce_rng``.</span>
 <span class="sd">    </span>
@@ -1428,10 +1670,12 @@
 <span class="sd">        -------</span>
 <span class="sd">        np.ndarray</span>
 <span class="sd">            Array of shape ``(n,)`` containing the activities of all variables.</span>
-<span class="sd">        &quot;&quot;&quot;</span>     
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">exact</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exact</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">15</span> <span class="k">else</span> <span class="kc">False</span>
         <span class="n">size_state_space</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span>
         <span class="n">activities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EXACT</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">exact</span><span class="p">:</span>
             <span class="c1"># Compute all integer representations of inputs (0 .. 2^n - 1)</span>
             <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">size_state_space</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
         
@@ -1456,8 +1700,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_average_sensitivity</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">nsim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-        <span class="n">EXACT</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">NORMALIZED</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">exact</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">normalized</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">rng</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -1465,7 +1709,7 @@
 <span class="sd">        Compute the average sensitivity of the Boolean function.</span>
 <span class="sd">    </span>
 <span class="sd">        The (unnormalized) average sensitivity equals the sum of the activities of</span>
-<span class="sd">        all variables. If ``NORMALIZED=True``, the result is divided by ``n``.</span>
+<span class="sd">        all variables. If ``normalized=True``, the result is divided by ``n``.</span>
 <span class="sd">    </span>
 <span class="sd">        The sensitivity can be computed exactly by enumerating all input states or</span>
 <span class="sd">        estimated via Monte Carlo sampling.</span>
@@ -1473,13 +1717,15 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        nsim : int, optional</span>
-<span class="sd">            Number of random samples used when ``EXACT=False`` (default: 10000).</span>
-<span class="sd">        EXACT : bool, optional</span>
+<span class="sd">            Number of random samples used when ``exact=False`` (default: 10000).</span>
+<span class="sd">        exact : bool, optional</span>
 <span class="sd">            If ``True``, compute the exact activities by enumerating all input states.</span>
 <span class="sd">            If ``False``, estimate them via sampling (default: ``False``).</span>
-<span class="sd">        NORMALIZED : bool, optional</span>
-<span class="sd">            If ``True``, return the average sensitivity divided by ``n`` (default:</span>
-<span class="sd">            ``True``). If ``False``, return the sum of activities.</span>
+<span class="sd">            If ``None`` (default), BoolForge automatically chooses the method</span>
+<span class="sd">            (exact for small functions with n&lt;16, sampling for larger functions).</span>
+<span class="sd">        normalized : bool, optional</span>
+<span class="sd">            If ``True`` (default), return the average sensitivity divided by ``n``.</span>
+<span class="sd">            If ``False``, return the sum of activities.</span>
 <span class="sd">        rng : None or numpy.random.Generator, optional</span>
 <span class="sd">            Random number generator passed to ``utils._coerce_rng``.</span>
 <span class="sd">    </span>
@@ -1488,9 +1734,11 @@
 <span class="sd">        float</span>
 <span class="sd">            The (optionally normalized) average sensitivity of the Boolean function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>      
-        <span class="n">activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_activities</span><span class="p">(</span><span class="n">nsim</span><span class="p">,</span><span class="n">EXACT</span><span class="p">,</span><span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exact</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exact</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">15</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_activities</span><span class="p">(</span><span class="n">nsim</span><span class="p">,</span><span class="n">exact</span><span class="p">,</span><span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">NORMALIZED</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">normalized</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
@@ -1938,11 +2186,7 @@
 <span class="sd">            CANA: a python package for quantifying control and canalization in</span>
 <span class="sd">            Boolean networks. *Frontiers in Physiology*, 9, 1046.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">__LOADED_CANA__</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-                <span class="s2">&quot;get_input_redundancy requires the CANA package. &quot;</span>
-                <span class="s2">&quot;Install BoolForge with extended functionality to enable this method.&quot;</span>
-            <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">_require_cana</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_cana</span><span class="p">()</span><span class="o">.</span><span class="n">input_redundancy</span><span class="p">()</span></div>
 
         
@@ -1982,11 +2226,7 @@
 <span class="sd">            CANA: a python package for quantifying control and canalization in</span>
 <span class="sd">            Boolean networks. *Frontiers in Physiology*, 9, 1046.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">__LOADED_CANA__</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-                <span class="s2">&quot;get_edge_effectiveness requires the CANA package. &quot;</span>
-                <span class="s2">&quot;Install BoolForge with extended functionality to enable this method.&quot;</span>
-            <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">_require_cana</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_cana</span><span class="p">()</span><span class="o">.</span><span class="n">edge_effectiveness</span><span class="p">()</span></div>
 
     
@@ -2024,11 +2264,7 @@
 <span class="sd">            CANA: a python package for quantifying control and canalization in</span>
 <span class="sd">            Boolean networks. *Frontiers in Physiology*, 9, 1046.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">__LOADED_CANA__</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-                <span class="s2">&quot;get_effective_degree requires the CANA package. &quot;</span>
-                <span class="s2">&quot;Install BoolForge with extended functionality to enable this method.&quot;</span>
-            <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">_require_cana</span><span class="p">()</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_edge_effectiveness</span><span class="p">()))</span></div>
 </div>
 
