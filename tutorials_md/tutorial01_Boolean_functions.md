@@ -69,10 +69,10 @@ print("Truth table of f:\n", f.to_truth_table().to_string())
 Any Boolean function is stored as right side of the truth table. 
 That is, the outputs are ordered by the binary representation of inputs:
 
-- Position 0 → (A,B) = (0,0)
-- Position 1 → (A,B) = (0,1)  
-- Position 2 → (A,B) = (1,0)
-- Position 3 → (A,B) = (1,1)
+- Position 0 --> (A,B) = (0,0)
+- Position 1 --> (A,B) = (0,1)  
+- Position 2 --> (A,B) = (1,0)
+- Position 3 --> (A,B) = (1,1)
 
 ### Create Boolean functions from text
 
@@ -408,7 +408,7 @@ Use a **textual expression** if:
 
 Use a **truth table** if:
 
-- you generated the table programmatically (e.g., using `boolforge.random_function`).
+- you generated the table programmatically (e.g., using `bf.random_function`).
 
 ### What is the difference between `get_type_of_inputs()` and monotonicity?
 The method `get_type_of_inputs()` classifies each input variable individually,

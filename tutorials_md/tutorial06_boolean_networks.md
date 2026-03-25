@@ -10,6 +10,8 @@ In this tutorial you will learn how to:
 - create Boolean networks,
 - compute basic properties of the wiring diagram,
 - compute basic properties of Boolean networks.
+- transform Boolean networks through structural manipulations such as fixing 
+  node values or removing regulatory interactions.
 
 ## Setup
 
@@ -304,8 +306,8 @@ Nodes in a Boolean network can be classified as follows:
 
 - **Constant nodes**  
   Nodes with constant update functions (always 0 or always 1).
-  These nodes act as parameters and are removed internally, with their values
-  propagated through the network.
+  These nodes act as parameters and they are eliminated at construction time 
+  by substituting their constant value into all dependent update functions.
 - **Identity nodes**  
   Nodes whose update function is the identity, i.e., $f(x_i) = x_i.$
   Their value is determined by the initial condition and remains constant over time.
@@ -400,6 +402,8 @@ for i, f in enumerate(bn.F):
 Although $x_1$ becomes fixed at 1 after one update, it is not treated as a
 constant node. In `BoolForge`, constant nodes are identified by their update
 functions (always 0 or always 1), not by their long-term dynamical behavior.
+In other words, BoolForge distinguishes structural constants (defined by update rules)
+from dynamical constants (states that become fixed along trajectories).
 Since $x_1 = 0$ remains a valid initial condition, the node is retained as part
 of the network state.
 
@@ -449,7 +453,7 @@ bn.plot();
     
 
 
-Just like BooleanFunction objects, BooleanNetwork possesses a`.summary()` method,
+Just like BooleanFunction objects, BooleanNetwork possesses a `.summary()` method,
 which prints a human-readable overview of basic properties.
 If more advanced properties have already been computed, e.g., attractors,
 this information is also displayed (or if the optional keyword `compute_all` is set to True, default False). 
@@ -473,8 +477,6 @@ print(bn.summary(compute_all=True)) #or simply print(bn.summary(True))
     Identity nodes (inputs):      ['x2']
     Constants:                    {'x3': 1}
     
-
-
     BooleanNetwork
     --------------
     Number of nodes:              3
@@ -496,6 +498,142 @@ print(bn.summary(compute_all=True)) #or simply print(bn.summary(True))
 
 
 The more advanced properties displayed here are the subject of the next two tutorials.
+
+
+## Manipulation and control of Boolean networks
+Identity nodes can represent external inputs or environmental conditions. 
+Fixing their values allows us to study the behavior of the network under specific contexts.
+BoolForge enables users to obtain a reduced network, in which the identity nodes 
+are set to specific values.
+
+```python
+cn = bn.get_network_with_fixed_identity_nodes(values_identity_nodes=[0])
+print("cn.F:")
+for i, f in enumerate(cn.F):
+    print(f"  F[{i}] = {f!r}")
+print()
+print(cn.summary())
+```
+
+    cn.F:
+      F[0] = BooleanFunction(name='x0', f=[0, 0])
+      F[1] = BooleanFunction(name='x1', f=[1, 1])
+    
+    BooleanNetwork
+    --------------
+    Number of nodes:              2
+    Number of regulated nodes:    2
+    Number of constants (removed):2
+    Average degree:               1.000
+    Largest in-degree:            1
+    Largest out-degree:           1
+    Regulated nodes:              ['x0', 'x1']
+    Constants:                    {'x2': 0, 'x3': 1}
+
+
+Fixing identity nodes converts them into constant nodes, which are then eliminated 
+via constant propagation. Only the identity nodes are removed from `cn`. 
+Nodes that become dynamically constant after fixing identity nodes (e.g., 
+$x_0$ and $x_1$) are retained, since their initial values may still vary. 
+For example, $x_0(t=0) = 1$ or $x_1(t=0) = 0$ remain valid initial values, 
+despite the fact that $x_0(t) = 0$ and $x_1(t) = 1$ at any time $t>0$.
+
+### Node controls
+Boolean network control is an active area of research. 
+For example, the knock-out of a certain gene can be simulated in a Boolean network
+by setting this gene to a constant value of zero. Likewise, overexpression can be 
+modeled by setting it to a constant value of one. BoolForge enables users to implement
+node and edge controls of existing Boolean networks. This provides a simple framework 
+for simulating interventions such as gene knock-outs or overexpression.
+
+To implement node controls, we need to specify which nodes should be controlled and
+the constant values that they should be set to. As an example, we consider a classical
+Boolean network model, the three-node repressilator.
+
+```python
+string = """
+A = not B
+B = not C
+C = not A
+"""
+
+bn = bf.BooleanNetwork.from_string(string, separator="=")
+bn.plot();
+cn = bn.get_network_with_node_controls(indices_controlled_nodes=[2],
+                                       values_controlled_nodes=[0])
+cn.plot();
+print("cn.F:")
+for i, f in enumerate(cn.F):
+    print(f"  F[{i}] = {f!r}")
+print("cn.constants:", cn.constants)
+```
+
+
+    
+![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_33_0.png)
+    
+
+
+
+    
+![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_33_1.png)
+    
+
+
+    cn.F:
+      F[0] = BooleanFunction(name='A', f=[1, 0])
+      F[1] = BooleanFunction(name='B', f=[1, 1])
+    cn.constants: {'C': 0}
+
+
+Setting $C = 0$ removes $C$ from the reduced network `cn` (it becomes a constant).
+Moreover, since $B = \neg C$, we get $B = 1$ always, while the update rule for $A$ 
+is not changed.
+
+### Edge controls
+Similarly, we can implement edge controls. Edge control removes the influence 
+of a source node on a target node by fixing the source to a specified value 
+within the target's update function. The resulting function is then simplified, 
+and the corresponding edge is removed. As an example, we consider 
+a more connected Boolean network with different types of update rules.
+
+```python
+string = """
+A = B and C
+B = A or C
+C = A and not B
+"""
+bn = bf.BooleanNetwork.from_string(string, separator="=")
+print("bn.I:", bn.I)
+print("bn.F:")
+for i, f in enumerate(bn.F):
+    print(f"  F[{i}] = {f!r}")
+print()
+
+cn = bn.get_network_with_edge_controls(control_targets=[0],
+                                       control_sources=[1],
+                                       values_edge_controls=[0])
+print("cn.I:", cn.I)
+print("cn.F:")
+for i, f in enumerate(cn.F):
+    print(f"  F[{i}] = {f!r}")
+```
+
+    bn.I: [array([1, 2]), array([0, 2]), array([0, 1])]
+    bn.F:
+      F[0] = BooleanFunction(name='A', f=[0, 0, 0, 1])
+      F[1] = BooleanFunction(name='B', f=[0, 1, 1, 1])
+      F[2] = BooleanFunction(name='C', f=[0, 0, 1, 0])
+    
+    cn.I: [array([2]), array([0, 2]), array([0, 1])]
+    cn.F:
+      F[0] = BooleanFunction(name='A', f=[0, 0])
+      F[1] = BooleanFunction(name='B', f=[0, 1, 1, 1])
+      F[2] = BooleanFunction(name='C', f=[0, 0, 1, 0])
+
+
+By setting $B=0$ in the regulation of $A$, we remove $B$'s influence on $A$.
+Moreover, since $A = B \wedge C$, we now have $A=0$ always.
 
 ## Outlook
 
