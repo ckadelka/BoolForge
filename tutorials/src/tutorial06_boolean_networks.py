@@ -220,7 +220,7 @@ print(bn_str.to_truth_table().to_string())
 # ### Interoperability with CANA
 #
 # `BoolForge` provides native interoperability with
-# the [`CANA` package](https:www.github.com/CASCI-lab/CANA) for the analysis of Boolean functions and Boolean networks.
+# the [CANA package](https://www.github.com/CASCI-lab/CANA) for the analysis of Boolean functions and Boolean networks.
 # Existing `BoolForge` networks can be converted into `CANA` objects and back
 # without loss of information.
 #

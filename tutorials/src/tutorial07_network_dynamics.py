@@ -273,7 +273,7 @@ print('Basin sizes:',dict_dynamics['BasinSizes'])
 # %% [markdown]
 # Note that `BoolForge` currently does not detect complex cyclic attractors under
 # asynchronous update; for this task, specialized tools such as
-# [`pystablemotifs`](https://github.com/jcrozum/pystablemotifs) are recommended. 
+# [pystablemotifs](https://github.com/jcrozum/pystablemotifs) are recommended. 
 #
 # In fact, some of BoolForge's asynchronous update methods fail when the network
 # contains no steady state. 

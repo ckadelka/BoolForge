@@ -228,7 +228,7 @@ print(f"Polynomial form of {f.name}:", f.to_polynomial())
 
 
 # %% [markdown]
-# In addition, a `BooleanFunction` object can be turned into `BooleanNode` object from the [`CANA` package](https:www.github.com/CASCI-lab/CANA). 
+# In addition, a `BooleanFunction` object can be turned into `BooleanNode` object from the [CANA package](https://www.github.com/CASCI-lab/CANA). 
 # This requires the optional `CANA` package to be installed.
 
 # %%
@@ -277,7 +277,7 @@ print(type(cana_object))
 #
 # ### Conversions and interoperability
 # BoolForge supports conversion between representations (truth table, polynomial, 
-# and logical form) and is compatible with external packages such as [`CANA`](https:www.github.com/CASCI-lab/CANA) for
+# and logical form) and is compatible with external packages such as [CANA](https://www.github.com/CASCI-lab/CANA) for
 # advanced analysis.  
 # This makes it easy to move between analytical frameworks and reuse models.
 

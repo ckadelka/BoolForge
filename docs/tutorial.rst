@@ -16,4 +16,3 @@ Tutorials
    tutorials/tutorial09_random_Boolean_network_generation
    tutorials/tutorial10_ensemble_experiments_random_networks
    tutorials/tutorial11_bio_models
-   tutorials/tutorial12_dynamics_decomposition
