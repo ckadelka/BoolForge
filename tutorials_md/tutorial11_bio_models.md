@@ -55,8 +55,8 @@ models_sm = bf.get_bio_models_from_repository('pystablemotifs (jcrozum)',
 bns_sm = models_sm['BooleanNetworks']
 n_models_sm = len(bns_sm)
 
-#models_bd = boolforge.get_bio_models_from_repository('biodivine (sybila)',
-#                                                     simplify_functions=True)
+#models_bd = bf.get_bio_models_from_repository('biodivine (sybila)',
+#                                              simplify_functions=True)
 #n_models_bd = len(models_bd)
 #bns_bd = models_bd['BooleanNetworks']
 ```
@@ -73,16 +73,19 @@ average_degrees = [np.mean(bn.indegrees) for bn in bns]
 ```
 
 Plotting the size of a model against its average essential degree 
-(essential because we removed all non-essential inputs by setting `simplify_functions=True`), 
-we observe that, for these models, there exists no strong correlation between size and degree.
+(essential because we removed all non-essential inputs by setting 
+`simplify_functions=True`), we observe that, for these models, 
+there exists no strong correlation between size and degree.
 
 ```python
 sizes_sm = [bn.N for bn in bns_sm]
 average_degrees_sm = [np.mean(bn.indegrees) for bn in bns_sm]
 
 f,ax = plt.subplots()
-ax.semilogx(sizes,average_degrees,'rx',label = 'expert-curated (ckadelka)')
-ax.semilogx(sizes_sm,average_degrees_sm,'bo',label = 'pystablemotifs (jcrozum)')
+ax.semilogx(sizes, average_degrees, 'rx', 
+            label = 'expert-curated (ckadelka)')
+ax.semilogx(sizes_sm, average_degrees_sm, 'bo', 
+            label = 'pystablemotifs (jcrozum)')
 ax.set_xlabel('network size')
 ax.set_ylabel('average essential degree')
 ax.legend(loc='best',frameon=False);
@@ -132,7 +135,8 @@ has exactly the same in-degree as in the provided Boolean network.
 ```python
 bn_orig = bf.random_network(N=8, n=2, indegree_distribution='Poisson', rng = 3)
 
-bn_null = bf.random_null_model(bn_orig, wiring_diagram='fixed_indegree')
+bn_null = bf.random_null_model(bn_orig, 
+                               wiring_diagram='fixed_indegree')
 
 print('bn_orig.in-degrees:',bn_orig.indegrees)
 print('bn_null.in-degrees:',bn_null.indegrees)
@@ -145,7 +149,7 @@ print('bn_null.out-degrees:',bn_null.outdegrees)
     bn_null.in-degrees: [1 2 1 2 1 2 3 2]
     
     bn_orig.out-degrees: [4 3 1 0 1 0 1 4]
-    bn_null.out-degrees: [2 2 1 3 0 1 3 2]
+    bn_null.out-degrees: [2 2 0 1 5 1 2 1]
 
 
 We see that the in-degrees of the original Boolean network are preserved,
@@ -160,7 +164,8 @@ in-degree. This can be obtained by setting
 ```python
 bn_orig = bf.random_network(N=8, n=2, indegree_distribution='Poisson', rng = 3)
 
-bn_null = bf.random_null_model(bn_orig, wiring_diagram='fixed_in_and_outdegree')
+bn_null = bf.random_null_model(bn_orig, 
+                               wiring_diagram='fixed_in_and_outdegree')
 
 print('bn_orig.in-degrees:',bn_orig.indegrees)
 print('bn_null.in-degrees:',bn_null.indegrees)
@@ -243,15 +248,15 @@ print('bn_null11:',
 
     Canalizing depths:
     bn_orig:   [3, 3, 1, 1, 3, 3, 1, 3]
-    bn_null00: [0, 3, 3, 0, 3, 3, 1, 0]
+    bn_null00: [0, 3, 0, 3, 3, 0, 0, 0]
     bn_null01: [3, 3, 1, 1, 3, 3, 1, 3]
-    bn_null10: [0, 0, 1, 1, 3, 0, 2, 3]
+    bn_null10: [0, 3, 2, 1, 3, 3, 2, 3]
     bn_null11: [3, 3, 1, 1, 3, 3, 1, 3]
     
     Hamming weights:
     bn_orig:   [3, 5, 6, 6, 1, 5, 2, 7]
-    bn_null00: [3, 7, 7, 5, 5, 3, 6, 3]
-    bn_null01: [5, 3, 2, 2, 7, 5, 2, 5]
+    bn_null00: [6, 5, 4, 7, 5, 4, 4, 4]
+    bn_null01: [3, 1, 6, 6, 3, 5, 2, 5]
     bn_null10: [3, 5, 6, 6, 1, 5, 2, 7]
     bn_null11: [3, 5, 6, 6, 1, 5, 2, 7]
 
