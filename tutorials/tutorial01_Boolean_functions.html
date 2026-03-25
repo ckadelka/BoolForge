@@ -90,7 +90,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -208,10 +207,10 @@ Truth table of f:
 </div>
 <p>Any Boolean function is stored as right side of the truth table. That is, the outputs are ordered by the binary representation of inputs:</p>
 <ul class="simple">
-<li><p>Position 0 → (A,B) = (0,0)</p></li>
-<li><p>Position 1 → (A,B) = (0,1)</p></li>
-<li><p>Position 2 → (A,B) = (1,0)</p></li>
-<li><p>Position 3 → (A,B) = (1,1)</p></li>
+<li><p>Position 0 –&gt; (A,B) = (0,0)</p></li>
+<li><p>Position 1 –&gt; (A,B) = (0,1)</p></li>
+<li><p>Position 2 –&gt; (A,B) = (1,0)</p></li>
+<li><p>Position 3 –&gt; (A,B) = (1,1)</p></li>
 </ul>
 </section>
 <section id="Create-Boolean-functions-from-text">
@@ -551,7 +550,7 @@ Logical form of : (( ¬C)) ∨ (A ∧ B)
 Polynomial form of : (1 - A) * (1 - B) * (1 - C) + (1 - A) * B * (1 - C) + A * (1 - B) * (1 - C) + A * B * (1 - C) + A * B * C
 </pre></div></div>
 </div>
-<p>In addition, a <code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code> object can be turned into <code class="docutils literal notranslate"><span class="pre">BooleanNode</span></code> object from the <code class="docutils literal notranslate"><span class="pre">`CANA</span></code> package &lt;<a class="reference external" href="https:www.github.com/CASCI-lab/CANA">https:www.github.com/CASCI-lab/CANA</a>&gt;`__. This requires the optional <code class="docutils literal notranslate"><span class="pre">CANA</span></code> package to be installed.</p>
+<p>In addition, a <code class="docutils literal notranslate"><span class="pre">BooleanFunction</span></code> object can be turned into <code class="docutils literal notranslate"><span class="pre">BooleanNode</span></code> object from the <a class="reference external" href="https://www.github.com/CASCI-lab/CANA">CANA package</a>. This requires the optional <code class="docutils literal notranslate"><span class="pre">CANA</span></code> package to be installed.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
@@ -610,7 +609,7 @@ Polynomial form of : (1 - A) * (1 - B) * (1 - C) + (1 - A) * B * (1 - C) + A * (
 <section id="Conversions-and-interoperability">
 <h3>Conversions and interoperability<a class="headerlink" href="#Conversions-and-interoperability" title="Link to this heading"></a></h3>
 <div class="line-block">
-<div class="line">BoolForge supports conversion between representations (truth table, polynomial, and logical form) and is compatible with external packages such as <code class="docutils literal notranslate"><span class="pre">`CANA</span></code> &lt;<a class="reference external" href="https:www.github.com/CASCI-lab/CANA">https:www.github.com/CASCI-lab/CANA</a>&gt;`__ for advanced analysis.</div>
+<div class="line">BoolForge supports conversion between representations (truth table, polynomial, and logical form) and is compatible with external packages such as <a class="reference external" href="https://www.github.com/CASCI-lab/CANA">CANA</a> for advanced analysis.</div>
 <div class="line">This makes it easy to move between analytical frameworks and reuse models.</div>
 </div>
 <p>Together, these concepts provide the foundation for understanding canalization, random Boolean function generation, and eventually the construction and analysis of full Boolean networks.</p>
@@ -652,7 +651,7 @@ Polynomial form of : (1 - A) * (1 - B) * (1 - C) + (1 - A) * B * (1 - C) + A * (
 </ul>
 <p>Use a <strong>truth table</strong> if:</p>
 <ul class="simple">
-<li><p>you generated the table programmatically (e.g., using <code class="docutils literal notranslate"><span class="pre">boolforge.random_function</span></code>).</p></li>
+<li><p>you generated the table programmatically (e.g., using <code class="docutils literal notranslate"><span class="pre">bf.random_function</span></code>).</p></li>
 </ul>
 </section>
 <section id="What-is-the-difference-between-get_type_of_inputs()-and-monotonicity?">

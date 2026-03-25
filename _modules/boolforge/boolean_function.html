@@ -196,7 +196,7 @@
 <span class="sd">    - The expression is evaluated using ``eval`` with restricted builtins.</span>
 <span class="sd">    - No syntactic or semantic validation of ``expr`` is performed beyond</span>
 <span class="sd">      basic parsing.</span>
-<span class="sd">    - Arithmetic operators (+, -, *, %) must be surrounded by whitespace.</span>
+<span class="sd">    - Arithmetic operators (+, -, `*`, %) must be surrounded by whitespace.</span>
 <span class="sd">      This restriction avoids conflicts with biological identifiers such as Ca2+ or IL-2.</span>
 <span class="sd">    - Whenever uncertain, use whitespace.</span>
 <span class="sd">    </span>
@@ -486,9 +486,11 @@
 <span class="sd">        Either:</span>
 <span class="sd">            </span>
 <span class="sd">        - a truth table of length ``2**n`` representing the outputs of a Boolean</span>
-<span class="sd">        function with ``n`` inputs, or </span>
+<span class="sd">          function with ``n`` inputs, or</span>
+<span class="sd">        </span>
 <span class="sd">        - a Boolean expression string that can be evaluated. Expression strings </span>
-<span class="sd">        are parsed using ``utils.f_from_expression``.</span>
+<span class="sd">          are parsed using ``utils.f_from_expression``.</span>
+<span class="sd">        </span>
 <span class="sd">    name : str, optional</span>
 <span class="sd">        Name of the node regulated by the Boolean function. Default is ``&quot;&quot;``.</span>
 <span class="sd">    variables : list[str] | np.ndarray | None, optional</span>
@@ -1149,7 +1151,7 @@
     
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">absolute_bias</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Absolute bias: |2*bias − 1|.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Absolute bias: `|2*bias − 1|`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
     
     

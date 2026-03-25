@@ -172,14 +172,14 @@ classes.</p>
 with variable names and optional metadata.</p>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
-<dl>
+<dl class="simple">
 <dt>f<span class="classifier">list[int] | np.ndarray | str</span></dt><dd><p>Either:</p>
 <ul class="simple">
-<li><p>a truth table of length <code class="docutils literal notranslate"><span class="pre">2**n</span></code> representing the outputs of a Boolean</p></li>
+<li><p>a truth table of length <code class="docutils literal notranslate"><span class="pre">2**n</span></code> representing the outputs of a Boolean
+function with <code class="docutils literal notranslate"><span class="pre">n</span></code> inputs, or</p></li>
+<li><p>a Boolean expression string that can be evaluated. Expression strings 
+are parsed using <code class="docutils literal notranslate"><span class="pre">utils.f_from_expression</span></code>.</p></li>
 </ul>
-<p>function with <code class="docutils literal notranslate"><span class="pre">n</span></code> inputs, or 
-- a Boolean expression string that can be evaluated. Expression strings 
-are parsed using <code class="docutils literal notranslate"><span class="pre">utils.f_from_expression</span></code>.</p>
 </dd>
 <dt>name<span class="classifier">str, optional</span></dt><dd><p>Name of the node regulated by the Boolean function. Default is <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>.</p>
 </dd>
@@ -561,7 +561,7 @@ non-minimized expression derived from the polynomial representation.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="boolforge.boolean_function.BooleanFunction.absolute_bias">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">absolute_bias</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#boolforge.boolean_function.BooleanFunction.absolute_bias" title="Link to this definition"></a></dt>
-<dd><p>Absolute bias: <a href="#id93"><span class="problematic" id="id94">|2*bias − 1|</span></a>.</p>
+<dd><p>Absolute bias: <cite>|2*bias − 1|</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1345,13 +1345,13 @@ most significant bit first.</p></li>
 <li><p>The expression is evaluated using <code class="docutils literal notranslate"><span class="pre">eval</span></code> with restricted builtins.</p></li>
 <li><p>No syntactic or semantic validation of <code class="docutils literal notranslate"><span class="pre">expr</span></code> is performed beyond
 basic parsing.</p></li>
-<li><p>Arithmetic operators (+, -, <a href="#id90"><span class="problematic" id="id91">*</span></a>, %) must be surrounded by whitespace.
+<li><p>Arithmetic operators (+, -, <cite>*</cite>, %) must be surrounded by whitespace.
 This restriction avoids conflicts with biological identifiers such as Ca2+ or IL-2.</p></li>
 <li><p>Whenever uncertain, use whitespace.</p></li>
 </ul>
 </section>
-<section id="id92">
-<h2>Examples<a class="headerlink" href="#id92" title="Link to this heading"></a></h2>
+<section id="id90">
+<h2>Examples<a class="headerlink" href="#id90" title="Link to this heading"></a></h2>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f_from_expression</span><span class="p">(</span><span class="s1">&#39;A AND NOT B&#39;</span><span class="p">)</span>
 <span class="go">(array([0, 0, 1, 0], dtype=uint8), array([&#39;A&#39;, &#39;B&#39;], dtype=&#39;&lt;U1&#39;))</span>
 </pre></div>

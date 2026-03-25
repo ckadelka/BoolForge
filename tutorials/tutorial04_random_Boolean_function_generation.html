@@ -78,7 +78,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -144,7 +143,7 @@
 </section>
 <section id="Generating-random-Boolean-functions">
 <h2>Generating random Boolean functions<a class="headerlink" href="#Generating-random-Boolean-functions" title="Link to this heading"></a></h2>
-<p>The function <code class="docutils literal notranslate"><span class="pre">boolforge.random_function(n,</span> <span class="pre">*args)</span></code> generates a random <span class="math notranslate nohighlight">\(n\)</span>-input Boolean function subject to optional constraints. By default, it generates a <strong>non-degenerate</strong> function, meaning that all variables are essential.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">random_function(n,</span> <span class="pre">*args)</span></code> generates a random <span class="math notranslate nohighlight">\(n\)</span>-input Boolean function subject to optional constraints. By default, it generates a <strong>non-degenerate</strong> function, meaning that all variables are essential.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -167,20 +166,20 @@
 <div class="highlight"><pre>
 x0      x1      x2      |       f_random_non_degenerate
 -------------------------------------------------------
-0       0       0       |       1
+0       0       0       |       0
 0       0       1       |       0
 0       1       0       |       1
 0       1       1       |       0
 1       0       0       |       1
-1       0       1       |       1
+1       0       1       |       0
 1       1       0       |       0
-1       1       1       |       1
+1       1       1       |       0
 Is f degenerate? False
-Activities of f: [0.75 0.25 0.75]
-Edge effectiveness of f: [0.875, 0.375, 0.875]
+Activities of f: [0.5 0.5 0.5]
+Edge effectiveness of f: [0.625, 0.625, 0.625]
 </pre></div></div>
 </div>
-<p>The rest of this tutorial describes the various constraints. Each constraint defines a specific family of n-input Boolean functions, from which <code class="docutils literal notranslate"><span class="pre">boolforge.random_function(n,*args)</span></code> samples <em>uniformly at random</em>. That is, each function satisfying a given set of constraints is selected with equal probability.</p>
+<p>The rest of this tutorial describes the various constraints. Each constraint defines a specific family of n-input Boolean functions, from which <code class="docutils literal notranslate"><span class="pre">random_function(n,*args)</span></code> samples <em>uniformly at random</em>. That is, each function satisfying a given set of constraints is selected with equal probability.</p>
 </section>
 <section id="Parity-functions">
 <h2>Parity functions<a class="headerlink" href="#Parity-functions" title="Link to this heading"></a></h2>
@@ -207,14 +206,14 @@ Edge effectiveness of f: [0.875, 0.375, 0.875]
 <div class="highlight"><pre>
 x0      x1      x2      |       f_linear
 ----------------------------------------
-0       0       0       |       0
-0       0       1       |       1
-0       1       0       |       1
-0       1       1       |       0
-1       0       0       |       1
-1       0       1       |       0
-1       1       0       |       0
-1       1       1       |       1
+0       0       0       |       1
+0       0       1       |       0
+0       1       0       |       0
+0       1       1       |       1
+1       0       0       |       0
+1       0       1       |       1
+1       1       0       |       1
+1       1       1       |       0
 Activities: [1. 1. 1.]
 Edge effectiveness: [1.0, 1.0, 1.0]
 Normalized average sensitivity: 1.0
@@ -268,18 +267,18 @@ Canalizing strength: 0.0
 <div class="highlight"><pre>
 x0      x1      x2      |       f       g       h       k
 ---------------------------------------------------------
-0       0       0       |       0       1       1       0
-0       0       1       |       1       1       0       0
+0       0       0       |       0       1       0       0
+0       0       1       |       0       0       0       1
 0       1       0       |       0       1       0       0
-0       1       1       |       0       1       0       1
-1       0       0       |       1       0       0       0
+0       1       1       |       0       1       0       0
+1       0       0       |       1       1       0       1
 1       0       1       |       1       1       0       1
-1       1       0       |       1       1       0       0
-1       1       1       |       1       0       0       1
+1       1       0       |       1       1       1       1
+1       1       1       |       0       0       0       1
 Canalizing depth of f: 3
 Layer structure of f: [1, 2]
 Number of layers of f: 2
-Core function of f: [1]
+Core function of f: [0]
 
 Canalizing depth of g: 1
 Layer structure of g: [1]
@@ -294,7 +293,7 @@ Core function of h: [1]
 Canalizing depth of k: 3
 Layer structure of k: [1, 2]
 Number of layers of k: 2
-Core function of k: [0]
+Core function of k: [1]
 
 </pre></div></div>
 </div>
@@ -308,7 +307,7 @@ Core function of k: [0]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># any function has at least canalizing depth 0 so this is the same as boolforge.random_function(n)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># any function has at least canalizing depth 0 so this is the same as bf.random_function(n)</span>
 <span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">random_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">depth</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="c1"># a random non-canalizing function</span>
@@ -336,14 +335,14 @@ Core function of k: [0]
 <div class="highlight"><pre>
 x0      x1      x2      |       f       g       h       k
 ---------------------------------------------------------
-0       0       0       |       1       1       1       0
-0       0       1       |       1       1       1       0
-0       1       0       |       0       1       1       1
-0       1       1       |       1       0       0       0
-1       0       0       |       1       0       1       0
-1       0       1       |       1       1       0       0
-1       1       0       |       0       1       1       1
-1       1       1       |       0       1       1       1
+0       0       0       |       0       0       0       0
+0       0       1       |       1       0       1       0
+0       1       0       |       1       0       0       1
+0       1       1       |       1       1       0       1
+1       0       0       |       0       1       0       0
+1       0       1       |       0       0       0       0
+1       1       0       |       0       0       0       1
+1       1       1       |       0       0       1       0
 Canalizing depth of f: 3
 
 Canalizing depth of g: 0
@@ -365,8 +364,8 @@ always nested canalizing (i.e., it has canalizing depth <span class="math notran
 </section>
 <section id="Allowing-degenerate-functions">
 <h2>Allowing degenerate functions<a class="headerlink" href="#Allowing-degenerate-functions" title="Link to this heading"></a></h2>
-<p>It is possible that an n-input Boolean function does not depend on all its variables. For example, the function <span class="math notranslate nohighlight">\(f(x,y) = x\)</span> depends on <span class="math notranslate nohighlight">\(x\)</span> but not on <span class="math notranslate nohighlight">\(y\)</span>. <strong>By default, such degenerate functions are never generated by ``boolforge.random_function()``</strong>. To enable the generation of possibly degenerate functions, we set <code class="docutils literal notranslate"><span class="pre">allow_degenerate_functions=True</span></code>. Although hardly of any practical value, we can even restrict the random generation to degenerate functions only, using
-<code class="docutils literal notranslate"><span class="pre">boolforge.generate.random_degenerate_function(n,*args)</span></code>.</p>
+<p>It is possible that an n-input Boolean function does not depend on all its variables. For example, the function <span class="math notranslate nohighlight">\(f(x,y) = x\)</span> depends on <span class="math notranslate nohighlight">\(x\)</span> but not on <span class="math notranslate nohighlight">\(y\)</span>. <strong>By default, such degenerate functions are never generated by ``random_function()``</strong>. To enable the generation of possibly degenerate functions, we set <code class="docutils literal notranslate"><span class="pre">allow_degenerate_functions=True</span></code>. Although hardly of any practical value, we can even restrict the random generation to degenerate functions only, using
+<code class="docutils literal notranslate"><span class="pre">bf.generate.random_degenerate_function(n,*args)</span></code>.</p>
 <p>Note: When generating random canalizing functions, the value of <code class="docutils literal notranslate"><span class="pre">allow_degenerate_functions</span></code> is ignored. The non-canalizing core function is constructed to depend on all of its variables so that the number of essential variables equals the specified value. Otherwise degeneracy would reduce the number of essential variables and confound analyses of random Boolean networks, especially when the degree is small.</p>
 <p>Since degenerate functions occur much more frequently at low degree, we set <code class="docutils literal notranslate"><span class="pre">n=2</span></code>, generate a large number of random, possibly degenerate functions and compare a histogram of the observed number of essential variables to the expected proportions.</p>
 <div class="nbinput docutils container">
@@ -405,7 +404,7 @@ always nested canalizing (i.e., it has canalizing depth <span class="math notran
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Error: [ 0.0022  0.006  -0.0082]
+Error: [-0.0059  0.0011  0.0048]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -449,15 +448,15 @@ Error: [ 0.0022  0.006  -0.0082]
 x0      x1      x2      |       f       g       h
 -------------------------------------------------
 0       0       0       |       1       1       0
-0       0       1       |       1       1       1
-0       1       0       |       0       0       0
+0       0       1       |       1       0       1
+0       1       0       |       1       1       0
 0       1       1       |       0       0       0
-1       0       0       |       1       0       0
-1       0       1       |       0       1       1
-1       1       0       |       1       1       0
-1       1       1       |       1       1       0
+1       0       0       |       1       1       1
+1       0       1       |       1       1       0
+1       1       0       |       0       0       0
+1       1       1       |       0       1       0
 Hamming weight of f: 5
-Canalizing depth of f: 0
+Canalizing depth of f: 3
 Number of essential variables of f: 3
 
 Hamming weight of g: 5
@@ -465,8 +464,8 @@ Canalizing depth of g: 0
 Number of essential variables of g: 3
 
 Hamming weight of h: 2
-Canalizing depth of h: 2
-Number of essential variables of h: 2
+Canalizing depth of h: 1
+Number of essential variables of h: 3
 
 </pre></div></div>
 </div>

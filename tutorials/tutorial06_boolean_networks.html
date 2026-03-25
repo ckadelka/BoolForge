@@ -71,6 +71,11 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#Types-of-nodes-in-Boolean-networks">Types of nodes in Boolean networks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Boolean-network-properties">Boolean network properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Manipulation-and-control-of-Boolean-networks">Manipulation and control of Boolean networks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Node-controls">Node controls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Edge-controls">Edge controls</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#Outlook">Outlook</a></li>
 </ul>
 </li>
@@ -79,7 +84,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -120,6 +124,7 @@
 <li><p>create Boolean networks,</p></li>
 <li><p>compute basic properties of the wiring diagram,</p></li>
 <li><p>compute basic properties of Boolean networks.</p></li>
+<li><p>transform Boolean networks through structural manipulations such as fixing node values or removing regulatory interactions.</p></li>
 </ul>
 </section>
 <section id="Setup">
@@ -395,7 +400,7 @@ W2.get_fbls() {&#39;FBLs&#39;: [[0, 1, 2], [0, 1]]}
 </section>
 <section id="Interoperability-with-CANA">
 <h3>Interoperability with CANA<a class="headerlink" href="#Interoperability-with-CANA" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> provides native interoperability with the <code class="docutils literal notranslate"><span class="pre">`CANA</span></code> package &lt;<a class="reference external" href="https:www.github.com/CASCI-lab/CANA">https:www.github.com/CASCI-lab/CANA</a>&gt;`__ for the analysis of Boolean functions and Boolean networks. Existing <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> networks can be converted into <code class="docutils literal notranslate"><span class="pre">CANA</span></code> objects and back without loss of information.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> provides native interoperability with the <a class="reference external" href="https://www.github.com/CASCI-lab/CANA">CANA package</a> for the analysis of Boolean functions and Boolean networks. Existing <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> networks can be converted into <code class="docutils literal notranslate"><span class="pre">CANA</span></code> objects and back without loss of information.</p>
 <p>In the example below, we convert a <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> Boolean network into its <code class="docutils literal notranslate"><span class="pre">CANA</span></code> representation using <code class="docutils literal notranslate"><span class="pre">to_cana()</span></code>, and then reconstruct a new <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> Boolean network from that <code class="docutils literal notranslate"><span class="pre">CANA</span></code> object.</p>
 <p>The final assertion verifies that this round-trip conversion preserves:</p>
 <ul class="simple">
@@ -426,7 +431,7 @@ W2.get_fbls() {&#39;FBLs&#39;: [[0, 1, 2], [0, 1]]}
 <p>Nodes in a Boolean network can be classified as follows:</p>
 <ul class="simple">
 <li><p><strong>Constant nodes</strong>
-Nodes with constant update functions (always 0 or always 1). These nodes act as parameters and are removed internally, with their values propagated through the network.</p></li>
+Nodes with constant update functions (always 0 or always 1). These nodes act as parameters and they are eliminated at construction time by substituting their constant value into all dependent update functions.</p></li>
 <li><p><strong>Identity nodes</strong>
 Nodes whose update function is the identity, i.e., <span class="math notranslate nohighlight">\(f(x_i) = x_i.\)</span> Their value is determined by the initial condition and remains constant over time. Identity nodes are retained as part of the Boolean network state. They may be viewed as nodes with a self-loop and no other incoming edges.</p></li>
 <li><p><strong>Regulated nodes</strong>
@@ -522,7 +527,8 @@ bn.F:
   F[2] = BooleanFunction(name=&#39;x2&#39;, f=[0, 1])
 </pre></div></div>
 </div>
-<p>Although <span class="math notranslate nohighlight">\(x_1\)</span> becomes fixed at 1 after one update, it is not treated as a constant node. In <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code>, constant nodes are identified by their update functions (always 0 or always 1), not by their long-term dynamical behavior. Since <span class="math notranslate nohighlight">\(x_1 = 0\)</span> remains a valid initial condition, the node is retained as part of the network state.</p>
+<p>Although <span class="math notranslate nohighlight">\(x_1\)</span> becomes fixed at 1 after one update, it is not treated as a constant node. In <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code>, constant nodes are identified by their update functions (always 0 or always 1), not by their long-term dynamical behavior. In other words, BoolForge distinguishes structural constants (defined by update rules) from dynamical constants (states that become fixed along trajectories). Since <span class="math notranslate nohighlight">\(x_1 = 0\)</span> remains a valid initial condition, the node is retained as part of the network
+state.</p>
 </section>
 <section id="Boolean-network-properties">
 <h2>Boolean network properties<a class="headerlink" href="#Boolean-network-properties" title="Link to this heading"></a></h2>
@@ -567,7 +573,7 @@ bn.variables: [&#39;x0&#39; &#39;x1&#39; &#39;x2&#39;]
 <img alt="../_images/tutorials_tutorial06_boolean_networks_27_1.png" src="../_images/tutorials_tutorial06_boolean_networks_27_1.png" />
 </div>
 </div>
-<p>Just like BooleanFunction objects, BooleanNetwork possesses a<code class="docutils literal notranslate"><span class="pre">.summary()</span></code> method, which prints a human-readable overview of basic properties. If more advanced properties have already been computed, e.g., attractors, this information is also displayed (or if the optional keyword <code class="docutils literal notranslate"><span class="pre">compute_all</span></code> is set to True, default False).</p>
+<p>Just like BooleanFunction objects, BooleanNetwork possesses a <code class="docutils literal notranslate"><span class="pre">.summary()</span></code> method, which prints a human-readable overview of basic properties. If more advanced properties have already been computed, e.g., attractors, this information is also displayed (or if the optional keyword <code class="docutils literal notranslate"><span class="pre">compute_all</span></code> is set to True, default False).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -617,6 +623,147 @@ Fragility:                    0.222
 </pre></div></div>
 </div>
 <p>The more advanced properties displayed here are the subject of the next two tutorials.</p>
+</section>
+<section id="Manipulation-and-control-of-Boolean-networks">
+<h2>Manipulation and control of Boolean networks<a class="headerlink" href="#Manipulation-and-control-of-Boolean-networks" title="Link to this heading"></a></h2>
+<p>Identity nodes can represent external inputs or environmental conditions. Fixing their values allows us to study the behavior of the network under specific contexts. BoolForge enables users to obtain a reduced network, in which the identity nodes are set to specific values.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cn</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_network_with_fixed_identity_nodes</span><span class="p">(</span><span class="n">values_identity_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cn.F:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cn</span><span class="o">.</span><span class="n">F</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  F[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] = </span><span class="si">{</span><span class="n">f</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cn</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+cn.F:
+  F[0] = BooleanFunction(name=&#39;x0&#39;, f=[0, 0])
+  F[1] = BooleanFunction(name=&#39;x1&#39;, f=[1, 1])
+
+BooleanNetwork
+--------------
+Number of nodes:              2
+Number of regulated nodes:    2
+Number of constants (removed):2
+Average degree:               1.000
+Largest in-degree:            1
+Largest out-degree:           1
+Regulated nodes:              [&#39;x0&#39;, &#39;x1&#39;]
+Constants:                    {&#39;x2&#39;: 0, &#39;x3&#39;: 1}
+</pre></div></div>
+</div>
+<p>Fixing identity nodes converts them into constant nodes, which are then eliminated via constant propagation. Only the identity nodes are removed from <code class="docutils literal notranslate"><span class="pre">cn</span></code>. Nodes that become dynamically constant after fixing identity nodes (e.g., <span class="math notranslate nohighlight">\(x_0\)</span> and <span class="math notranslate nohighlight">\(x_1\)</span>) are retained, since their initial values may still vary. For example, <span class="math notranslate nohighlight">\(x_0(t=0) = 1\)</span> or <span class="math notranslate nohighlight">\(x_1(t=0) = 0\)</span> remain valid initial values, despite the fact that <span class="math notranslate nohighlight">\(x_0(t) = 0\)</span> and <span class="math notranslate nohighlight">\(x_1(t) = 1\)</span> at any time <span class="math notranslate nohighlight">\(t&gt;0\)</span>.</p>
+<section id="Node-controls">
+<h3>Node controls<a class="headerlink" href="#Node-controls" title="Link to this heading"></a></h3>
+<p>Boolean network control is an active area of research. For example, the knock-out of a certain gene can be simulated in a Boolean network by setting this gene to a constant value of zero. Likewise, overexpression can be modeled by setting it to a constant value of one. BoolForge enables users to implement node and edge controls of existing Boolean networks. This provides a simple framework for simulating interventions such as gene knock-outs or overexpression.</p>
+<p>To implement node controls, we need to specify which nodes should be controlled and the constant values that they should be set to. As an example, we consider a classical Boolean network model, the three-node repressilator.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">A = not B</span>
+<span class="s2">B = not C</span>
+<span class="s2">C = not A</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">bn</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+<span class="n">bn</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<span class="n">cn</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_network_with_node_controls</span><span class="p">(</span><span class="n">indices_controlled_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                       <span class="n">values_controlled_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">cn</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cn.F:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cn</span><span class="o">.</span><span class="n">F</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  F[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] = </span><span class="si">{</span><span class="n">f</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cn.constants:&quot;</span><span class="p">,</span> <span class="n">cn</span><span class="o">.</span><span class="n">constants</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial06_boolean_networks_33_0.png" src="../_images/tutorials_tutorial06_boolean_networks_33_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial06_boolean_networks_33_1.png" src="../_images/tutorials_tutorial06_boolean_networks_33_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+cn.F:
+  F[0] = BooleanFunction(name=&#39;A&#39;, f=[1, 0])
+  F[1] = BooleanFunction(name=&#39;B&#39;, f=[1, 1])
+cn.constants: {&#39;C&#39;: 0}
+</pre></div></div>
+</div>
+<p>Setting <span class="math notranslate nohighlight">\(C = 0\)</span> removes <span class="math notranslate nohighlight">\(C\)</span> from the reduced network <code class="docutils literal notranslate"><span class="pre">cn</span></code> (it becomes a constant). Moreover, since <span class="math notranslate nohighlight">\(B = \neg C\)</span>, we get <span class="math notranslate nohighlight">\(B = 1\)</span> always, while the update rule for <span class="math notranslate nohighlight">\(A\)</span> is not changed.</p>
+</section>
+<section id="Edge-controls">
+<h3>Edge controls<a class="headerlink" href="#Edge-controls" title="Link to this heading"></a></h3>
+<p>Similarly, we can implement edge controls. Edge control removes the influence of a source node on a target node by fixing the source to a specified value within the target’s update function. The resulting function is then simplified, and the corresponding edge is removed. As an example, we consider a more connected Boolean network with different types of update rules.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">A = B and C</span>
+<span class="s2">B = A or C</span>
+<span class="s2">C = A and not B</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">bn</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BooleanNetwork</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.I:&quot;</span><span class="p">,</span> <span class="n">bn</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bn.F:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  F[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] = </span><span class="si">{</span><span class="n">f</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+
+<span class="n">cn</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_network_with_edge_controls</span><span class="p">(</span><span class="n">control_targets</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                       <span class="n">control_sources</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                       <span class="n">values_edge_controls</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cn.I:&quot;</span><span class="p">,</span> <span class="n">cn</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cn.F:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cn</span><span class="o">.</span><span class="n">F</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  F[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] = </span><span class="si">{</span><span class="n">f</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+bn.I: [array([1, 2]), array([0, 2]), array([0, 1])]
+bn.F:
+  F[0] = BooleanFunction(name=&#39;A&#39;, f=[0, 0, 0, 1])
+  F[1] = BooleanFunction(name=&#39;B&#39;, f=[0, 1, 1, 1])
+  F[2] = BooleanFunction(name=&#39;C&#39;, f=[0, 0, 1, 0])
+
+cn.I: [array([2]), array([0, 2]), array([0, 1])]
+cn.F:
+  F[0] = BooleanFunction(name=&#39;A&#39;, f=[0, 0])
+  F[1] = BooleanFunction(name=&#39;B&#39;, f=[0, 1, 1, 1])
+  F[2] = BooleanFunction(name=&#39;C&#39;, f=[0, 0, 1, 0])
+</pre></div></div>
+</div>
+<p>By setting <span class="math notranslate nohighlight">\(B=0\)</span> in the regulation of <span class="math notranslate nohighlight">\(A\)</span>, we remove <span class="math notranslate nohighlight">\(B\)</span>’s influence on <span class="math notranslate nohighlight">\(A\)</span>. Moreover, since <span class="math notranslate nohighlight">\(A = B \wedge C\)</span>, we now have <span class="math notranslate nohighlight">\(A=0\)</span> always.</p>
+</section>
 </section>
 <section id="Outlook">
 <h2>Outlook<a class="headerlink" href="#Outlook" title="Link to this heading"></a></h2>
