@@ -103,7 +103,6 @@ def _coerce_rng(
         return default_rng(SeedSequence(entropy))
     raise TypeError(f"Unsupported rng type: {type(rng)!r}")
 
-
 def _is_number(token: str) -> bool:
     """Return True if token is a pure numeric literal."""
     try:

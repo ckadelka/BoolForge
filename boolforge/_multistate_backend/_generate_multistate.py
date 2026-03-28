@@ -26,21 +26,6 @@ Example
 >>> boolforge.random_network(N=5, n=2)
 """
 
-# --- DEV MODE FIX (safe, minimal, contained) ---
-if __name__ == "__main__" and __package__ is None:
-    import sys, os
-
-    try:
-        # normal Python execution
-        base = os.path.abspath(__file__)
-    except NameError:
-        # Spyder / IPython fallback
-        base = os.path.abspath("generate.py")  # current file name
-
-    package_path = os.path.dirname(os.path.dirname(base))
-    sys.path.insert(0, package_path)
-    __package__ = "boolforge"
-# ----------------------------------------------
 
 ##Imports
 import math
@@ -53,11 +38,6 @@ from .boolean_function import BooleanFunction
 from .boolean_network import BooleanNetwork
 from .wiring_diagram import WiringDiagram
 from . import utils
-from . import utils_multistate as utils_ms
-
-
-from . import _generate_boolean
-from . import _generate_multistate
 
 __all__ = [
     "random_function",
@@ -572,8 +552,6 @@ def random_non_degenerate_function(
 def random_degenerate_function(
     n: int,
     bias: float = 0.5,
-    n_states : int = 2,
-    n_states_inputs : Sequence[int] | int = 2,
     *,
     rng=None,
 ) -> BooleanFunction:
@@ -593,10 +571,6 @@ def random_degenerate_function(
     bias : float, optional
         Probability that a truth-table entry equals 1 for the underlying
         (n−1)-variable function. Default is 0.5.
-    n_states : int
-        Number of states of the function, default 2
-    n_states_inputs : int or sequence of ints
-        Number of states per input, default 2 per input
     rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
         Random number generator or seed specification. Passed to
         ``utils._coerce_rng``.
@@ -622,25 +596,32 @@ def random_degenerate_function(
       functions.
     - This construction avoids rejection sampling.
     """
-    
-    n_states, n_states_inputs, is_boolean = \
-        utils_ms.normalize_and_validate_state_specs(
-            n, n_states, n_states_inputs
-        )  
-        
-    if is_boolean:
-        return _generate_boolean.random_degenerate_function(
-            n=n,
-            bias=bias,
-            rng=rng
-        )
-    return _generate_multistate.random_degenerate_function(
-        n=n,
-        bias=bias,
-        n_states=n_states,
-        n_states_inputs=n_states_inputs,
-        rng=rng
-    )
+    if not isinstance(n, (int, np.integer)) or n <= 0:
+        raise ValueError("n must be a positive integer")
+
+    if not isinstance(bias, (float, np.floating)) or not (0.0 < bias < 1.0):
+        raise ValueError("bias must be a float strictly between 0 and 1")
+
+    rng = utils._coerce_rng(rng)
+
+    # Generate an (n-1)-variable Boolean function
+    f_original = random_function_with_bias(n - 1, 
+                                           bias=bias, 
+                                           rng=rng)
+
+    # Choose the non-essential variable uniformly at random
+    index_non_essential_variable = rng.integers(n)
+
+    f = np.zeros(2**n, dtype=np.uint8)
+
+    # Copy the (n-1)-variable function across both values of the non-essential variable
+    block = 2 ** index_non_essential_variable
+    indices = (np.arange(2**n) // block) % 2 == 1
+    f[indices] = f_original.f
+    f[~indices] = f_original.f
+
+    return BooleanFunction._from_f_unchecked(f)
+
 
 def random_non_canalizing_function(
     n: int,
