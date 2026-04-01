@@ -227,7 +227,7 @@ plt.show()
 # %% [markdown]
 # ### Steady states under general asynchronous update
 #
-# BoolForge can compute steady states under **general asynchronous updating**,
+# BoolForge can compute steady states under *general asynchronous updating*,
 # where at each step only a single node updates according to its Boolean rule.
 
 # %%
@@ -240,7 +240,7 @@ print('Number of steady states (lower bound):',dict_dynamics['NumberOfSteadyStat
 # However, the limit cycle observed under synchronous updating disappears
 # under asynchronous dynamics.
 #
-# In addition, BoolForge returns the **full asynchronous state transition graph**.
+# In addition, BoolForge returns the *full asynchronous state transition graph*.
 
 
 # %%
@@ -250,11 +250,11 @@ for state, successors in dict_dynamics["STGAsynchronous"].items():
 # %% [markdown]
 # The state transition graph describes for each state the possible next states 
 # that the system may transition to, in addition to the transition probabilities. 
-# This graph can be interpreted as a **sparse transition matrix**
+# This graph can be interpreted as a *sparse transition matrix*
 # of a Markov chain. Each directed edge corresponds to a possible single-node update.
 #
 # By repeatedly composing this transition matrix with itself (equivalently,
-# raising it to higher powers), BoolForge computes the **absorption probabilities**,
+# raising it to higher powers), BoolForge computes the *absorption probabilities*,
 # i.e., the probability that a trajectory starting from any state eventually
 # reaches each steady state.
 
@@ -273,7 +273,7 @@ print('Basin sizes:',dict_dynamics['BasinSizes'])
 # %% [markdown]
 # Note that `BoolForge` currently does not detect complex cyclic attractors under
 # asynchronous update; for this task, specialized tools such as
-# [pystablemotifs](https://github.com/jcrozum/pystablemotifs) are recommended. 
+# [pystablemotifs](https://github.com/jcrozum/pystablemotifs) are recommended [@rozum2022pystablemotifs]. 
 #
 # In fact, some of BoolForge's asynchronous update methods fail when the network
 # contains no steady state. 

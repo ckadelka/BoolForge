@@ -1,3 +1,4 @@
+
 # Working with Boolean Networks
 
 While previous tutorials focused on individual Boolean functions, this tutorial
@@ -26,14 +27,14 @@ A Boolean network $F = (f_1, \ldots, f_N)$ is a dynamical system consisting of
 $N$ Boolean update functions. Each node can be in one of two states, 0 or 1,
 often interpreted as OFF/ON in biological contexts.
 
-Under **synchronous updating**, all nodes update simultaneously, yielding a
+Under *synchronous updating*, all nodes update simultaneously, yielding a
 deterministic state transition graph on $\{0,1\}^N$. 
-Under **asynchronous updating**, only one node is updated at a time, yielding a
+Under *asynchronous updating*, only one node is updated at a time, yielding a
 stochastic transition graph. BoolForge implements both schemes.
 
-Real biological networks are typically sparsely connected. The **in-degree**
+Real biological networks are typically sparsely connected. The *in-degree*
 of a node is the number of essential inputs of its update function. The
-**wiring diagram** encodes which nodes regulate which others.
+*wiring diagram* encodes which nodes regulate which others.
 
 Despite their simplicity, Boolean networks can:
 
@@ -53,6 +54,7 @@ from dynamics (`F`) allows:
 - efficient storage (sparse I, local F vs dense full truth table).
 
 ```python
+
 # Wiring diagram of a 3-node network
 I = [
     [1],
@@ -78,7 +80,7 @@ fig = W.plot(show=False);
 
 
     
-![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_4_1.png)
+![](figures/tutorial06_boolean_networks_fig4.png)
     
 
 
@@ -116,17 +118,17 @@ fig = W.plot(show=False)
 
 
     
-![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_7_1.png)
+![](figures/tutorial06_boolean_networks_fig5.png)
     
 
 
-This wiring diagram encodes a **feed-forward loop**, one of the most common *network motifs* in 
+This wiring diagram encodes a *feed-forward loop*, one of the most common *network motifs* in 
 transcriptional networks. It can:
 
 - filter transient signals (coherent FFL with AND gate),
 - accelerate response (incoherent FFL),
 
-See Mangan & Alon, PNAS, 2003 for a detailed analysis.
+See @mangan2003structure for a detailed analysis.
 `BoolForge` enables the identification of all feed-forward loops:
 
 ```python
@@ -160,7 +162,7 @@ print("W2.get_fbls()", W2.get_fbls())
 
 
     
-![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_11_1.png)
+![](figures/tutorial06_boolean_networks_fig0.png)
     
 
 
@@ -271,7 +273,8 @@ an interactive setting.
 ### Interoperability with CANA
 
 `BoolForge` provides native interoperability with
-the [`CANA` package](https:www.github.com/CASCI-lab/CANA) for the analysis of Boolean functions and Boolean networks.
+the [CANA package](https://www.github.com/CASCI-lab/CANA) for the analysis of
+Boolean functions and Boolean networks [@marcus2025cana].
 Existing `BoolForge` networks can be converted into `CANA` objects and back
 without loss of information.
 
@@ -304,16 +307,16 @@ assert (
 
 Nodes in a Boolean network can be classified as follows:
 
-- **Constant nodes**  
+- *Constant nodes*:  
   Nodes with constant update functions (always 0 or always 1).
   These nodes act as parameters and they are eliminated at construction time 
   by substituting their constant value into all dependent update functions.
-- **Identity nodes**  
+- *Identity nodes*:  
   Nodes whose update function is the identity, i.e., $f(x_i) = x_i.$
   Their value is determined by the initial condition and remains constant over time.
   Identity nodes are retained as part of the Boolean network state. 
   They may be viewed as nodes with a self-loop and no other incoming edges.
-- **Regulated nodes**  
+- *Regulated nodes*:  
   Nodes whose update functions depend on one or more other nodes.
 
 ```python
@@ -449,7 +452,7 @@ bn.plot();
 
 
     
-![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_27_1.png)
+![](figures/tutorial06_boolean_networks_fig1.png)
     
 
 
@@ -539,7 +542,8 @@ For example, $x_0(t=0) = 1$ or $x_1(t=0) = 0$ remain valid initial values,
 despite the fact that $x_0(t) = 0$ and $x_1(t) = 1$ at any time $t>0$.
 
 ### Node controls
-Boolean network control is an active area of research. 
+Boolean network control is an active area of research (see e.g., 
+@murrugarra2016identification or @borriello2021basis). 
 For example, the knock-out of a certain gene can be simulated in a Boolean network
 by setting this gene to a constant value of zero. Likewise, overexpression can be 
 modeled by setting it to a constant value of one. BoolForge enables users to implement
@@ -548,7 +552,7 @@ for simulating interventions such as gene knock-outs or overexpression.
 
 To implement node controls, we need to specify which nodes should be controlled and
 the constant values that they should be set to. As an example, we consider a classical
-Boolean network model, the three-node repressilator.
+Boolean network model, the three-node repressilator [@elowitz2000synthetic].
 
 ```python
 string = """
@@ -570,13 +574,13 @@ print("cn.constants:", cn.constants)
 
 
     
-![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_33_0.png)
+![](figures/tutorial06_boolean_networks_fig2.png)
     
 
 
 
     
-![](tutorial06_boolean_networks_files/tutorial06_boolean_networks_33_1.png)
+![](figures/tutorial06_boolean_networks_fig3.png)
     
 
 

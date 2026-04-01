@@ -40,7 +40,7 @@ import numpy as np
 # - Identify potential drug targets (symmetric inputs may compensate)
 #
 # A symmetry of a Boolean function is a permutation of input variables that does
-# **not** change its output.
+# *not* change its output.
 #
 # - Inputs in the same symmetry group can be swapped freely.
 # - Inputs in different groups cannot.
@@ -68,7 +68,7 @@ for func, label in zip([f, g, h], labels):
 
 
 # %% [markdown]
-# **Interpretation**
+# Interpretation:
 #
 # - `f` is fully symmetric: all variables are interchangeable.
 # - `g` has partial symmetry: `x1` and `x2` are equivalent but `x0` is distinct.
@@ -81,7 +81,7 @@ for func, label in zip([f, g, h], labels):
 # %% [markdown]
 # ## Degenerate functions
 #
-# A function is **degenerate** if one or more inputs do not matter at all. 
+# A function is *degenerate* if one or more inputs do not matter at all. 
 
 # %%
 print("f.is_degenerate()", f.is_degenerate())
@@ -125,7 +125,8 @@ print("Non-essential variables:", nonessential)
 # ### Average sensitivity
 #
 # The *average sensitivity* of a Boolean function describes 
-# how sensitive its output is to changes in its inputs, specifically to a random single-bit flip. 
+# how sensitive its output is to changes in its inputs, specifically to a 
+# random single-bit flip [@shmulevich2004activities]. 
 # The (unnormalized) average sensitivity is the sum of all its activities:
 #
 # $$
@@ -139,7 +140,7 @@ print("Non-essential variables:", nonessential)
 # s(f) = \frac{S(f)}{n}.
 # $$
 #
-# **Interpretation**
+# Interpretation:
 #
 # In Boolean network theory, the mean normalized average sensitivity $s(f)$
 # determines how perturbations tend to propagate through the system.
@@ -149,8 +150,9 @@ print("Non-essential variables:", nonessential)
 # - The boundary $s(f) = 1$ defines the *critical regime*.
 #
 # The critical regime is believed to characterize many biological 
-# networks (see later tutorials). It represents a balance between order and chaos. 
-# Operating at this "edge of chaos" may optimize information processing and evolvability.
+# networks (see later tutorials and also @daniels2018criticality). 
+# It represents a balance between order and chaos. Operating at this "edge 
+# of chaos" may optimize information processing and evolvability.
 #
 # ### Exact vs Monte Carlo computation
 #
@@ -187,7 +189,7 @@ print("Normalized average sensitivity of g:", g.get_average_sensitivity(exact=ex
                                                                         normalized=normalized))
 
 # %% [markdown]
-# **Interpretation**
+# Interpretation:
 #
 # - For `f` (XOR), flipping any input always flips the output, so $s(f) = 1$.
 # - For `g`, $x_0$ influences the output more often than $x_1$ or $x_2$. 75% of $x_0$ flips and 25% of $x_1$ or $x_2$ flips change the output of `g`. Thus, the normalized average sensitivity of `g` is $\frac 13*75\% + \frac 23 25\% = \frac{5}{12}$.
@@ -219,7 +221,7 @@ print(
 )
 
 # %% [markdown]
-# **Interpretation**
+# Interpretation:
 #
 # Random Boolean functions satisfy:
 #

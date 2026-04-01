@@ -1,6 +1,7 @@
-# Preface {-}
 
-**BoolForge** is a Python toolbox for generating, analyzing, and simulating
+# Preface {.unnumbered}
+
+ BoolForge  is a Python toolbox for generating, analyzing, and simulating
 Boolean functions and Boolean networks. Boolean network models are widely used
 in systems biology, theoretical biology, and complex systems research to study
 regulatory systems whose components operate in two qualitative states
@@ -16,32 +17,32 @@ Boolean functions and Boolean networks.
 
 ## Philosophy and scope of BoolForge
 
-BoolForge was designed to support both **methodological research on Boolean
-networks** and **applied analysis of biological regulatory models**.
+BoolForge was designed to support both  methodological research on Boolean
+networks  and  applied analysis of biological regulatory models .
 
 Three principles guide its design:
 
-**1. Fundamental representations**
+ 1. Fundamental representations 
 
 Boolean functions are stored internally as truth tables, the most fundamental
 representation of Boolean logic. Logical expressions and polynomial forms can
 be derived from this representation when needed.
 
-**2. Controlled random model generation**
+ 2. Controlled random model generation 
 
 Many research questions require comparing biological networks with suitable
-**null models**. BoolForge therefore provides various tools for generating random
+ null models . BoolForge therefore provides various tools for generating random
 Boolean functions and Boolean networks with prescribed structural properties.
 
-**3. Integration of structure and dynamics**
+ 3. Integration of structure and dynamics 
 
 Structural properties of regulatory rules (such as canalization, redundancy,
 and symmetry) influence dynamical behavior, including attractors, robustness,
 and sensitivity to perturbations. BoolForge enables analysis across these levels,
 connecting function-level structure to network-level dynamics.
 
-**Together, these capabilities enable ensemble-based exploration of the
-relationship between structure and dynamics in Boolean networks.**
+ Together, these capabilities enable ensemble-based exploration of the
+relationship between structure and dynamics in Boolean networks. 
 
 For example, we can reproduce, in a few lines of code, the classical phase transition 
 from order to chaos in random Boolean networks predicted by the annealed approximation of
@@ -73,7 +74,7 @@ plt.legend(frameon=False);
 
 
     
-![](tutorial00_preface_files/tutorial00_preface_1_0.png)
+![](figures/tutorial00_preface_fig0.png)
     
 
 
@@ -87,16 +88,17 @@ The tutorials gradually introduce the main concepts and tools provided by
 BoolForge, moving from individual Boolean functions to full Boolean
 network models and their dynamical analysis.
 
-- **Boolean functions:** representation and structural analysis
-- **Canalization:** redundancy and robustness of regulatory rules
-- **Random function generation:** sampling functions with prescribed properties
-- **Boolean networks:** construction and wiring diagrams
-- **Network dynamics:** attractors and state transition graphs
-- **Stability and robustness:** sensitivity to perturbations
-- **Random network ensembles:** statistical analysis of network dynamics
-- **Biological models:** analysis of curated regulatory networks
+-  Boolean functions:  representation and structural analysis
+-  Canalization:  redundancy and robustness of regulatory rules
+-  Random function generation:  sampling functions with prescribed properties
+-  Boolean networks:  construction and wiring diagrams
+-  Network dynamics:  attractors and state transition graphs
+-  Stability and robustness:  sensitivity to perturbations
+-  Random network ensembles:  statistical analysis of network dynamics
+-  Biological models:  analysis of curated regulatory networks
 
 Each tutorial contains executable code examples illustrating how these ideas
 can be explored using BoolForge.
 Readers are encouraged to run the code cells and modify the examples to
 explore their own Boolean functions and networks.
+

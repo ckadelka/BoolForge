@@ -1,7 +1,8 @@
+
 # Random Boolean network generation
 
-This tutorial demonstrates how to generate **random Boolean networks with
-controlled structural and functional properties** using BoolForge.
+This tutorial demonstrates how to generate *random Boolean networks with
+controlled structural and functional properties* using BoolForge.
 This ability enables ensemble studies, which are exemplified in the next tutorial.
 
 ## What you will learn
@@ -46,7 +47,7 @@ W.plot();
 
 
     
-![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_3_0.png)
+![](figures/tutorial09_random_Boolean_network_generation_fig1.png)
     
 
 
@@ -73,7 +74,7 @@ W.plot();
 
 
     
-![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_5_0.png)
+![](figures/tutorial09_random_Boolean_network_generation_fig2.png)
     
 
 
@@ -97,7 +98,7 @@ W.plot();
 
 
     
-![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_7_0.png)
+![](figures/tutorial09_random_Boolean_network_generation_fig3.png)
     
 
 
@@ -159,7 +160,8 @@ In the following, we summarize the key concepts.
 
 ### Parity functions
 If `parity=True` (default False), parity functions (also known as linear functions)
-are chosen for all nodes. Note that for any degree `n`, there are only two parity functions.
+are chosen for all nodes, yielding a linear Boolean network (see @chandrasekhar2023stability).
+Note that for any degree `n`, there are only two parity functions.
 
 ### Canalizing functions
 If a specific `layer_structure` is provided, all functions possess at least these
@@ -269,12 +271,12 @@ bn3 = bf.random_network(N=N,n=n,absolute_bias=0.5)
 bns = [bn1,bn2,bn3]
 
 labels = ["bias = 0.75", "absolute bias = 0.5", "bias = 0.5 (balanced)"]
-possible_hamming_weights = np.arange(2**n + 1)
+possible_hamming_weights = np.arange(2 n + 1)
 width = 0.3
 
 fig, ax = plt.subplots()
 for i,bn in enumerate(bns):
-    count = np.zeros(2**n + 1)
+    count = np.zeros(2 n + 1)
     for f in bn.F:
         count[f.hamming_weight] += 1
     ax.bar(possible_hamming_weights - width + i * width, 
@@ -289,7 +291,7 @@ ax.set_ylabel("Proportion of update functions");
 
 
     
-![](tutorial09_random_Boolean_network_generation_files/tutorial09_random_Boolean_network_generation_19_0.png)
+![](figures/tutorial09_random_Boolean_network_generation_fig0.png)
     
 
 

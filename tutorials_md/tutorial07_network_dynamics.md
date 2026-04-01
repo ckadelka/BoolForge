@@ -1,3 +1,4 @@
+
 # Dynamics of Boolean Networks
 
 In this tutorial, we study the *dynamics* of Boolean networks.
@@ -156,7 +157,7 @@ For computational reasons, binary states in $\{0,1\}^N$ are identified by their 
 The state transition graph can be decoded as follows:
 
 ```python
-for state in range(2 ** bn.N):
+for state in range(2   bn.N):
     next_state = dict_dynamics["STG"][state]
     print(
         state,
@@ -257,8 +258,8 @@ print('Discovered attractors:',dict_dynamics['Attractors'])
 print('Basin size approximation:',dict_dynamics['BasinSizesApproximation'])
 ```
 
-    Discovered attractors: [[7], [2, 5], [0]]
-    Basin size approximation: [0.347 0.533 0.12 ]
+    Discovered attractors: [[7], [5, 2], [0]]
+    Basin size approximation: [0.373 0.514 0.113]
 
 
 The simulation returns additional information:
@@ -289,7 +290,7 @@ ms = np.logspace(0, 4, 1000)
 
 fig, ax = plt.subplots()
 for q in qs:
-    ax.semilogx(ms, 1 - (1 - q) ** ms, label=str(q))
+    ax.semilogx(ms, 1 - (1 - q)   ms, label=str(q))
 
 ax.legend(title=r"$q$", frameon=False)
 ax.set_xlabel("number of initial states ($m$)")
@@ -299,7 +300,7 @@ plt.show()
 
 
     
-![](tutorial07_network_dynamics_files/tutorial07_network_dynamics_29_0.png)
+![](figures/tutorial07_network_dynamics_fig0.png)
     
 
 
@@ -310,7 +311,7 @@ Asynchronous updating assumes that only one node changes at a time.
 
 ### Steady states under general asynchronous update
 
-BoolForge can compute steady states under **general asynchronous updating**,
+BoolForge can compute steady states under *general asynchronous updating*,
 where at each step only a single node updates according to its Boolean rule.
 
 ```python
@@ -327,7 +328,7 @@ The result reveals the same two steady states as in the synchronous case.
 However, the limit cycle observed under synchronous updating disappears
 under asynchronous dynamics.
 
-In addition, BoolForge returns the **full asynchronous state transition graph**.
+In addition, BoolForge returns the *full asynchronous state transition graph*.
 
 ```python
 for state, successors in dict_dynamics["STGAsynchronous"].items():
@@ -346,11 +347,11 @@ for state, successors in dict_dynamics["STGAsynchronous"].items():
 
 The state transition graph describes for each state the possible next states 
 that the system may transition to, in addition to the transition probabilities. 
-This graph can be interpreted as a **sparse transition matrix**
+This graph can be interpreted as a *sparse transition matrix*
 of a Markov chain. Each directed edge corresponds to a possible single-node update.
 
 By repeatedly composing this transition matrix with itself (equivalently,
-raising it to higher powers), BoolForge computes the **absorption probabilities**,
+raising it to higher powers), BoolForge computes the *absorption probabilities*,
 i.e., the probability that a trajectory starting from any state eventually
 reaches each steady state.
 
@@ -381,7 +382,7 @@ print('Basin sizes:',dict_dynamics['BasinSizes'])
 
 Note that `BoolForge` currently does not detect complex cyclic attractors under
 asynchronous update; for this task, specialized tools such as
-[`pystablemotifs`](https://github.com/jcrozum/pystablemotifs) are recommended. 
+[pystablemotifs](https://github.com/jcrozum/pystablemotifs) are recommended [@rozum2022pystablemotifs]. 
 
 In fact, some of BoolForge's asynchronous update methods fail when the network
 contains no steady state. 
@@ -403,9 +404,9 @@ print('Number of steady states (lower bound):',dict_dynamics['NumberOfSteadyStat
 print('Basin size approximation:',dict_dynamics['BasinSizesApproximation'])
 ```
 
-    Discovered steady states: [0, 7]
-    Number of steady states (lower bound): 2
-    Basin size approximation: [0.318 0.682]
+    Discovered steady states: [7, 0, 11]
+    Number of steady states (lower bound): 3
+    Basin size approximation: [0.556 0.366 0.078]
 
 
 ### Sampling from a fixed initial condition
@@ -423,9 +424,9 @@ print('Number of steady states (lower bound):',dict_dynamics['NumberOfSteadyStat
 print('Basin size approximation:',dict_dynamics['BasinSizesApproximation'])
 ```
 
-    Discovered steady states: [7, 9, 0, 2]
-    Number of steady states (lower bound): 4
-    Basin size approximation: [0.158 0.162 0.512 0.168]
+    Discovered steady states: [0, 7, 2]
+    Number of steady states (lower bound): 3
+    Basin size approximation: [0.522 0.212 0.266]
 
 
 Note the equivalent analysis under synchronous update is trivial because the dynamics
