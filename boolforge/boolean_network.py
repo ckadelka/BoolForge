@@ -841,10 +841,11 @@ class BooleanNetwork(WiringDiagram):
     
         for i, f in enumerate(F):
             if isinstance(f, (list, np.ndarray)):
-                bf = BooleanFunction(f, name=self.variables[i])
+                bf = BooleanFunction(f, name=self.variables[i], variables=self.variables[self.I[i]])
             elif isinstance(f, BooleanFunction):
                 bf = f
                 bf.name = self.variables[i]
+                bf.variables = self.variables[self.I[i]]
             else:
                 raise TypeError(
                     f"Invalid entry in F at index {i}: expected BooleanFunction, "
