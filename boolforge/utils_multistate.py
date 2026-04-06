@@ -11,10 +11,10 @@ import numpy as np
 def _is_boolean(n_states, n_states_inputs):
     if n_states_inputs is None:
         return n_states == 2
-    return n_states == 2 and all(k == 2 for k in n_states_inputs)
+    return n_states == 2 and np.all(k == 2 for k in n_states_inputs)
 
 def _is_homogeneous(n_states, n_states_inputs):
-    return n_states_inputs is None or all(k == n_states for k in n_states_inputs)
+    return n_states_inputs is None or np.all(k == n_states for k in n_states_inputs)
 
 def normalize_and_validate_state_specs(
     n: int,
