@@ -1617,6 +1617,9 @@ def random_wiring_diagram(
 
     Raises
     ------
+    AssertionError
+        If ``strongly_connected=True`` and ``allow_indegree_zero==True``.
+        This is an impossible combination.
     RuntimeError
         If ``strongly_connected=True`` and a strongly connected wiring diagram
         cannot be generated within the specified number of attempts.
@@ -1638,6 +1641,10 @@ def random_wiring_diagram(
     >>> W = random_wiring_diagram(10, n=3, strongly_connected=True)
     >>> W = random_wiring_diagram(6, n=[1, 2, 1, 2, 1, 2])
     """
+    assert not strongly_connected or not allow_indegree_zero, (
+        "It is impossible to create a strongly connected wiring diagram if some nodes have indegree zero."
+    )    
+    
     rng = utils._coerce_rng(rng)
     indegrees = random_degrees(
         N,
@@ -1649,7 +1656,7 @@ def random_wiring_diagram(
     )
 
     counter = 0
-    while True:  # Keep generating until we have a strongly connected graph
+    while True:  
         edges_wiring_diagram = random_edge_list(
             N,
             indegrees,
@@ -1657,7 +1664,7 @@ def random_wiring_diagram(
             min_out_degree_one=min_out_degree_one,
             rng=rng,
         )
-        if strongly_connected:
+        if strongly_connected: # Keep generating until we have a strongly connected graph
             # may take a long time ("forever") if n is small and N is large
             G = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
             if not nx.is_strongly_connected(G):
