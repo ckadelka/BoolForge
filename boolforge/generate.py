@@ -2134,23 +2134,31 @@ def random_network(
         )
 
     # generate functions
-    F = [
-        random_function(
-            n=I.indegrees[i],
-            depth=depth[i],
-            exact_depth=exact_depth,
-            uniform_over_functions=uniform_over_functions,
-            layer_structure=layer_structure[i],
-            parity=parity,
-            allow_degenerate_functions=allow_degenerate_functions,
-            bias=bias[i],
-            absolute_bias=absolute_bias[i],
-            use_absolute_bias=use_absolute_bias,
-            hamming_weight=hamming_weight[i],
-            rng=rng,
-        )
-        for i in range(N)
-    ]
+    F = []
+    for i in range(N):
+        if I.indegrees[i]==0: #only possible if allow_indegree_zero == True
+            #then turn i into an idenitity_node
+            I.indegrees[i] = 1
+            I.outdegrees[i] += 1
+            I.I[i] = np.array([i], dtype=int)
+            F.append(np.array([0,1], dtype=int))
+        else:
+            F.append(
+                random_function(
+                    n=I.indegrees[i],
+                    depth=depth[i],
+                    exact_depth=exact_depth,
+                    uniform_over_functions=uniform_over_functions,
+                    layer_structure=layer_structure[i],
+                    parity=parity,
+                    allow_degenerate_functions=allow_degenerate_functions,
+                    bias=bias[i],
+                    absolute_bias=absolute_bias[i],
+                    use_absolute_bias=use_absolute_bias,
+                    hamming_weight=hamming_weight[i],
+                    rng=rng,
+                )
+            )
 
     return BooleanNetwork(F, I)
 
