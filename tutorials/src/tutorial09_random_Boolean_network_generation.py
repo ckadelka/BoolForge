@@ -1,8 +1,8 @@
 # %% [markdown]
 # # Random Boolean network generation
 #
-# This tutorial demonstrates how to generate **random Boolean networks with
-# controlled structural and functional properties** using BoolForge.
+# This tutorial demonstrates how to generate *random Boolean networks with
+# controlled structural and functional properties* using BoolForge.
 # This ability enables ensemble studies, which are exemplified in the next tutorial.
 #
 # ## What you will learn
@@ -142,7 +142,8 @@ bn = bf.random_network(I=W)
 #
 # ### Parity functions
 # If `parity=True` (default False), parity functions (also known as linear functions)
-# are chosen for all nodes. Note that for any degree `n`, there are only two parity functions.
+# are chosen for all nodes, yielding a linear Boolean network (see @chandrasekhar2023stability).
+# Note that for any degree `n`, there are only two parity functions.
 #
 # ### Canalizing functions
 # If a specific `layer_structure` is provided, all functions possess at least these

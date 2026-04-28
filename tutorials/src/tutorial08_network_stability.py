@@ -79,8 +79,8 @@ print("Overall fragility:", results_exact["Fragility"])
 
 # %% [markdown]
 # The same robustness metrics, coherence and fragility, can also be averaged
-# across a smaller set of states, e.g., all states in one basin of attraction, or
-# an even smaller set of states, e.g., all states that form an attractor.
+# across a smaller set of states, e.g., all states in one basin of attraction (see @bavisetty2025upper), or
+# an even smaller set of states, e.g., all states that form an attractor (see @bavisetty2025attractors).
 
 
 # %%
@@ -104,9 +104,9 @@ print(df_attractors)
 # %% [markdown]
 # Interpretation:
 #
-# - **Coherence** measures the fraction of single-bit perturbations that do *not*
-#   change the final attractor.
-# - **Fragility** measures how much the attractor state changes.
+# - *Coherence* measures the fraction of single-bit perturbations that do *not*
+#   change the final attractor [@willadsenwiles].
+# - *Fragility* measures how much the attractor state changes [@park2023models].
 #
 # The robustness metrics considered thus far describe how a single perturbation affects
 # the network dynamics in the long-term, i.e., at the attractor. 
@@ -138,7 +138,7 @@ print("Approximate fragility:", results_approx["FragilityApproximation"])
 # ## Derrida value: dynamical sensitivity
 #
 # An older and very popular robustness metric, the Derrida value, 
-# measures how perturbations *propagate* after one synchronous update.
+# measures how perturbations *propagate* after one synchronous update [@derrida1986random].
 # It is defined as the expected Hamming distance between updated states that initially
 # differed in exactly one bit. 
 #

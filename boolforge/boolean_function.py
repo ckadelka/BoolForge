@@ -120,7 +120,7 @@ def f_from_expression(
     - The expression is evaluated using ``eval`` with restricted builtins.
     - No syntactic or semantic validation of ``expr`` is performed beyond
       basic parsing.
-    - Arithmetic operators (+, -, *, %) must be surrounded by whitespace.
+    - Arithmetic operators (+, -, `*`, %) must be surrounded by whitespace.
       This restriction avoids conflicts with biological identifiers such as Ca2+ or IL-2.
     - Whenever uncertain, use whitespace.
     
@@ -401,9 +401,11 @@ class BooleanFunction(object):
         Either:
             
         - a truth table of length ``2**n`` representing the outputs of a Boolean
-        function with ``n`` inputs, or 
+          function with ``n`` inputs, or
+        
         - a Boolean expression string that can be evaluated. Expression strings 
-        are parsed using ``utils.f_from_expression``.
+          are parsed using ``utils.f_from_expression``.
+        
     name : str, optional
         Name of the node regulated by the Boolean function. Default is ``""``.
     variables : list[str] | np.ndarray | None, optional
@@ -1022,7 +1024,7 @@ class BooleanFunction(object):
     
     @property
     def absolute_bias(self) -> float:
-        """Absolute bias: |2*bias − 1|."""
+        """Absolute bias: `|2*bias − 1|`."""
         return 2 * abs(self.bias - 0.5)
     
     

@@ -33,8 +33,7 @@ n_models = len(bns)
 
 # %% [markdown]
 # The function `get_bio_models_from_repository` loads, by default, all 122 distinct 
-# biological Boolean network models, analyzed in 
-# [Kadelka et al., Sci Adv, 2024](https://www.science.org/doi/full/10.1126/sciadv.adj0822),
+# biological Boolean network models, analyzed in @kadelka2024meta,
 # and deposited in a [Github repository](https://github.com/ckadelka/DesignPrinciplesGeneNetworks).
 # The models are parsed directly from the associated Github repository, meaning
 # a wireless connection is required to successfully execute this function.
@@ -102,11 +101,11 @@ ax.legend(loc='best',frameon=False);
 # simply typical for networks with the same size and structural characteristics.
 #
 # To address this question, researchers compare observed networks with
-# **null models**: randomly generated Boolean networks that preserve selected
+# *null models*: randomly generated Boolean networks that preserve selected
 # structural features, such as the number of nodes, the wiring diagram, or the
 # bias of regulatory functions. By analyzing ensembles of such randomized
 # networks, it becomes possible to determine whether the behavior of a given
-# network is unusual or expected.
+# network is unusual or expected (see e.g., @kadelka2024canalization).
 #
 # The BoolForge function `random_null_model(BooleanNetwork, *args)` provides 
 # extensive tools for generating these null models and for performing 
@@ -236,7 +235,7 @@ print('bn_null11:',
 # ## Example use case: high coherence of biological networks
 #
 # As an example, we compare the *coherence* of curated biological Boolean
-# network models with the coherence expected under randomized null models.
+# network models with the coherence expected under randomized null models (see @bavisetty2025attractors).
 # Coherence measures the long-term resilience of a network to small perturbations.
 #
 # For each biological network, we generate an ensemble of randomized null
@@ -281,7 +280,8 @@ ax.set_title(f"One-sided paired t-test: p {('= ' if p >= 1e-3 else '')}{p_str}")
 # is a statistically significant difference, as exemplified by the one-sided paired t-test.
 #
 # The higher coherence observed in biological networks is likely due to their highly biased 
-# and canalized regulatory logic. To test this, we can rerun the computational experiment, 
+# and canalized regulatory logic (see @bavisetty2025attractors). To test this in BoolForge,
+# we can rerun the computational experiment, 
 # this time with null models where bias and/or canalizing depth are preserved.
 
 # %%
@@ -317,7 +317,7 @@ ax.set_title(f"One-sided paired t-test: p {('= ' if p >= 1e-3 else '')}{p_str}")
 # 
 # ## Summary
 #
-# In this tutorial, we introduced **null models for Boolean networks** and
+# In this tutorial, we introduced *null models for Boolean networks* and
 # demonstrated how BoolForge can generate randomized networks while preserving
 # selected structural properties. Such null models provide a statistical
 # baseline that helps determine whether observed structural or dynamical
@@ -326,14 +326,14 @@ ax.set_title(f"One-sided paired t-test: p {('= ' if p >= 1e-3 else '')}{p_str}")
 #
 # We considered two main classes of null models:
 #
-# - **Wiring diagram randomization**, where the regulatory graph is modified
+# - *Wiring diagram randomization*, where the regulatory graph is modified
 #   while preserving invariants such as node in-degrees or both in- and
 #   out-degrees.
-# - **Update function randomization**, where Boolean update rules are replaced
+# - *Update function randomization*, where Boolean update rules are replaced
 #   by new functions that preserve properties such as bias or canalizing depth.
 #
-# In addition, we demonstrated how Boolean network models can be **loaded from
-# biological model repositories** and analyzed using the same structural and
+# In addition, we demonstrated how Boolean network models can be loaded from
+# biological model repositories and analyzed using the same structural and
 # dynamical tools provided by BoolForge. This enables systematic investigation
 # of curated regulatory network models and comparison with appropriate null
 # models.

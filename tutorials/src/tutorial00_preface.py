@@ -1,5 +1,5 @@
 # %% [markdown]
-# # Preface {-}
+# # Preface {.unnumbered}
 #
 # **BoolForge** is a Python toolbox for generating, analyzing, and simulating
 # Boolean functions and Boolean networks. Boolean network models are widely used
@@ -95,3 +95,5 @@ plt.legend(frameon=False);
 # can be explored using BoolForge.
 # Readers are encouraged to run the code cells and modify the examples to
 # explore their own Boolean functions and networks.
+#
+

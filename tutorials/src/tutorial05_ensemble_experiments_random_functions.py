@@ -78,7 +78,7 @@ print(out.to_string())
 # %% [markdown]
 # We see that hardly any Boolean function with $n\geq 5$ inputs is canalizing, let alone nested canalizing. 
 # This makes the finding that most Boolean functions in published Boolean gene regulatory network models
-# are nested canalizing very surprising (Kadelka et al., Science Advances, 2024).
+# are nested canalizing very surprising [@kadelka2024meta].
 
 # %% [markdown]
 # ### Restricting to canalizing functions
@@ -128,13 +128,13 @@ print(out.to_string())
 # %% [markdown]
 # This analysis reveals that among Boolean functions of degree $n\geq 5$, 
 # functions with few conditionally canalizing variables are much more abundant than functions with more conditionally canalizing variables, 
-# which is mathematically obvious due to the recursive nature of the definition of k-canalization.
+# which is mathematically obvious due to the recursive nature of the definition of k-canalization [@he2016stratification].
 
 # %% [markdown]
 # ## Collective canalization vs degree
 #
 # Using a similar setup, we can investigate if and how the various measures of collective canalization, 
-# specifically canalizing strength (Kadelka et al., Adv in Appl Math, 2023) and the normalized input redundancy (Gates et al., PNAS, 2021), 
+# specifically canalizing strength [@kadelka2023collectively] and the normalized input redundancy [@gates2021effective], 
 # change when the degree of the functions changes.
 
 # %%
@@ -279,8 +279,9 @@ plt.show()
 # %% [markdown]
 # ### Correlation between canalizing strength and input redundancy
 #
-# We can generate all (non-degenerate) Boolean functions of a certain degree $n$ 
-# (only feasible up to $n=4$) and compare canalizing strength and input redundancy.
+# We can generate all (non-degenerate) 
+# Boolean functions of a certain degree $n$ (only feasible up to $n=4$) and 
+# compare canalizing strength and input redundancy.
 
 # %%
 n = 3
@@ -313,7 +314,7 @@ stats.spearmanr(strengths[which], redundancies[which])
 
 # %% [markdown]
 # Both measures are highly correlated but markedly not the same, 
-# which becomes even more evident when rerunnign the analysis for $n=4$.
+# which becomes even more evident when rerunning the analysis for $n=4$ (see @kadelka2026canalization).
 # Some functions possess relatively high canalizing strength but low input redundancy, and vice versa.
 # It remains an open question what drives this behavior.
 
@@ -400,7 +401,7 @@ plt.show()
 # such as canalizing strength or effective degree.
 
 # For nested canalizing functions of a given degree $n$, there exists a bijection 
-# between their absolute bias and their canalizing layer structure (Kadelka et al., Physica D, 2017).
+# between their absolute bias and their canalizing layer structure [@kadelka2017influence].
 # The function `boolforge.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
 # NCFs with the same layer structure have the same dynamical properties. 
 # That is, they have the same average sensitivity, canalizing strength and the same effective degree.
@@ -447,7 +448,7 @@ print(df.to_string())
 # and a near perfect correlation between average sensitivity and effective degree.
 #
 #To investigate the non-monotonic behavior further, 
-# we can vary the degree and create line plots that reveal a clear pattern, as shown in Kadelka et al., Physica D, 2017.
+# we can vary the degree and create line plots that reveal a clear pattern, as shown in @kadelka2017influence.
 
 # %%
 ns = np.arange(5, 9)

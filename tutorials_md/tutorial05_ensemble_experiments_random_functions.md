@@ -1,3 +1,4 @@
+
 # Ensemble experiments with random Boolean functions
 
 In this tutorial, we explore how BoolForge’s random Boolean function generator 
@@ -75,21 +76,21 @@ print(out.to_string())
 
 
     
-![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_3_0.png)
+![](figures/tutorial05_ensemble_experiments_random_functions_fig5.png)
     
 
 
            k=0    k=1    k=2    k=3    k=4  k=5  k=6
-    n=2  0.208  0.000  0.792  0.000  0.000  0.0  0.0
-    n=3  0.607  0.095  0.000  0.298  0.000  0.0  0.0
-    n=4  0.954  0.024  0.005  0.000  0.017  0.0  0.0
-    n=5  1.000  0.000  0.000  0.000  0.000  0.0  0.0
+    n=2  0.187  0.000  0.813  0.000  0.000  0.0  0.0
+    n=3  0.590  0.109  0.000  0.301  0.000  0.0  0.0
+    n=4  0.946  0.035  0.002  0.000  0.017  0.0  0.0
+    n=5  0.999  0.001  0.000  0.000  0.000  0.0  0.0
     n=6  1.000  0.000  0.000  0.000  0.000  0.0  0.0
 
 
 We see that hardly any Boolean function with $n\geq 5$ inputs is canalizing, let alone nested canalizing. 
 This makes the finding that most Boolean functions in published Boolean gene regulatory network models
-are nested canalizing very surprising (Kadelka et al., Science Advances, 2024).
+are nested canalizing very surprising [@kadelka2024meta].
 
 ### Restricting to canalizing functions
 
@@ -137,26 +138,26 @@ print(out.to_string())
 
 
     
-![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_6_0.png)
+![](figures/tutorial05_ensemble_experiments_random_functions_fig6.png)
     
 
 
          k=0    k=1    k=2    k=3    k=4    k=5  k=6
     n=2  0.0  0.000  1.000  0.000  0.000  0.000  0.0
-    n=3  0.0  0.247  0.000  0.753  0.000  0.000  0.0
-    n=4  0.0  0.670  0.095  0.000  0.235  0.000  0.0
-    n=5  0.0  0.974  0.019  0.001  0.000  0.006  0.0
+    n=3  0.0  0.233  0.000  0.767  0.000  0.000  0.0
+    n=4  0.0  0.700  0.078  0.000  0.222  0.000  0.0
+    n=5  0.0  0.970  0.022  0.000  0.000  0.008  0.0
     n=6  0.0  1.000  0.000  0.000  0.000  0.000  0.0
 
 
 This analysis reveals that among Boolean functions of degree $n\geq 5$, 
 functions with few conditionally canalizing variables are much more abundant than functions with more conditionally canalizing variables, 
-which is mathematically obvious due to the recursive nature of the definition of k-canalization.
+which is mathematically obvious due to the recursive nature of the definition of k-canalization [@he2016stratification].
 
 ## Collective canalization vs degree
 
 Using a similar setup, we can investigate if and how the various measures of collective canalization, 
-specifically canalizing strength (Kadelka et al., Adv in Appl Math, 2023) and the normalized input redundancy (Gates et al., PNAS, 2021), 
+specifically canalizing strength [@kadelka2023collectively] and the normalized input redundancy [@gates2021effective], 
 change when the degree of the functions changes.
 
 ```python
@@ -206,7 +207,7 @@ plt.show()
 
 
     
-![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_9_0.png)
+![](figures/tutorial05_ensemble_experiments_random_functions_fig7.png)
     
 
 
@@ -304,23 +305,24 @@ plt.show()
 
 
     
-![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_12_0.png)
+![](figures/tutorial05_ensemble_experiments_random_functions_fig0.png)
     
 
 
 ### Correlation between canalizing strength and input redundancy
 
-We can generate all (non-degenerate) Boolean functions of a certain degree $n$ 
-(only feasible up to $n=4$) and compare canalizing strength and input redundancy.
+We can generate all (non-degenerate) 
+Boolean functions of a certain degree $n$ (only feasible up to $n=4$) and 
+compare canalizing strength and input redundancy.
 
 ```python
 n = 3
 allow_degenerate_functions = False
-degenerate = np.zeros(2 ** (2**n), dtype=bool)
-strengths = np.zeros(2 ** (2**n))
-redundancies = np.zeros(2 ** (2**n))
+degenerate = np.zeros(2   (2 n), dtype=bool)
+strengths = np.zeros(2   (2 n))
+redundancies = np.zeros(2   (2 n))
 
-for i, fvec in enumerate(bf.get_left_side_of_truth_table(2**n)):
+for i, fvec in enumerate(bf.get_left_side_of_truth_table(2 n)):
     f = bf.BooleanFunction(fvec)
     strengths[i] = f.get_canalizing_strength()
     redundancies[i] = f.get_input_redundancy()
@@ -328,7 +330,7 @@ for i, fvec in enumerate(bf.get_left_side_of_truth_table(2**n)):
         degenerate[i] = f.is_degenerate()
         
 if allow_degenerate_functions:
-    which = np.ones(2 ** (2**n), dtype=bool)
+    which = np.ones(2   (2 n), dtype=bool)
 else:
     which = ~degenerate
     
@@ -345,7 +347,7 @@ stats.spearmanr(strengths[which], redundancies[which])
 
 
     
-![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_14_0.png)
+![](figures/tutorial05_ensemble_experiments_random_functions_fig1.png)
     
 
 
@@ -357,7 +359,7 @@ stats.spearmanr(strengths[which], redundancies[which])
 
 
 Both measures are highly correlated but markedly not the same, 
-which becomes even more evident when rerunnign the analysis for $n=4$.
+which becomes even more evident when rerunning the analysis for $n=4$ (see @kadelka2026canalization).
 Some functions possess relatively high canalizing strength but low input redundancy, and vice versa.
 It remains an open question what drives this behavior.
 
@@ -401,7 +403,7 @@ plt.show()
 
 
     
-![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_17_0.png)
+![](figures/tutorial05_ensemble_experiments_random_functions_fig2.png)
     
 
 
@@ -439,7 +441,7 @@ plt.show()
 
 
     
-![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_19_0.png)
+![](figures/tutorial05_ensemble_experiments_random_functions_fig3.png)
     
 
 
@@ -452,7 +454,7 @@ to investigate the link between layer structure and average sensitivity, as well
 such as canalizing strength or effective degree.
 
 For nested canalizing functions of a given degree $n$, there exists a bijection 
-between their absolute bias and their canalizing layer structure (Kadelka et al., Physica D, 2017).
+between their absolute bias and their canalizing layer structure [@kadelka2017influence].
 The function `boolforge.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)` implements this.
 NCFs with the same layer structure have the same dynamical properties. 
 That is, they have the same average sensitivity, canalizing strength and the same effective degree.
@@ -462,10 +464,10 @@ which we can compute exactly for relatively low degree.
 
 ```python
 n = 5
-all_hamming = np.arange(1, 2 ** (n - 1), 2)
-all_abs_bias = 2 * np.abs(all_hamming/2**n - 0.5)
+all_hamming = np.arange(1, 2   (n - 1), 2)
+all_abs_bias = 2 * np.abs(all_hamming/2 n - 0.5)
 
-avg_sens = np.zeros(2 ** (n - 2))
+avg_sens = np.zeros(2   (n - 2))
 can_strength = np.zeros_like(avg_sens)
 eff_degree = np.zeros_like(avg_sens)
 layer_structures = []
@@ -510,16 +512,16 @@ Further, we notice that there is a perfect correlation between the average sensi
 and a near perfect correlation between average sensitivity and effective degree.
 
 To investigate the non-monotonic behavior further, 
-we can vary the degree and create line plots that reveal a clear pattern, as shown in Kadelka et al., Physica D, 2017.
+we can vary the degree and create line plots that reveal a clear pattern, as shown in @kadelka2017influence.
 
 ```python
 ns = np.arange(5, 9)
 fig, ax = plt.subplots()
 
 for n in ns:
-    all_hamming_weights = np.arange(1, 2 ** (n - 1), 2)
-    all_abs_bias = 2 * np.abs(all_hamming_weights/2**n - 0.5)
-    avg_sens = np.zeros(2 ** (n - 2))
+    all_hamming_weights = np.arange(1, 2   (n - 1), 2)
+    all_abs_bias = 2 * np.abs(all_hamming_weights/2 n - 0.5)
+    avg_sens = np.zeros(2   (n - 2))
 
     for i, w in enumerate(all_hamming_weights):
         layer = bf.hamming_weight_to_ncf_layer_structure(n, w)
@@ -536,7 +538,7 @@ plt.show()
 
 
     
-![](tutorial05_ensemble_experiments_random_functions_files/tutorial05_ensemble_experiments_random_functions_23_0.png)
+![](figures/tutorial05_ensemble_experiments_random_functions_fig4.png)
     
 
 

@@ -1,3 +1,4 @@
+
 # Canalization
 
 Canalization is a key property of biological Boolean functions that confers
@@ -5,9 +6,10 @@ robustness: when a canalizing variable takes its canalizing value, the output
 is determined regardless of other inputs. This "buffering" mechanism is thought
 to protect organisms from genetic and environmental perturbations.
 
-Discovered by C.H. Waddington in 1942 in developmental biology, canalization
-has since been formalized in Boolean network theory and found to be prevalent
-in empirically-derived gene regulatory networks.
+First described by C.H. Waddington in 1942 in developmental biology 
+[@waddington1942canalization], canalization has since been formalized in 
+Boolean network theory [@kauffman1974large], and found to be abundantly 
+prevalent in empirically-derived gene regulatory networks [@kadelka2024meta].
 
 ## What you will learn
 In this tutorial you will:
@@ -33,36 +35,40 @@ $$
 f(x_1,\ldots,x_i=a,\ldots,x_n)=b,
 $$
 
-where $b \in \{0,1\}$ is a constant, the *canalized output*.
+where $b \in \{0,1\}$ is a constant, the *canalized output* [@kauffman1974large].
 
 A Boolean function is *k-canalizing* if it has at least k conditionally canalizing variables. 
 This is checked recursively: after fixing a canalizing variable $x_i$ to its non-canalizing input value $\bar a$, 
 the subfunction $f(x_1,\ldots,x_{i-1},x_{i+1},\ldots,x_n)$ must itself contain another canalizing variable, and so on. 
-For a given function, the maximal possible value of k is defined as its *canalizing depth*. 
+For a given function, the maximal possible value of k is defined as its *canalizing depth* [@layne2012nested]. 
 If all variables are conditionally canalizing (i.e., if the canalizing depth is $n$), 
-the function is called a *nested canalizing* function (*NCF*). 
-Biological networks are heavily enriched for NCFs as we explore in a later tutorial.
+the function is called a *nested canalizing* function (*NCF*) [@he2016stratification]. 
+Biological networks are heavily enriched for NCFs as we explore in Tutorial 11.
 
-Per (He and Macauley, Physica D, 2016), any Boolean function can be decomposed 
+Per @he2016stratification, any Boolean function can be decomposed 
 into a unique standard monomial form by recursively identifying and removing all 
 conditionally canalizing variables (this set of variables is called a *canalizing layer*). 
 Each variable of a Boolean function appears in exactly one layer, 
 or (if it is not conditionally canalizing) it is part of the non-canalizing core function 
 that has to be evaluated only if all conditionally canalizing variables receive their non-canalizing input value. 
-The *canalizing layer structure* $[k_1,\ldots,k_r]$ describes the number of variables in each canalizing layer. 
+The *canalizing layer structure* $[k_1,\ldots,k_r]$ describes the number of variables in each canalizing layer [@dimitrova2022revealing]. 
 We thus have $r\geq 0$, $k_i\geq 1$ and $k_1+\cdots+k_r$.
 
 In the following code, we define four 3-input functions with different canalizing properties.
 
 ```python
+
 # Non-canalizing XOR function
 f = bf.BooleanFunction("(x0 + x1 + x2) % 2")
+
 
 # 1-canalizing function
 g = bf.BooleanFunction("(x0 | (x1 & x2 | !x1 & !x2)) % 2")
 
+
 # Nested canalizing function with all variables in one layer
 h = bf.BooleanFunction("~x0 & x1 & x2")
+
 
 # Nested canalizing function with two canalizing layers
 k = bf.BooleanFunction("x0 | (x1 & x2)")
@@ -176,7 +182,7 @@ $x_0, x_1, x_2$ are $1,0,0$, respectively, with the same canalized outputs. That
 ## Collective canalization
 
 Collective canalization treats canalization as a property of the function rather
-than individual variables (Reichhardt & Bassler, J. Phys. A, 2007). 
+than individual variables [@reichhardt2007canalization]. 
 Individual canalization asks: "Which *single* variables can determine output?"
 Collective canalization asks: "Which *sets* of variables can determine output?"
 
@@ -234,7 +240,7 @@ for func, label in zip([f, g, h, k], labels):
 ### Canalizing strength
 
 The *canalizing strength* summarizes collective canalization as a weighted average of
-the $k$-set canalizing proportions (Kadelka et al., Adv Appl Math, 2023). It ranges from:
+the $k$-set canalizing proportions [@kadelka2023collectively]. It ranges from:
 
 - 1 for maximally canalizing non-degenerate functions (namely, nested canalizing functions of a single canalizing layer such as `h`),
 - 0 for linear functions such as `f`,
@@ -270,7 +276,7 @@ Note that this brute-force code can also run (in less than a minute) for all $2^
 
 ```python
 n = 3
-all_functions = bf.get_left_side_of_truth_table(2**n)
+all_functions = bf.get_left_side_of_truth_table(2 n)
 
 canalizing_strengths = []
 for binary_vector in all_functions:
@@ -287,7 +293,7 @@ plt.show()
 
 
     
-![](tutorial03_canalization_files/tutorial03_canalization_14_0.png)
+![](figures/tutorial03_canalization_fig0.png)
     
 
 
@@ -297,7 +303,7 @@ Canalization, symmetry and redundancy are related concepts.
 A highly symmetry Boolean function with few (e.g., one) symmetry groups
 exhibits high input redundancy and is on average more canalizing, irrespective of the measure of canalization. 
 Recently, it was shown that almost all Boolean functions (except the linear functions)
-exhibit some level of *input redundancy* (Gates et al., PNAS, 2021). 
+exhibit some level of *input redundancy* [@gates2021effective]. 
 The input redundancy of a variable is defined as 1 minus its *edge effectiveness*, 
 which describes the proportion of times that this variable is needed to determine the output of the function. 
 Edge effectiveness is very similar to the activity of a variable 
@@ -368,6 +374,6 @@ In this tutorial you learned how to:
 Canalization provides a structural explanation for why many biological Boolean
 rules are robust to perturbations.
 
-**Next steps:** Subsequent tutorials will explore random Boolean functions with
+Next steps: Subsequent tutorials will explore random Boolean functions with
 prescribed canalization properties and the impact of canalization on Boolean
 network dynamics and robustness.

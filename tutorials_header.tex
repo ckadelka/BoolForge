@@ -3,25 +3,81 @@
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{caption}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{etoolbox}
+\usepackage{natbib}
 
-% allow alt= in includegraphics
+\renewcommand{\refname}{}
+\renewcommand{\bibname}{}
+
+% --- Title handling ---
+\title{$title$}
+\author{$author$}
+\date{$date$}
+
+\AtBeginDocument{
+  \maketitle
+  %\tableofcontents
+  \clearpage
+}
+
+% --- allow alt= ---
 \makeatletter
 \define@key{Gin}{alt}{}
 \makeatother
 
-% prevent oversized figures
+% --- scale figures ---
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \makeatother
 
 \setkeys{Gin}{width=\maxwidth,height=0.8\textheight,keepaspectratio}
 
-% new page per tutorial
-\usepackage{etoolbox}
-\pretocmd{\section}{\clearpage}{}{}
+% --- syntax highlighting (arXiv-safe) ---
+\lstdefinelanguage{Python}{
+  keywords={def, return, if, else, elif, for, while, import, from, as, class, try, except, raise, with, lambda, yield, True, False, None},
+  keywordstyle=\color{blue}\bfseries,
+  comment=[l]{\#},
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  morestring=[b]',
+  morestring=[b]",
+}
 
-% nicer captions
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  breaklines=true,
+  frame=single,
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true
+}
+
+% --- new page per section ---
+%\pretocmd{\section}{\clearpage}{}{}
+\makeatletter
+\pretocmd{\section}{%
+  \ifnum\pdfstrcmp{\@currentlabelname}{References}=0
+    % do nothing
+  \else
+    \clearpage
+  \fi
+}{}{}
+\makeatother
+
+% --- nicer captions ---
 \captionsetup{
   font=small,
   labelfont=bf
 }
+
+% --- FIX bold-text bug ---
+\normalfont
+\renewcommand{\familydefault}{\rmdefault}

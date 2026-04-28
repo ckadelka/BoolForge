@@ -841,10 +841,11 @@ class BooleanNetwork(WiringDiagram):
     
         for i, f in enumerate(F):
             if isinstance(f, (list, np.ndarray)):
-                bf = BooleanFunction(f, name=self.variables[i])
+                bf = BooleanFunction(f, name=self.variables[i], variables=self.variables[self.I[i]])
             elif isinstance(f, BooleanFunction):
                 bf = f
                 bf.name = self.variables[i]
+                bf.variables = self.variables[self.I[i]]
             else:
                 raise TypeError(
                     f"Invalid entry in F at index {i}: expected BooleanFunction, "
@@ -1288,7 +1289,7 @@ class BooleanNetwork(WiringDiagram):
     
         This compatibility method returns a string representation of the Boolean
         network in the BNET format used by tools such as BoolNet and PyBoolNet,
-        with one line per variable of the form ``variable ,<tab> function.
+        with one line per variable of the form ``variable ,<tab> function``.
         
         Parameters
         ----------
@@ -2141,12 +2142,13 @@ class BooleanNetwork(WiringDiagram):
             Relative update propensities for each node. If None (default),
             all nodes are updated with equal probability. The weights are
             normalized internally.
+            
         max_iterations : int, optional
             Maximum number of Gauss–Seidel iterations used to compute absorption
             probabilities before declaring non-convergence.
+            
         tol : float, optional
             Convergence tolerance for the infinity norm of probability updates.
-        s
         
         Returns
         -------

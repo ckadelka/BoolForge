@@ -1,13 +1,14 @@
+
 # Ensemble experiments with random Boolean networks
 
-This tutorial demonstrates how BoolForge's ability to generate **random Boolean 
-networks with controlled structural and functional properties** is essential 
+This tutorial demonstrates how BoolForge's ability to generate *random Boolean 
+networks with controlled structural and functional properties* is essential 
 for many types of studies. Specifically, it enables:
 
-1. **Null model comparisons**  
+1. Null model comparisons:  
    Are biological networks structurally or dynamically different from random networks?
 
-2. **Ensemble studies**  
+2. Ensemble studies:
    How do structural properties such as degree or canalization affect network dynamics?
 
 ## What you will learn
@@ -28,7 +29,7 @@ import matplotlib.pyplot as plt
 
 ## NK Kauffman networks
 
-One of the classical models of complex systems is the **NK random Boolean network**
+One of the classical models of complex systems is the *NK random Boolean network*
 introduced by Stuart Kauffman.
 
 In this model:
@@ -40,8 +41,7 @@ In this model:
   - probability of output 1: `p`
   - probability of output 0: `1-p`
 
-A key theoretical result due to [Derrida and Pomeau (1986)](https://hal.science/hal-03285912/document) 
-predicts how a single-node perturbation
+A key theoretical result due to @derrida1986random predicts how a single-node perturbation
 propagates in large random Boolean networks. They showed that if two network states differ in one node, 
 the expected number of differences after one update step is $2kp(1-p)$.
 
@@ -51,7 +51,7 @@ If this value is
 - $> 1$, then perturbations increase on average (chaotic regime)
 - $= 1$, then perturbations remain on average of equal size (critical boundary)
 
-The expected number of propagated perturbations is called the **Derrida value**.
+The expected number of propagated perturbations is called the *Derrida value*.
 
 ```python
 N = 100          # network size
@@ -76,12 +76,12 @@ plt.legend(frameon=False);
 
 
     
-![](tutorial10_ensemble_experiments_random_networks_files/tutorial10_ensemble_experiments_random_networks_3_0.png)
+![](figures/tutorial10_ensemble_experiments_random_networks_fig0.png)
     
 
 
 The numerical results closely follow the theoretical prediction $2kp(1-p)$
-derived under the **annealed approximation**. 
+derived under the *annealed approximation*. 
 The phase transition occurs when the Derrida value crosses 1.
 
 For unbiased Boolean functions (with bias $p=0.5$), the theory predicts the
@@ -94,14 +94,14 @@ connectivity exhibit critical dynamics.
 ## BoolForge philosophy: regulatory functions are non-degenerate
 
 The classical NK model assumes that a Boolean function with $k$ inputs may
-**not actually depend on all of them**. Such functions are called **degenerate**.
+*not actually depend on all of them*. Such functions are called *degenerate*.
 
 While this assumption is natural in statistical physics models (e.g. spin
 glasses), it is biologically questionable. 
 In gene regulatory networks, an input typically represents a *specific
 regulatory interaction*. If a transcription factor does not affect the
 gene, it should not appear as an input in the first place.
-**Therefore BoolForge assumes non-degenerate Boolean functions by default.**
+*Therefore BoolForge assumes non-degenerate Boolean functions by default.*
 
 Degeneracy occurs frequently for small input sizes:
 
@@ -109,9 +109,9 @@ Degeneracy occurs frequently for small input sizes:
 - $k=2$: 6 out of 16 functions are degenerate
 - larger $k$: degeneracy becomes increasingly rare
 
-Disallowing degenerate functions therefore mainly affects **sparse networks**,
+Disallowing degenerate functions therefore mainly affects sparse networks,
 precisely the regime most biological networks operate in (typical average
-in-degree $approx$ 2-3).
+in-degree $\approx$ 2-3).
 
 We now repeat the previous experiment, *disallowing degenerate functions*.
 
@@ -133,7 +133,7 @@ plt.legend(frameon=False);
 
 
     
-![](tutorial10_ensemble_experiments_random_networks_files/tutorial10_ensemble_experiments_random_networks_6_0.png)
+![](figures/tutorial10_ensemble_experiments_random_networks_fig1.png)
     
 
 
@@ -147,7 +147,7 @@ can significantly affect the predicted dynamical regime of Boolean networks.
 ## Random networks with prescribed canalization
 
 A major advantage of BoolForge is its ability to generate Boolean functions
-with **controlled canalization properties**. This is important because canalization 
+with *controlled canalization properties*. This is important because canalization 
 is a common feature of biological regulatory networks.
 
 To display the impact of the canalizing layer structure, we generate
@@ -159,8 +159,8 @@ N = 12           # network size
 n = 5            # constant in-degree
 n_networks = 100 # ensemble size
 
-all_hamming = np.arange(1, 2 ** (n - 1), 2)
-all_abs_bias = 2 * np.abs(all_hamming/2**n - 0.5)
+all_hamming = np.arange(1, 2   (n - 1), 2)
+all_abs_bias = 2 * np.abs(all_hamming/2 n - 0.5)
 
 number_attractors = []
 number_steady_states = []
@@ -191,7 +191,7 @@ ax.legend(frameon=False,loc='best');
 
 
     
-![](tutorial10_ensemble_experiments_random_networks_files/tutorial10_ensemble_experiments_random_networks_8_0.png)
+![](figures/tutorial10_ensemble_experiments_random_networks_fig2.png)
     
 
 

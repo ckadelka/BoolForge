@@ -1324,6 +1324,7 @@ def random_degrees(
     n: int | float | list | np.ndarray,
     indegree_distribution: str = "constant",
     allow_self_loops: bool = False,
+    allow_indegree_zero: bool = False,
     *,
     rng=None,
 ) -> np.ndarray:
@@ -1367,6 +1368,9 @@ def random_degrees(
         If True, in-degrees may be as large as ``N``.
         If False (default), self-loops are disallowed in subsequent wiring
         generation. This is enforced here by capping in-degrees at ``N-1``.
+    allow_indegree_zero : bool, optional
+        If True, some in-degrees may be ``0``.
+        If False (default), all in-degrees are at least ``1``.
     rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional
         Random number generator or seed specification. Passed to
         ``utils._coerce_rng``.
@@ -1409,7 +1413,7 @@ def random_degrees(
     if isinstance(n, (list, np.ndarray)):
         assert (
             utils.is_list_or_array_of_ints(n, required_length=N)
-            and min(n) >= 1
+            and min(n) >= 1-int(allow_indegree_zero)
             and max(n) <= N - int(not allow_self_loops)
         ), (
             "A vector n was submitted.\nEnsure that n is an N-dimensional vector where each element is an integer between 1 and "
@@ -1420,7 +1424,7 @@ def random_degrees(
     elif indegree_distribution.lower() in ["constant", "dirac", "delta"]:
         assert (
             isinstance(n, (int, np.integer))
-            and n >= 1
+            and n >= 1-int(allow_indegree_zero)
             and n <= N - int(not allow_self_loops)
         ), (
             "n must be an integer between 1 and "
@@ -1431,7 +1435,7 @@ def random_degrees(
     elif indegree_distribution.lower() == "uniform":
         assert (
             isinstance(n, (int, np.integer))
-            and n >= 1
+            and n >= 1-int(allow_indegree_zero)
             and n <= N - int(not allow_self_loops)
         ), (
             "n must be an integer between 1 and "
@@ -1444,7 +1448,7 @@ def random_degrees(
             "n must be a float > 0 representing the Poisson parameter."
         )
         indegrees = np.maximum(
-            np.minimum(rng.poisson(lam=n, size=N), N - int(not allow_self_loops)), 1
+            np.minimum(rng.poisson(lam=n, size=N), N - int(not allow_self_loops)), 1-int(allow_indegree_zero)
         )
     else:
         raise AssertionError(
@@ -1567,6 +1571,7 @@ def random_wiring_diagram(
     N: int,
     n: int | float | list | np.ndarray,
     allow_self_loops: bool = False,
+    allow_indegree_zero: bool = False,
     strongly_connected: bool = False,
     indegree_distribution: str = "constant",
     min_out_degree_one: bool = False,
@@ -1602,6 +1607,9 @@ def random_wiring_diagram(
     allow_self_loops : bool, optional
         If True, self-loops (edges from a node to itself) are allowed.
         Default is False.
+    allow_indegree_zero : bool, optional
+        If True, some in-degrees may be ``0``.
+        If False (default), all in-degrees are at least ``1``.
     strongly_connected : bool, optional
         If True, repeatedly resample the wiring diagram until a strongly
         connected network is obtained, or until the maximum number of
@@ -1628,6 +1636,9 @@ def random_wiring_diagram(
 
     Raises
     ------
+    AssertionError
+        If ``strongly_connected=True`` and ``allow_indegree_zero==True``.
+        This is an impossible combination.
     RuntimeError
         If ``strongly_connected=True`` and a strongly connected wiring diagram
         cannot be generated within the specified number of attempts.
@@ -1649,17 +1660,22 @@ def random_wiring_diagram(
     >>> W = random_wiring_diagram(10, n=3, strongly_connected=True)
     >>> W = random_wiring_diagram(6, n=[1, 2, 1, 2, 1, 2])
     """
+    assert not strongly_connected or not allow_indegree_zero, (
+        "It is impossible to create a strongly connected wiring diagram if some nodes have indegree zero."
+    )    
+    
     rng = utils._coerce_rng(rng)
     indegrees = random_degrees(
         N,
         n,
         indegree_distribution=indegree_distribution,
         allow_self_loops=allow_self_loops,
+        allow_indegree_zero=allow_indegree_zero,
         rng=rng,
     )
 
     counter = 0
-    while True:  # Keep generating until we have a strongly connected graph
+    while True:  
         edges_wiring_diagram = random_edge_list(
             N,
             indegrees,
@@ -1667,7 +1683,7 @@ def random_wiring_diagram(
             min_out_degree_one=min_out_degree_one,
             rng=rng,
         )
-        if strongly_connected:
+        if strongly_connected: # Keep generating until we have a strongly connected graph
             # may take a long time ("forever") if n is small and N is large
             G = nx.from_edgelist(edges_wiring_diagram, create_using=nx.MultiDiGraph())
             if not nx.is_strongly_connected(G):
@@ -1849,6 +1865,7 @@ def random_network(
     use_absolute_bias: bool = False,
     hamming_weight: int | list | np.ndarray | None = None,
     allow_self_loops: bool = False,
+    allow_indegree_zero: bool = False,
     strongly_connected: bool = False,
     indegree_distribution: str = "constant",
     min_out_degree_one: bool = False,
@@ -1960,6 +1977,9 @@ def random_network(
     allow_self_loops : bool, optional
         If True, self-loops (edges from a node to itself) are allowed.
         Default is False. Ignored if ``I`` is provided.
+    allow_indegree_zero : bool, optional
+        If True, some in-degrees may be ``0``.
+        If False (default), all in-degrees are at least ``1``.
     strongly_connected : bool, optional
         If True, wiring generation is repeated until a strongly connected
         directed graph is obtained or the attempt limit is exceeded. Ignored if
@@ -2044,6 +2064,7 @@ def random_network(
             N,
             n,
             allow_self_loops=allow_self_loops,
+            allow_indegree_zero=allow_indegree_zero,
             strongly_connected=strongly_connected,
             indegree_distribution=indegree_distribution,
             min_out_degree_one=min_out_degree_one,
@@ -2139,23 +2160,31 @@ def random_network(
         )
 
     # generate functions
-    F = [
-        random_function(
-            n=I.indegrees[i],
-            depth=depth[i],
-            exact_depth=exact_depth,
-            uniform_over_functions=uniform_over_functions,
-            layer_structure=layer_structure[i],
-            parity=parity,
-            allow_degenerate_functions=allow_degenerate_functions,
-            bias=bias[i],
-            absolute_bias=absolute_bias[i],
-            use_absolute_bias=use_absolute_bias,
-            hamming_weight=hamming_weight[i],
-            rng=rng,
-        )
-        for i in range(N)
-    ]
+    F = []
+    for i in range(N):
+        if I.indegrees[i]==0: #only possible if allow_indegree_zero == True
+            #then turn i into an idenitity_node
+            I.indegrees[i] = 1
+            I.outdegrees[i] += 1
+            I.I[i] = np.array([i], dtype=int)
+            F.append(np.array([0,1], dtype=int))
+        else:
+            F.append(
+                random_function(
+                    n=I.indegrees[i],
+                    depth=depth[i],
+                    exact_depth=exact_depth,
+                    uniform_over_functions=uniform_over_functions,
+                    layer_structure=layer_structure[i],
+                    parity=parity,
+                    allow_degenerate_functions=allow_degenerate_functions,
+                    bias=bias[i],
+                    absolute_bias=absolute_bias[i],
+                    use_absolute_bias=use_absolute_bias,
+                    hamming_weight=hamming_weight[i],
+                    rng=rng,
+                )
+            )
 
     return BooleanNetwork(F, I)
 

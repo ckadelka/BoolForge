@@ -1,3 +1,4 @@
+
 # Perturbation and sensitivity analysis of Boolean networks
 
 In this tutorial, we study how Boolean networks respond to perturbations.
@@ -104,8 +105,8 @@ print("Overall fragility:", results_exact["Fragility"])
 
 
 The same robustness metrics, coherence and fragility, can also be averaged
-across a smaller set of states, e.g., all states in one basin of attraction, or
-an even smaller set of states, e.g., all states that form an attractor.
+across a smaller set of states, e.g., all states in one basin of attraction (see @bavisetty2025upper), or
+an even smaller set of states, e.g., all states that form an attractor (see @bavisetty2025attractors).
 
 ```python
 df_basins = pd.DataFrame({
@@ -140,9 +141,9 @@ print(df_attractors)
 
 Interpretation:
 
-- **Coherence** measures the fraction of single-bit perturbations that do *not*
-  change the final attractor.
-- **Fragility** measures how much the attractor state changes.
+- *Coherence* measures the fraction of single-bit perturbations that do *not*
+  change the final attractor [@willadsenwiles].
+- *Fragility* measures how much the attractor state changes [@park2023models].
 
 The robustness metrics considered thus far describe how a single perturbation affects
 the network dynamics in the long-term, i.e., at the attractor. 
@@ -168,8 +169,8 @@ print("Approximate fragility:", results_approx["FragilityApproximation"])
 ```
 
     Number of attractors (lower bound): 3
-    Approximate coherence: 0.352
-    Approximate fragility: 0.324
+    Approximate coherence: 0.306
+    Approximate fragility: 0.347
 
 
 Even when only using 500 random initial states, the approximate values closely match the exact ones.
@@ -178,7 +179,7 @@ For larger networks, these approximations are often the only feasible option.
 ## Derrida value: dynamical sensitivity
 
 An older and very popular robustness metric, the Derrida value, 
-measures how perturbations *propagate* after one synchronous update.
+measures how perturbations *propagate* after one synchronous update [@derrida1986random].
 It is defined as the expected Hamming distance between updated states that initially
 differed in exactly one bit. 
 
