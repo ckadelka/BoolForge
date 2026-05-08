@@ -33,6 +33,7 @@ import math
 import numpy as np
 import networkx as nx
 from collections.abc import Sequence
+import inspect
 
 from .boolean_function import BooleanFunction
 from .boolean_network import BooleanNetwork
@@ -2304,9 +2305,15 @@ def random_null_model(
     if wiring_diagram == "fixed":
         I = bn.I
     elif wiring_diagram == "fixed_indegree":
-        I = random_wiring_diagram(N=bn.N, n=bn.indegrees, rng=rng, **kwargs)
+        filtered_kwargs = utils.filter_kwargs(random_wiring_diagram, 
+                                              kwargs,
+                                              exclude=('N', 'n', 'rng'))
+        I = random_wiring_diagram(N=bn.N, n=bn.indegrees, rng=rng, **filtered_kwargs)
     elif wiring_diagram == "fixed_in_and_outdegree":
-        I = rewire_wiring_diagram(I=bn.I, **kwargs)
+        filtered_kwargs = utils.filter_kwargs(rewire_wiring_diagram, 
+                                              kwargs,
+                                              exclude=('I', 'rng'))
+        I = rewire_wiring_diagram(I=bn.I, rng=rng, **filtered_kwargs)
     else:
         raise AssertionError(
             "There are three choices for the wiring diagram: 1. 'fixed' (i.e., as in the provided BooleanNetwork), 2. 'fixed_indegree' (i.e., edges are shuffled but the indegree is preserved), 3. 'fixed_in_and_outdegree' (i.e., edges are shuffled but both the indegree and outdegree are preserved)."
@@ -2378,8 +2385,15 @@ def random_null_model(
                 bn.indegrees[i], f.hamming_weight, rng=rng
             )
         elif preserve_canalizing_depth:
+            filtered_kwargs = utils.filter_kwargs(random_k_canalizing_function, 
+                                                  kwargs,
+                                                  exclude={"n", "k", "exact_depth", "rng"},)
             newf = random_k_canalizing_function(
-                n=bn.indegrees[i], k=depth, exact_depth=True, rng=rng
+                n=bn.indegrees[i], 
+                k=depth, 
+                exact_depth=True, 
+                rng=rng,
+                **filtered_kwargs
             )
         else:
             newf = random_non_degenerate_function(n=bn.indegrees[i], rng=rng)

@@ -30,6 +30,10 @@ import numpy as np
 import random as _py_random
 from collections.abc import Sequence
 from numpy.random import Generator as _NPGen, RandomState as _NPRandomState, SeedSequence, default_rng
+import inspect
+import warnings
+
+STRICT = False
 
 __all__ = [
     "bin2dec",
@@ -263,6 +267,48 @@ def get_left_side_of_truth_table(N: int) -> np.ndarray:
         left_side_of_truth_tables[N] = left_side_of_truth_table
     return left_side_of_truth_table
 
+
+def allowed_keywords(function):
+    sig = inspect.signature(function)
+    return {
+        k for k, p in sig.parameters.items()
+        if p.kind != inspect.Parameter.VAR_POSITIONAL
+    }
+
+def filter_kwargs(function, kwargs, exclude=()):
+    sig = inspect.signature(function)
+
+    accepts_var_kwargs = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD
+        for p in sig.parameters.values()
+    )
+
+    if accepts_var_kwargs:
+        return kwargs
+
+    allowed = {
+        k for k, p in sig.parameters.items()
+        if p.kind in (
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.KEYWORD_ONLY,
+        )
+    } - set(exclude)
+
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in allowed and k not in exclude}
+    unused = set(kwargs) - allowed
+
+    if unused:
+        msg = (
+            f"Attempted to pass unused keyword argument(s) "
+            f"{sorted(unused)} to {function.__name__}"
+        )
+
+        if STRICT:
+            raise TypeError(msg)
+        else:
+            warnings.warn(msg, UserWarning, stacklevel=2)
+
+    return filtered_kwargs
 
 def find_all_indices(arr: list, el: object) -> list[int]:
     """
