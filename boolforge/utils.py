@@ -41,6 +41,8 @@ __all__ = [
     "hamming_weight_to_ncf_layer_structure",
     "get_left_side_of_truth_table",
     "left_side_of_truth_tables",
+    'filter_kwargs',
+    'allowed_keywords',
 ]
 
 def _require_cana():

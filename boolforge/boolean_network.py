@@ -3827,7 +3827,7 @@ class BooleanNetwork(WiringDiagram):
     
         # ------------------------------------------------------------------
         # Attractor-level coherence / fragility
-        # ------------------------------------------------------------------
+        # ------------------------------------------------------------------        
         attractor_coherences = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
         attractor_fragilities = np.zeros(lower_bound_number_of_attractors, dtype=np.float64)
     
@@ -3884,11 +3884,41 @@ class BooleanNetwork(WiringDiagram):
                                 break
     
                             if fxdec in queue:
+                                idx = queue.index(fxdec)
                                 idx1 = len(attractors)
                                 attractors.append(queue[queue.index(fxdec):])
                                 attractor_dict.update(
                                     {q: idx1 for q in queue}
                                 )
+                                
+                                if len(attractors[-1]) == 1:
+                                    fp = (
+                                        np.asarray(
+                                            utils.dec2bin(queue[idx], self.N),
+                                            dtype=np.float64,
+                                        )
+                                        if self.N < 64
+                                        else np.asarray(list(queue[idx]), dtype=np.float64)
+                                    )
+                                    states_attractors.append(fp.reshape(1, self.N))
+                                    mean_states_attractors.append(fp)
+                                else:
+                                    lc = (
+                                        np.asarray(
+                                            [
+                                                utils.dec2bin(s, self.N)
+                                                for s in queue[idx:]
+                                            ],
+                                            dtype=np.float64,
+                                        )
+                                        if self.N < 64
+                                        else np.asarray(
+                                            [list(s) for s in queue[idx:]],
+                                            dtype=np.float64,
+                                        )
+                                    )
+                                    states_attractors.append(lc)
+                                    mean_states_attractors.append(lc.mean(axis=0))
                                 break
     
                             queue.append(fxdec)
