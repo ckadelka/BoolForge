@@ -294,6 +294,43 @@ if __LOADED_NUMBA__:
             if not depends_on_i:
                 return True  # found non-essential variable
         return False
+    
+    def _get_essential_variables_numba(f : np.ndarray, n : int) -> bool:
+        """
+        Check whether a Boolean function contains a non-essential variable.
+
+        This Numba-accelerated helper determines all input variables whose value 
+        cannot be flipped without affecting the output of the Boolean function.
+
+        Parameters
+        ----------
+        f : np.ndarray
+            Truth table of the Boolean function, of length ``2**n``.
+        n : int
+            Number of input variables.
+
+        Returns
+        -------
+        np.ndarray[bool]
+            Array of length n. ``True`` if the variable at position i is essential.
+        """
+        
+        N = 1 << n  # 2**n
+        is_essential = np.zeros(n, dtype=bool)
+        for i in range(n):
+            stride = 1 << (n - 1 - i)
+            step = stride << 1  # 2 * stride
+            depends_on_i = False
+            # Iterate in blocks that differ only in bit i
+            for base in range(0, N, step):
+                for offset in range(stride):
+                    if f[base + offset] != f[base + offset + stride]:
+                        depends_on_i = True
+                        is_essential[i] = True
+                        break
+                if depends_on_i:
+                    break
+        return is_essential
 
 def display_truth_table(*functions : "BooleanFunction", labels : Sequence[str] | None = None) -> None:
     """
@@ -1132,8 +1169,7 @@ class BooleanFunction(object):
             non-essential variable, ``False`` if all variables are essential.
         """
         if __LOADED_NUMBA__ and use_numba:
-            f = np.asarray(self.f, dtype=np.uint8)
-            return bool(_is_degenerate_numba(f, self.n))
+            return bool(_is_degenerate_numba(self.f, self.n))
         else:
             for i in range(self.n):
                 dummy_add = 2 ** (self.n - 1 - i)
@@ -1307,7 +1343,8 @@ class BooleanFunction(object):
     
     def get_essential_variables(
         self,
-        as_dict: bool = False
+        as_dict: bool = False,
+        use_numba: bool =True,
     ) -> dict[int, bool] | np.ndarray:
         """
         Identify essential variables of the Boolean function.
@@ -1321,6 +1358,9 @@ class BooleanFunction(object):
         as_dict : bool, optional
             If True, return a dictionary mapping variable indices to booleans.
             If False (default), return an array of indices of essential variables.
+        use_numba : bool, optional
+            Whether to use Numba-accelerated computation when available.
+            Default is ``True``.
     
         Returns
         -------
@@ -1329,22 +1369,24 @@ class BooleanFunction(object):
             essential.
             If ``as_dict`` is False, an array of indices of essential variables.
         """
-    
-        if len(self.f) == 0:
-            is_essential = np.zeros(self.n, dtype=bool)
+        if __LOADED_NUMBA__ and use_numba:
+            is_essential = _get_essential_variables_numba(self.f,self.n)
         else:
-            is_essential = np.zeros(self.n, dtype=bool)
-    
-            for i in range(self.n):
-                step = 2 ** (self.n - i - 1)
-    
-                for start in range(0, 2**self.n, 2 * step):
-                    block0 = self.f[start : start + step]
-                    block1 = self.f[start + step : start + 2 * step]
-    
-                    if np.any(block0 != block1):
-                        is_essential[i] = True
-                        break
+            if len(self.f) == 0:
+                is_essential = np.zeros(self.n, dtype=bool)
+            else:
+                is_essential = np.zeros(self.n, dtype=bool)
+        
+                for i in range(self.n):
+                    step = 2 ** (self.n - i - 1)
+        
+                    for start in range(0, 2**self.n, 2 * step):
+                        block0 = self.f[start : start + step]
+                        block1 = self.f[start + step : start + 2 * step]
+        
+                        if np.any(block0 != block1):
+                            is_essential[i] = True
+                            break
     
         if as_dict:
             return dict(enumerate(is_essential.tolist()))

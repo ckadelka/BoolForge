@@ -552,76 +552,73 @@ def random_non_degenerate_function(
 
 def random_degenerate_function(
     n: int,
-    bias: float = 0.5,
     *,
     rng=None,
 ) -> BooleanFunction:
     """
-    Generate a random degenerate Boolean function.
-
+    Generate a random degenerate Boolean function uniformly at random.
+    
     A Boolean function is degenerate if at least one variable is
     non-essential, i.e., the function does not depend on that variable.
-    This function constructs a degenerate Boolean function by selecting
-    one variable uniformly at random and enforcing that the output is
-    independent of that variable.
-
+    By using appropriate acceptance weights, the resulting distribution
+    is function-uniform over all degenerate Boolean functions on ``n``
+    variables.
+    
     Parameters
     ----------
     n : int
         Number of Boolean variables.
-    bias : float, optional
-        Probability that a truth-table entry equals 1 for the underlying
-        (n−1)-variable function. Default is 0.5.
     rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional
         Random number generator or seed specification. Passed to
         ``utils._coerce_rng``.
-
+    
     Returns
     -------
     BooleanFunction
-        Random degenerate Boolean function on ``n`` variables.
-
+        Random degenerate Boolean function on ``n`` variables, sampled
+        uniformly over all degenerate Boolean functions.
+    
     Raises
     ------
     ValueError
         If ``n`` is not a positive integer.
-    ValueError
-        If ``bias`` is not strictly between 0 and 1.
-
+    
     Notes
     -----
-    - Exactly one variable is forced to be non-essential by construction,
-      though additional variables may also be non-essential by chance.
-    - The degenerate variable is chosen uniformly at random.
-    - The resulting distribution is not uniform over all degenerate Boolean
-      functions.
-    - This construction avoids rejection sampling.
+    - A non-essential variable is forced by construction, but additional
+      variables may also be non-essential by chance.
+    - The forced non-essential variable is chosen uniformly at random
+      from all ``n`` variables.
+    - Function-uniformity is achieved by accepting a candidate function
+      with ``k`` non-essential variables with probability ``1/k``,
+      correcting for the fact that such functions are ``k`` times more
+      likely to be proposed than functions with exactly one non-essential
+      variable.
+    - At bias != 0.5 this acceptance correction would no longer be valid,
+      so bias is fixed at 0.5 internally.
     """
     if not isinstance(n, (int, np.integer)) or n <= 0:
         raise ValueError("n must be a positive integer")
 
-    if not isinstance(bias, (float, np.floating)) or not (0.0 < bias < 1.0):
-        raise ValueError("bias must be a float strictly between 0 and 1")
-
     rng = utils._coerce_rng(rng)
-
-    # Generate an (n-1)-variable Boolean function
-    f_original = random_function_with_bias(n - 1, 
-                                           bias=bias, 
-                                           rng=rng)
-
-    # Choose the non-essential variable uniformly at random
-    index_non_essential_variable = rng.integers(n)
-
-    f = np.zeros(2**n, dtype=np.uint8)
-
-    # Copy the (n-1)-variable function across both values of the non-essential variable
-    block = 2 ** index_non_essential_variable
-    indices = (np.arange(2**n) // block) % 2 == 1
-    f[indices] = f_original.f
-    f[~indices] = f_original.f
-
-    return BooleanFunction._from_f_unchecked(f)
+    while True:
+        # Choose forced non-essential variable uniformly at random
+        index_non_essential_variable = rng.integers(n)
+        
+        # Generate an (n-1)-variable Boolean function
+        f_original = random_function_with_bias(n - 1, bias=0.5, rng=rng)
+        
+        # Copy the (n-1)-variable function across both values of the non-essential variable
+        block = 2 ** index_non_essential_variable
+        indices = (np.arange(2**n) // block) % 2 == 1
+        f = np.zeros(2**n, dtype=np.uint8)
+        f[indices] = f_original.f
+        f[~indices] = f_original.f
+        candidate = BooleanFunction._from_f_unchecked(f)
+        
+        k = n - candidate.get_number_of_essential_variables()  # number of non-essential variables
+        if rng.random() < 1.0 / k:
+            return candidate
 
 
 def random_non_canalizing_function(
@@ -687,7 +684,6 @@ def random_non_canalizing_function(
         f = random_function_with_bias(n, bias=bias, rng=rng)
         if not f.is_canalizing():
             return f
-
 
 
 def random_non_canalizing_non_degenerate_function(

@@ -2974,107 +2974,107 @@ class BooleanNetwork(WiringDiagram):
 
 
 
-    def get_attractors_synchronous_exact_exploiting_modularity(self):
-        sccs = self.get_strongly_connected_components()
-        module_per_node = {}
-        for i,scc in enumerate(sccs):
-            for el in scc:
-                module_per_node.update({el:i})
-        n_modules = len(sccs)
-        dag = self.get_modular_structure()
-        G = nx.from_edgelist(dag,nx.DiGraph)
-        modules_sorted = list(nx.topological_sort(G))
-        nodes_in_each_module = [np.sort(list(sccs[module_id])) for module_id in range(n_modules)]
-        pos_in_each_module = [dict(zip(nodes_in_each_module[module_id],range(len(nodes_in_each_module[module_id])))) for module_id in range(n_modules)]
-        inputs_per_module = [[] for i in range(n_modules)]
-        for (a,b) in dag:
-            inputs_per_module[b].append(a)
+    # def get_attractors_synchronous_exact_exploiting_modularity(self):
+    #     sccs = self.get_strongly_connected_components()
+    #     module_per_node = {}
+    #     for i,scc in enumerate(sccs):
+    #         for el in scc:
+    #             module_per_node.update({el:i})
+    #     n_modules = len(sccs)
+    #     dag = self.get_modular_structure()
+    #     G = nx.from_edgelist(dag,nx.DiGraph)
+    #     modules_sorted = list(nx.topological_sort(G))
+    #     nodes_in_each_module = [np.sort(list(sccs[module_id])) for module_id in range(n_modules)]
+    #     pos_in_each_module = [dict(zip(nodes_in_each_module[module_id],range(len(nodes_in_each_module[module_id])))) for module_id in range(n_modules)]
+    #     inputs_per_module = [[] for i in range(n_modules)]
+    #     for (a,b) in dag:
+    #         inputs_per_module[b].append(a)
         
-        module_attractors_binary = [[] for i in range(n_modules)]
-        for module_id in modules_sorted:
+    #     module_attractors_binary = [[] for i in range(n_modules)]
+    #     for module_id in modules_sorted:
             
-            if len(inputs_per_module[module_id])==0:
-                F1 = [self.F[j] for j in list(sccs[module_id])]
-                I1 = [self.I[j].copy() for j in list(sccs[module_id])] 
-                #reindex I1 to keep track of which nodes are in the module
-                nodes_in_module = nodes_in_each_module[module_id]
-                pos_in_module = pos_in_each_module[module_id]
-                for i in range(len(nodes_in_module)):
-                    for j in range(len(I1[i])):
-                        I1[i][j] = pos_in_module[I1[i][j]]
-                bn_of_module = bf.BooleanNetwork(F=F1, I=I1)
-                module_attractors = bn_of_module.get_attractors_synchronous_exact()['Attractors']
-                module_attractors_binary[module_id] = [
-                    np.array(list(
-                        map(lambda x: 
-                            utils.dec2bin(x,bn_of_module.N),
-                            module_attractors[i]
-                        )
-                    ))
-                    for i in range(len(module_attractors))
-                ]
-            else:  
-                downstream_module_attractors = []
-                nodes_in_module = nodes_in_each_module[module_id]
-                pos_in_module = pos_in_each_module[module_id]
-                n_nodes_in_module = len(pos_in_module)
+    #         if len(inputs_per_module[module_id])==0:
+    #             F1 = [self.F[j] for j in list(sccs[module_id])]
+    #             I1 = [self.I[j].copy() for j in list(sccs[module_id])] 
+    #             #reindex I1 to keep track of which nodes are in the module
+    #             nodes_in_module = nodes_in_each_module[module_id]
+    #             pos_in_module = pos_in_each_module[module_id]
+    #             for i in range(len(nodes_in_module)):
+    #                 for j in range(len(I1[i])):
+    #                     I1[i][j] = pos_in_module[I1[i][j]]
+    #             bn_of_module = bf.BooleanNetwork(F=F1, I=I1)
+    #             module_attractors = bn_of_module.get_attractors_synchronous_exact()['Attractors']
+    #             module_attractors_binary[module_id] = [
+    #                 np.array(list(
+    #                     map(lambda x: 
+    #                         utils.dec2bin(x,bn_of_module.N),
+    #                         module_attractors[i]
+    #                     )
+    #                 ))
+    #                 for i in range(len(module_attractors))
+    #             ]
+    #         else:  
+    #             downstream_module_attractors = []
+    #             nodes_in_module = nodes_in_each_module[module_id]
+    #             pos_in_module = pos_in_each_module[module_id]
+    #             n_nodes_in_module = len(pos_in_module)
                
-                #Getting all the nodes for every input module
-                input_nodes = {}
-                count = 0
-                for node in nodes_in_module:
-                    for regulator in self.I[node]:
-                        try:
-                            pos_in_module[regulator]
-                        except KeyError:
-                            try:
-                                input_nodes[regulator]
-                            except KeyError:
-                                input_nodes.update({regulator:n_nodes_in_module+count})
-                                count+=1
+    #             #Getting all the nodes for every input module
+    #             input_nodes = {}
+    #             count = 0
+    #             for node in nodes_in_module:
+    #                 for regulator in self.I[node]:
+    #                     try:
+    #                         pos_in_module[regulator]
+    #                     except KeyError:
+    #                         try:
+    #                             input_nodes[regulator]
+    #                         except KeyError:
+    #                             input_nodes.update({regulator:n_nodes_in_module+count})
+    #                             count+=1
                 
-                pos_in_module.update(input_nodes)
+    #             pos_in_module.update(input_nodes)
                 
                 
-                pos_in_module_per_input_nodes = {}
-                for input_node in input_nodes.keys():
-                    pos_in_module_per_input_nodes.update({input_node: pos_in_each_module[module_per_node[input_node]][input_node]})
+    #             pos_in_module_per_input_nodes = {}
+    #             for input_node in input_nodes.keys():
+    #                 pos_in_module_per_input_nodes.update({input_node: pos_in_each_module[module_per_node[input_node]][input_node]})
                 
-                nodes_per_upstream_module_we_care_about = {}
-                for input_node in input_nodes.keys():
-                    upstream_module_id = module_per_node[input_node]
-                    try:
-                        nodes_per_upstream_module_we_care_about[upstream_module_id].add(input_node)
-                    except KeyError:
-                        nodes_per_upstream_module_we_care_about.update({upstream_module_id:set([input_node])})
+    #             nodes_per_upstream_module_we_care_about = {}
+    #             for input_node in input_nodes.keys():
+    #                 upstream_module_id = module_per_node[input_node]
+    #                 try:
+    #                     nodes_per_upstream_module_we_care_about[upstream_module_id].add(input_node)
+    #                 except KeyError:
+    #                     nodes_per_upstream_module_we_care_about.update({upstream_module_id:set([input_node])})
                         
                 
                 
-                #Getting the Upstream Attractors
-                upstream_attractors = []
-                for upstream_module in inputs_per_module[module_id]:
-                    upstream_attractors.append(module_attractors_binary[upstream_module])
+    #             #Getting the Upstream Attractors
+    #             upstream_attractors = []
+    #             for upstream_module in inputs_per_module[module_id]:
+    #                 upstream_attractors.append(module_attractors_binary[upstream_module])
                     
-                all_input_patterns = []
-                for attractor_of_each_upstream_module in product(*upstream_attractors):
-                    all_input_patterns.append([])
-                    for attractor,upstream_module_id in zip(attractor_of_each_upstream_module,inputs_per_module[module_id]):
-                        all_input_patterns[-1].append(utils.flatten(attractor[:,np.array(list(map(lambda x: pos_in_module_per_input_nodes[x],nodes_per_upstream_module_we_care_about[upstream_module_id])))]))
+    #             all_input_patterns = []
+    #             for attractor_of_each_upstream_module in product(*upstream_attractors):
+    #                 all_input_patterns.append([])
+    #                 for attractor,upstream_module_id in zip(attractor_of_each_upstream_module,inputs_per_module[module_id]):
+    #                     all_input_patterns[-1].append(utils.flatten(attractor[:,np.array(list(map(lambda x: pos_in_module_per_input_nodes[x],nodes_per_upstream_module_we_care_about[upstream_module_id])))]))
     
-                F2 = [self.F[j] for j in nodes_in_module]
-                I2 = [list(map(lambda x: pos_in_module[x],self.I[j])) for j in nodes_in_module]                
-                bn_of_module = bf.BooleanNetwork(F=F2, I=I2)
+    #             F2 = [self.F[j] for j in nodes_in_module]
+    #             I2 = [list(map(lambda x: pos_in_module[x],self.I[j])) for j in nodes_in_module]                
+    #             bn_of_module = bf.BooleanNetwork(F=F2, I=I2)
                     
-                module_attractors = bn_of_module.get_attractors_synchronous_exact_with_external_inputs(all_input_patterns[0])['Attractors']
+    #             module_attractors = bn_of_module.get_attractors_synchronous_exact_with_external_inputs(all_input_patterns[0])['Attractors']
                 
-                #next line needs to be checked
-                module_attractors_binary[module_id] = [np.array(list(
-                    map(lambda x: utils.dec2bin(x,len(nodes_in_module)),
-                        module_attractors[i])
-                    ))
-                    for i in range(len(module_attractors))
-                ]
-        return module_attractors_binary
+    #             #next line needs to be checked
+    #             module_attractors_binary[module_id] = [np.array(list(
+    #                 map(lambda x: utils.dec2bin(x,len(nodes_in_module)),
+    #                     module_attractors[i])
+    #                 ))
+    #                 for i in range(len(module_attractors))
+    #             ]
+    #     return module_attractors_binary
 
 
     
