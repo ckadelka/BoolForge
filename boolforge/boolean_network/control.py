@@ -6,6 +6,7 @@ Created on Wed May 27 01:03:29 2026
 @author: ckadelka
 """
 
+from collections.abc import Sequence
 import numpy as np
 
 class ControlMixin:
