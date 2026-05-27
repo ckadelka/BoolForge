@@ -1,18 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Wiring-diagram representation for Boolean networks.
-
-This module defines the :class:`~boolforge.WiringDiagram` class, which encodes
-the directed regulatory topology of a Boolean network independently of any
-Boolean update functions.
-
-A wiring diagram specifies, for each node, the set of regulating nodes
-(predecessors). Nodes with no regulators are source nodes in the wiring diagram.
-Whether such nodes act as constants or identity nodes in Boolean networks
-can only be determined after Boolean update functions are assigned.
-"""
-
 from collections.abc import Sequence
 import numpy as np
 
@@ -28,15 +15,15 @@ class WiringDiagram(
         WiringDiagramPlottingMixin,
         ):
     """
-    Directed wiring diagram for a Boolean network.
+    Directed wiring diagram for a dynamical system.
 
-    A wiring diagram specifies the regulatory topology of a Boolean network by
+    A wiring diagram specifies the regulatory topology of a dynamical system by
     listing, for each node, the indices of its regulators (incoming edges).
-    It does not encode Boolean update functions or dynamical rules.
+    It does not encode dynamical update functions or dynamical rules.
 
     Nodes with zero indegree are source nodes. Whether a source node represents
     a constant, an identity node, or a dynamic variable is determined only after
-    Boolean update functions are assigned.
+    dynamical update functions are assigned.
 
     Parameters
     ----------
@@ -259,8 +246,8 @@ class WiringDiagram(
     
         A source node is a node with zero indegree. Source nodes represent
         inputs to the wiring diagram; whether they act as constants or
-        identity nodes in Boolean networks depends on the associated
-        Boolean update functions and is not determined at the wiring-diagram
+        identity nodes in dynamical systems depends on the associated
+        dynamical update functions and is not determined at the wiring-diagram
         level.
     
         Parameters
