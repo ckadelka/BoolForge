@@ -7,7 +7,7 @@ Created on Wed May 27 00:54:16 2026
 """
 
 import math
-from collections.abc import defaultdict
+from collections import defaultdict
 from collections.abc import Sequence
 import numpy as np
 
