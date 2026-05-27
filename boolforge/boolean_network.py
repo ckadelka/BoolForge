@@ -322,8 +322,8 @@ if __LOADED_NUMBA__:
             for j in range(N_variables):
                 val += next_state[j] * powers_of_two[j]
             next_indices[i] = val
-    
         return next_indices
+
 
     @njit(fastmath=True)  # safe: operations are integer-only
     def _hamming_distance(a, b):
@@ -2122,136 +2122,273 @@ class BooleanNetwork(WiringDiagram):
         return Fx
 
 
-    def get_steady_states_asynchronous_exact(
-        self,
-        stochastic_weights: Sequence[float] | None = None,
-        max_iterations: int = 1000,
-        tol: float = 1e-9,
-    ) -> dict:
-        """
-        Compute the steady states and basin probabilities under general asynchronous update.
+    # def get_steady_states_asynchronous_exact_old(
+    #     self,
+    #     stochastic_weights: Sequence[float] | None = None,
+    #     max_iterations: int = 1000,
+    #     tol: float = 1e-9,
+    # ) -> dict:
+    #     """
+    #     Compute the steady states and basin probabilities under general asynchronous update.
         
-        This method exhaustively constructs the asynchronous state transition graph
-        (STG) of the Boolean network under a general asynchronous update scheme,
-        where nodes are selected for update according to given propensities.
-        The resulting Markov chain is solved exactly using an iterative
-        Gauss–Seidel scheme to obtain absorption probabilities into steady states.
+    #     This method exhaustively constructs the asynchronous state transition graph
+    #     (STG) of the Boolean network under a general asynchronous update scheme,
+    #     where nodes are selected for update according to given propensities.
+    #     The resulting Markov chain is solved exactly using an iterative
+    #     Gauss–Seidel scheme to obtain absorption probabilities into steady states.
         
-        Parameters
-        ----------
-        stochastic_weights : sequence of float or None, optional
-            Relative update propensities for each node. If None (default),
-            all nodes are updated with equal probability. The weights are
-            normalized internally.
+    #     Parameters
+    #     ----------
+    #     stochastic_weights : sequence of float or None, optional
+    #         Relative update propensities for each node. If None (default),
+    #         all nodes are updated with equal probability. The weights are
+    #         normalized internally.
             
-        max_iterations : int, optional
-            Maximum number of Gauss–Seidel iterations used to compute absorption
-            probabilities before declaring non-convergence.
+    #     max_iterations : int, optional
+    #         Maximum number of Gauss–Seidel iterations used to compute absorption
+    #         probabilities before declaring non-convergence.
             
-        tol : float, optional
-            Convergence tolerance for the infinity norm of probability updates.
+    #     tol : float, optional
+    #         Convergence tolerance for the infinity norm of probability updates.
         
-        Returns
-        -------
-        dict
-            Dictionary with the following entries:
+    #     Returns
+    #     -------
+    #     dict
+    #         Dictionary with the following entries:
         
-            - SteadyStates : list of int  
-              Decimal representations of steady states.
-            - NumberOfSteadyStates : int  
-              Total number of steady states.
-            - BasinSizes : np.ndarray  
-              Fraction of the state space converging to each steady state.
-            - STGAsynchronous : dict  
-              Asynchronous state transition graph represented as a Markov kernel.
-            - inalTransitionProbabilities : np.ndarray  
-              Absorption probabilities from each state into each steady state.
+    #         - SteadyStates : list of int  
+    #           Decimal representations of steady states.
+    #         - NumberOfSteadyStates : int  
+    #           Total number of steady states.
+    #         - BasinSizes : np.ndarray  
+    #           Fraction of the state space converging to each steady state.
+    #         - STGAsynchronous : dict  
+    #           Asynchronous state transition graph represented as a Markov kernel.
+    #         - inalTransitionProbabilities : np.ndarray  
+    #           Absorption probabilities from each state into each steady state.
         
-        Raises
-        ------
-        RuntimeError
-            If the iterative solver does not converge within ``max_iterations``.
-        """
+    #     Raises
+    #     ------
+    #     RuntimeError
+    #         If the iterative solver does not converge within ``max_iterations``.
+    #     """
 
-        left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
+    #     left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
 
-        if stochastic_weights is not None:
-            stochastic_weights = np.asarray(stochastic_weights, dtype=float)
-            if stochastic_weights.shape[0] != self.N:
-                raise ValueError("stochastic_weights must have length N.")
-            if np.any(stochastic_weights <= 0):
-                raise ValueError("stochastic_weights must be strictly positive.")
-            stochastic_weights = stochastic_weights / stochastic_weights.sum()
-        else:
-            stochastic_weights = np.full(self.N, 1.0 / self.N)
+    #     if stochastic_weights is not None:
+    #         stochastic_weights = np.asarray(stochastic_weights, dtype=float)
+    #         if stochastic_weights.shape[0] != self.N:
+    #             raise ValueError("stochastic_weights must have length N.")
+    #         if np.any(stochastic_weights <= 0):
+    #             raise ValueError("stochastic_weights must be strictly positive.")
+    #         stochastic_weights = stochastic_weights / stochastic_weights.sum()
+    #     else:
+    #         stochastic_weights = np.full(self.N, 1.0 / self.N)
             
-        steady_states = []
-        steady_state_dict = {}
-        STG = dict(zip(range(2**self.N),[{} for i in range(2**self.N)]))
-        sped_up_STG = dict(zip(range(2**self.N),[[np.zeros(0,dtype=int),np.zeros(0,dtype=float)] for i in range(2**self.N)]))
-        for xdec in range(2**self.N):
-            x = left_side_of_truth_table[xdec].copy() #important: must create a copy here!
-            to_be_distributed = 0
-            for i in range(self.N):
-                fx_i = self.update_single_node(i, x[self.I[i]])
-                if fx_i > x[i]:
-                    fxdec = xdec + 2**(self.N - 1 - i)
-                elif fx_i < x[i]:
-                    fxdec = xdec - 2**(self.N - 1 - i)
-                else:
-                    fxdec = xdec
-                if fxdec in STG[xdec]:
-                    STG[xdec][fxdec] += float(stochastic_weights[i])
-                else:
-                    STG[xdec][fxdec] = float(stochastic_weights[i])
-                if fxdec!=xdec:
-                    sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], fxdec)
-                    sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], stochastic_weights[i])
-                else:
-                    to_be_distributed += stochastic_weights[i]
-            if to_be_distributed < 1:
-                sped_up_STG[xdec][1] /= (1-to_be_distributed)
-            if len(STG[xdec])==1:
-                steady_state_dict[xdec] = len(steady_states)
-                steady_states.append(xdec)
-                sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], xdec)
-                sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], 1)
+    #     steady_states = []
+    #     steady_state_dict = {}
+    #     STG = dict(zip(range(2**self.N),[{} for i in range(2**self.N)]))
+    #     sped_up_STG = dict(zip(range(2**self.N),[[np.zeros(0,dtype=int),np.zeros(0,dtype=float)] for i in range(2**self.N)]))
+    #     for xdec in range(2**self.N):
+    #         x = left_side_of_truth_table[xdec].copy() #important: must create a copy here!
+    #         to_be_distributed = 0
+    #         for i in range(self.N):
+    #             fx_i = self.update_single_node(i, x[self.I[i]])
+    #             if fx_i > x[i]:
+    #                 fxdec = xdec + 2**(self.N - 1 - i)
+    #             elif fx_i < x[i]:
+    #                 fxdec = xdec - 2**(self.N - 1 - i)
+    #             else:
+    #                 fxdec = xdec
+    #             if fxdec in STG[xdec]:
+    #                 STG[xdec][fxdec] += float(stochastic_weights[i])
+    #             else:
+    #                 STG[xdec][fxdec] = float(stochastic_weights[i])
+    #             if fxdec!=xdec:
+    #                 sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], fxdec)
+    #                 sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], stochastic_weights[i])
+    #             else:
+    #                 to_be_distributed += stochastic_weights[i]
+    #         if to_be_distributed < 1:
+    #             sped_up_STG[xdec][1] /= (1-to_be_distributed)
+    #         if len(STG[xdec])==1:
+    #             steady_state_dict[xdec] = len(steady_states)
+    #             steady_states.append(xdec)
+    #             sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], xdec)
+    #             sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], 1)
                 
-        # Probability vectors for all states
-        final_probabilities = np.zeros((2**self.N, len(steady_states)), dtype=float)
+    #     # Probability vectors for all states
+    #     final_probabilities = np.zeros((2**self.N, len(steady_states)), dtype=float)
     
-        # Boundary conditions: absorbing states have probability 1 of themselves
-        for xdec in steady_states:
-            final_probabilities[xdec, steady_state_dict[xdec]] = 1.0
-        transient_states = [xdec for xdec in range(2**self.N) if xdec not in steady_state_dict]
+    #     # Boundary conditions: absorbing states have probability 1 of themselves
+    #     for xdec in steady_states:
+    #         final_probabilities[xdec, steady_state_dict[xdec]] = 1.0
+    #     transient_states = [xdec for xdec in range(2**self.N) if xdec not in steady_state_dict]
         
-        for it in range(1, max_iterations + 1):
-            max_delta = 0.0
+    #     for it in range(1, max_iterations + 1):
+    #         max_delta = 0.0
     
-            # In-place Gauss–Seidel update:
-            for xdec in transient_states:
-                nxt, pr = sped_up_STG[xdec]
+    #         # In-place Gauss–Seidel update:
+    #         for xdec in transient_states:
+    #             nxt, pr = sped_up_STG[xdec]
 
-                old = final_probabilities[xdec].copy()
-                final_probabilities[xdec] = np.dot(pr, final_probabilities[nxt, :])   # weighted average of successor probability vectors
+    #             old = final_probabilities[xdec].copy()
+    #             final_probabilities[xdec] = np.dot(pr, final_probabilities[nxt, :])   # weighted average of successor probability vectors
     
-                # track convergence (infinity norm per row)
-                delta = np.max(np.abs(final_probabilities[xdec] - old))
-                if delta > max_delta:
-                    max_delta = delta
+    #             # track convergence (infinity norm per row)
+    #             delta = np.max(np.abs(final_probabilities[xdec] - old))
+    #             if delta > max_delta:
+    #                 max_delta = delta
     
-            if max_delta < tol:
-                basin_sizes = final_probabilities.sum(0)/2**self.N
+    #         if max_delta < tol:
+    #             basin_sizes = final_probabilities.sum(0)/2**self.N
                 
-                return {
-                    "SteadyStates": steady_states,
-                    "NumberOfSteadyStates": len(steady_states),
-                    "BasinSizes": basin_sizes,
-                    "STGAsynchronous": STG,
-                    "FinalTransitionProbabilities": final_probabilities,
-                }
+    #             return {
+    #                 "SteadyStates": steady_states,
+    #                 "NumberOfSteadyStates": len(steady_states),
+    #                 "BasinSizes": basin_sizes,
+    #                 "STGAsynchronous": STG,
+    #                 "FinalTransitionProbabilities": final_probabilities,
+    #             }
             
-        raise RuntimeError(f"Did not converge in {max_iterations} iterations; last max_delta={max_delta:g}")
+    #     raise RuntimeError(f"Did not converge in {max_iterations} iterations; last max_delta={max_delta:g}")
+
+    def get_attractors_asynchronous_exact(self) -> dict:
+        pass
+
+    # def get_steady_states_asynchronous_exact(
+    #     self,
+    #     stochastic_weights: Sequence[float] | None = None,
+    #     tol: float = 1e-9,
+    #     use_numba: bool = True,
+    # ) -> dict:
+    #     """
+    #     Compute the steady states and basin probabilities under general asynchronous update.
+        
+    #     This method exhaustively constructs the asynchronous state transition graph
+    #     (STG) of the Boolean network under a general asynchronous update scheme,
+    #     where nodes are selected for update according to given propensities.
+    #     The resulting Markov chain is solved exactly using an iterative
+    #     Gauss–Seidel scheme to obtain absorption probabilities into steady states.
+        
+    #     Parameters
+    #     ----------
+    #     stochastic_weights : sequence of float or None, optional
+    #         Relative update propensities for each node. If None (default),
+    #         all nodes are updated with equal probability. The weights are
+    #         normalized internally.
+
+    #     tol : float, optional
+    #         Convergence tolerance for the infinity norm of probability updates.
+            
+    #     use-numba: bool, optional
+            
+        
+    #     Returns
+    #     -------
+    #     dict
+    #         Dictionary with the following entries:
+        
+    #         - SteadyStates : list of int  
+    #           Decimal representations of steady states.
+    #         - NumberOfSteadyStates : int  
+    #           Total number of steady states.
+    #         - BasinSizes : np.ndarray  
+    #           Fraction of the state space converging to each steady state.
+    #         - STGAsynchronous : dict  
+    #           Asynchronous state transition graph represented as a Markov kernel.
+    #         - inalTransitionProbabilities : np.ndarray  
+    #           Absorption probabilities from each state into each steady state.
+        
+    #     Raises
+    #     ------
+    #     RuntimeError
+    #         If the iterative solver does not converge within ``max_iterations``.
+    #     """
+
+    #     left_side_of_truth_table = utils.get_left_side_of_truth_table(self.N)
+    #     if self.STG is None: #synchronous STG
+    #         self.compute_synchronous_state_transition_graph(use_numba=use_numba)
+    #     steady_states = np.where(self.STG == np.arange(2**self.N))[0]
+        
+    #     if stochastic_weights is not None:
+    #         stochastic_weights = np.asarray(stochastic_weights, dtype=float)
+    #         if stochastic_weights.shape[0] != self.N:
+    #             raise ValueError("stochastic_weights must have length N.")
+    #         if np.any(stochastic_weights <= 0):
+    #             raise ValueError("stochastic_weights must be strictly positive.")
+    #         stochastic_weights = stochastic_weights / stochastic_weights.sum()
+    #     else:
+    #         stochastic_weights = np.full(self.N, 1.0 / self.N)
+
+
+    #     steady_state_dict = {x: i for i, x in enumerate(steady_states)}
+                
+    #     STG = dict(zip(range(2**self.N),[{} for i in range(2**self.N)]))
+    #     sped_up_STG = dict(zip(range(2**self.N),[[np.zeros(0,dtype=int),np.zeros(0,dtype=float)] for i in range(2**self.N)]))
+    #     for xdec in range(2**self.N):
+    #         x = left_side_of_truth_table[xdec].copy() #important: must create a copy here!
+    #         to_be_distributed = 0
+    #         for i in range(self.N):
+    #             fx_i = self.update_single_node(i, x[self.I[i]])
+    #             if fx_i > x[i]:
+    #                 fxdec = xdec + 2**(self.N - 1 - i)
+    #             elif fx_i < x[i]:
+    #                 fxdec = xdec - 2**(self.N - 1 - i)
+    #             else:
+    #                 fxdec = xdec
+    #             if fxdec in STG[xdec]:
+    #                 STG[xdec][fxdec] += float(stochastic_weights[i])
+    #             else:
+    #                 STG[xdec][fxdec] = float(stochastic_weights[i])
+    #             if fxdec!=xdec:
+    #                 sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], fxdec)
+    #                 sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], stochastic_weights[i])
+    #             else:
+    #                 to_be_distributed += stochastic_weights[i]
+    #         if to_be_distributed < 1:
+    #             sped_up_STG[xdec][1] /= (1-to_be_distributed)
+    #         if len(STG[xdec])==1:
+    #             steady_state_dict[xdec] = len(steady_states)
+    #             steady_states.append(xdec)
+    #             sped_up_STG[xdec][0] = np.append(sped_up_STG[xdec][0], xdec)
+    #             sped_up_STG[xdec][1] = np.append(sped_up_STG[xdec][1], 1)
+                
+    #     # Probability vectors for all states
+    #     final_probabilities = np.zeros((2**self.N, len(steady_states)), dtype=float)
+    
+    #     # Boundary conditions: absorbing states have probability 1 of themselves
+    #     for xdec in steady_states:
+    #         final_probabilities[xdec, steady_state_dict[xdec]] = 1.0
+    #     transient_states = [xdec for xdec in range(2**self.N) if xdec not in steady_state_dict]
+        
+    #     for it in range(1, max_iterations + 1):
+    #         max_delta = 0.0
+    
+    #         # In-place Gauss–Seidel update:
+    #         for xdec in transient_states:
+    #             nxt, pr = sped_up_STG[xdec]
+
+    #             old = final_probabilities[xdec].copy()
+    #             final_probabilities[xdec] = np.dot(pr, final_probabilities[nxt, :])   # weighted average of successor probability vectors
+    
+    #             # track convergence (infinity norm per row)
+    #             delta = np.max(np.abs(final_probabilities[xdec] - old))
+    #             if delta > max_delta:
+    #                 max_delta = delta
+    
+    #         if max_delta < tol:
+    #             basin_sizes = final_probabilities.sum(0)/2**self.N
+                
+    #             return {
+    #                 "SteadyStates": steady_states,
+    #                 "NumberOfSteadyStates": len(steady_states),
+    #                 "BasinSizes": basin_sizes,
+    #                 "STGAsynchronous": STG,
+    #                 "FinalTransitionProbabilities": final_probabilities,
+    #             }
+            
+    #     raise RuntimeError(f"Did not converge in {max_iterations} iterations; last max_delta={max_delta:g}")
         
 
     def get_steady_states_asynchronous(
