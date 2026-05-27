@@ -5,7 +5,7 @@
 import numpy as np
 
 # load optional but desirable package
-from ._numba import njit, List, __LOADED_NUMBA__
+from ._numba import njit, List, int64, __LOADED_NUMBA__
 
 if __LOADED_NUMBA__:
     @njit(fastmath=True)  # safe: operations are integer-only
