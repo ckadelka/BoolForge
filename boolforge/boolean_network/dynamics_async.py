@@ -8,19 +8,9 @@ Created on Wed May 27 00:52:32 2026
 
 
 from collections.abc import Sequence
-
 import numpy as np
 
 from .. import utils
-    
-# load optional but desirable package
-try:
-    import numba
-    njit = numba.njit
-    int64 = numba.int64
-    __LOADED_NUMBA__ = True
-except ModuleNotFoundError:
-    __LOADED_NUMBA__ = False
 
 class BooleanNetworkDynamicsAsyncMixin:
     def get_attractors_asynchronous_exact(self) -> dict:

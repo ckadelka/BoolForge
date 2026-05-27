@@ -14,7 +14,7 @@ from collections import deque
 from copy import deepcopy
 import numpy as np
 
-from .. import utils
+from ..utils import get_left_side_of_truth_table
 from ..boolean_function import BooleanFunction
 from ..wiring_diagram import WiringDiagram
     
@@ -253,7 +253,7 @@ class BooleanNetwork(
                 except ValueError:
                     continue
     
-                truth_table = utils.get_left_side_of_truth_table(self.indegrees[i])
+                truth_table = get_left_side_of_truth_table(self.indegrees[i])
                 indices_to_keep = np.where(truth_table[:, index] == value)[0]
     
                 self.F[i].f = self.F[i].f[indices_to_keep]
@@ -495,7 +495,7 @@ class BooleanNetwork(
                 continue
     
             # Restrict truth table to essential inputs
-            left_side = utils.get_left_side_of_truth_table(self.indegrees[i])
+            left_side = get_left_side_of_truth_table(self.indegrees[i])
             mask = np.sum(left_side[:, non_essential_variables], axis=1) == 0
     
             self.F[i].f = self.F[i][mask]

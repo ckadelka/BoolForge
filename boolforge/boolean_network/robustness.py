@@ -11,21 +11,13 @@ from collections import defaultdict
 from collections.abc import Sequence
 import numpy as np
 
-try:
-    import numba
-    from numba.typed import List
-    njit = numba.njit
-    int64 = numba.int64
-    __LOADED_NUMBA__ = True
-except ModuleNotFoundError:
-    __LOADED_NUMBA__ = False
-
 from .. import utils
 
-from .kernels import _transient_lengths_functional_numba
-from .kernels import _robustness_edge_traversal_numba_stratified
-from .kernels import _robustness_edge_traversal_numba
-from .kernels import _derrida_simulation
+from ..backend._numba import List, __LOADED_NUMBA__
+from ..backend.dynamics_sync import _transient_lengths_functional_numba
+from ..backend.robustness_sync import _robustness_edge_traversal_numba_stratified
+from ..backend.robustness_sync import _robustness_edge_traversal_numba
+from ..backend.robustness_sync import _derrida_simulation
 
 def get_entropy_of_basin_size_distribution(
     basin_sizes: Sequence[float]
