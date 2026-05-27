@@ -9,7 +9,7 @@ Created on Wed May 27 01:03:29 2026
 from collections.abc import Sequence
 import numpy as np
 
-class ControlMixin:
+class BooleanNetworkControlMixin:
     def get_network_with_fixed_identity_nodes(
         self,
         values_identity_nodes: Sequence[int],

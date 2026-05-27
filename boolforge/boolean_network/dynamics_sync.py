@@ -28,7 +28,7 @@ try:
 except ModuleNotFoundError:
     __LOADED_NUMBA__ = False
 
-class DynamicsSyncMixin:
+class BooleanNetworkDynamicsSyncMixin:
     def update_single_node(
         self,
         index: int,

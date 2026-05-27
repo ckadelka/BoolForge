@@ -22,7 +22,7 @@ try:
 except ModuleNotFoundError:
     __LOADED_NUMBA__ = False
 
-class DynamicsAsyncMixin:
+class BooleanNetworkDynamicsAsyncMixin:
     def get_attractors_asynchronous_exact(self) -> dict:
         pass
     

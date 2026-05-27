@@ -23,7 +23,7 @@ from .. import utils
 from ..wiring_diagram import WiringDiagram
 from ..boolean_function import f_from_expression
 
-class InteroperabilityMixin:
+class BooleanNetworkInteroperabilityMixin:
     @classmethod
     def from_cana(
         cls,

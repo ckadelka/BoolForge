@@ -57,7 +57,7 @@ def get_entropy_of_basin_size_distribution(
     return sum([-np.log(p) * p for p in probabilities])
 
 
-class RobustnessMixin:
+class BooleanNetworkRobustnessMixin:
     def get_attractors_and_robustness_synchronous_exact(
         self, 
         use_numba: bool = True,

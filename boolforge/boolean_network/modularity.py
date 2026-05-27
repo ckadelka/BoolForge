@@ -18,7 +18,7 @@ from .. import utils
 from ..modularity_utils import compress_trajectories
 
   
-class ModularityMixin:
+class BooleanNetworkModularityMixin:
     def get_attractors_synchronous_exact_exploiting_modularity(self):
         sccs = self.get_strongly_connected_components()
         module_per_node = {}
