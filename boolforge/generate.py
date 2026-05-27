@@ -33,7 +33,6 @@ import math
 import numpy as np
 import networkx as nx
 from collections.abc import Sequence
-import inspect
 
 from .boolean_function import BooleanFunction
 from .boolean_network import BooleanNetwork

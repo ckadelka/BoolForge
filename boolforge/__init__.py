@@ -27,7 +27,7 @@ from .utils import (
     hamming_weight_to_ncf_layer_structure,
 )
 
-from .modularity import (
+from .modularity_utils import (
     compress_trajectories,
     product_of_trajectories,
     plot_trajectory,
