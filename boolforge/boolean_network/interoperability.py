@@ -19,9 +19,9 @@ if TYPE_CHECKING:
     except ModuleNotFoundError:
         pass
 
-from . import utils
-from .wiring_diagram import WiringDiagram
-from .boolean_function import f_from_expression
+from .. import utils
+from ..wiring_diagram import WiringDiagram
+from ..boolean_function import f_from_expression
 
 class InteroperabilityMixin:
     @classmethod
