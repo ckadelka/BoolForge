@@ -41,6 +41,22 @@ def get_layer_structure_from_canalized_outputs(
 
 
 class BooleanFunctionCanalizationMixin:
+    @property
+    def canalizing(self) -> bool:
+        """Check whether the Boolean function is degenerate."""
+        return self.is_canalizing()
+
+    @property
+    def nested_canalizing(self) -> bool:
+        """Check whether the Boolean function is nested canalizing."""
+        return self.is_k_canalizing(self.n)
+
+    @property
+    def canalizing_depth(self) -> int:
+        """Determine the canalizing depth of the Boolean function."""
+        return self.get_canalizing_depth()
+    
+    
     def is_canalizing(self) -> bool:
         """
         Determine whether the Boolean function is canalizing.

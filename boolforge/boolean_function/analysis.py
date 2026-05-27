@@ -13,19 +13,41 @@ class BooleanFunctionAnalysisMixin:
         """Number of ones in the truth table."""
         return self.get_hamming_weight()
     
-    
     @property
     def bias(self) -> float:
         """Fraction of ones in the truth table."""
         return self.hamming_weight / len(self.f)
     
-    
     @property
     def absolute_bias(self) -> float:
         """Absolute bias: `|2*bias − 1|`."""
         return 2 * abs(self.bias - 0.5)
+
+    @property
+    def constant(self) -> bool:
+        """Check whether the Boolean function is constant."""
+        return self.is_constant()
+
+    @property
+    def degenerate(self) -> bool:
+        """Check whether the Boolean function is degenerate."""
+        return self.is_constant()
+
+    @property
+    def essential_degree(self) -> int:
+        """Determine the number of essential variables of the Boolean function."""
+        return self.get_number_of_essential_variables()
     
-        
+    @property
+    def essential_variables(self) -> np.ndarray:
+        """Determine the array of indices of essential variables."""
+        return self.get_essential_variables()
+
+    @property
+    def input_types(self) -> np.ndarray:
+        """Determine the type of each input of the Boolean function."""
+        return self.get_type_of_inputs()
+          
     def is_constant(self) -> bool:
         """
         Check whether the Boolean function is constant.
@@ -77,7 +99,6 @@ class BooleanFunctionAnalysisMixin:
                 if not depends_on_i:
                     return True
             return False
-        
         
     def is_monotonic(self) -> bool:
         """
