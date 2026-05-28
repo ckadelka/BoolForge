@@ -9,12 +9,134 @@ Created on Wed May 27 00:52:32 2026
 
 from collections.abc import Sequence
 import numpy as np
+from scipy.sparse import csr_matrix, identity
+from scipy.sparse.linalg import gmres
+from scipy.sparse.csgraph import connected_components
 
 from .. import utils
 
+from ..backend.dynamics_async import _build_async_transition_coo
+
 class BooleanNetworkDynamicsAsyncMixin:
-    def get_attractors_asynchronous_exact(self) -> dict:
-        pass
+    def get_asynchronous_transition_matrix(self) -> csr_matrix:
+        if ('STG', 'asynchronous') in self._properties_exact:
+            return self._properties_exact[('STG', 'asynchronous')]
+        
+        F_list = [np.asarray(f.f, dtype=np.uint8) for f in self.F]
+        I_list = [np.asarray(regs, dtype=np.int32) for regs in self.I]
+
+        # fast direct CSR construction
+        rows, cols, data = _build_async_transition_coo(F_list,I_list,self.N)
+        STG = csr_matrix(
+            (data, (rows, cols)),
+            shape=((1 << self.N), (1 << self.N)),
+            dtype=np.float32
+        )
+
+        self._set_property('STG', STG, context='asynchronous', exact=True)
+        
+        return STG
+                
+    
+    def get_terminal_sccs_asynchronous_exact(self) -> list[list[int]]:
+        if ('terminal_sccs', 'asynchronous') in self._properties_exact:
+            return self._properties_exact[('terminal_sccs', 'asynchronous')]
+        
+        STG = self.get_asynchronous_transition_matrix()        
+        n_components, labels = connected_components(STG, 
+                                                    directed=True, 
+                                                    connection='strong'
+                                                    )
+        terminal_sccs = []
+        for c in range(n_components):
+            states = np.where(labels == c)[0]
+            for s in states:
+                start, end = STG.indptr[s], STG.indptr[s + 1]
+                if np.any(labels[STG.indices[start:end]] != c):
+                    break
+            else:
+                terminal_sccs.append(list(states))
+        
+        self._set_property('terminal_sccs', terminal_sccs,
+                           context='asynchronous', exact=True)
+        self._set_property('number_of_terminal_sccs', len(terminal_sccs),
+                           context='asynchronous', exact=True)
+        return terminal_sccs
+
+    def get_absorption_probabilities_exact(self) -> np.ndarray:
+        if ('absorption_probabilities', 'asynchronous') in self._properties_exact:
+            return self._properties_exact[('absorption_probabilities', 'asynchronous')]
+        
+        STG = self.get_asynchronous_transition_matrix()
+        terminal_sccs = self.get_terminal_sccs_asynchronous_exact()
+        
+        transient_states = np.setdiff1d(np.arange(1 << self.N),
+                                        np.concatenate(terminal_sccs))
+        
+        n_terminal_sccs = len(terminal_sccs)
+        n_transients = len(transient_states)
+        absorption_probs = np.zeros(((1 << self.N), n_terminal_sccs),dtype=np.float32)
+
+        if n_transients > 0:
+            transient_mask = np.zeros(1 << self.N, dtype=bool)
+            transient_mask[transient_states] = True
+    
+            transient_index = -np.ones(1 << self.N, dtype=np.int32)
+            transient_index[transient_states] = np.arange(n_transients)
+    
+            # build Q and R without giant reorder/slicing
+            rows_Q = []
+            cols_Q = []
+            vals_Q = []
+            R = np.zeros((n_transients, n_terminal_sccs), dtype=np.float32)
+    
+            terminal_scc_lookup = {}
+            for a, states in enumerate(terminal_sccs):
+                for s in states:
+                    terminal_scc_lookup[s] = a
+    
+            for s in transient_states:
+                s_local = transient_index[s]
+                start = STG.indptr[s]
+                end = STG.indptr[s + 1]
+                succs = STG.indices[start:end]
+                probs = STG.data[start:end]
+    
+                for y, p in zip(succs, probs):
+                    if transient_mask[y]:
+                        rows_Q.append(s_local)
+                        cols_Q.append(transient_index[y])
+                        vals_Q.append(p)
+                    else:
+                        a = terminal_scc_lookup[y]
+                        R[s_local, a] += p
+    
+            Q = csr_matrix(
+                (vals_Q, (rows_Q, cols_Q)),
+                shape=(n_transients,n_transients),
+                dtype=np.float32
+            )
+            A = identity(n_transients, dtype=np.float32, format='csr') - Q
+
+            #compute absorption probabilities
+            for a in range(n_terminal_sccs):
+                b = R[:, a]
+                x,_ = gmres(A,b,atol=1e-10)
+                x = np.clip(x.astype(np.float32), 0.0, 1.0)
+                absorption_probs[transient_states,a] = x
+            
+            #correct for potential tiny numerical errors
+            row_sums = absorption_probs[transient_states].sum(axis=1, keepdims=True)
+            absorption_probs[transient_states] /= row_sums
+        
+        for a, states in enumerate(terminal_sccs):
+            absorption_probs[states, a] = 1.0   
+            
+        self._set_property('absorption_probabilities', absorption_probs,
+                           context='asynchronous', exact=True)
+        
+        return absorption_probs
+    
     
     def get_steady_states_asynchronous(
         self,
@@ -101,10 +223,7 @@ class BooleanNetworkDynamicsAsyncMixin:
             else:
                 xdec = initial_states[iteration]
                 x = utils.dec2bin(xdec, self.N)
-    
-            if debug:
-                print(iteration, -1, -1, False, xdec, x)
-    
+
             for step in range(search_depth):
                 found_new_state = False
     
@@ -135,10 +254,7 @@ class BooleanNetworkDynamicsAsyncMixin:
                         xdec = fxdec
                         found_new_state = True
                         break
-    
-                if debug:
-                    print(iteration, step, i, found_new_state, xdec, x)
-    
+
                 if not found_new_state:
                     # New steady state found
                     if xdec in steady_state_dict:
@@ -148,10 +264,7 @@ class BooleanNetworkDynamicsAsyncMixin:
                         steady_states.append(xdec)
                         basin_sizes.append(1)
                     break
-    
-            if debug:
-                print()
-    
+
         if sum(basin_sizes) < n_simulations:
             print(
                 f"Warning: only {sum(basin_sizes)} of the {n_simulations} simulations "

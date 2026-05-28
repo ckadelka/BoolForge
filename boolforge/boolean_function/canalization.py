@@ -56,6 +56,11 @@ class BooleanFunctionCanalizationMixin:
         """Determine the canalizing depth of the Boolean function."""
         return self.get_canalizing_depth()
     
+    @property
+    def layer_structure(self):
+        if "LayerStructure" not in self.properties:
+            self.get_layer_structure()
+        return self.properties["LayerStructure"]
     
     def is_canalizing(self) -> bool:
         """
