@@ -32,7 +32,6 @@ import numpy as np
 from ..boolean_function import BooleanFunction
 from .. import utils
 
-from .functions import random_function
 from .functions import random_function_with_bias
 from .functions import random_non_degenerate_function
 
@@ -430,11 +429,10 @@ def random_k_canalizing_function(
             
         # Step 3: sample core function using efficient rejection sampling
         if k < n:
-            core_function = random_function(
+            core_function = random_k_canalizing_function(
                 n=n - k,
-                depth=0,
+                k=0,
                 exact_depth=exact_depth,#True if exact_depth or uniform_over_functions else False,
-                allow_degenerate_functions=False,
                 rng=rng,
             )
             
@@ -598,11 +596,10 @@ def random_k_canalizing_function_with_specific_layer_structure(
     can_vars = rng.choice(n, depth, replace=False)
     f = np.zeros(size_state_space, dtype=int)
     if depth < n:
-        core_function = random_function(
+        core_function = random_k_canalizing_function(
             n=n - depth,
-            depth=0,
+            k=0,
             exact_depth=exact_depth,
-            allow_degenerate_functions=False,
             rng=rng,
         )
     else:

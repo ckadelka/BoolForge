@@ -26,8 +26,9 @@ Example
 >>> boolforge.random_network(N=5, n=2)
 """
 
+from .dispatch import random_function
+
 from .functions import (
-    random_function,
     random_function_with_bias,
     random_function_with_exact_hamming_weight,
     random_degenerate_function,
