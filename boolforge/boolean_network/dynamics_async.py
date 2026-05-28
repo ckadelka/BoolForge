@@ -55,7 +55,7 @@ class BooleanNetworkDynamicsAsyncMixin:
                 if np.any(labels[STG.indices[start:end]] != c):
                     break
             else:
-                terminal_sccs.append(list(states))
+                terminal_sccs.append([int(s) for s in states])
         
         self._set_property('terminal_sccs', terminal_sccs,
                            context='asynchronous', exact=True)

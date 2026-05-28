@@ -119,13 +119,12 @@ Each terminal SCC represented as a list of decimal states.
             "NumberOfTerminalSCCs": int(len(terminal_sccs)),
             "LengthOfTerminalSCCs": length_terminal_sccs,
             "DimensionTrapSpaces": dim_trap_spaces,
-            "BasinSizes": basin_sizes,
+            "BasinSizes": basin_sizes / float(1<<self.N),
             "AbsorptionProbabilities": absorption_probs,
-            "Coherence": coherence,
+            "Coherence": coherence.item(),
             "BasinCoherences": basin_coherences,
             "TerminalSCCCoherences": terminal_scc_coherences,
         }        
-        
         
     
     def get_attractors_and_robustness_synchronous_exact(
