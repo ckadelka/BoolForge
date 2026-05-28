@@ -36,7 +36,7 @@ from .functions import (
     random_parity_function,
 )
 
-from .canalizing import (
+from .canalization import (
     random_k_canalizing_function,
     random_k_canalizing_function_with_specific_layer_structure,
     random_NCF,
