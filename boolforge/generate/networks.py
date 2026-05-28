@@ -35,7 +35,7 @@ from ..wiring_diagram import WiringDiagram
 from .. import utils
 
 from .canalization import random_k_canalizing_function
-from .functions import random_function
+from .dispatch import random_function
 from .functions import random_non_degenerate_function
 from .functions import random_function_with_exact_hamming_weight
 from .wiring import random_wiring_diagram
