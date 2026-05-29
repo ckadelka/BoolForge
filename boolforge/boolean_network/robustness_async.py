@@ -61,7 +61,8 @@ class BooleanNetworkRobustnessAsyncMixin:
             - TerminalSCCCoherences : np.ndarray of float
                 Exact coherence of each terminal SCC.
         """
-        _numba_required("Asynchronous exact robustness computations")
+        if not __LOADED_NUMBA__:
+            _numba_required("Asynchronous exact robustness computation")
         
         terminal_sccs = self.get_terminal_sccs_asynchronous_exact()
         absorption_probs = self.get_absorption_probabilities_exact()
