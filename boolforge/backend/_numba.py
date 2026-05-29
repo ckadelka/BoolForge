@@ -9,3 +9,9 @@ try:
     __LOADED_NUMBA__ = True
 except ModuleNotFoundError:
     __LOADED_NUMBA__ = False
+    
+def _numba_required(feature: str):
+    raise ImportError(
+        f"{feature} requires numba. "
+        "Install it with: pip install numba"
+    )

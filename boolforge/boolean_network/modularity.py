@@ -15,7 +15,7 @@ import numpy as np
 import networkx as nx
 
 from .. import utils
-from ..modularity_utils import compress_trajectories
+from ..modularity import compress_trajectories
 
   
 class BooleanNetworkModularityMixin:

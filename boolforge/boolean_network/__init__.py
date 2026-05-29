@@ -27,8 +27,10 @@ Example
 """
 
 from .core import BooleanNetwork, dict_weights
-from .robustness import get_entropy_of_basin_size_distribution
+from .robustness_sync import get_entropy_of_basin_size_distribution
+from .robustness_async import get_trap_space_dimension
 
 __all__ = ['BooleanNetwork',
            'dict_weights',
-           'get_entropy_of_basin_size_distribution']
+           'get_entropy_of_basin_size_distribution',
+           'get_trap_space_dimension']

@@ -15,12 +15,14 @@ from scipy.sparse.csgraph import connected_components
 
 from .. import utils
 
+from ..backend._numba import _numba_required
 from ..backend.dynamics_async import _build_async_transition_coo
 
 class BooleanNetworkDynamicsAsyncMixin:
     def get_asynchronous_transition_matrix(self) -> csr_matrix:
         if ('STG', 'asynchronous') in self._properties_exact:
             return self._properties_exact[('STG', 'asynchronous')]
+        _numba_required("Asynchronous exact dynamics computation")
         
         F_list = [np.asarray(f.f, dtype=np.uint8) for f in self.F]
         I_list = [np.asarray(regs, dtype=np.int32) for regs in self.I]

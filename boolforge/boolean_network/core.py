@@ -22,8 +22,11 @@ from .interoperability import BooleanNetworkInteroperabilityMixin
 from .control import BooleanNetworkControlMixin
 from .dynamics_sync import BooleanNetworkDynamicsSyncMixin
 from .dynamics_async import BooleanNetworkDynamicsAsyncMixin
-from .robustness import BooleanNetworkRobustnessMixin, get_entropy_of_basin_size_distribution
+from .robustness_sync import BooleanNetworkRobustnessSyncMixin
+from .robustness_sync import get_entropy_of_basin_size_distribution
+from .robustness_async import BooleanNetworkRobustnessAsyncMixin
 from .modularity import BooleanNetworkModularityMixin
+
 
 dict_weights = {'non-essential' : np.nan, 'conditional' : 0, 'positive' : 1, 'negative' : -1}
 
@@ -33,7 +36,8 @@ class BooleanNetwork(
         BooleanNetworkControlMixin,
         BooleanNetworkDynamicsSyncMixin,
         BooleanNetworkDynamicsAsyncMixin,
-        BooleanNetworkRobustnessMixin,
+        BooleanNetworkRobustnessSyncMixin,
+        BooleanNetworkRobustnessAsyncMixin,
         BooleanNetworkModularityMixin,
         ):
     """
