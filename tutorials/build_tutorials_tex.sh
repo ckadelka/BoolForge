@@ -8,11 +8,11 @@ BUILD_ARXIV=$(echo "${1:-false}" | tr '[:upper:]' '[:lower:]')
 # Config
 # ------------------------------------------------------------
 
-TUTORIAL_DIR="tutorials"
+TUTORIAL_DIR="tutorials_main"
 MD_DIR="tutorials_md"
 OUT_TEX="BoolForge_Tutorials.tex"
 HEADER_TEX="tutorials_header.tex"
-FIG_DIR="figures"
+FIG_DIR="tutorials_figures"
 
 TITLE="Boolean Network Modeling in Systems Biology: A Hands-On Tutorial with BoolForge"
 AUTHOR="Claus Kadelka"
