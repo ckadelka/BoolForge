@@ -7,10 +7,8 @@ Created on Wed Mar 11 10:46:54 2026
 """
 
 import math
-
 import networkx as nx
 import numpy as np
-import matplotlib.pyplot as plt
 
 def plot_trajectory(compressed_trajectory_graph : nx.DiGraph,
     show : bool = True):
@@ -28,6 +26,14 @@ def plot_trajectory(compressed_trajectory_graph : nx.DiGraph,
     show : bool, default=True
         Whether to call ``plt.show()`` at the end.
     """
+    
+    try:
+        import matplotlib.pyplot as plt
+    except:
+        raise ImportError(
+            "Plotting requires matplotlib. "
+            "Install it with: pip install matplotlib"
+        )
     
     def layout_tree(G, root, x0, y0, dx, pos, visited):
         children = [c for c in G.predecessors(root) if c not in visited]

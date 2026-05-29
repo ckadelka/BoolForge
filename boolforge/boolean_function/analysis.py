@@ -4,8 +4,9 @@ import numpy as np
 
 from .. import utils
 from ..backend._numba import __LOADED_NUMBA__
-from ..backend.function_analysis import _is_degenerate_numba
-from ..backend.function_analysis import _get_essential_variables_numba
+if __LOADED_NUMBA__:
+    from ..backend.function_analysis import _is_degenerate_numba
+    from ..backend.function_analysis import _get_essential_variables_numba
 
 class BooleanFunctionAnalysisMixin:
     @property

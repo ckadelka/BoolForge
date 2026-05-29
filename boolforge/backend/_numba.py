@@ -8,6 +8,13 @@ try:
     int64 = numba.int64
     __LOADED_NUMBA__ = True
 except ModuleNotFoundError:
+    # List = list
+    # int64 = int
+    # def njit(*args, **kwargs):
+    #     def decorator(func):
+    #         return func
+    #     return decorator
+    
     __LOADED_NUMBA__ = False
     
 def _numba_required(feature: str):

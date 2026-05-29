@@ -15,8 +15,9 @@ from scipy.sparse.csgraph import connected_components
 
 from .. import utils
 
-from ..backend._numba import _numba_required
-from ..backend.dynamics_async import _build_async_transition_coo
+from ..backend._numba import _numba_required, __LOADED_NUMBA__
+if __LOADED_NUMBA__:
+    from ..backend.dynamics_async import _build_async_transition_coo
 
 class BooleanNetworkDynamicsAsyncMixin:
     def get_asynchronous_transition_matrix(self) -> csr_matrix:

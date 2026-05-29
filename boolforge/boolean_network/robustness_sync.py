@@ -13,8 +13,9 @@ import numpy as np
 
 from .. import utils
 
-from ..backend._numba import List, __LOADED_NUMBA__
+from ..backend._numba import __LOADED_NUMBA__
 if __LOADED_NUMBA__:
+    from ..backend._numba import List
     from ..backend.dynamics_sync import _transient_lengths_functional_numba
     from ..backend.robustness_sync import _robustness_edge_traversal_numba_stratified
     from ..backend.robustness_sync import _robustness_edge_traversal_numba

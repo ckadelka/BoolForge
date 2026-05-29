@@ -9,6 +9,8 @@ Created on Wed May 27 00:54:16 2026
 import numpy as np
 
 from ..backend._numba import __LOADED_NUMBA__, _numba_required
+if __LOADED_NUMBA__:
+    from ..backend.robustness_async import _compute_local_coherence_async_numba
 
 def get_trap_space_dimension(points):
     ref = points[0]
@@ -59,9 +61,6 @@ class BooleanNetworkRobustnessAsyncMixin:
             - TerminalSCCCoherences : np.ndarray of float
                 Exact coherence of each terminal SCC.
         """
-        if __LOADED_NUMBA__:
-            from ..backend.robustness_async import _compute_local_coherence_async_numba
-
         _numba_required("Asynchronous exact robustness computations")
         
         terminal_sccs = self.get_terminal_sccs_asynchronous_exact()

@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import warnings
 
-from matplotlib.patches import Ellipse, FancyArrowPatch
 
 class WiringDiagramPlottingMixin:
     def plot_modular_structure(
@@ -43,6 +41,15 @@ class WiringDiagramPlottingMixin:
         ax : matplotlib.axes.Axes
             The axis containing the plot.
         """
+        
+        try:
+            import matplotlib.pyplot as plt
+            from matplotlib.patches import Ellipse, FancyArrowPatch
+        except:
+            raise ImportError(
+                "Plotting requires matplotlib. "
+                "Install it with: pip install matplotlib"
+            )
         
         def _ellipse_boundary_point(x0, y0, x1, y1, a, b):
             """
@@ -455,6 +462,14 @@ class WiringDiagramPlottingMixin:
         fig : matplotlib.figure.Figure
             The created figure.
         """
+        
+        try:
+            import matplotlib.pyplot as plt
+        except:
+            raise ImportError(
+                "Plotting requires matplotlib. "
+                "Install it with: pip install matplotlib"
+            )
     
         N = self.N
         I = self.I

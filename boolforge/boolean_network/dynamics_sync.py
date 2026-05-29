@@ -12,12 +12,14 @@ import numpy as np
 
 from .. import utils
 
-from ..backend._numba import List, __LOADED_NUMBA__
-from ..backend.dynamics_sync import _update_network_synchronously_numba
-from ..backend.dynamics_sync import _compute_synchronous_stg_numba
-from ..backend.dynamics_sync import _compute_synchronous_stg_numba_low_memory
-from ..backend.dynamics_sync import _attractors_functional_graph
-from ..backend.dynamics_sync import _transient_lengths_functional_numba
+from ..backend._numba import __LOADED_NUMBA__
+if __LOADED_NUMBA__:
+    from ..backend._numba import List
+    from ..backend.dynamics_sync import _update_network_synchronously_numba
+    from ..backend.dynamics_sync import _compute_synchronous_stg_numba
+    from ..backend.dynamics_sync import _compute_synchronous_stg_numba_low_memory
+    from ..backend.dynamics_sync import _attractors_functional_graph
+    from ..backend.dynamics_sync import _transient_lengths_functional_numba
 
 class BooleanNetworkDynamicsSyncMixin:
     def update_single_node(
