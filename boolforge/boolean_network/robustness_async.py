@@ -17,7 +17,7 @@ def get_trap_space_dimension(points):
         varying |= (ref ^ s)
     return varying.bit_count() 
 
-class BooleanNetworkRobustnessMixin:
+class BooleanNetworkRobustnessAsyncMixin:
     def get_terminal_sccs_and_robustness_asynchronous_exact(self) -> dict:
         """
         Compute terminal SCCs (attractors) and exact robustness measures of an 
