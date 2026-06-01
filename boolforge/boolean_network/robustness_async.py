@@ -11,7 +11,8 @@ import numpy as np
 from ..backend._numba import __LOADED_NUMBA__, _numba_required
 if __LOADED_NUMBA__:
     from ..backend.robustness_async import _compute_neighbor_attraction_probability
-
+    from ..backend.dynamics_async import get_terminal_scc_stationary_distribution_exact
+    
 def get_trap_space_dimension(points):
     ref = points[0]
     varying = 0
@@ -61,6 +62,9 @@ class BooleanNetworkRobustnessAsyncMixin:
             - TerminalSCCCoherencesUniform : np.ndarray of float
                 Exact coherence of each terminal SCC (when weighting each 
                 attractor state equally).
+            - TerminalSCCCoherencesStationary : np.ndarray of float
+                Exact coherence of each terminal SCC (when weighting each 
+                attractor state based on the stationary distribution).
         """
         if not __LOADED_NUMBA__:
             _numba_required("Asynchronous exact robustness computation")
@@ -84,6 +88,17 @@ class BooleanNetworkRobustnessAsyncMixin:
             neighbor_attraction_probability[a, i].mean()
             for i, a in enumerate(terminal_sccs)
         ])
+        terminal_scc_coherences_stationary = np.zeros(len(terminal_sccs))
+        for i,(length,terminal_scc) in enumerate(zip(length_terminal_sccs,terminal_sccs)):
+            if length==1:
+                neighbor_attraction_probability[terminal_scc, i].mean()
+            else:
+                psi = get_terminal_scc_stationary_distribution_exact(terminal_scc)
+                terminal_scc_coherences_stationary[i] = np.dot(
+                    psi,
+                    neighbor_attraction_probability[terminal_scc, i]
+                )
+        
         
         return  {
             "TerminalSCCs": terminal_sccs,
@@ -95,4 +110,5 @@ class BooleanNetworkRobustnessAsyncMixin:
             "Coherence": coherence.item(),
             "BasinCoherences": basin_coherences,
             "TerminalSCCCoherencesUniform": terminal_scc_coherences_uniform,
+            "TerminalSCCCoherencesStationary": terminal_scc_coherences_stationary,
         }        
