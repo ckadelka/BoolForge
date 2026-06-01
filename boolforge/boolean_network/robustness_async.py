@@ -11,7 +11,8 @@ import numpy as np
 from ..backend._numba import __LOADED_NUMBA__, _numba_required
 if __LOADED_NUMBA__:
     from ..backend.robustness_async import _compute_neighbor_attraction_probability
-    from ..backend.dynamics_async import get_terminal_scc_stationary_distribution_exact
+    from .dynamics_async import BooleanNetworkDynamicsAsyncMixin
+    
     
 def get_trap_space_dimension(points):
     ref = points[0]
@@ -20,7 +21,7 @@ def get_trap_space_dimension(points):
         varying |= (ref ^ s)
     return varying.bit_count() 
 
-class BooleanNetworkRobustnessAsyncMixin:
+class BooleanNetworkRobustnessAsyncMixin(BooleanNetworkDynamicsAsyncMixin):
     def get_terminal_sccs_and_robustness_asynchronous_exact(self) -> dict:
         """
         Compute terminal SCCs (attractors) and exact robustness measures of an 
@@ -93,7 +94,7 @@ class BooleanNetworkRobustnessAsyncMixin:
             if length==1:
                 neighbor_attraction_probability[terminal_scc, i].mean()
             else:
-                psi = get_terminal_scc_stationary_distribution_exact(terminal_scc)
+                psi = self.get_terminal_scc_stationary_distribution_exact(terminal_scc)
                 terminal_scc_coherences_stationary[i] = np.dot(
                     psi,
                     neighbor_attraction_probability[terminal_scc, i]
