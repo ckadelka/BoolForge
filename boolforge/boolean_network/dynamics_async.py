@@ -66,20 +66,6 @@ class BooleanNetworkDynamicsAsyncMixin:
         self._set_property('number_of_terminal_sccs', len(terminal_sccs),
                            context='asynchronous', exact=True)
         return terminal_sccs
-    
-    def get_terminal_scc_stationary_distribution_exact(self, terminal_scc) -> np.ndarray:
-        STG = self.get_asynchronous_transition_matrix()
-        k = len(terminal_scc)
-        
-        P_A = STG[terminal_scc][:,terminal_scc].toarray()
-        
-        A = P_A.T - np.eye(k)
-        A[-1,:] = 1.0
-
-        b = np.zeros(k)
-        b[-1] = 1.0
-
-        return np.linalg.solve(A,b)
         
 
     def get_absorption_probabilities_exact(self) -> np.ndarray:

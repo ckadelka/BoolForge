@@ -11,7 +11,6 @@ import numpy as np
 from ..backend._numba import __LOADED_NUMBA__, _numba_required
 if __LOADED_NUMBA__:
     from ..backend.robustness_async import _compute_neighbor_attraction_probability
-    from .dynamics_async import BooleanNetworkDynamicsAsyncMixin
     
     
 def get_trap_space_dimension(points):
@@ -21,7 +20,7 @@ def get_trap_space_dimension(points):
         varying |= (ref ^ s)
     return varying.bit_count() 
 
-class BooleanNetworkRobustnessAsyncMixin(BooleanNetworkDynamicsAsyncMixin):
+class BooleanNetworkRobustnessAsyncMixin():
     def get_terminal_sccs_and_robustness_asynchronous_exact(self) -> dict:
         """
         Compute terminal SCCs (attractors) and exact robustness measures of an 
@@ -89,12 +88,22 @@ class BooleanNetworkRobustnessAsyncMixin(BooleanNetworkDynamicsAsyncMixin):
             neighbor_attraction_probability[a, i].mean()
             for i, a in enumerate(terminal_sccs)
         ])
+        
         terminal_scc_coherences_stationary = np.zeros(len(terminal_sccs))
         for i,(length,terminal_scc) in enumerate(zip(length_terminal_sccs,terminal_sccs)):
             if length==1:
                 neighbor_attraction_probability[terminal_scc, i].mean()
             else:
-                psi = self.get_terminal_scc_stationary_distribution_exact(terminal_scc)
+                STG = self.get_asynchronous_transition_matrix()
+                k = len(terminal_scc)
+                
+                P_A = STG[terminal_scc][:,terminal_scc].toarray()
+                A = P_A.T - np.eye(k)
+                A[-1,:] = 1.0
+                b = np.zeros(k)
+                b[-1] = 1.0
+                
+                psi = np.linalg.solve(A,b)
                 terminal_scc_coherences_stationary[i] = np.dot(
                     psi,
                     neighbor_attraction_probability[terminal_scc, i]
