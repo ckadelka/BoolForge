@@ -10,7 +10,7 @@ import numpy as np
 
 from ..backend._numba import __LOADED_NUMBA__, _numba_required
 if __LOADED_NUMBA__:
-    from ..backend.robustness_async import _compute_local_coherence_async_numba
+    from ..backend.robustness_async import _compute_neighbor_attraction_probability
 
 def get_trap_space_dimension(points):
     ref = points[0]
@@ -58,8 +58,9 @@ class BooleanNetworkRobustnessAsyncMixin:
                 Exact global network coherence.
             - BasinCoherences : np.ndarray of float
                 Exact coherence of each basin of attraction.
-            - TerminalSCCCoherences : np.ndarray of float
-                Exact coherence of each terminal SCC.
+            - TerminalSCCCoherencesUniform : np.ndarray of float
+                Exact coherence of each terminal SCC (when weighting each 
+                attractor state equally).
         """
         if not __LOADED_NUMBA__:
             _numba_required("Asynchronous exact robustness computation")
@@ -70,14 +71,18 @@ class BooleanNetworkRobustnessAsyncMixin:
         basin_sizes = absorption_probs.sum(axis=0)
         length_terminal_sccs = np.array(list(map(len,terminal_sccs)))
         dim_trap_spaces = np.array(list(map(get_trap_space_dimension,terminal_sccs)))
-        local_coherence = _compute_local_coherence_async_numba(
+        neighbor_attraction_probability = _compute_neighbor_attraction_probability(
             self.N,
             absorption_probs
         )
-        basin_coherences = (absorption_probs.T @ local_coherence) / basin_sizes
-        coherence = np.dot(basin_coherences, basin_sizes) / float(1<<self.N)
-        terminal_scc_coherences = np.array([
-            np.mean(local_coherence[a]) for a in terminal_sccs
+        basin_coherences = (
+            absorption_probs * neighbor_attraction_probability
+        ).sum(axis=0) / basin_sizes
+        relative_basin_sizes = basin_sizes / float(1<<self.N)
+        coherence = np.dot(basin_coherences, relative_basin_sizes)
+        terminal_scc_coherences_uniform = np.array([
+            neighbor_attraction_probability[a, i].mean()
+            for i, a in enumerate(terminal_sccs)
         ])
         
         return  {
@@ -85,9 +90,9 @@ class BooleanNetworkRobustnessAsyncMixin:
             "NumberOfTerminalSCCs": int(len(terminal_sccs)),
             "LengthOfTerminalSCCs": length_terminal_sccs,
             "TrapSpaceDimensions": dim_trap_spaces,
-            "BasinSizes": basin_sizes / float(1<<self.N),
+            "BasinSizes": relative_basin_sizes,
             "AbsorptionProbabilities": absorption_probs,
             "Coherence": coherence.item(),
             "BasinCoherences": basin_coherences,
-            "TerminalSCCCoherences": terminal_scc_coherences,
+            "TerminalSCCCoherencesUniform": terminal_scc_coherences_uniform,
         }        

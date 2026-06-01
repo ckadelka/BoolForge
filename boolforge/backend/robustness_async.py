@@ -23,3 +23,18 @@ if __LOADED_NUMBA__:
                     total += absorption_probs[x, a] * absorption_probs[y, a]
             local_coherence[x] = total / N
         return local_coherence
+    
+    @njit
+    def _compute_neighbor_attraction_probability(
+            N, 
+            absorption_probs
+    ):
+        n_states, n_attr = absorption_probs.shape
+        out = np.zeros((n_states, n_attr))
+        for x in range(n_states):
+            for bit in range(N):
+                y = x ^ (1 << bit)
+                out[x] += absorption_probs[y]
+        out /= N
+        return out
+    
