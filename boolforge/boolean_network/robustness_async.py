@@ -92,7 +92,9 @@ class BooleanNetworkRobustnessAsyncMixin():
         terminal_scc_coherences_stationary = np.zeros(len(terminal_sccs))
         for i,(length,terminal_scc) in enumerate(zip(length_terminal_sccs,terminal_sccs)):
             if length==1:
+                terminal_scc_coherences_stationary[i] = \
                 neighbor_attraction_probability[terminal_scc, i].mean()
+                
             else:
                 STG = self.get_asynchronous_transition_matrix()
                 k = len(terminal_scc)
@@ -108,7 +110,6 @@ class BooleanNetworkRobustnessAsyncMixin():
                     psi,
                     neighbor_attraction_probability[terminal_scc, i]
                 )
-        
         
         return  {
             "TerminalSCCs": terminal_sccs,
