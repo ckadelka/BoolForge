@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modularity &mdash; BoolForge 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=292eb321"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utils" href="utils.html" />
+    <link rel="prev" title="Bio Models" href="bio_models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="boolean_function.html">Boolean Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boolean_network.html">Boolean Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wiring_diagram.html">Wiring Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generate.html">Generate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bio_models.html">Bio Models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Modularity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.modularity.merge_state_representation"><code class="docutils literal notranslate"><span class="pre">merge_state_representation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.modularity.get_product_of_attractors"><code class="docutils literal notranslate"><span class="pre">get_product_of_attractors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.modularity.compress_trajectories"><code class="docutils literal notranslate"><span class="pre">compress_trajectories()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.modularity.product_of_trajectories"><code class="docutils literal notranslate"><span class="pre">product_of_trajectories()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.modularity.plot_trajectory"><code class="docutils literal notranslate"><span class="pre">plot_trajectory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="docs.html">Documentation</a></li>
+      <li class="breadcrumb-item active">Modularity</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modularity.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="modularity">
+<h1>Modularity<a class="headerlink" href="#modularity" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<dl class="py function" id="module-boolforge.modularity">
+<dt class="sig sig-object py" id="boolforge.modularity.merge_state_representation">
+<span class="sig-prename descclassname"><span class="pre">boolforge.modularity.</span></span><span class="sig-name descname"><span class="pre">merge_state_representation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/boolforge/modularity/trajectories.html#merge_state_representation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.modularity.merge_state_representation" title="Link to this definition"></a></dt>
+<dd><p>Combine two state representations into a single decimal representation.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>x<span class="classifier">int or sequence of int</span></dt><dd><p>First state. Can be a single integer or a pair of integers.</p>
+</dd>
+<dt>y<span class="classifier">int or sequence of int</span></dt><dd><p>Second state. Can be a single integer or a pair of integers.</p>
+</dd>
+<dt>b<span class="classifier">int or sequence of int</span></dt><dd><p>Bit size of y. Must match the structure of y (int or pair of ints).</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>result<span class="classifier">int or tuple of int</span></dt><dd><p>Combined state representation. Returns an int if both x and y
+are integers. Returns a tuple of two ints if either x or y is a tuple/list.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.modularity.get_product_of_attractors">
+<span class="sig-prename descclassname"><span class="pre">boolforge.modularity.</span></span><span class="sig-name descname"><span class="pre">get_product_of_attractors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/modularity/trajectories.html#get_product_of_attractors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.modularity.get_product_of_attractors" title="Link to this definition"></a></dt>
+<dd><p>Compute the product of two sets of attractors by combining their states.</p>
+<section id="id1">
+<h2>Parameters<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>attrs_1<span class="classifier">sequence of sequences of int or sequence of sequences of pairs of ints</span></dt><dd><p>First set of attractors. Each attractor is a list of states.</p>
+</dd>
+<dt>attrs_2<span class="classifier">sequence of sequences of int or sequence of sequences of pairs of ints</span></dt><dd><p>Second set of attractors. Each attractor is a list of states.</p>
+</dd>
+<dt>bits<span class="classifier">int or pair of ints</span></dt><dd><p>Bit size of states in attrs_2. Used when merging states.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Returns<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>result<span class="classifier">sequence of sequences of int or sequence of sequences of pairs of ints</span></dt><dd><p>Product set of attractors obtained by merging each attractor
+from attrs_1 with each attractor from attrs_2.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.modularity.compress_trajectories">
+<span class="sig-prename descclassname"><span class="pre">boolforge.modularity.</span></span><span class="sig-name descname"><span class="pre">compress_trajectories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DiGraph</span></span></span><a class="reference internal" href="_modules/boolforge/modularity/trajectories.html#compress_trajectories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.modularity.compress_trajectories" title="Link to this definition"></a></dt>
+<dd><p>Compress multiple trajectories into a single directed graph.</p>
+<p>Each trajectory is represented by a prefix (non-periodic states)
+and a cycle (periodic states). Nodes are merged when identical
+prefixes or cycles occur across trajectories.</p>
+<section id="id3">
+<h2>Parameters<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>trajectories<span class="classifier">tuple of (sequence of int, int)</span></dt><dd><p>List of trajectories. Each trajectory is a tuple containing
+a list of decimal states and the length of its periodic cycle.</p>
+</dd>
+<dt>num_nodes<span class="classifier">int</span></dt><dd><p>Number of nodes in the network. Used to format node labels as binary strings.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h2>Returns<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>G<span class="classifier">networkx.DiGraph</span></dt><dd><p>Directed graph representing all merged trajectories.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.modularity.product_of_trajectories">
+<span class="sig-prename descclassname"><span class="pre">boolforge.modularity.</span></span><span class="sig-name descname"><span class="pre">product_of_trajectories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compressed_trajectory_graph_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compressed_trajectory_graph_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DiGraph</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DiGraph</span></span></span><a class="reference internal" href="_modules/boolforge/modularity/trajectories.html#product_of_trajectories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.modularity.product_of_trajectories" title="Link to this definition"></a></dt>
+<dd><p>Compute the product of two compressed trajectory graphs, following the
+premise of equal reachability.</p>
+<p>The resulting graph contains all combinations of nodes from
+the two input graphs, with edges representing all possible
+successor pairs.</p>
+<section id="id5">
+<h2>Parameters<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>compressed_trajectory_graph_1<span class="classifier">networkx.DiGraph</span></dt><dd><p>First compressed trajectory graph.</p>
+</dd>
+<dt>compressed_trajectory_graph_2<span class="classifier">networkx.DiGraph</span></dt><dd><p>Second compressed trajectory graph.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h2>Returns<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>G<span class="classifier">networkx.DiGraph</span></dt><dd><p>Directed graph representing the product of the two input graphs.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.modularity.plot_trajectory">
+<span class="sig-prename descclassname"><span class="pre">boolforge.modularity.</span></span><span class="sig-name descname"><span class="pre">plot_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compressed_trajectory_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/modularity/plotting.html#plot_trajectory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.modularity.plot_trajectory" title="Link to this definition"></a></dt>
+<dd><p>Visualize a compressed trajectory graph using a layered layout.</p>
+<p>Initial states are highlighted with a box. Layers are computed
+based on weakly connected components to improve readability.</p>
+<section id="id7">
+<h2>Parameters<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>compressed_trajectory_graph<span class="classifier">networkx.DiGraph</span></dt><dd><p>Directed graph of compressed trajectories.</p>
+</dd>
+<dt>show<span class="classifier">bool, default=True</span></dt><dd><p>Whether to call <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code> at the end.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bio_models.html" class="btn btn-neutral float-left" title="Bio Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="utils.html" class="btn btn-neutral float-right" title="Utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

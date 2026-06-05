@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boolforge.wiring_diagram.motifs &mdash; BoolForge 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">boolforge.wiring_diagram.motifs</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for boolforge.wiring_diagram.motifs</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">WiringDiagramMotifMixin</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ffls</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Identify feed-forward loops (FFLs) in the wiring diagram.</span>
+<span class="sd">    </span>
+<span class="sd">        A feed-forward loop is a triplet of nodes ``(i, j, k)`` such that</span>
+<span class="sd">        ``i -&gt; j``, ``j -&gt; k``, and ``i -&gt; k`` are all regulatory interactions.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            A tuple ``(ffls, types)`` where:</span>
+<span class="sd">    </span>
+<span class="sd">            - ``ffls`` is a list of feed-forward loops, each represented as</span>
+<span class="sd">              ``[i, j, k]``.</span>
+<span class="sd">            - ``types`` is a list of corresponding edge-weight triplets</span>
+<span class="sd">              ``[i -&gt; k, i -&gt; j, j -&gt; k]`` if interaction weights are defined,</span>
+<span class="sd">              or ``None`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build inverted wiring diagram: regulator -&gt; (target, index in I[target])</span>
+        <span class="n">I_inv</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">target</span><span class="p">,</span> <span class="n">regulators</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">regulator</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">regulators</span><span class="p">):</span>
+                <span class="n">I_inv</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">regulator</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">target</span><span class="p">,</span> <span class="n">idx</span><span class="p">))</span>
+    
+        <span class="n">ffls</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">types</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>  <span class="c1"># master regulator</span>
+            <span class="n">targets_i</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span> <span class="k">for</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">I_inv</span><span class="p">[</span><span class="n">i</span><span class="p">]}</span>
+    
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">idx_ij</span> <span class="ow">in</span> <span class="n">I_inv</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>  <span class="c1"># i -&gt; j</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                    <span class="k">continue</span>
+    
+                <span class="n">targets_j</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span> <span class="k">for</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">I_inv</span><span class="p">[</span><span class="n">j</span><span class="p">]}</span>
+                <span class="n">common_targets</span> <span class="o">=</span> <span class="n">targets_i</span> <span class="o">&amp;</span> <span class="n">targets_j</span>
+    
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">common_targets</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">i</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                        <span class="k">continue</span>
+    
+                    <span class="n">ffls</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">])</span>
+    
+                    <span class="k">if</span> <span class="n">types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="c1"># locate indices for k safely</span>
+                        <span class="n">idx_ik</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="n">i</span><span class="p">)</span>
+                        <span class="n">idx_jk</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="n">j</span><span class="p">)</span>
+    
+                        <span class="n">direct</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">idx_ik</span><span class="p">])</span>
+                        <span class="n">indirect1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">idx_ij</span><span class="p">])</span>
+                        <span class="n">indirect2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">idx_jk</span><span class="p">])</span>
+    
+                        <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">direct</span><span class="p">,</span> <span class="n">indirect1</span><span class="p">,</span> <span class="n">indirect2</span><span class="p">])</span>
+        
+        <span class="n">return_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;FFLs&#39;</span> <span class="p">:</span> <span class="n">ffls</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_property</span><span class="p">(</span><span class="s1">&#39;ffls&#39;</span><span class="p">,</span> <span class="n">ffls</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;Types&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">types</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_property</span><span class="p">(</span><span class="s1">&#39;ffl_types&#39;</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">return_dict</span>
+    
+        
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fbls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">classify</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Identify feedback loops (simple directed cycles).</span>
+<span class="sd">    </span>
+<span class="sd">        A feedback loop is defined as a simple directed cycle in the underlying</span>
+<span class="sd">        wiring diagram. This method enumerates elementary circuits using a</span>
+<span class="sd">        variant of Johnson&#39;s algorithm, restricted to cycles of length at most</span>
+<span class="sd">        ``max_length``.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        max_length : int, optional</span>
+<span class="sd">            Maximum length of feedback loops to consider. Cycles longer than</span>
+<span class="sd">            ``max_length`` are not returned. Default is 4.</span>
+<span class="sd">        classify : bool, optional</span>
+<span class="sd">            If True and interaction weights are available, the type of each</span>
+<span class="sd">            feedback loop is determined.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            list of list of int</span>
+<span class="sd">            List of feedback loops, where each loop is represented as a list</span>
+<span class="sd">            of node indices forming a directed cycle. Self-loops are returned</span>
+<span class="sd">            as single-element lists.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_DiGraph</span><span class="p">(</span><span class="n">use_variable_names</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+        <span class="k">def</span><span class="w"> </span><span class="nf">_unblock</span><span class="p">(</span><span class="n">thisnode</span><span class="p">,</span> <span class="n">blocked</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+            <span class="n">stack</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">thisnode</span><span class="p">])</span>
+            <span class="k">while</span> <span class="n">stack</span><span class="p">:</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">blocked</span><span class="p">:</span>
+                    <span class="n">blocked</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                    <span class="n">stack</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">B</span><span class="p">[</span><span class="n">node</span><span class="p">])</span>
+                    <span class="n">B</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    
+        <span class="n">subG</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+        <span class="n">sccs</span> <span class="o">=</span> <span class="p">[</span><span class="n">scc</span> <span class="k">for</span> <span class="n">scc</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">strongly_connected_components</span><span class="p">(</span><span class="n">subG</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+        
+        <span class="n">fbls</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Yield self-cycles and remove them.</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">subG</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">subG</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+                <span class="n">fbls</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">v</span><span class="p">])</span>
+                <span class="n">subG</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        
+        <span class="k">while</span> <span class="n">sccs</span><span class="p">:</span>
+            <span class="n">scc</span> <span class="o">=</span> <span class="n">sccs</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">sccG</span> <span class="o">=</span> <span class="n">subG</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">scc</span><span class="p">)</span>
+            <span class="n">startnode</span> <span class="o">=</span> <span class="n">scc</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">startnode</span><span class="p">]</span>
+            <span class="n">len_path</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">blocked</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">closed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">blocked</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">startnode</span><span class="p">)</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+            <span class="n">stack</span> <span class="o">=</span> <span class="p">[(</span><span class="n">startnode</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">sccG</span><span class="p">[</span><span class="n">startnode</span><span class="p">]))]</span>
+            <span class="k">while</span> <span class="n">stack</span><span class="p">:</span>
+                <span class="n">thisnode</span><span class="p">,</span> <span class="n">nbrs</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">nbrs</span> <span class="ow">and</span> <span class="n">len_path</span> <span class="o">&lt;=</span> <span class="n">max_length</span><span class="p">:</span>
+                    <span class="n">nextnode</span> <span class="o">=</span> <span class="n">nbrs</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">nextnode</span> <span class="o">==</span> <span class="n">startnode</span><span class="p">:</span>
+                        <span class="n">fbls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">path</span><span class="p">[:]</span> <span class="p">)</span>
+                        <span class="n">closed</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">nextnode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">blocked</span><span class="p">:</span>
+                        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nextnode</span><span class="p">)</span>
+                        <span class="n">len_path</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nextnode</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">sccG</span><span class="p">[</span><span class="n">nextnode</span><span class="p">])))</span>
+                        <span class="n">closed</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">nextnode</span><span class="p">)</span>
+                        <span class="n">blocked</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">nextnode</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">nbrs</span> <span class="ow">or</span> <span class="n">len_path</span> <span class="o">&gt;</span> <span class="n">max_length</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">thisnode</span> <span class="ow">in</span> <span class="n">closed</span><span class="p">:</span>
+                        <span class="n">_unblock</span><span class="p">(</span><span class="n">thisnode</span><span class="p">,</span> <span class="n">blocked</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">nbr</span> <span class="ow">in</span> <span class="n">sccG</span><span class="p">[</span><span class="n">thisnode</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="n">thisnode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">B</span><span class="p">[</span><span class="n">nbr</span><span class="p">]:</span>
+                                <span class="n">B</span><span class="p">[</span><span class="n">nbr</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">thisnode</span><span class="p">)</span>
+                    <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                    <span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                    <span class="n">len_path</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="n">subG</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">scc</span><span class="p">)</span>
+            <span class="n">sccs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">scc</span> <span class="k">for</span> <span class="n">scc</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">strongly_connected_components</span><span class="p">(</span><span class="n">H</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">return_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;FBLs&#39;</span> <span class="p">:</span> <span class="n">fbls</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_property</span><span class="p">(</span><span class="s1">&#39;fbls&#39;</span><span class="p">,</span> <span class="n">fbls</span><span class="p">,</span> 
+                           <span class="n">context</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;max_length=</span><span class="si">{</span><span class="n">max_length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">classify</span><span class="p">:</span>
+            <span class="n">types</span><span class="p">,</span><span class="n">n_negative</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_types_of_fbls</span><span class="p">(</span><span class="n">fbls</span><span class="p">)</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;Types&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">types</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;NumberNegativeEdges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_negative</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_property</span><span class="p">(</span><span class="s1">&#39;fbl_types&#39;</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> 
+                               <span class="n">context</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;max_length=</span><span class="si">{</span><span class="n">max_length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_property</span><span class="p">(</span><span class="s1">&#39;fbl_negative_edges&#39;</span><span class="p">,</span> <span class="n">n_negative</span><span class="p">,</span> 
+                               <span class="n">context</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;max_length=</span><span class="si">{</span><span class="n">max_length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">return_dict</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_types_of_fbls</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fbls</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine the types of feedback loops based on interaction weights.</span>
+<span class="sd">    </span>
+<span class="sd">        For each feedback loop, this method computes the product of the</span>
+<span class="sd">        interaction weights along the cycle and counts the number of</span>
+<span class="sd">        negative regulations.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fbls : list of list of int</span>
+<span class="sd">            List of feedback loops, where each loop is represented as a list</span>
+<span class="sd">            of node indices forming a directed cycle.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple of list or None</span>
+<span class="sd">            If interaction weights are defined, returns a tuple</span>
+<span class="sd">            ``(types, n_negative)``, where:</span>
+<span class="sd">    </span>
+<span class="sd">            - ``types`` is a list containing the product of edge weights for</span>
+<span class="sd">              each feedback loop. Interpretation:</span>
+<span class="sd">              &#39;non-essential&#39; : np.nan, &#39;conditional&#39; : 0, </span>
+<span class="sd">              &#39;positive&#39; : 1, &#39;negative&#39; : -1</span>
+<span class="sd">            - ``n_negative`` is a list containing the number of negative</span>
+<span class="sd">              regulations in each feedback loop.</span>
+<span class="sd">    </span>
+<span class="sd">            If interaction weights are not defined, returns ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    
+        <span class="n">types</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n_negative</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    
+        <span class="k">for</span> <span class="n">fbl</span> <span class="ow">in</span> <span class="n">fbls</span><span class="p">:</span>
+            <span class="n">all_weights</span> <span class="o">=</span> <span class="p">[]</span>
+    
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fbl</span><span class="p">,</span> <span class="n">fbl</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="p">[</span><span class="n">fbl</span><span class="p">[</span><span class="mi">0</span><span class="p">]]):</span>
+                <span class="c1"># find index of regulator u in I[v]</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">reg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">v</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">reg</span> <span class="o">==</span> <span class="n">u</span><span class="p">:</span>
+                        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+                        <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No edge </span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2"> found in wiring diagram&quot;</span><span class="p">)</span>
+    
+                <span class="n">all_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    
+            <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">all_weights</span><span class="p">)))</span>
+            <span class="n">n_negative</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">all_weights</span><span class="p">)))</span>
+    
+        <span class="k">return</span> <span class="n">types</span><span class="p">,</span> <span class="n">n_negative</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

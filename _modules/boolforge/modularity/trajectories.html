@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boolforge.modularity.trajectories &mdash; BoolForge 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">boolforge.modularity.trajectories</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for boolforge.modularity.trajectories</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Wed Mar 11 10:46:54 2026</span>
+
+<span class="sd">@author: ckadelka</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># ===================== #</span>
+<span class="c1">#   Modular BoolForge   #</span>
+<span class="c1"># ===================== #</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+<div class="viewcode-block" id="merge_state_representation">
+<a class="viewcode-back" href="../../../modularity.html#boolforge.modularity.merge_state_representation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_state_representation</span><span class="p">(</span><span class="n">x</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> 
+                               <span class="n">y</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+                               <span class="n">num_nodes</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Combine two state representations into a single decimal representation.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : int or sequence of int</span>
+<span class="sd">        First state. Can be a single integer or a pair of integers.</span>
+<span class="sd">    </span>
+<span class="sd">    y : int or sequence of int</span>
+<span class="sd">        Second state. Can be a single integer or a pair of integers.</span>
+<span class="sd">    </span>
+<span class="sd">    b : int or sequence of int</span>
+<span class="sd">        Bit size of y. Must match the structure of y (int or pair of ints).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : int or tuple of int</span>
+<span class="sd">        Combined state representation. Returns an int if both x and y</span>
+<span class="sd">        are integers. Returns a tuple of two ints if either x or y is a tuple/list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">is_pair_x</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span>
+    <span class="n">is_pair_y</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_pair_x</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_pair_y</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">num_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">|</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">num_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">|</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> 
+        <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">num_nodes</span><span class="p">)</span> <span class="o">|</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">is_pair_y</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">num_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">|</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">num_nodes</span><span class="p">)</span> <span class="o">|</span> <span class="n">y</span></div>
+
+
+<div class="viewcode-block" id="get_product_of_attractors">
+<a class="viewcode-back" href="../../../modularity.html#boolforge.modularity.get_product_of_attractors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_product_of_attractors</span><span class="p">(</span><span class="n">attrs_1</span> <span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]],</span>
+    <span class="n">attrs_2</span> <span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]],</span>
+    <span class="n">bits</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the product of two sets of attractors by combining their states.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attrs_1 : sequence of sequences of int or sequence of sequences of pairs of ints</span>
+<span class="sd">        First set of attractors. Each attractor is a list of states.</span>
+<span class="sd">    </span>
+<span class="sd">    attrs_2 : sequence of sequences of int or sequence of sequences of pairs of ints</span>
+<span class="sd">        Second set of attractors. Each attractor is a list of states.</span>
+<span class="sd">    </span>
+<span class="sd">    bits : int or pair of ints</span>
+<span class="sd">        Bit size of states in attrs_2. Used when merging states.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : sequence of sequences of int or sequence of sequences of pairs of ints</span>
+<span class="sd">        Product set of attractors obtained by merging each attractor</span>
+<span class="sd">        from attrs_1 with each attractor from attrs_2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">attractors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">attr1</span> <span class="ow">in</span> <span class="n">attrs_1</span><span class="p">:</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">attr2</span> <span class="ow">in</span> <span class="n">attrs_2</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr1</span><span class="p">)</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr2</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">lcm</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">])):</span>
+                <span class="n">attr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merge_state_representation</span><span class="p">(</span><span class="n">attr1</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">m</span><span class="p">],</span> <span class="n">attr2</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">n</span><span class="p">],</span> <span class="n">bits</span><span class="p">))</span>
+        <span class="n">attractors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">attractors</span></div>
+
+
+<div class="viewcode-block" id="compress_trajectories">
+<a class="viewcode-back" href="../../../modularity.html#boolforge.modularity.compress_trajectories">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compress_trajectories</span><span class="p">(</span><span class="n">trajectories</span> <span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">num_nodes</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compress multiple trajectories into a single directed graph.</span>
+<span class="sd">    </span>
+<span class="sd">    Each trajectory is represented by a prefix (non-periodic states)</span>
+<span class="sd">    and a cycle (periodic states). Nodes are merged when identical</span>
+<span class="sd">    prefixes or cycles occur across trajectories.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    trajectories : tuple of (sequence of int, int)</span>
+<span class="sd">        List of trajectories. Each trajectory is a tuple containing</span>
+<span class="sd">        a list of decimal states and the length of its periodic cycle.</span>
+<span class="sd">    </span>
+<span class="sd">    num_nodes : int</span>
+<span class="sd">        Number of nodes in the network. Used to format node labels as binary strings.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    G : networkx.DiGraph</span>
+<span class="sd">        Directed graph representing all merged trajectories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Helper method: determine the &#39;canon&#39; ordering of a periodic pattern.</span>
+    <span class="c1"># The canon ordering is the phase such that the lowest states come first</span>
+    <span class="c1"># without changing the relative ordering of the states.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_canon_cycle_</span><span class="p">(</span><span class="n">pattern</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">([</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pattern</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span> <span class="o">+</span> <span class="n">pattern</span><span class="p">[:</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span> <span class="p">])</span>
+    
+    <span class="c1"># Helper method: determine which offset a given pattern is from the canon</span>
+    <span class="c1"># ordering. That is, how much the pattern has been phased relative to the</span>
+    <span class="c1"># canon ordering.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cycle_offset_</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">canon</span><span class="p">):</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+        <span class="n">canon</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">canon</span><span class="p">)</span>
+        <span class="n">len_pattern</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_pattern</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">canon</span><span class="p">[</span><span class="n">offset</span><span class="p">:]</span> <span class="o">+</span> <span class="n">canon</span><span class="p">[:</span><span class="n">offset</span><span class="p">]</span> <span class="o">==</span> <span class="n">pattern</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">offset</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pattern does not match canonical rotations&quot;</span><span class="p">)</span>
+    
+    <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+    <span class="n">next_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">cycle_nodes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">prefix_merge</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">states</span><span class="p">,</span> <span class="n">period</span> <span class="ow">in</span> <span class="n">trajectories</span><span class="p">:</span>
+        <span class="n">len_traj</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+        <span class="c1"># First look through the non-periodic component of the trajectory,</span>
+        <span class="c1"># also referred to in this code as the &#39;prefix&#39; of the trajectory</span>
+        <span class="n">len_pref</span> <span class="o">=</span> <span class="n">len_traj</span> <span class="o">-</span> <span class="n">period</span>
+        <span class="n">pref_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_pref</span><span class="p">):</span>
+            <span class="c1"># Determine if this prefix can be merged elsewhere into the graph</span>
+            <span class="n">future</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
+            <span class="n">prefix_tail</span> <span class="o">=</span> <span class="n">future</span><span class="p">[:</span><span class="o">-</span><span class="n">period</span><span class="p">]</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="n">future</span><span class="p">[</span><span class="o">-</span><span class="n">period</span><span class="p">:]</span>
+            <span class="n">canon</span> <span class="o">=</span> <span class="n">_canon_cycle_</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+            <span class="n">entry_offset</span> <span class="o">=</span> <span class="n">_cycle_offset_</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">canon</span><span class="p">)</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">prefix_tail</span><span class="p">),</span> <span class="n">canon</span><span class="p">,</span> <span class="n">entry_offset</span><span class="p">)</span>
+            <span class="c1"># If so, merge the it and mark the node as initial</span>
+            <span class="k">if</span> <span class="n">signature</span> <span class="ow">in</span> <span class="n">prefix_merge</span><span class="p">:</span>
+                <span class="n">node_id</span> <span class="o">=</span> <span class="n">prefix_merge</span><span class="p">[</span><span class="n">signature</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="s2">&quot;StIn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># Otherwise, make a new initial node</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">node_id</span> <span class="o">=</span> <span class="n">next_id</span>
+                <span class="n">prefix_merge</span><span class="p">[</span><span class="n">signature</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_id</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">next_id</span><span class="p">,</span> <span class="n">StIn</span><span class="o">=</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="n">NLbl</span><span class="o">=</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">dec2bin</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">num_nodes</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)))</span>
+                <span class="n">pref_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_id</span><span class="p">)</span>
+                <span class="n">next_id</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">pref_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_id</span><span class="p">)</span>
+        <span class="c1"># Once prefix nodes are added, create edges</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pref_ids</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pref_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">pref_ids</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">pref_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">pref_ids</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># Second look through the periodic component of the trajectory,</span>
+        <span class="c1"># also referred to in this code as the &#39;cycle&#39; of the trajectory</span>
+        <span class="n">cycle</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="n">period</span><span class="p">:]</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">_canon_cycle_</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+        <span class="c1"># If we have found a new cycle, add it to the graph</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cycle_nodes</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="c1"># Create nodes based off of the canon ordering to ensure</span>
+                <span class="c1"># predictable ordering in case we need to reference</span>
+                <span class="c1"># this cycle again for another trajectory</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">next_id</span><span class="p">,</span> <span class="n">StIn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">NLbl</span><span class="o">=</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">dec2bin</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;[&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)))</span>
+                <span class="n">ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_id</span><span class="p">)</span>
+                <span class="n">next_id</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># Once nodes are added, add in edges</span>
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">cycle_nodes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">ids</span>
+        <span class="c1"># For a trajectory without a prefix, mark the first state of the trajectory</span>
+        <span class="c1"># within the cycle as an initial node</span>
+        <span class="k">if</span> <span class="n">len_pref</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">()[</span><span class="n">cycle_nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">_cycle_offset_</span><span class="p">(</span><span class="n">cycle</span><span class="p">,</span> <span class="n">key</span><span class="p">)]][</span><span class="s2">&quot;StIn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Otherwise, we need to add an edge between the prefix and cycle</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">pref_ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">cycle_nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">_cycle_offset_</span><span class="p">(</span><span class="n">cycle</span><span class="p">,</span> <span class="n">key</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+<div class="viewcode-block" id="product_of_trajectories">
+<a class="viewcode-back" href="../../../modularity.html#boolforge.modularity.product_of_trajectories">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">product_of_trajectories</span><span class="p">(</span>
+        <span class="n">compressed_trajectory_graph_1</span> <span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">,</span>
+        <span class="n">compressed_trajectory_graph_2</span> <span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the product of two compressed trajectory graphs, following the</span>
+<span class="sd">    premise of equal reachability.</span>
+<span class="sd">    </span>
+<span class="sd">    The resulting graph contains all combinations of nodes from</span>
+<span class="sd">    the two input graphs, with edges representing all possible</span>
+<span class="sd">    successor pairs.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    compressed_trajectory_graph_1 : networkx.DiGraph</span>
+<span class="sd">        First compressed trajectory graph.</span>
+<span class="sd">    </span>
+<span class="sd">    compressed_trajectory_graph_2 : networkx.DiGraph</span>
+<span class="sd">        Second compressed trajectory graph.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    G : networkx.DiGraph</span>
+<span class="sd">        Directed graph representing the product of the two input graphs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_initial_1</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_initial_2</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">compressed_trajectory_graph_1</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">compressed_trajectory_graph_1</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;StIn&quot;</span><span class="p">]:</span>
+            <span class="n">_initial_1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">compressed_trajectory_graph_2</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">compressed_trajectory_graph_2</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;StIn&quot;</span><span class="p">]:</span>
+            <span class="n">_initial_2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+    <span class="n">starting</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">n1</span> <span class="ow">in</span> <span class="n">_initial_1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">_initial_2</span><span class="p">:</span>
+            <span class="n">starting</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">))</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">),</span> <span class="n">StIn</span><span class="o">=</span><span class="n">compressed_trajectory_graph_1</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="s2">&quot;StIn&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">compressed_trajectory_graph_2</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n2</span><span class="p">][</span><span class="s2">&quot;StIn&quot;</span><span class="p">],</span>
+                <span class="n">NLbl</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">compressed_trajectory_graph_1</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="s1">&#39;NLbl&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">compressed_trajectory_graph_2</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n2</span><span class="p">][</span><span class="s1">&#39;NLbl&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">stack</span> <span class="o">=</span> <span class="n">starting</span><span class="p">[:]</span>
+    <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">starting</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">stack</span><span class="p">:</span>
+        <span class="n">u1</span><span class="p">,</span> <span class="n">u2</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">v1</span> <span class="ow">in</span> <span class="n">compressed_trajectory_graph_1</span><span class="o">.</span><span class="n">successors</span><span class="p">(</span><span class="n">u1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">compressed_trajectory_graph_2</span><span class="o">.</span><span class="n">successors</span><span class="p">(</span><span class="n">u2</span><span class="p">):</span>
+                <span class="n">new_pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">new_pair</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">G</span><span class="p">:</span>
+                    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">new_pair</span><span class="p">,</span> <span class="n">StIn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">NLbl</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">compressed_trajectory_graph_1</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v1</span><span class="p">][</span><span class="s1">&#39;NLbl&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">compressed_trajectory_graph_2</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v2</span><span class="p">][</span><span class="s1">&#39;NLbl&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">((</span><span class="n">u1</span><span class="p">,</span> <span class="n">u2</span><span class="p">),</span> <span class="n">new_pair</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">new_pair</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+                    <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_pair</span><span class="p">)</span>
+                    <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_pair</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
