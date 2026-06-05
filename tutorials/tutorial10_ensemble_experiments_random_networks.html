@@ -70,6 +70,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -102,18 +103,14 @@
              
   <section id="Ensemble-experiments-with-random-Boolean-networks">
 <h1>Ensemble experiments with random Boolean networks<a class="headerlink" href="#Ensemble-experiments-with-random-Boolean-networks" title="Link to this heading"></a></h1>
-<p>This tutorial demonstrates how BoolForge’s ability to generate <strong>random Boolean networks with controlled structural and functional properties</strong> is essential for many types of studies. Specifically, it enables:</p>
+<p>This tutorial demonstrates how BoolForge’s ability to generate <em>random Boolean networks with controlled structural and functional properties</em> is essential for many types of studies. Specifically, it enables:</p>
 <ol class="arabic">
 <li><div class="line-block">
-<div class="line"><strong>Null model comparisons</strong></div>
+<div class="line">Null model comparisons:</div>
 <div class="line">Are biological networks structurally or dynamically different from random networks?</div>
 </div>
 </li>
-<li><div class="line-block">
-<div class="line"><strong>Ensemble studies</strong></div>
-<div class="line">How do structural properties such as degree or canalization affect network dynamics?</div>
-</div>
-</li>
+<li><p>Ensemble studies: How do structural properties such as degree or canalization affect network dynamics?</p></li>
 </ol>
 <section id="What-you-will-learn">
 <h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
@@ -139,7 +136,7 @@
 </section>
 <section id="NK-Kauffman-networks">
 <h2>NK Kauffman networks<a class="headerlink" href="#NK-Kauffman-networks" title="Link to this heading"></a></h2>
-<p>One of the classical models of complex systems is the <strong>NK random Boolean network</strong> introduced by Stuart Kauffman.</p>
+<p>One of the classical models of complex systems is the <em>NK random Boolean network</em> introduced by Stuart Kauffman.</p>
 <p>In this model:</p>
 <ul class="simple">
 <li><p>The network contains N nodes.</p></li>
@@ -151,14 +148,14 @@
 </ul>
 </li>
 </ul>
-<p>A key theoretical result due to <a class="reference external" href="https://hal.science/hal-03285912/document">Derrida and Pomeau (1986)</a> predicts how a single-node perturbation propagates in large random Boolean networks. They showed that if two network states differ in one node, the expected number of differences after one update step is <span class="math notranslate nohighlight">\(2kp(1-p)\)</span>.</p>
+<p>A key theoretical result due to &#64;derrida1986random predicts how a single-node perturbation propagates in large random Boolean networks. They showed that if two network states differ in one node, the expected number of differences after one update step is <span class="math notranslate nohighlight">\(2kp(1-p)\)</span>.</p>
 <p>If this value is</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(&lt; 1\)</span>, then perturbations decrease on average (ordered regime)</p></li>
 <li><p><span class="math notranslate nohighlight">\(&gt; 1\)</span>, then perturbations increase on average (chaotic regime)</p></li>
 <li><p><span class="math notranslate nohighlight">\(= 1\)</span>, then perturbations remain on average of equal size (critical boundary)</p></li>
 </ul>
-<p>The expected number of propagated perturbations is called the <strong>Derrida value</strong>.</p>
+<p>The expected number of propagated perturbations is called the <em>Derrida value</em>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -191,21 +188,21 @@
 <img alt="../_images/tutorials_tutorial10_ensemble_experiments_random_networks_3_0.png" src="../_images/tutorials_tutorial10_ensemble_experiments_random_networks_3_0.png" />
 </div>
 </div>
-<p>The numerical results closely follow the theoretical prediction <span class="math notranslate nohighlight">\(2kp(1-p)\)</span> derived under the <strong>annealed approximation</strong>. The phase transition occurs when the Derrida value crosses 1.</p>
+<p>The numerical results closely follow the theoretical prediction <span class="math notranslate nohighlight">\(2kp(1-p)\)</span> derived under the <em>annealed approximation</em>. The phase transition occurs when the Derrida value crosses 1.</p>
 <p>For unbiased Boolean functions (with bias <span class="math notranslate nohighlight">\(p=0.5\)</span>), the theory predicts the critical connectivity <span class="math notranslate nohighlight">\(k=2\)</span>, which we also observe in this BoolForge ensemble experiment.</p>
 <p>We encourage the reader to vary the bias <span class="math notranslate nohighlight">\(p\)</span> in the above example. As the bias becomes more extreme, the Derrida value declines and networks with higher connectivity exhibit critical dynamics.</p>
 </section>
 <section id="BoolForge-philosophy:-regulatory-functions-are-non-degenerate">
 <h2>BoolForge philosophy: regulatory functions are non-degenerate<a class="headerlink" href="#BoolForge-philosophy:-regulatory-functions-are-non-degenerate" title="Link to this heading"></a></h2>
-<p>The classical NK model assumes that a Boolean function with <span class="math notranslate nohighlight">\(k\)</span> inputs may <strong>not actually depend on all of them</strong>. Such functions are called <strong>degenerate</strong>.</p>
-<p>While this assumption is natural in statistical physics models (e.g. spin glasses), it is biologically questionable. In gene regulatory networks, an input typically represents a <em>specific regulatory interaction</em>. If a transcription factor does not affect the gene, it should not appear as an input in the first place. <strong>Therefore BoolForge assumes non-degenerate Boolean functions by default.</strong></p>
+<p>The classical NK model assumes that a Boolean function with <span class="math notranslate nohighlight">\(k\)</span> inputs may <em>not actually depend on all of them</em>. Such functions are called <em>degenerate</em>.</p>
+<p>While this assumption is natural in statistical physics models (e.g. spin glasses), it is biologically questionable. In gene regulatory networks, an input typically represents a <em>specific regulatory interaction</em>. If a transcription factor does not affect the gene, it should not appear as an input in the first place. <em>Therefore BoolForge assumes non-degenerate Boolean functions by default.</em></p>
 <p>Degeneracy occurs frequently for small input sizes:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(k=1\)</span>: 2 out of 4 functions are degenerate (50%)</p></li>
 <li><p><span class="math notranslate nohighlight">\(k=2\)</span>: 6 out of 16 functions are degenerate</p></li>
 <li><p>larger <span class="math notranslate nohighlight">\(k\)</span>: degeneracy becomes increasingly rare</p></li>
 </ul>
-<p>Disallowing degenerate functions therefore mainly affects <strong>sparse networks</strong>, precisely the regime most biological networks operate in (typical average in-degree <span class="math notranslate nohighlight">\(approx\)</span> 2-3).</p>
+<p>Disallowing degenerate functions therefore mainly affects sparse networks, precisely the regime most biological networks operate in (typical average in-degree <span class="math notranslate nohighlight">\(\approx\)</span> 2-3).</p>
 <p>We now repeat the previous experiment, <em>disallowing degenerate functions</em>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -239,7 +236,7 @@
 </section>
 <section id="Random-networks-with-prescribed-canalization">
 <h2>Random networks with prescribed canalization<a class="headerlink" href="#Random-networks-with-prescribed-canalization" title="Link to this heading"></a></h2>
-<p>A major advantage of BoolForge is its ability to generate Boolean functions with <strong>controlled canalization properties</strong>. This is important because canalization is a common feature of biological regulatory networks.</p>
+<p>A major advantage of BoolForge is its ability to generate Boolean functions with <em>controlled canalization properties</em>. This is important because canalization is a common feature of biological regulatory networks.</p>
 <p>To display the impact of the canalizing layer structure, we generate ensembles of Boolean networks of fixed size and fixed in-degree, which are governed by nested canalizing functions of variable layer structure.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:

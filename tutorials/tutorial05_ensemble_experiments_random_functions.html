@@ -81,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -204,14 +205,14 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
        k=0    k=1    k=2    k=3    k=4  k=5  k=6
-n=2  0.208  0.000  0.792  0.000  0.000  0.0  0.0
-n=3  0.607  0.095  0.000  0.298  0.000  0.0  0.0
-n=4  0.954  0.024  0.005  0.000  0.017  0.0  0.0
-n=5  1.000  0.000  0.000  0.000  0.000  0.0  0.0
+n=2  0.187  0.000  0.813  0.000  0.000  0.0  0.0
+n=3  0.590  0.109  0.000  0.301  0.000  0.0  0.0
+n=4  0.946  0.035  0.002  0.000  0.017  0.0  0.0
+n=5  0.999  0.001  0.000  0.000  0.000  0.0  0.0
 n=6  1.000  0.000  0.000  0.000  0.000  0.0  0.0
 </pre></div></div>
 </div>
-<p>We see that hardly any Boolean function with <span class="math notranslate nohighlight">\(n\geq 5\)</span> inputs is canalizing, let alone nested canalizing. This makes the finding that most Boolean functions in published Boolean gene regulatory network models are nested canalizing very surprising (Kadelka et al., Science Advances, 2024).</p>
+<p>We see that hardly any Boolean function with <span class="math notranslate nohighlight">\(n\geq 5\)</span> inputs is canalizing, let alone nested canalizing. This makes the finding that most Boolean functions in published Boolean gene regulatory network models are nested canalizing very surprising [&#64;kadelka2024meta].</p>
 <section id="Restricting-to-canalizing-functions">
 <h3>Restricting to canalizing functions<a class="headerlink" href="#Restricting-to-canalizing-functions" title="Link to this heading"></a></h3>
 <p>To zoom in on the few functions that are canalizing for higher <span class="math notranslate nohighlight">\(n\)</span>, we can simply require <code class="docutils literal notranslate"><span class="pre">depth=1</span></code> and repeat the above analysis.</p>
@@ -273,18 +274,18 @@ n=6  1.000  0.000  0.000  0.000  0.000  0.0  0.0
 <div class="highlight"><pre>
      k=0    k=1    k=2    k=3    k=4    k=5  k=6
 n=2  0.0  0.000  1.000  0.000  0.000  0.000  0.0
-n=3  0.0  0.247  0.000  0.753  0.000  0.000  0.0
-n=4  0.0  0.670  0.095  0.000  0.235  0.000  0.0
-n=5  0.0  0.974  0.019  0.001  0.000  0.006  0.0
+n=3  0.0  0.233  0.000  0.767  0.000  0.000  0.0
+n=4  0.0  0.700  0.078  0.000  0.222  0.000  0.0
+n=5  0.0  0.970  0.022  0.000  0.000  0.008  0.0
 n=6  0.0  1.000  0.000  0.000  0.000  0.000  0.0
 </pre></div></div>
 </div>
-<p>This analysis reveals that among Boolean functions of degree <span class="math notranslate nohighlight">\(n\geq 5\)</span>, functions with few conditionally canalizing variables are much more abundant than functions with more conditionally canalizing variables, which is mathematically obvious due to the recursive nature of the definition of k-canalization.</p>
+<p>This analysis reveals that among Boolean functions of degree <span class="math notranslate nohighlight">\(n\geq 5\)</span>, functions with few conditionally canalizing variables are much more abundant than functions with more conditionally canalizing variables, which is mathematically obvious due to the recursive nature of the definition of k-canalization [&#64;he2016stratification].</p>
 </section>
 </section>
 <section id="Collective-canalization-vs-degree">
 <h2>Collective canalization vs degree<a class="headerlink" href="#Collective-canalization-vs-degree" title="Link to this heading"></a></h2>
-<p>Using a similar setup, we can investigate if and how the various measures of collective canalization, specifically canalizing strength (Kadelka et al., Adv in Appl Math, 2023) and the normalized input redundancy (Gates et al., PNAS, 2021), change when the degree of the functions changes.</p>
+<p>Using a similar setup, we can investigate if and how the various measures of collective canalization, specifically canalizing strength [&#64;kadelka2023collectively] and the normalized input redundancy [&#64;gates2021effective], change when the degree of the functions changes.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -492,7 +493,7 @@ n=6  0.0  1.000  0.000  0.000  0.000  0.000  0.0
 SignificanceResult(statistic=np.float64(0.9700304760700043), pvalue=np.float64(1.0759731607818433e-134))
 </pre></div></div>
 </div>
-<p>Both measures are highly correlated but markedly not the same, which becomes even more evident when rerunnign the analysis for <span class="math notranslate nohighlight">\(n=4\)</span>. Some functions possess relatively high canalizing strength but low input redundancy, and vice versa. It remains an open question what drives this behavior.</p>
+<p>Both measures are highly correlated but markedly not the same, which becomes even more evident when rerunning the analysis for <span class="math notranslate nohighlight">\(n=4\)</span> (see &#64;kadelka2026canalization). Some functions possess relatively high canalizing strength but low input redundancy, and vice versa. It remains an open question what drives this behavior.</p>
 </section>
 </section>
 <section id="Correlation-between-canalization-and-bias">
@@ -587,8 +588,8 @@ SignificanceResult(statistic=np.float64(0.9700304760700043), pvalue=np.float64(1
 <section id="Analyzing-functions-with-specific-canalizing-layer-structure">
 <h2>Analyzing functions with specific canalizing layer structure<a class="headerlink" href="#Analyzing-functions-with-specific-canalizing-layer-structure" title="Link to this heading"></a></h2>
 <p>The average sensitivity of the Boolean functions governing the updates in a Boolean network, determines the stability of the network to perturbations. More generally, it determines the dynamical regime of the network (see Tutorial 8). The ability to generate canalizing functions with a specific canalizing layer structure enables us to investigate the link between layer structure and average sensitivity, as well as other properties, such as canalizing strength or effective degree.</p>
-<p>For nested canalizing functions of a given degree <span class="math notranslate nohighlight">\(n\)</span>, there exists a bijection between their absolute bias and their canalizing layer structure (Kadelka et al., Physica D, 2017). The function <code class="docutils literal notranslate"><span class="pre">boolforge.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)</span></code> implements this. NCFs with the same layer structure have the same dynamical properties. That is, they have the same average sensitivity, canalizing strength and the same effective degree. Iterating over all possible absolute
-biases (parametrized by the possible Hamming weights), we can thus generate all dynamically different types of n-input NCFs and investigate their average sensitivity, which we can compute exactly for relatively low degree.</p>
+<p>For nested canalizing functions of a given degree <span class="math notranslate nohighlight">\(n\)</span>, there exists a bijection between their absolute bias and their canalizing layer structure [&#64;kadelka2017influence]. The function <code class="docutils literal notranslate"><span class="pre">boolforge.hamming_weight_to_ncf_layer_structure(degree,hamming_weight)</span></code> implements this. NCFs with the same layer structure have the same dynamical properties. That is, they have the same average sensitivity, canalizing strength and the same effective degree. Iterating over all possible absolute biases
+(parametrized by the possible Hamming weights), we can thus generate all dynamically different types of n-input NCFs and investigate their average sensitivity, which we can compute exactly for relatively low degree.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
@@ -642,7 +643,7 @@ biases (parametrized by the possible Hamming weights), we can thus generate all 
 </pre></div></div>
 </div>
 <p>We notice that nested canalizing functions with higher absolute bias tend to be more sensitive to input changes and also less canalizing. However, the relationship between absolute bias and these other metrics is far from monotonic. Further, we notice that there is a perfect correlation between the average sensitivity of a nested canalizing function and its canalizing strength, and a near perfect correlation between average sensitivity and effective degree.</p>
-<p>To investigate the non-monotonic behavior further, we can vary the degree and create line plots that reveal a clear pattern, as shown in Kadelka et al., Physica D, 2017.</p>
+<p>To investigate the non-monotonic behavior further, we can vary the degree and create line plots that reveal a clear pattern, as shown in &#64;kadelka2017influence.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>

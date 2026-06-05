@@ -71,6 +71,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -238,7 +239,7 @@ Overall coherence: 0.3333333333333333
 Overall fragility: 0.3333333333333333
 </pre></div></div>
 </div>
-<p>The same robustness metrics, coherence and fragility, can also be averaged across a smaller set of states, e.g., all states in one basin of attraction, or an even smaller set of states, e.g., all states that form an attractor.</p>
+<p>The same robustness metrics, coherence and fragility, can also be averaged across a smaller set of states, e.g., all states in one basin of attraction (see &#64;bavisetty2025upper), or an even smaller set of states, e.g., all states that form an attractor (see &#64;bavisetty2025attractors).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -281,8 +282,8 @@ Attractor-level robustness:
 </div>
 <p>Interpretation:</p>
 <ul class="simple">
-<li><p><strong>Coherence</strong> measures the fraction of single-bit perturbations that do <em>not</em> change the final attractor.</p></li>
-<li><p><strong>Fragility</strong> measures how much the attractor state changes.</p></li>
+<li><p><em>Coherence</em> measures the fraction of single-bit perturbations that do <em>not</em> change the final attractor [&#64;willadsenwiles].</p></li>
+<li><p><em>Fragility</em> measures how much the attractor state changes [&#64;park2023models].</p></li>
 </ul>
 <p>The robustness metrics considered thus far describe how a single perturbation affects the network dynamics in the long-term, i.e., at the attractor. These metrics are very meaningful biologically because attractors typically correspond to cell types of phenotypes.</p>
 <p>It turns out that attractors in biological networks are often less stable than their basins, a phenomenon explored in detail in Tutorial 10.</p>
@@ -308,15 +309,15 @@ Attractor-level robustness:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Number of attractors (lower bound): 3
-Approximate coherence: 0.352
-Approximate fragility: 0.324
+Approximate coherence: 0.306
+Approximate fragility: 0.347
 </pre></div></div>
 </div>
 <p>Even when only using 500 random initial states, the approximate values closely match the exact ones. For larger networks, these approximations are often the only feasible option.</p>
 </section>
 <section id="Derrida-value:-dynamical-sensitivity">
 <h2>Derrida value: dynamical sensitivity<a class="headerlink" href="#Derrida-value:-dynamical-sensitivity" title="Link to this heading"></a></h2>
-<p>An older and very popular robustness metric, the Derrida value, measures how perturbations <em>propagate</em> after one synchronous update. It is defined as the expected Hamming distance between updated states that initially differed in exactly one bit.</p>
+<p>An older and very popular robustness metric, the Derrida value, measures how perturbations <em>propagate</em> after one synchronous update [&#64;derrida1986random]. It is defined as the expected Hamming distance between updated states that initially differed in exactly one bit.</p>
 <p>BoolForge includes routines for the exact calculation and estimation of Derrida values. For networks with low degree, the exact calculation is strongly preferable. It is faster and more accurate.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:

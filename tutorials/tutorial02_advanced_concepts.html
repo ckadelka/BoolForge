@@ -76,6 +76,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -145,7 +146,7 @@
 <li><p>Suggest evolutionary mechanisms (gene duplication)</p></li>
 <li><p>Identify potential drug targets (symmetric inputs may compensate)</p></li>
 </ul>
-<p>A symmetry of a Boolean function is a permutation of input variables that does <strong>not</strong> change its output.</p>
+<p>A symmetry of a Boolean function is a permutation of input variables that does <em>not</em> change its output.</p>
 <ul class="simple">
 <li><p>Inputs in the same symmetry group can be swapped freely.</p></li>
 <li><p>Inputs in different groups cannot.</p></li>
@@ -204,7 +205,7 @@ Symmetry groups of h:
 
 </pre></div></div>
 </div>
-<p><strong>Interpretation</strong></p>
+<p>Interpretation:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">f</span></code> is fully symmetric: all variables are interchangeable.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">g</span></code> has partial symmetry: <code class="docutils literal notranslate"><span class="pre">x1</span></code> and <code class="docutils literal notranslate"><span class="pre">x2</span></code> are equivalent but <code class="docutils literal notranslate"><span class="pre">x0</span></code> is distinct.</p></li>
@@ -214,7 +215,7 @@ Symmetry groups of h:
 </section>
 <section id="Degenerate-functions">
 <h2>Degenerate functions<a class="headerlink" href="#Degenerate-functions" title="Link to this heading"></a></h2>
-<p>A function is <strong>degenerate</strong> if one or more inputs do not matter at all.</p>
+<p>A function is <em>degenerate</em> if one or more inputs do not matter at all.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -275,20 +276,20 @@ Non-essential variables: [&#39;y&#39;]
 </section>
 <section id="Average-sensitivity">
 <h3>Average sensitivity<a class="headerlink" href="#Average-sensitivity" title="Link to this heading"></a></h3>
-<p>The <em>average sensitivity</em> of a Boolean function describes how sensitive its output is to changes in its inputs, specifically to a random single-bit flip. The (unnormalized) average sensitivity is the sum of all its activities:</p>
+<p>The <em>average sensitivity</em> of a Boolean function describes how sensitive its output is to changes in its inputs, specifically to a random single-bit flip [&#64;shmulevich2004activities]. The (unnormalized) average sensitivity is the sum of all its activities:</p>
 <div class="math notranslate nohighlight">
 \[S(f) = \sum_i a(f,x_i).\]</div>
 <p>Division by <span class="math notranslate nohighlight">\(n\)</span> yields the <em>normalized average sensitivity</em> <span class="math notranslate nohighlight">\(s(f)\)</span>, which can be readily compared between functions of different degree <span class="math notranslate nohighlight">\(n\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[s(f) = \frac{S(f)}{n}.\]</div>
-<p><strong>Interpretation</strong></p>
+<p>Interpretation:</p>
 <p>In Boolean network theory, the mean normalized average sensitivity <span class="math notranslate nohighlight">\(s(f)\)</span> determines how perturbations tend to propagate through the system.</p>
 <ul class="simple">
 <li><p>If <span class="math notranslate nohighlight">\(s(f) &lt; 1\)</span>, perturbations tend to die out (<em>ordered regime</em>).</p></li>
 <li><p>If <span class="math notranslate nohighlight">\(s(f) &gt; 1\)</span>, perturbations typically amplify (<em>chaotic regime</em>).</p></li>
 <li><p>The boundary <span class="math notranslate nohighlight">\(s(f) = 1\)</span> defines the <em>critical regime</em>.</p></li>
 </ul>
-<p>The critical regime is believed to characterize many biological networks (see later tutorials). It represents a balance between order and chaos. Operating at this “edge of chaos” may optimize information processing and evolvability.</p>
+<p>The critical regime is believed to characterize many biological networks (see later tutorials and also &#64;daniels2018criticality). It represents a balance between order and chaos. Operating at this “edge of chaos” may optimize information processing and evolvability.</p>
 </section>
 <section id="Exact-vs-Monte-Carlo-computation">
 <h3>Exact vs Monte Carlo computation<a class="headerlink" href="#Exact-vs-Monte-Carlo-computation" title="Link to this heading"></a></h3>
@@ -339,7 +340,7 @@ Normalized average sensitivity of f: 1.0
 Normalized average sensitivity of g: 0.4166666666666667
 </pre></div></div>
 </div>
-<p><strong>Interpretation</strong></p>
+<p>Interpretation:</p>
 <ul class="simple">
 <li><p>For <code class="docutils literal notranslate"><span class="pre">f</span></code> (XOR), flipping any input always flips the output, so <span class="math notranslate nohighlight">\(s(f) = 1\)</span>.</p></li>
 <li><p>For <code class="docutils literal notranslate"><span class="pre">g</span></code>, <span class="math notranslate nohighlight">\(x_0\)</span> influences the output more often than <span class="math notranslate nohighlight">\(x_1\)</span> or <span class="math notranslate nohighlight">\(x_2\)</span>. 75% of <span class="math notranslate nohighlight">\(x_0\)</span> flips and 25% of <span class="math notranslate nohighlight">\(x_1\)</span> or <span class="math notranslate nohighlight">\(x_2\)</span> flips change the output of <code class="docutils literal notranslate"><span class="pre">g</span></code>. Thus, the normalized average sensitivity of <code class="docutils literal notranslate"><span class="pre">g</span></code> is <span class="math notranslate nohighlight">\(\frac 13*75\% + \frac 23 25\% = \frac{5}{12}\)</span>.</p></li>
@@ -370,11 +371,11 @@ You find more on this and the <code class="docutils literal notranslate"><span c
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Mean activity: 0.4993
-Normalized average sensitivity: 0.5009
+Mean activity: 0.5012
+Normalized average sensitivity: 0.5018
 </pre></div></div>
 </div>
-<p><strong>Interpretation</strong></p>
+<p>Interpretation:</p>
 <p>Random Boolean functions satisfy:</p>
 <ul class="simple">
 <li><p>mean activity <span class="math notranslate nohighlight">\(\approx 0.5\)</span>,</p></li>

@@ -78,6 +78,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -111,7 +112,7 @@
   <section id="Canalization">
 <h1>Canalization<a class="headerlink" href="#Canalization" title="Link to this heading"></a></h1>
 <p>Canalization is a key property of biological Boolean functions that confers robustness: when a canalizing variable takes its canalizing value, the output is determined regardless of other inputs. This “buffering” mechanism is thought to protect organisms from genetic and environmental perturbations.</p>
-<p>Discovered by C.H. Waddington in 1942 in developmental biology, canalization has since been formalized in Boolean network theory and found to be prevalent in empirically-derived gene regulatory networks.</p>
+<p>First described by C.H. Waddington in 1942 in developmental biology [&#64;waddington1942canalization], canalization has since been formalized in Boolean network theory [&#64;kauffman1974large], and found to be abundantly prevalent in empirically-derived gene regulatory networks [&#64;kadelka2024meta].</p>
 <section id="What-you-will-learn">
 <h2>What you will learn<a class="headerlink" href="#What-you-will-learn" title="Link to this heading"></a></h2>
 <p>In this tutorial you will:</p>
@@ -138,11 +139,11 @@
 <p>A Boolean function <span class="math notranslate nohighlight">\(f(x_1, \ldots, x_n)\)</span> is <em>canalizing</em> if there exists at least one <em>canalizing variable</em> <span class="math notranslate nohighlight">\(x_i\)</span> and a <em>canalizing input value</em> <span class="math notranslate nohighlight">\(a \in \{0,1\}\)</span> such that</p>
 <div class="math notranslate nohighlight">
 \[f(x_1,\ldots,x_i=a,\ldots,x_n)=b,\]</div>
-<p>where <span class="math notranslate nohighlight">\(b \in \{0,1\}\)</span> is a constant, the <em>canalized output</em>.</p>
-<p>A Boolean function is <em>k-canalizing</em> if it has at least k conditionally canalizing variables. This is checked recursively: after fixing a canalizing variable <span class="math notranslate nohighlight">\(x_i\)</span> to its non-canalizing input value <span class="math notranslate nohighlight">\(\bar a\)</span>, the subfunction <span class="math notranslate nohighlight">\(f(x_1,\ldots,x_{i-1},x_{i+1},\ldots,x_n)\)</span> must itself contain another canalizing variable, and so on. For a given function, the maximal possible value of k is defined as its <em>canalizing depth</em>. If all variables are conditionally canalizing (i.e., if the
-canalizing depth is <span class="math notranslate nohighlight">\(n\)</span>), the function is called a <em>nested canalizing</em> function (<em>NCF</em>). Biological networks are heavily enriched for NCFs as we explore in a later tutorial.</p>
-<p>Per (He and Macauley, Physica D, 2016), any Boolean function can be decomposed into a unique standard monomial form by recursively identifying and removing all conditionally canalizing variables (this set of variables is called a <em>canalizing layer</em>). Each variable of a Boolean function appears in exactly one layer, or (if it is not conditionally canalizing) it is part of the non-canalizing core function that has to be evaluated only if all conditionally canalizing variables receive their
-non-canalizing input value. The <em>canalizing layer structure</em> <span class="math notranslate nohighlight">\([k_1,\ldots,k_r]\)</span> describes the number of variables in each canalizing layer. We thus have <span class="math notranslate nohighlight">\(r\geq 0\)</span>, <span class="math notranslate nohighlight">\(k_i\geq 1\)</span> and <span class="math notranslate nohighlight">\(k_1+\cdots+k_r\)</span>.</p>
+<p>where <span class="math notranslate nohighlight">\(b \in \{0,1\}\)</span> is a constant, the <em>canalized output</em> [&#64;kauffman1974large].</p>
+<p>A Boolean function is <em>k-canalizing</em> if it has at least k conditionally canalizing variables. This is checked recursively: after fixing a canalizing variable <span class="math notranslate nohighlight">\(x_i\)</span> to its non-canalizing input value <span class="math notranslate nohighlight">\(\bar a\)</span>, the subfunction <span class="math notranslate nohighlight">\(f(x_1,\ldots,x_{i-1},x_{i+1},\ldots,x_n)\)</span> must itself contain another canalizing variable, and so on. For a given function, the maximal possible value of k is defined as its <em>canalizing depth</em> [&#64;layne2012nested]. If all variables are conditionally
+canalizing (i.e., if the canalizing depth is <span class="math notranslate nohighlight">\(n\)</span>), the function is called a <em>nested canalizing</em> function (<em>NCF</em>) [&#64;he2016stratification]. Biological networks are heavily enriched for NCFs as we explore in Tutorial 11.</p>
+<p>Per &#64;he2016stratification, any Boolean function can be decomposed into a unique standard monomial form by recursively identifying and removing all conditionally canalizing variables (this set of variables is called a <em>canalizing layer</em>). Each variable of a Boolean function appears in exactly one layer, or (if it is not conditionally canalizing) it is part of the non-canalizing core function that has to be evaluated only if all conditionally canalizing variables receive their non-canalizing input
+value. The <em>canalizing layer structure</em> <span class="math notranslate nohighlight">\([k_1,\ldots,k_r]\)</span> describes the number of variables in each canalizing layer [&#64;dimitrova2022revealing]. We thus have <span class="math notranslate nohighlight">\(r\geq 0\)</span>, <span class="math notranslate nohighlight">\(k_i\geq 1\)</span> and <span class="math notranslate nohighlight">\(k_1+\cdots+k_r\)</span>.</p>
 <p>In the following code, we define four 3-input functions with different canalizing properties.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -286,7 +287,7 @@ Core function of k: [1]
 </section>
 <section id="Collective-canalization">
 <h2>Collective canalization<a class="headerlink" href="#Collective-canalization" title="Link to this heading"></a></h2>
-<p>Collective canalization treats canalization as a property of the function rather than individual variables (Reichhardt &amp; Bassler, J. Phys. A, 2007). Individual canalization asks: “Which <em>single</em> variables can determine output?” Collective canalization asks: “Which <em>sets</em> of variables can determine output?”</p>
+<p>Collective canalization treats canalization as a property of the function rather than individual variables [&#64;reichhardt2007canalization]. Individual canalization asks: “Which <em>single</em> variables can determine output?” Collective canalization asks: “Which <em>sets</em> of variables can determine output?”</p>
 <p>A Boolean function is <em>:math:`k`-set canalizing</em> if there exists a set of <span class="math notranslate nohighlight">\(k\)</span> variables whose fixed values determine the output irrespective of the remaining inputs.</p>
 <p>Consider, for example, the function <span class="math notranslate nohighlight">\(k(x_0,x_1,x_2) = x_0 \vee (x_1 \wedge x_2)\)</span>, defined above. This function is 2-set canalizing because</p>
 <ul class="simple">
@@ -343,7 +344,7 @@ Normalized average sensitivity of k:0.4166666666666667
 </div>
 <section id="Canalizing-strength">
 <h3>Canalizing strength<a class="headerlink" href="#Canalizing-strength" title="Link to this heading"></a></h3>
-<p>The <em>canalizing strength</em> summarizes collective canalization as a weighted average of the <span class="math notranslate nohighlight">\(k\)</span>-set canalizing proportions (Kadelka et al., Adv Appl Math, 2023). It ranges from:</p>
+<p>The <em>canalizing strength</em> summarizes collective canalization as a weighted average of the <span class="math notranslate nohighlight">\(k\)</span>-set canalizing proportions [&#64;kadelka2023collectively]. It ranges from:</p>
 <ul class="simple">
 <li><p>1 for maximally canalizing non-degenerate functions (namely, nested canalizing functions of a single canalizing layer such as <code class="docutils literal notranslate"><span class="pre">h</span></code>),</p></li>
 <li><p>0 for linear functions such as <code class="docutils literal notranslate"><span class="pre">f</span></code>,</p></li>
@@ -412,8 +413,8 @@ Canalizing strength of k: 0.5555555555555556
 </section>
 <section id="Canalization-as-a-measure-of-input-redundancy">
 <h2>Canalization as a measure of input redundancy<a class="headerlink" href="#Canalization-as-a-measure-of-input-redundancy" title="Link to this heading"></a></h2>
-<p>Canalization, symmetry and redundancy are related concepts. A highly symmetry Boolean function with few (e.g., one) symmetry groups exhibits high input redundancy and is on average more canalizing, irrespective of the measure of canalization. Recently, it was shown that almost all Boolean functions (except the linear functions) exhibit some level of <em>input redundancy</em> (Gates et al., PNAS, 2021). The input redundancy of a variable is defined as 1 minus its <em>edge effectiveness</em>, which describes
-the proportion of times that this variable is needed to determine the output of the function. Edge effectiveness is very similar to the activity of a variable but is not the same (the difference is defined as <em>excess canalization</em>). The sum of all edge effectiveness values of the inputs of a function is known as its <em>effective degree</em>. The average input redundancy serves as a measure of the canalization in a function.</p>
+<p>Canalization, symmetry and redundancy are related concepts. A highly symmetry Boolean function with few (e.g., one) symmetry groups exhibits high input redundancy and is on average more canalizing, irrespective of the measure of canalization. Recently, it was shown that almost all Boolean functions (except the linear functions) exhibit some level of <em>input redundancy</em> [&#64;gates2021effective]. The input redundancy of a variable is defined as 1 minus its <em>edge effectiveness</em>, which describes the
+proportion of times that this variable is needed to determine the output of the function. Edge effectiveness is very similar to the activity of a variable but is not the same (the difference is defined as <em>excess canalization</em>). The sum of all edge effectiveness values of the inputs of a function is known as its <em>effective degree</em>. The average input redundancy serves as a measure of the canalization in a function.</p>
 <p><code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> can compute all these quantities. To use this functionality, the optional <code class="docutils literal notranslate"><span class="pre">CANA</span></code> package must be installed (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cana</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">boolforge[cana]</span></code>). To exemplify this, reconsider the four 3-input functions from above.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -482,7 +483,7 @@ Normalized input redundancy of k: 0.4791666666666667
 <li><p>relate canalization to redundancy-based measures such as edge effectiveness.</p></li>
 </ul>
 <p>Canalization provides a structural explanation for why many biological Boolean rules are robust to perturbations.</p>
-<p><strong>Next steps:</strong> Subsequent tutorials will explore random Boolean functions with prescribed canalization properties and the impact of canalization on Boolean network dynamics and robustness.</p>
+<p>Next steps: Subsequent tutorials will explore random Boolean functions with prescribed canalization properties and the impact of canalization on Boolean network dynamics and robustness.</p>
 </section>
 </section>
 

@@ -23,6 +23,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Dynamics Decomposition" href="tutorial12_dynamics_decomposition.html" />
     <link rel="prev" title="Ensemble experiments with random Boolean networks" href="tutorial10_ensemble_experiments_random_networks.html" /> 
 </head>
 
@@ -74,6 +75,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#Summary">Summary</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -144,8 +146,8 @@
 </pre></div>
 </div>
 </div>
-<p>The function <code class="docutils literal notranslate"><span class="pre">get_bio_models_from_repository</span></code> loads, by default, all 122 distinct biological Boolean network models, analyzed in <a class="reference external" href="https://www.science.org/doi/full/10.1126/sciadv.adj0822">Kadelka et al., Sci Adv, 2024</a>, and deposited in a <a class="reference external" href="https://github.com/ckadelka/DesignPrinciplesGeneNetworks">Github repository</a>. The models are parsed directly from the associated Github repository, meaning a wireless connection is required to successfully execute this function. Setting the optional
-parameter <code class="docutils literal notranslate"><span class="pre">simplify_functions=True</span></code> ensures that all update functions are non-degenerate. This is important for correct null model computation. By default, because this procedure may be very time-confusing for networks with very high degree, <code class="docutils literal notranslate"><span class="pre">simplify_functions=False</span></code>. Note that any <code class="docutils literal notranslate"><span class="pre">BooleanNetwork</span></code> object <code class="docutils literal notranslate"><span class="pre">bn</span></code> can be simplified at any time, using <code class="docutils literal notranslate"><span class="pre">bn.simplify_functions()</span></code>.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">get_bio_models_from_repository</span></code> loads, by default, all 122 distinct biological Boolean network models, analyzed in &#64;kadelka2024meta, and deposited in a <a class="reference external" href="https://github.com/ckadelka/DesignPrinciplesGeneNetworks">Github repository</a>. The models are parsed directly from the associated Github repository, meaning a wireless connection is required to successfully execute this function. Setting the optional parameter <code class="docutils literal notranslate"><span class="pre">simplify_functions=True</span></code> ensures that all update functions are
+non-degenerate. This is important for correct null model computation. By default, because this procedure may be very time-confusing for networks with very high degree, <code class="docutils literal notranslate"><span class="pre">simplify_functions=False</span></code>. Note that any <code class="docutils literal notranslate"><span class="pre">BooleanNetwork</span></code> object <code class="docutils literal notranslate"><span class="pre">bn</span></code> can be simplified at any time, using <code class="docutils literal notranslate"><span class="pre">bn.simplify_functions()</span></code>.</p>
 <p>Models from the two other available repositories can be loaded by selecting the respective Github repository name:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/jcrozum/pystablemotifs">‘pystablemotifs (jcrozum)’</a></p></li>
@@ -211,7 +213,7 @@ parameter <code class="docutils literal notranslate"><span class="pre">simplify_
 <section id="Null-models">
 <h2>Null models<a class="headerlink" href="#Null-models" title="Link to this heading"></a></h2>
 <p>Observed properties of Boolean networks are often difficult to interpret in isolation. For example, a network may exhibit a certain number of attractors, a particular robustness to perturbations, or a specific Derrida value. However, it is not immediately clear whether such properties are meaningful or simply typical for networks with the same size and structural characteristics.</p>
-<p>To address this question, researchers compare observed networks with <strong>null models</strong>: randomly generated Boolean networks that preserve selected structural features, such as the number of nodes, the wiring diagram, or the bias of regulatory functions. By analyzing ensembles of such randomized networks, it becomes possible to determine whether the behavior of a given network is unusual or expected.</p>
+<p>To address this question, researchers compare observed networks with <em>null models</em>: randomly generated Boolean networks that preserve selected structural features, such as the number of nodes, the wiring diagram, or the bias of regulatory functions. By analyzing ensembles of such randomized networks, it becomes possible to determine whether the behavior of a given network is unusual or expected (see e.g., &#64;kadelka2024canalization).</p>
 <p>The BoolForge function <code class="docutils literal notranslate"><span class="pre">random_null_model(BooleanNetwork,</span> <span class="pre">*args)</span></code> provides extensive tools for generating these null models and for performing ensemble-based analyses that connect structural properties of Boolean functions and networks with their dynamical behavior.</p>
 <p>The function takes as required input a Boolean network. Important: This network may not contain any degenerate update functions. If it does, these functions must be simplified via <code class="docutils literal notranslate"><span class="pre">bn.simplify_functions()</span></code> prior to generating null models. The avoid repeating this step many times, this simplification is not performed inside <code class="docutils literal notranslate"><span class="pre">random_null_model</span></code>. The type of null model is specified by optional arguments. Both the wiring diagram and the Boolean update rules can be randomized subject to specified
 invariants.</p>
@@ -244,7 +246,7 @@ bn_orig.in-degrees: [1 2 1 2 1 2 3 2]
 bn_null.in-degrees: [1 2 1 2 1 2 3 2]
 
 bn_orig.out-degrees: [4 3 1 0 1 0 1 4]
-bn_null.out-degrees: [2 2 0 1 5 1 2 1]
+bn_null.out-degrees: [1 3 1 2 3 2 1 1]
 </pre></div></div>
 </div>
 <p>We see that the in-degrees of the original Boolean network are preserved, while the out-degrees change substantially. Additional optional arguments in the <code class="docutils literal notranslate"><span class="pre">fixed_indegree</span></code> mode include <code class="docutils literal notranslate"><span class="pre">strongly_connected</span></code>, <code class="docutils literal notranslate"><span class="pre">allow_self_loops</span></code>, and <code class="docutils literal notranslate"><span class="pre">min_out_degree_one</span></code>, as described in detail in Tutorial 9.</p>
@@ -342,15 +344,15 @@ bn_null.out-degrees: [4 3 1 0 1 0 1 4]
 <div class="highlight"><pre>
 Canalizing depths:
 bn_orig:   [3, 3, 1, 1, 3, 3, 1, 3]
-bn_null00: [0, 3, 0, 3, 3, 0, 0, 0]
+bn_null00: [0, 1, 0, 0, 0, 0, 0, 0]
 bn_null01: [3, 3, 1, 1, 3, 3, 1, 3]
-bn_null10: [0, 3, 2, 1, 3, 3, 2, 3]
+bn_null10: [3, 3, 2, 1, 3, 0, 2, 3]
 bn_null11: [3, 3, 1, 1, 3, 3, 1, 3]
 
 Hamming weights:
 bn_orig:   [3, 5, 6, 6, 1, 5, 2, 7]
-bn_null00: [6, 5, 4, 7, 5, 4, 4, 4]
-bn_null01: [3, 1, 6, 6, 3, 5, 2, 5]
+bn_null00: [4, 6, 4, 4, 5, 4, 4, 3]
+bn_null01: [5, 5, 6, 6, 3, 3, 6, 1]
 bn_null10: [3, 5, 6, 6, 1, 5, 2, 7]
 bn_null11: [3, 5, 6, 6, 1, 5, 2, 7]
 </pre></div></div>
@@ -360,7 +362,7 @@ bn_null11: [3, 5, 6, 6, 1, 5, 2, 7]
 </section>
 <section id="Example-use-case:-high-coherence-of-biological-networks">
 <h2>Example use case: high coherence of biological networks<a class="headerlink" href="#Example-use-case:-high-coherence-of-biological-networks" title="Link to this heading"></a></h2>
-<p>As an example, we compare the <em>coherence</em> of curated biological Boolean network models with the coherence expected under randomized null models. Coherence measures the long-term resilience of a network to small perturbations.</p>
+<p>As an example, we compare the <em>coherence</em> of curated biological Boolean network models with the coherence expected under randomized null models (see &#64;bavisetty2025attractors). Coherence measures the long-term resilience of a network to small perturbations.</p>
 <p>For each biological network, we generate an ensemble of randomized null models in which the wiring diagram is preserved but the Boolean update rules are replaced by random Boolean functions. We then compare the coherence of the biological model with the average coherence of its corresponding null models.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -403,7 +405,7 @@ bn_null11: [3, 5, 6, 6, 1, 5, 2, 7]
 </div>
 </div>
 <p>We see that most biological networks exhibit higher than expected coherence. Even for this small ensemble of biological networks (restricted here to networks with at most 16 nodes to allow exact dynamical analysis), this is a statistically significant difference, as exemplified by the one-sided paired t-test.</p>
-<p>The higher coherence observed in biological networks is likely due to their highly biased and canalized regulatory logic. To test this, we can rerun the computational experiment, this time with null models where bias and/or canalizing depth are preserved.</p>
+<p>The higher coherence observed in biological networks is likely due to their highly biased and canalized regulatory logic (see &#64;bavisetty2025attractors). To test this in BoolForge, we can rerun the computational experiment, this time with null models where bias and/or canalizing depth are preserved.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
@@ -443,13 +445,13 @@ bn_null11: [3, 5, 6, 6, 1, 5, 2, 7]
 </section>
 <section id="Summary">
 <h2>Summary<a class="headerlink" href="#Summary" title="Link to this heading"></a></h2>
-<p>In this tutorial, we introduced <strong>null models for Boolean networks</strong> and demonstrated how BoolForge can generate randomized networks while preserving selected structural properties. Such null models provide a statistical baseline that helps determine whether observed structural or dynamical properties of a Boolean network are unusual or simply typical for networks with similar characteristics.</p>
+<p>In this tutorial, we introduced <em>null models for Boolean networks</em> and demonstrated how BoolForge can generate randomized networks while preserving selected structural properties. Such null models provide a statistical baseline that helps determine whether observed structural or dynamical properties of a Boolean network are unusual or simply typical for networks with similar characteristics.</p>
 <p>We considered two main classes of null models:</p>
 <ul class="simple">
-<li><p><strong>Wiring diagram randomization</strong>, where the regulatory graph is modified while preserving invariants such as node in-degrees or both in- and out-degrees.</p></li>
-<li><p><strong>Update function randomization</strong>, where Boolean update rules are replaced by new functions that preserve properties such as bias or canalizing depth.</p></li>
+<li><p><em>Wiring diagram randomization</em>, where the regulatory graph is modified while preserving invariants such as node in-degrees or both in- and out-degrees.</p></li>
+<li><p><em>Update function randomization</em>, where Boolean update rules are replaced by new functions that preserve properties such as bias or canalizing depth.</p></li>
 </ul>
-<p>In addition, we demonstrated how Boolean network models can be <strong>loaded from biological model repositories</strong> and analyzed using the same structural and dynamical tools provided by BoolForge. This enables systematic investigation of curated regulatory network models and comparison with appropriate null models.</p>
+<p>In addition, we demonstrated how Boolean network models can be loaded from biological model repositories and analyzed using the same structural and dynamical tools provided by BoolForge. This enables systematic investigation of curated regulatory network models and comparison with appropriate null models.</p>
 <p>Together, these capabilities allow researchers to study how structural features of regulatory networks influence their dynamical behavior and to place biological models in the broader context of ensembles of randomized networks.</p>
 </section>
 </section>
@@ -459,6 +461,7 @@ bn_null11: [3, 5, 6, 6, 1, 5, 2, 7]
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tutorial10_ensemble_experiments_random_networks.html" class="btn btn-neutral float-left" title="Ensemble experiments with random Boolean networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial12_dynamics_decomposition.html" class="btn btn-neutral float-right" title="Dynamics Decomposition" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

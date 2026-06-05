@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -142,8 +143,8 @@
 <section id="Boolean-network-theory">
 <h2>Boolean network theory<a class="headerlink" href="#Boolean-network-theory" title="Link to this heading"></a></h2>
 <p>A Boolean network <span class="math notranslate nohighlight">\(F = (f_1, \ldots, f_N)\)</span> is a dynamical system consisting of <span class="math notranslate nohighlight">\(N\)</span> Boolean update functions. Each node can be in one of two states, 0 or 1, often interpreted as OFF/ON in biological contexts.</p>
-<p>Under <strong>synchronous updating</strong>, all nodes update simultaneously, yielding a deterministic state transition graph on <span class="math notranslate nohighlight">\(\{0,1\}^N\)</span>. Under <strong>asynchronous updating</strong>, only one node is updated at a time, yielding a stochastic transition graph. BoolForge implements both schemes.</p>
-<p>Real biological networks are typically sparsely connected. The <strong>in-degree</strong> of a node is the number of essential inputs of its update function. The <strong>wiring diagram</strong> encodes which nodes regulate which others.</p>
+<p>Under <em>synchronous updating</em>, all nodes update simultaneously, yielding a deterministic state transition graph on <span class="math notranslate nohighlight">\(\{0,1\}^N\)</span>. Under <em>asynchronous updating</em>, only one node is updated at a time, yielding a stochastic transition graph. BoolForge implements both schemes.</p>
+<p>Real biological networks are typically sparsely connected. The <em>in-degree</em> of a node is the number of essential inputs of its update function. The <em>wiring diagram</em> encodes which nodes regulate which others.</p>
 <p>Despite their simplicity, Boolean networks can:</p>
 <ul class="simple">
 <li><p>reproduce complex dynamics (oscillations, multistability),</p></li>
@@ -243,12 +244,12 @@ W.outdegrees: [2 1 0]
 <img alt="../_images/tutorials_tutorial06_boolean_networks_7_1.png" src="../_images/tutorials_tutorial06_boolean_networks_7_1.png" />
 </div>
 </div>
-<p>This wiring diagram encodes a <strong>feed-forward loop</strong>, one of the most common <em>network motifs</em> in transcriptional networks. It can:</p>
+<p>This wiring diagram encodes a <em>feed-forward loop</em>, one of the most common <em>network motifs</em> in transcriptional networks. It can:</p>
 <ul class="simple">
 <li><p>filter transient signals (coherent FFL with AND gate),</p></li>
 <li><p>accelerate response (incoherent FFL),</p></li>
 </ul>
-<p>See Mangan &amp; Alon, PNAS, 2003 for a detailed analysis. <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> enables the identification of all feed-forward loops:</p>
+<p>See &#64;mangan2003structure for a detailed analysis. <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> enables the identification of all feed-forward loops:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -400,7 +401,7 @@ W2.get_fbls() {&#39;FBLs&#39;: [[0, 1, 2], [0, 1]]}
 </section>
 <section id="Interoperability-with-CANA">
 <h3>Interoperability with CANA<a class="headerlink" href="#Interoperability-with-CANA" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> provides native interoperability with the <a class="reference external" href="https://www.github.com/CASCI-lab/CANA">CANA package</a> for the analysis of Boolean functions and Boolean networks. Existing <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> networks can be converted into <code class="docutils literal notranslate"><span class="pre">CANA</span></code> objects and back without loss of information.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> provides native interoperability with the <a class="reference external" href="https://www.github.com/CASCI-lab/CANA">CANA package</a> for the analysis of Boolean functions and Boolean networks [&#64;marcus2025cana]. Existing <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> networks can be converted into <code class="docutils literal notranslate"><span class="pre">CANA</span></code> objects and back without loss of information.</p>
 <p>In the example below, we convert a <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> Boolean network into its <code class="docutils literal notranslate"><span class="pre">CANA</span></code> representation using <code class="docutils literal notranslate"><span class="pre">to_cana()</span></code>, and then reconstruct a new <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> Boolean network from that <code class="docutils literal notranslate"><span class="pre">CANA</span></code> object.</p>
 <p>The final assertion verifies that this round-trip conversion preserves:</p>
 <ul class="simple">
@@ -430,11 +431,11 @@ W2.get_fbls() {&#39;FBLs&#39;: [[0, 1, 2], [0, 1]]}
 <h2>Types of nodes in Boolean networks<a class="headerlink" href="#Types-of-nodes-in-Boolean-networks" title="Link to this heading"></a></h2>
 <p>Nodes in a Boolean network can be classified as follows:</p>
 <ul class="simple">
-<li><p><strong>Constant nodes</strong>
+<li><p><em>Constant nodes</em>:
 Nodes with constant update functions (always 0 or always 1). These nodes act as parameters and they are eliminated at construction time by substituting their constant value into all dependent update functions.</p></li>
-<li><p><strong>Identity nodes</strong>
+<li><p><em>Identity nodes</em>:
 Nodes whose update function is the identity, i.e., <span class="math notranslate nohighlight">\(f(x_i) = x_i.\)</span> Their value is determined by the initial condition and remains constant over time. Identity nodes are retained as part of the Boolean network state. They may be viewed as nodes with a self-loop and no other incoming edges.</p></li>
-<li><p><strong>Regulated nodes</strong>
+<li><p><em>Regulated nodes</em>:
 Nodes whose update functions depend on one or more other nodes.</p></li>
 </ul>
 <div class="nbinput docutils container">
@@ -664,8 +665,9 @@ Constants:                    {&#39;x2&#39;: 0, &#39;x3&#39;: 1}
 <p>Fixing identity nodes converts them into constant nodes, which are then eliminated via constant propagation. Only the identity nodes are removed from <code class="docutils literal notranslate"><span class="pre">cn</span></code>. Nodes that become dynamically constant after fixing identity nodes (e.g., <span class="math notranslate nohighlight">\(x_0\)</span> and <span class="math notranslate nohighlight">\(x_1\)</span>) are retained, since their initial values may still vary. For example, <span class="math notranslate nohighlight">\(x_0(t=0) = 1\)</span> or <span class="math notranslate nohighlight">\(x_1(t=0) = 0\)</span> remain valid initial values, despite the fact that <span class="math notranslate nohighlight">\(x_0(t) = 0\)</span> and <span class="math notranslate nohighlight">\(x_1(t) = 1\)</span> at any time <span class="math notranslate nohighlight">\(t&gt;0\)</span>.</p>
 <section id="Node-controls">
 <h3>Node controls<a class="headerlink" href="#Node-controls" title="Link to this heading"></a></h3>
-<p>Boolean network control is an active area of research. For example, the knock-out of a certain gene can be simulated in a Boolean network by setting this gene to a constant value of zero. Likewise, overexpression can be modeled by setting it to a constant value of one. BoolForge enables users to implement node and edge controls of existing Boolean networks. This provides a simple framework for simulating interventions such as gene knock-outs or overexpression.</p>
-<p>To implement node controls, we need to specify which nodes should be controlled and the constant values that they should be set to. As an example, we consider a classical Boolean network model, the three-node repressilator.</p>
+<p>Boolean network control is an active area of research (see e.g., &#64;murrugarra2016identification or &#64;borriello2021basis). For example, the knock-out of a certain gene can be simulated in a Boolean network by setting this gene to a constant value of zero. Likewise, overexpression can be modeled by setting it to a constant value of one. BoolForge enables users to implement node and edge controls of existing Boolean networks. This provides a simple framework for simulating interventions such as gene
+knock-outs or overexpression.</p>
+<p>To implement node controls, we need to specify which nodes should be controlled and the constant values that they should be set to. As an example, we consider a classical Boolean network model, the three-node repressilator [&#64;elowitz2000synthetic].</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>

@@ -80,6 +80,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial09_random_Boolean_network_generation.html">Random Boolean network generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial10_ensemble_experiments_random_networks.html">Ensemble experiments with random Boolean networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial11_bio_models.html">Curated biological Boolean networks and null models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial12_dynamics_decomposition.html">Dynamics Decomposition</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -434,8 +435,8 @@ Attractor of length 1:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Discovered attractors: [[7], [2, 5], [0]]
-Basin size approximation: [0.347 0.533 0.12 ]
+Discovered attractors: [[7], [5, 2], [0]]
+Basin size approximation: [0.373 0.514 0.113]
 </pre></div></div>
 </div>
 <p>The simulation returns additional information:</p>
@@ -499,7 +500,7 @@ NumberOfTimeouts
 <p>Synchronous updating is computationally convenient but biologically unrealistic. Asynchronous updating assumes that only one node changes at a time.</p>
 <section id="Steady-states-under-general-asynchronous-update">
 <h3>Steady states under general asynchronous update<a class="headerlink" href="#Steady-states-under-general-asynchronous-update" title="Link to this heading"></a></h3>
-<p>BoolForge can compute steady states under <strong>general asynchronous updating</strong>, where at each step only a single node updates according to its Boolean rule.</p>
+<p>BoolForge can compute steady states under <em>general asynchronous updating</em>, where at each step only a single node updates according to its Boolean rule.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
@@ -520,7 +521,7 @@ Number of steady states (lower bound): 2
 </pre></div></div>
 </div>
 <p>The result reveals the same two steady states as in the synchronous case. However, the limit cycle observed under synchronous updating disappears under asynchronous dynamics.</p>
-<p>In addition, BoolForge returns the <strong>full asynchronous state transition graph</strong>.</p>
+<p>In addition, BoolForge returns the <em>full asynchronous state transition graph</em>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -545,8 +546,8 @@ Number of steady states (lower bound): 2
 7 --&gt; {7: 1.0}
 </pre></div></div>
 </div>
-<p>The state transition graph describes for each state the possible next states that the system may transition to, in addition to the transition probabilities. This graph can be interpreted as a <strong>sparse transition matrix</strong> of a Markov chain. Each directed edge corresponds to a possible single-node update.</p>
-<p>By repeatedly composing this transition matrix with itself (equivalently, raising it to higher powers), BoolForge computes the <strong>absorption probabilities</strong>, i.e., the probability that a trajectory starting from any state eventually reaches each steady state.</p>
+<p>The state transition graph describes for each state the possible next states that the system may transition to, in addition to the transition probabilities. This graph can be interpreted as a <em>sparse transition matrix</em> of a Markov chain. Each directed edge corresponds to a possible single-node update.</p>
+<p>By repeatedly composing this transition matrix with itself (equivalently, raising it to higher powers), BoolForge computes the <em>absorption probabilities</em>, i.e., the probability that a trajectory starting from any state eventually reaches each steady state.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -589,7 +590,7 @@ Number of steady states (lower bound): 2
 Basin sizes: [0.33333333 0.66666667]
 </pre></div></div>
 </div>
-<p>Note that <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> currently does not detect complex cyclic attractors under asynchronous update; for this task, specialized tools such as <a class="reference external" href="https://github.com/jcrozum/pystablemotifs">pystablemotifs</a> are recommended.</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">BoolForge</span></code> currently does not detect complex cyclic attractors under asynchronous update; for this task, specialized tools such as <a class="reference external" href="https://github.com/jcrozum/pystablemotifs">pystablemotifs</a> are recommended [&#64;rozum2022pystablemotifs].</p>
 <p>In fact, some of BoolForge’s asynchronous update methods fail when the network contains no steady state.</p>
 </section>
 <section id="Monte-Carlo-approximation">
@@ -616,9 +617,9 @@ Basin sizes: [0.33333333 0.66666667]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Discovered steady states: [0, 7]
-Number of steady states (lower bound): 2
-Basin size approximation: [0.318 0.682]
+Discovered steady states: [7, 0, 11]
+Number of steady states (lower bound): 3
+Basin size approximation: [0.556 0.366 0.078]
 </pre></div></div>
 </div>
 </section>
@@ -643,9 +644,9 @@ Basin size approximation: [0.318 0.682]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Discovered steady states: [7, 9, 0, 2]
-Number of steady states (lower bound): 4
-Basin size approximation: [0.158 0.162 0.512 0.168]
+Discovered steady states: [0, 7, 2]
+Number of steady states (lower bound): 3
+Basin size approximation: [0.522 0.212 0.266]
 </pre></div></div>
 </div>
 <p>Note the equivalent analysis under synchronous update is trivial because the dynamics are deterministic and the long-term behavior when starting in a specific initial condition can be found by</p>
