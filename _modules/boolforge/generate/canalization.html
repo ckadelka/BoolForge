@@ -1,0 +1,827 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boolforge.generate.canalization &mdash; BoolForge 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">boolforge.generate.canalization</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for boolforge.generate.canalization</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions for generating random Boolean functions and</span>
+<span class="sd">Boolean networks with specified structural and dynamical properties.</span>
+
+<span class="sd">The :mod:`~boolforge.generate` module enables the systematic creation of</span>
+<span class="sd">Boolean functions and networks that satisfy particular constraints, such as</span>
+<span class="sd">specified canalization depth, sensitivity range, bias, or connectivity.</span>
+<span class="sd">Generated instances can be used for statistical analysis, benchmarking, or</span>
+<span class="sd">simulation studies.</span>
+
+<span class="sd">Several generation routines leverage Numba acceleration for efficient sampling</span>
+<span class="sd">and evaluation of large function spaces. While Numba is **recommended** to</span>
+<span class="sd">achieve near-native performance, it is **not required** for functionality; all</span>
+<span class="sd">functions have pure Python fallbacks.</span>
+
+<span class="sd">This module complements :mod:`~boolforge.boolean_function` and</span>
+<span class="sd">:mod:`~boolforge.boolean_network` by facilitating reproducible generation of</span>
+<span class="sd">synthetic test cases and large ensembles of random networks.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">&gt;&gt;&gt; import boolforge</span>
+<span class="sd">&gt;&gt;&gt; boolforge.random_function(n=3)</span>
+<span class="sd">&gt;&gt;&gt; boolforge.random_network(N=5, n=2)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..boolean_function</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanFunction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">random_function_with_bias</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">random_non_degenerate_function</span>
+
+<div class="viewcode-block" id="random_non_canalizing_function">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_non_canalizing_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_non_canalizing_function</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random non-canalizing Boolean function.</span>
+
+<span class="sd">    A Boolean function is canalizing if there exists at least one variable</span>
+<span class="sd">    and a value of that variable such that fixing it forces the output of</span>
+<span class="sd">    the function. This function samples Boolean functions from the</span>
+<span class="sd">    Bernoulli(bias) ensemble until a non-canalizing function is obtained.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of Boolean variables. Must satisfy ``n &gt; 1``.</span>
+<span class="sd">    bias : float, optional</span>
+<span class="sd">        Probability that a truth-table entry equals 1. Default is 0.5.</span>
+<span class="sd">    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        Random non-canalizing Boolean function on ``n`` variables.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``n`` is not an integer greater than 1.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``bias`` is not strictly between 0 and 1.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function uses rejection sampling.</span>
+<span class="sd">    - For moderate bias values, almost all Boolean functions are</span>
+<span class="sd">      non-canalizing.</span>
+<span class="sd">    - Extremely biased functions are more likely to be canalizing and may</span>
+<span class="sd">      lead to longer sampling times.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).</span>
+<span class="sd">    The influence of canalization on the robustness of Boolean networks.</span>
+<span class="sd">    Physica D: Nonlinear Phenomena, 353, 39–47.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n must be an integer greater than 1&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bias</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">bias</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bias must be a float strictly between 0 and 1&quot;</span><span class="p">)</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># Rejection sampling; most Boolean functions are non-canalizing</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">random_function_with_bias</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">f</span></div>
+
+
+
+<div class="viewcode-block" id="random_non_canalizing_non_degenerate_function">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_non_canalizing_non_degenerate_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_non_canalizing_non_degenerate_function</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random Boolean function that is both non-canalizing and</span>
+<span class="sd">    non-degenerate.</span>
+
+<span class="sd">    A Boolean function is non-canalizing if no variable can force the output</span>
+<span class="sd">    when fixed, and non-degenerate if every variable is essential. This</span>
+<span class="sd">    function samples Boolean functions from the Bernoulli(bias) ensemble</span>
+<span class="sd">    until both properties are satisfied.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of Boolean variables. Must satisfy ``n &gt; 1``.</span>
+<span class="sd">    bias : float, optional</span>
+<span class="sd">        Probability that a truth-table entry equals 1. Default is 0.5.</span>
+<span class="sd">    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        Random Boolean function on ``n`` variables that is both non-canalizing</span>
+<span class="sd">        and non-degenerate.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``n`` is not an integer greater than 1.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``bias`` is not strictly between 0 and 1.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function uses rejection sampling.</span>
+<span class="sd">    - For moderate bias values and sufficiently large ``n``, almost all</span>
+<span class="sd">      Boolean functions are both non-canalizing and non-degenerate.</span>
+<span class="sd">    - Extremely biased functions are more likely to be canalizing or</span>
+<span class="sd">      degenerate and may lead to longer sampling times.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).</span>
+<span class="sd">    The influence of canalization on the robustness of Boolean networks.</span>
+<span class="sd">    Physica D: Nonlinear Phenomena, 353, 39–47.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n must be an integer greater than 1&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bias</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">bias</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bias must be a float strictly between 0 and 1&quot;</span><span class="p">)</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># Rejection sampling; almost all Boolean functions satisfy both properties</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">random_function_with_bias</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">f</span></div>
+
+
+<span class="n">_uniform_over_functions_weights</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_uniform_over_functions_weights</span><span class="p">(</span><span class="n">max_n</span><span class="p">,</span> <span class="n">is_ncf</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute dynamic-programming weights for uniform canalized layer structures.</span>
+
+<span class="sd">    This function constructs a dynamic-programming table ``W`` used to sample</span>
+<span class="sd">    canalized output bitstrings with probability proportional to the inverse</span>
+<span class="sd">    factorials of their layer sizes. The table encodes the total weight of all</span>
+<span class="sd">    valid completions of a partially constructed canalized structure.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    max_n : int</span>
+<span class="sd">        Maximum total length of the canalized output string.</span>
+<span class="sd">    is_ncf : bool, optional</span>
+<span class="sd">        If True (default), enforce the nested canalizing function (NCF)</span>
+<span class="sd">        constraint that the final canalizing layer has size at least 2.</span>
+<span class="sd">        If False, no constraint is imposed on the final layer size.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    W : ndarray of shape (max_n + 1, max_n + 2)</span>
+<span class="sd">        Dynamic-programming weight table. ``W[m, s]`` gives the total weight of</span>
+<span class="sd">        all valid completions with ``m`` positions remaining and current layer</span>
+<span class="sd">        size ``s``.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The recursion is given by</span>
+
+<span class="sd">        W[m, s] = W[m - 1, s + 1] + (1 / s!) * W[m - 1, 1],</span>
+
+<span class="sd">    corresponding to either extending the current canalizing layer or</span>
+<span class="sd">    terminating it and starting a new layer of size 1. The base case ``m = 0``</span>
+<span class="sd">    accounts for the weight of the final layer and enforces the optional NCF</span>
+<span class="sd">    constraint.</span>
+
+<span class="sd">    Results are cached internally to avoid recomputation for repeated calls</span>
+<span class="sd">    with the same ``max_n`` and ``NCF`` values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">max_n</span><span class="p">,</span><span class="n">is_ncf</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_uniform_over_functions_weights</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_uniform_over_functions_weights</span><span class="p">[(</span><span class="n">max_n</span><span class="p">,</span><span class="n">is_ncf</span><span class="p">)]</span>
+    
+    <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">max_n</span> <span class="o">+</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="c1"># Base case: no positions left -&gt; close final run</span>
+    <span class="n">inv_factorial_of_s</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_n</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">inv_factorial_of_s</span> <span class="o">/=</span> <span class="n">s</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_ncf</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">inv_factorial_of_s</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># DP</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">inv_factorial_of_s</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">inv_factorial_of_s</span> <span class="o">/=</span> <span class="n">s</span>
+            <span class="n">W</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">W</span><span class="p">[</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
+                <span class="n">inv_factorial_of_s</span> <span class="o">*</span> <span class="n">W</span><span class="p">[</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+    
+    <span class="n">_uniform_over_functions_weights</span><span class="p">[(</span><span class="n">max_n</span><span class="p">,</span><span class="n">is_ncf</span><span class="p">)]</span> <span class="o">=</span> <span class="n">W</span>    
+    <span class="k">return</span> <span class="n">W</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_canalized_outputs_uniform_over_functions</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sample a canalized output bitstring yielding uniform layer-structure weighting.</span>
+
+<span class="sd">    This function samples a binary vector ``b`` of length ``n`` representing</span>
+<span class="sd">    canalized output values, where consecutive equal values are part of the same</span>
+<span class="sd">    canalizing layer. The probability of a given layer structure</span>
+<span class="sd">    ``(k_1, k_2, ..., k_r)`` is proportional to</span>
+
+<span class="sd">        1 / (k_1! k_2! ... k_r!).</span>
+<span class="sd">        </span>
+<span class="sd">    Sampling is performed sequentially using precomputed dynamic-programming</span>
+<span class="sd">    weights ``W``, stored in _uniform_over_functions_weights.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Length of the output bitstring to sample.</span>
+<span class="sd">    W : ndarray of shape (n+1, n+1)</span>
+<span class="sd">        Dynamic-programming weight table, where ``W[m, s]`` gives the total</span>
+<span class="sd">        weight of all valid completions with ``m`` positions remaining and</span>
+<span class="sd">        current layer size ``s``.</span>
+<span class="sd">    rng : numpy.random.Generator</span>
+<span class="sd">        Random number generator used for sampling.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    b : ndarray of shape (n,), dtype int</span>
+<span class="sd">        Sampled binary canalized output vector.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The bitstring is generated left-to-right. At each step, the algorithm</span>
+<span class="sd">    probabilistically chooses whether to extend the current layer or start a</span>
+<span class="sd">    new one, using the weights in ``W`` to ensure correct global sampling</span>
+<span class="sd">    probabilities. The first bit is chosen uniformly at random.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Randomly pick first canalized output</span>
+    <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="mi">1</span>              <span class="c1"># current layer size</span>
+    <span class="n">inv_factorial_of_s</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span>          <span class="c1"># positions remaining to fill</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+
+        <span class="c1"># DP-weighted decision</span>
+        <span class="n">w_extend</span> <span class="o">=</span> <span class="n">W</span><span class="p">[</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">w_split</span>  <span class="o">=</span> <span class="n">inv_factorial_of_s</span> <span class="o">*</span> <span class="n">W</span><span class="p">[</span><span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">p_extend</span> <span class="o">=</span> <span class="n">w_extend</span> <span class="o">/</span> <span class="p">(</span><span class="n">w_extend</span> <span class="o">+</span> <span class="n">w_split</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">p_extend</span><span class="p">:</span>
+            <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">inv_factorial_of_s</span> <span class="o">/=</span> <span class="n">s</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">inv_factorial_of_s</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="n">m</span> <span class="o">-=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">b</span>
+
+<div class="viewcode-block" id="random_k_canalizing_function">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_k_canalizing_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_k_canalizing_function</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">exact_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">uniform_over_functions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random k-canalizing Boolean function in n variables.</span>
+
+<span class="sd">    A Boolean function is k-canalizing if it has at least k conditionally </span>
+<span class="sd">    canalizing variables. If ``exact_depth`` is True, the function has exactly</span>
+<span class="sd">    k conditionally canalizing variables; otherwise, its canalizing depth </span>
+<span class="sd">    may exceed k.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of Boolean variables.</span>
+<span class="sd">    k : int</span>
+<span class="sd">        Requested canalizing depth. Must satisfy ``0 &lt;= k &lt;= n``.</span>
+<span class="sd">        Setting ``k = n`` generates a nested canalizing function.</span>
+<span class="sd">    exact_depth : bool, optional</span>
+<span class="sd">        If True, enforce that the canalizing depth is exactly ``k``.</span>
+<span class="sd">        If False (default), the depth is at least ``k``.</span>
+<span class="sd">    uniform_over_functions : bool, optional</span>
+<span class="sd">        If True (default), the function is sampled uniformly at random</span>
+<span class="sd">        from the set of Boolean functions consistent with the specified</span>
+<span class="sd">        constraints (n, k, exact_depth).</span>
+<span class="sd">        </span>
+<span class="sd">        Internally, this is achieved by a rejection sampling scheme that</span>
+<span class="sd">        compensates for all combinatorial multiplicities arising from</span>
+<span class="sd">        symmetric canalizing layers and possible merges between the</span>
+<span class="sd">        outer canalizing layers and the core function.</span>
+<span class="sd">    </span>
+<span class="sd">        If False, canalized outputs are sampled independently as a bitstring,</span>
+<span class="sd">        and no rejection correction is applied. In this case, the resulting</span>
+<span class="sd">        distribution is biased toward Boolean functions with more symmetric</span>
+<span class="sd">        canalizing structures.</span>
+<span class="sd">    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        A Boolean function on ``n`` variables with canalizing depth at</span>
+<span class="sd">        least ``k`` (or exactly ``k`` if ``exact_depth=True``).</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``n`` is not a positive integer.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``k`` does not satisfy ``0 &lt;= k &lt;= n``.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``exact_depth=True`` and ``k = n-1`` (no such functions exist).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    When uniform_over_functions=True, this function samples uniformly from the</span>
+<span class="sd">    space of Boolean functions with the specified canalizing properties.</span>
+<span class="sd">    As a consequence, different canalizing layer structures generally</span>
+<span class="sd">    occur with different frequencies, reflecting the fact that they</span>
+<span class="sd">    support different numbers of Boolean functions.</span>
+<span class="sd">    </span>
+<span class="sd">    Uniformity over canalizing layer structures is not enforced and is</span>
+<span class="sd">    not expected.</span>
+
+<span class="sd">    The construction follows the standard decomposition of a k-canalizing</span>
+<span class="sd">    function into canalizing variables, canalizing inputs and outputs, and</span>
+<span class="sd">    a residual core function on ``n-k`` variables.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    He, Q., and Macauley, M. (2016).</span>
+<span class="sd">        Stratification and enumeration of Boolean functions by canalizing depth.</span>
+<span class="sd">        Physica D: Nonlinear Phenomena, 314, 1–8.</span>
+
+<span class="sd">    Dimitrova, E., Stigler, B., Kadelka, C., and Murrugarra, D. (2022).</span>
+<span class="sd">        Revealing the canalizing structure of Boolean functions: Algorithms</span>
+<span class="sd">        and applications. Automatica, 146, 110630.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;n must be a positive integer&quot;</span>
+    <span class="k">assert</span> <span class="n">n</span> <span class="o">-</span> <span class="n">k</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">exact_depth</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;There are no functions of exact canalizing depth n-1.</span><span class="se">\n</span><span class="s2">Either set exact_depth=False or ensure k != n-1&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">k</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;k, the canalizing depth, must satisfy 0 &lt;= k &lt;= n.&quot;</span>
+    <span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">exact_depth</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;No Boolean functions with canalizing depth 0 exist for n = 1.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">random_non_canalizing_non_degenerate_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">random_non_degenerate_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">k</span><span class="o">==</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">n</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span> <span class="c1">#canalizing functions with depth n-1&gt;0 really have depth n </span>
+        <span class="n">k</span><span class="o">=</span><span class="n">n</span>
+
+    <span class="c1"># Step 1: canalizing inputs and variables</span>
+    <span class="n">aas</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">can_vars</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span> 
+        <span class="c1">#include the generation of canalized outputs in the rejection sampling scheme</span>
+        <span class="c1">#because some output vectors `bbs` may give rise to more distinct functions than others</span>
+        
+        <span class="c1"># Step 2: canalized outputs, determining layers</span>
+        <span class="k">if</span> <span class="n">uniform_over_functions</span><span class="p">:</span>
+            <span class="n">bbs</span> <span class="o">=</span> <span class="n">sample_canalized_outputs_uniform_over_functions</span><span class="p">(</span>
+                <span class="n">k</span><span class="p">,</span>
+                <span class="n">_get_uniform_over_functions_weights</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">is_ncf</span><span class="o">=</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="n">n</span><span class="p">)),</span>
+                <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bbs</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+            
+        <span class="c1"># Step 3: sample core function using efficient rejection sampling</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+            <span class="n">core_function</span> <span class="o">=</span> <span class="n">random_k_canalizing_function</span><span class="p">(</span>
+                <span class="n">n</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="n">k</span><span class="p">,</span>
+                <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">exact_depth</span><span class="o">=</span><span class="n">exact_depth</span><span class="p">,</span><span class="c1">#True if exact_depth or uniform_over_functions else False,</span>
+                <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+            <span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">exact_depth</span> <span class="ow">or</span> <span class="n">k</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">uniform_over_functions</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1">#check if the core function is canalizing and correct for combinatorial</span>
+                <span class="c1">#bias in the selection of the final functions</span>
+                
+                <span class="c1">#compute canalizing info of core_function, stored in f.properties</span>
+                <span class="n">core_function</span><span class="o">.</span><span class="n">get_layer_structure</span><span class="p">()</span> 
+                <span class="k">if</span> <span class="n">core_function</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;CanalizingDepth&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span> <span class="c1">#rejection sampling is efficient because it happens with probability &lt;= 50%</span>
+                    <span class="n">bbs_core</span> <span class="o">=</span> <span class="n">core_function</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;CanalizedOutputs&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">bbs_core</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">bbs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>  
+                        <span class="c1">#no combinatorial explosion, the core varaibles start a new layer</span>
+                        <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span> 
+                        <span class="c1"># merge occurs: last layer grows</span>
+                        
+                        <span class="c1"># determine size of last outer layer in bbs</span>
+                        <span class="n">s</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">bbs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">bbs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+                                <span class="n">s</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">break</span>
+                            
+                        <span class="c1"># determine number of additional variables in the same layer</span>
+                        <span class="n">s_core</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">core_function</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s1">&#39;CanalizingDepth&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">bbs_core</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">bbs_core</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+                                <span class="n">s_core</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">break</span>                    
+                        
+                        <span class="n">accept_prob</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">comb</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="n">s_core</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+                        
+                        <span class="k">if</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">accept_prob</span><span class="p">:</span>
+                            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">core_function</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bbs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="k">break</span>
+        
+    <span class="c1"># Step 4: build truth table and return canalizing Boolean function</span>
+    <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">left_side_of_truth_table</span><span class="p">[:,</span> <span class="n">can_vars</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">==</span> <span class="n">aas</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">f</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">f</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">bbs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        
+    <span class="c1"># fill remaining with core truth table</span>
+    <span class="n">f</span><span class="p">[</span><span class="n">f</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">core_function</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">BooleanFunction</span><span class="o">.</span><span class="n">_from_f_unchecked</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="random_k_canalizing_function_with_specific_layer_structure">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_k_canalizing_function_with_specific_layer_structure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_k_canalizing_function_with_specific_layer_structure</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">layer_structure</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">exact_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random Boolean function with a specified canalizing layer structure.</span>
+
+<span class="sd">    The canalizing layer structure is given as a list</span>
+<span class="sd">    ``[k_1, ..., k_r]``, where each ``k_i`` specifies the number of</span>
+<span class="sd">    canalizing variables in the i-th layer. The total canalizing depth is</span>
+<span class="sd">    ``sum(layer_structure)``.</span>
+
+<span class="sd">    If ``sum(layer_structure) == n`` and ``n &gt; 1``, the function is a nested</span>
+<span class="sd">    canalizing function and the final layer is required to have size at</span>
+<span class="sd">    least 2.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Total number of Boolean variables.</span>
+<span class="sd">    layer_structure : list of int</span>
+<span class="sd">        Canalizing layer structure ``[k_1, ..., k_r]``. Each entry must be</span>
+<span class="sd">        at least 1. If ``sum(layer_structure) == n`` and ``n &gt; 1``, the final</span>
+<span class="sd">        entry must satisfy ``layer_structure[-1] &gt;= 2``.</span>
+<span class="sd">    exact_depth : bool, optional</span>
+<span class="sd">        If True, enforce that the canalizing depth is exactly</span>
+<span class="sd">        ``sum(layer_structure)``. If False (default), additional canalizing</span>
+<span class="sd">        variables may occur in the core function.</span>
+<span class="sd">    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        A Boolean function on ``n`` variables with the prescribed canalizing</span>
+<span class="sd">        layer structure, plus potentially more canalizing variables (if exact_depth=True).</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``n`` is not a positive integer.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``sum(layer_structure)`` does not satisfy ``0 &lt;= sum(layer_structure) &lt;= n``.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``exact_depth=True`` and ``sum(layer_structure) = n - 1``.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``sum(layer_structure) = n &gt; 1`` and the final layer has size less</span>
+<span class="sd">        than 2.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If any entry of ``layer_structure`` is less than 1.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For fixed parameter values, this function samples uniformly at random</span>
+<span class="sd">    from the ensemble of Boolean functions consistent with the specified</span>
+<span class="sd">    canalizing layer structure and additional constraints.</span>
+
+<span class="sd">    The construction follows the standard decomposition of a canalizing</span>
+<span class="sd">    function into ordered canalizing layers and a residual core function on</span>
+<span class="sd">    the remaining variables.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    He, Q., and Macauley, M. (2016).</span>
+<span class="sd">        Stratification and enumeration of Boolean functions by canalizing depth.</span>
+<span class="sd">        Physica D: Nonlinear Phenomena, 314, 1–8.</span>
+
+<span class="sd">    Kadelka, C., Kuipers, J., and Laubenbacher, R. (2017).</span>
+<span class="sd">        The influence of canalization on the robustness of Boolean networks.</span>
+<span class="sd">        Physica D: Nonlinear Phenomena, 353, 39–47.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">layer_structure</span><span class="p">)</span>  <span class="c1"># canalizing depth</span>
+    <span class="k">if</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">layer_structure</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;n must be an integer &gt; 0&quot;</span>
+    <span class="k">assert</span> <span class="n">n</span> <span class="o">-</span> <span class="n">depth</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">exact_depth</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;There are no functions of exact canalizing depth n-1.</span><span class="se">\n</span><span class="s2">Either set exact_depth=False or ensure depth=sum(layer_structure)!=n-1.&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">depth</span> <span class="ow">and</span> <span class="n">depth</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">,</span> <span class="s2">&quot;Ensure 0 &lt;= depth = sum(layer_structure) &lt;= n.&quot;</span>
+    <span class="k">assert</span> <span class="n">depth</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="ow">or</span> <span class="n">layer_structure</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;The last layer of an NCF (i.e., an n-canalizing function) has to have size &gt;= 2 whenever n &gt; 1.</span><span class="se">\n</span><span class="s2">If depth=sum(layer_structure)=n, ensure that layer_structure[-1]&gt;=2.&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">layer_structure</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;Each layer must have at least one variable (each element of layer_structure must be &gt;= 1).&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">size_state_space</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">n</span>
+    <span class="n">aas</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">depth</span><span class="p">)</span>  <span class="c1"># canalizing inputs</span>
+    <span class="n">b0</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">bbs</span> <span class="o">=</span> <span class="p">[</span><span class="n">b0</span><span class="p">]</span> <span class="o">*</span> <span class="n">layer_structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># canalized outputs for first layer</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer_structure</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">bbs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">b0</span><span class="p">]</span> <span class="o">*</span> <span class="n">layer_structure</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bbs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">1</span> <span class="o">-</span> <span class="n">b0</span><span class="p">]</span> <span class="o">*</span> <span class="n">layer_structure</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">can_vars</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">size_state_space</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">depth</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+        <span class="n">core_function</span> <span class="o">=</span> <span class="n">random_k_canalizing_function</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="n">depth</span><span class="p">,</span>
+            <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">exact_depth</span><span class="o">=</span><span class="n">exact_depth</span><span class="p">,</span>
+            <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">core_function</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bbs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+    <span class="n">left_side_of_truth_table</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">depth</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">left_side_of_truth_table</span><span class="p">[:,</span> <span class="n">can_vars</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">==</span> <span class="n">aas</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">f</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">f</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">bbs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+    <span class="c1"># fill remaining with core truth table</span>
+    <span class="n">f</span><span class="p">[</span><span class="n">f</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">core_function</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">BooleanFunction</span><span class="o">.</span><span class="n">_from_f_unchecked</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="random_NCF">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_NCF">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_NCF</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">uniform_over_functions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">layer_structure</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random nested canalizing Boolean function in n variables.</span>
+
+<span class="sd">    A nested canalizing function (NCF) is an n-canalizing Boolean function,</span>
+<span class="sd">    i.e., a function whose canalizing depth equals the number of variables.</span>
+<span class="sd">    Optionally, a specific canalizing layer structure may be prescribed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Total number of Boolean variables.</span>
+<span class="sd">    uniform_over_functions : bool, optional</span>
+<span class="sd">        If True (default) and ``layer_structure`` is None, canalizing layer</span>
+<span class="sd">        structures are sampled uniformly at random, removing the bias toward</span>
+<span class="sd">        symmetric structures induced by independent sampling of canalized</span>
+<span class="sd">        outputs. If False, canalized outputs are sampled independently and</span>
+<span class="sd">        uniformly as a bitstring, which biases the distribution toward more</span>
+<span class="sd">        symmetric layer structures.</span>
+<span class="sd">        This parameter is ignored if ``layer_structure`` is provided.</span>
+<span class="sd">    layer_structure : list of int or None, optional</span>
+<span class="sd">        Canalizing layer structure ``[k_1, ..., k_r]``. Each entry must be at</span>
+<span class="sd">        least 1. If provided, it must satisfy ``sum(layer_structure) == n``.</span>
+<span class="sd">        If ``n &gt; 1``, the final entry must satisfy</span>
+<span class="sd">        ``layer_structure[-1] &gt;= 2``. If None (default), the layer structure</span>
+<span class="sd">        is sampled at random.</span>
+<span class="sd">    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        A nested canalizing Boolean function on ``n`` variables.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``n`` is not a positive integer.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``layer_structure`` is provided but does not satisfy</span>
+<span class="sd">        ``sum(layer_structure) == n``.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``n &gt; 1`` and the final layer has size less than 2.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For fixed parameter values, this function samples uniformly at random</span>
+<span class="sd">    from the ensemble of nested canalizing Boolean functions consistent with</span>
+<span class="sd">    the specified constraints. Non-uniformity arises only when</span>
+<span class="sd">    ``uniform_over_functions=False``.</span>
+
+<span class="sd">    This function is a convenience wrapper around</span>
+<span class="sd">    ``random_k_canalizing_function`` and</span>
+<span class="sd">    ``random_k_canalizing_function_with_specific_layer_structure``.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    He, Q., and Macauley, M. (2016).</span>
+<span class="sd">        Stratification and enumeration of Boolean functions by canalizing depth.</span>
+<span class="sd">        Physica D: Nonlinear Phenomena, 314, 1–8.</span>
+
+<span class="sd">    Kadelka, C., Kuipers, J., and Laubenbacher, R. (2017).</span>
+<span class="sd">        The influence of canalization on the robustness of Boolean networks.</span>
+<span class="sd">        Physica D: Nonlinear Phenomena, 353, 39–47.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">layer_structure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">random_k_canalizing_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> 
+                                            <span class="n">n</span><span class="p">,</span> 
+                                            <span class="n">uniform_over_functions</span><span class="o">=</span><span class="n">uniform_over_functions</span><span class="p">,</span>
+                                            <span class="n">exact_depth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                                            <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="n">layer_structure</span><span class="p">)</span> <span class="o">==</span> <span class="n">n</span><span class="p">,</span> <span class="s2">&quot;Ensure sum(layer_structure) == n.&quot;</span>
+        <span class="k">assert</span> <span class="n">layer_structure</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;The last layer of an NCF has to have size &gt;= 2 whenever n &gt; 1.</span><span class="se">\n</span><span class="s2">Ensure that layer_structure[-1]&gt;=2.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">random_k_canalizing_function_with_specific_layer_structure</span><span class="p">(</span>
+            <span class="n">n</span><span class="p">,</span> 
+            <span class="n">layer_structure</span><span class="p">,</span> 
+            <span class="n">exact_depth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+            <span class="n">rng</span><span class="o">=</span><span class="n">rng</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generate &mdash; BoolForge 1.0.0 documentation</title>
+  <title>Generate &mdash; BoolForge 1.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/documentation_options.js?v=292eb321"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -55,18 +55,18 @@
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_function_with_exact_hamming_weight"><code class="docutils literal notranslate"><span class="pre">random_function_with_exact_hamming_weight()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_degenerate_function"><code class="docutils literal notranslate"><span class="pre">random_degenerate_function()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_non_degenerate_function"><code class="docutils literal notranslate"><span class="pre">random_non_degenerate_function()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_non_canalizing_function"><code class="docutils literal notranslate"><span class="pre">random_non_canalizing_function()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_non_canalizing_non_degenerate_function"><code class="docutils literal notranslate"><span class="pre">random_non_canalizing_non_degenerate_function()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_parity_function"><code class="docutils literal notranslate"><span class="pre">random_parity_function()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_k_canalizing_function"><code class="docutils literal notranslate"><span class="pre">random_k_canalizing_function()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_k_canalizing_function_with_specific_layer_structure"><code class="docutils literal notranslate"><span class="pre">random_k_canalizing_function_with_specific_layer_structure()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_NCF"><code class="docutils literal notranslate"><span class="pre">random_NCF()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_network"><code class="docutils literal notranslate"><span class="pre">random_network()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_null_model"><code class="docutils literal notranslate"><span class="pre">random_null_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_non_canalizing_function"><code class="docutils literal notranslate"><span class="pre">random_non_canalizing_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_non_canalizing_non_degenerate_function"><code class="docutils literal notranslate"><span class="pre">random_non_canalizing_non_degenerate_function()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_wiring_diagram"><code class="docutils literal notranslate"><span class="pre">random_wiring_diagram()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_edge_list"><code class="docutils literal notranslate"><span class="pre">random_edge_list()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_degrees"><code class="docutils literal notranslate"><span class="pre">random_degrees()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.rewire_wiring_diagram"><code class="docutils literal notranslate"><span class="pre">rewire_wiring_diagram()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_network"><code class="docutils literal notranslate"><span class="pre">random_network()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.generate.random_null_model"><code class="docutils literal notranslate"><span class="pre">random_null_model()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bio_models.html">Bio Models</a></li>
@@ -130,7 +130,7 @@ synthetic test cases and large ensembles of random networks.</p>
 </section>
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_function">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_over_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_degenerate_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_absolute_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_function" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_over_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_degenerate_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_absolute_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/dispatch.html#random_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random Boolean function under flexible structural constraints.</p>
 <p>This function acts as a high-level generator that unifies several common
 ensembles of Boolean functions, including parity functions, canalizing
@@ -282,7 +282,7 @@ before returning a valid function.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_function_with_bias">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_function_with_bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_function_with_bias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_function_with_bias" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_function_with_bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/functions.html#random_function_with_bias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_function_with_bias" title="Link to this definition"></a></dt>
 <dd><p>Generate a random Boolean function with a specified bias.</p>
 <p>The Boolean function is represented by its truth table of length
 <code class="docutils literal notranslate"><span class="pre">2**n</span></code>, where each entry is independently set to 1 with probability
@@ -310,7 +310,7 @@ before returning a valid function.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_function_with_exact_hamming_weight">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_function_with_exact_hamming_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_function_with_exact_hamming_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_function_with_exact_hamming_weight" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_function_with_exact_hamming_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/functions.html#random_function_with_exact_hamming_weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_function_with_exact_hamming_weight" title="Link to this definition"></a></dt>
 <dd><p>Generate a random Boolean function with a fixed Hamming weight.</p>
 <p>The Boolean function is represented by its truth table of length
 <code class="docutils literal notranslate"><span class="pre">2**n</span></code>, containing exactly <code class="docutils literal notranslate"><span class="pre">hamming_weight</span></code> entries equal to 1.
@@ -348,20 +348,17 @@ truth table.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_degenerate_function">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_degenerate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_degenerate_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_degenerate_function" title="Link to this definition"></a></dt>
-<dd><p>Generate a random degenerate Boolean function.</p>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_degenerate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/functions.html#random_degenerate_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_degenerate_function" title="Link to this definition"></a></dt>
+<dd><p>Generate a random degenerate Boolean function uniformly at random.</p>
 <p>A Boolean function is degenerate if at least one variable is
 non-essential, i.e., the function does not depend on that variable.
-This function constructs a degenerate Boolean function by selecting
-one variable uniformly at random and enforcing that the output is
-independent of that variable.</p>
+By using appropriate acceptance weights, the resulting distribution
+is function-uniform over all degenerate Boolean functions on <code class="docutils literal notranslate"><span class="pre">n</span></code>
+variables.</p>
 <section id="id6">
 <h2>Parameters<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>n<span class="classifier">int</span></dt><dd><p>Number of Boolean variables.</p>
-</dd>
-<dt>bias<span class="classifier">float, optional</span></dt><dd><p>Probability that a truth-table entry equals 1 for the underlying
-(n−1)-variable function. Default is 0.5.</p>
 </dd>
 <dt>rng<span class="classifier">int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
 <code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
@@ -371,7 +368,8 @@ independent of that variable.</p>
 <section id="id7">
 <h2>Returns<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
 <dl class="simple">
-<dt>BooleanFunction</dt><dd><p>Random degenerate Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables.</p>
+<dt>BooleanFunction</dt><dd><p>Random degenerate Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables, sampled
+uniformly over all degenerate Boolean functions.</p>
 </dd>
 </dl>
 </section>
@@ -380,26 +378,29 @@ independent of that variable.</p>
 <dl class="simple">
 <dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not a positive integer.</p>
 </dd>
-<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">bias</span></code> is not strictly between 0 and 1.</p>
-</dd>
 </dl>
 </section>
 <section id="id9">
 <h2>Notes<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Exactly one variable is forced to be non-essential by construction,
-though additional variables may also be non-essential by chance.</p></li>
-<li><p>The degenerate variable is chosen uniformly at random.</p></li>
-<li><p>The resulting distribution is not uniform over all degenerate Boolean
-functions.</p></li>
-<li><p>This construction avoids rejection sampling.</p></li>
+<li><p>A non-essential variable is forced by construction, but additional
+variables may also be non-essential by chance.</p></li>
+<li><p>The forced non-essential variable is chosen uniformly at random
+from all <code class="docutils literal notranslate"><span class="pre">n</span></code> variables.</p></li>
+<li><p>Function-uniformity is achieved by accepting a candidate function
+with <code class="docutils literal notranslate"><span class="pre">k</span></code> non-essential variables with probability <code class="docutils literal notranslate"><span class="pre">1/k</span></code>,
+correcting for the fact that such functions are <code class="docutils literal notranslate"><span class="pre">k</span></code> times more
+likely to be proposed than functions with exactly one non-essential
+variable.</p></li>
+<li><p>At bias != 0.5 this acceptance correction would no longer be valid,
+so bias is fixed at 0.5 internally.</p></li>
 </ul>
 </section>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_non_degenerate_function">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_non_degenerate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_non_degenerate_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_non_degenerate_function" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_non_degenerate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/functions.html#random_non_degenerate_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_non_degenerate_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random non-degenerate Boolean function.</p>
 <p>A Boolean function is non-degenerate if every variable is essential, i.e.,
 the function depends on all <code class="docutils literal notranslate"><span class="pre">n</span></code> input variables. Functions are sampled
@@ -444,19 +445,16 @@ lead to long rejection-sampling times.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="boolforge.generate.random_non_canalizing_function">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_non_canalizing_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_non_canalizing_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_non_canalizing_function" title="Link to this definition"></a></dt>
-<dd><p>Generate a random non-canalizing Boolean function.</p>
-<p>A Boolean function is canalizing if there exists at least one variable
-and a value of that variable such that fixing it forces the output of
-the function. This function samples Boolean functions from the
-Bernoulli(bias) ensemble until a non-canalizing function is obtained.</p>
+<dt class="sig sig-object py" id="boolforge.generate.random_parity_function">
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_parity_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/functions.html#random_parity_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_parity_function" title="Link to this definition"></a></dt>
+<dd><p>Generate a random parity Boolean function.</p>
+<p>A parity Boolean function evaluates to the parity (sum modulo 2) of all
+input variables, optionally shifted by a constant. This function returns
+either the parity function or its complement, chosen uniformly at random.</p>
 <section id="id14">
 <h2>Parameters<a class="headerlink" href="#id14" title="Link to this heading"></a></h2>
 <dl class="simple">
-<dt>n<span class="classifier">int</span></dt><dd><p>Number of Boolean variables. Must satisfy <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>.</p>
-</dd>
-<dt>bias<span class="classifier">float, optional</span></dt><dd><p>Probability that a truth-table entry equals 1. Default is 0.5.</p>
+<dt>n<span class="classifier">int</span></dt><dd><p>Number of Boolean variables.</p>
 </dd>
 <dt>rng<span class="classifier">int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
 <code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
@@ -466,126 +464,19 @@ Bernoulli(bias) ensemble until a non-canalizing function is obtained.</p>
 <section id="id15">
 <h2>Returns<a class="headerlink" href="#id15" title="Link to this heading"></a></h2>
 <dl class="simple">
-<dt>BooleanFunction</dt><dd><p>Random non-canalizing Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables.</p>
+<dt>BooleanFunction</dt><dd><p>Random parity Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables.</p>
 </dd>
 </dl>
 </section>
 <section id="id16">
 <h2>Raises<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
 <dl class="simple">
-<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not an integer greater than 1.</p>
-</dd>
-<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">bias</span></code> is not strictly between 0 and 1.</p>
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not a positive integer.</p>
 </dd>
 </dl>
 </section>
 <section id="id17">
 <h2>Notes<a class="headerlink" href="#id17" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>This function uses rejection sampling.</p></li>
-<li><p>For moderate bias values, almost all Boolean functions are
-non-canalizing.</p></li>
-<li><p>Extremely biased functions are more likely to be canalizing and may
-lead to longer sampling times.</p></li>
-</ul>
-</section>
-<section id="references">
-<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
-<p>C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
-The influence of canalization on the robustness of Boolean networks.
-Physica D: Nonlinear Phenomena, 353, 39–47.</p>
-</section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="boolforge.generate.random_non_canalizing_non_degenerate_function">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_non_canalizing_non_degenerate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_non_canalizing_non_degenerate_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_non_canalizing_non_degenerate_function" title="Link to this definition"></a></dt>
-<dd><p>Generate a random Boolean function that is both non-canalizing and
-non-degenerate.</p>
-<p>A Boolean function is non-canalizing if no variable can force the output
-when fixed, and non-degenerate if every variable is essential. This
-function samples Boolean functions from the Bernoulli(bias) ensemble
-until both properties are satisfied.</p>
-<section id="id18">
-<h2>Parameters<a class="headerlink" href="#id18" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>n<span class="classifier">int</span></dt><dd><p>Number of Boolean variables. Must satisfy <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>.</p>
-</dd>
-<dt>bias<span class="classifier">float, optional</span></dt><dd><p>Probability that a truth-table entry equals 1. Default is 0.5.</p>
-</dd>
-<dt>rng<span class="classifier">int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
-<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id19">
-<h2>Returns<a class="headerlink" href="#id19" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>BooleanFunction</dt><dd><p>Random Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables that is both non-canalizing
-and non-degenerate.</p>
-</dd>
-</dl>
-</section>
-<section id="id20">
-<h2>Raises<a class="headerlink" href="#id20" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not an integer greater than 1.</p>
-</dd>
-<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">bias</span></code> is not strictly between 0 and 1.</p>
-</dd>
-</dl>
-</section>
-<section id="id21">
-<h2>Notes<a class="headerlink" href="#id21" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>This function uses rejection sampling.</p></li>
-<li><p>For moderate bias values and sufficiently large <code class="docutils literal notranslate"><span class="pre">n</span></code>, almost all
-Boolean functions are both non-canalizing and non-degenerate.</p></li>
-<li><p>Extremely biased functions are more likely to be canalizing or
-degenerate and may lead to longer sampling times.</p></li>
-</ul>
-</section>
-<section id="id22">
-<h2>References<a class="headerlink" href="#id22" title="Link to this heading"></a></h2>
-<p>C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
-The influence of canalization on the robustness of Boolean networks.
-Physica D: Nonlinear Phenomena, 353, 39–47.</p>
-</section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="boolforge.generate.random_parity_function">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_parity_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_parity_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_parity_function" title="Link to this definition"></a></dt>
-<dd><p>Generate a random parity Boolean function.</p>
-<p>A parity Boolean function evaluates to the parity (sum modulo 2) of all
-input variables, optionally shifted by a constant. This function returns
-either the parity function or its complement, chosen uniformly at random.</p>
-<section id="id23">
-<h2>Parameters<a class="headerlink" href="#id23" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>n<span class="classifier">int</span></dt><dd><p>Number of Boolean variables.</p>
-</dd>
-<dt>rng<span class="classifier">int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
-<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id24">
-<h2>Returns<a class="headerlink" href="#id24" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>BooleanFunction</dt><dd><p>Random parity Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables.</p>
-</dd>
-</dl>
-</section>
-<section id="id25">
-<h2>Raises<a class="headerlink" href="#id25" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not a positive integer.</p>
-</dd>
-</dl>
-</section>
-<section id="id26">
-<h2>Notes<a class="headerlink" href="#id26" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The returned function is either
 <code class="docutils literal notranslate"><span class="pre">x1</span> <span class="pre">XOR</span> <span class="pre">x2</span> <span class="pre">XOR</span> <span class="pre">...</span> <span class="pre">XOR</span> <span class="pre">xn</span></code> or its complement.</p></li>
@@ -594,8 +485,8 @@ either the parity function or its complement, chosen uniformly at random.</p>
 to determine the output; they have maximal average sensitivity.</p></li>
 </ul>
 </section>
-<section id="id27">
-<h2>Examples<a class="headerlink" href="#id27" title="Link to this heading"></a></h2>
+<section id="id18">
+<h2>Examples<a class="headerlink" href="#id18" title="Link to this heading"></a></h2>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">random_parity_function</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">sum</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 <span class="go">4</span>
@@ -606,14 +497,14 @@ to determine the output; they have maximal average sensitivity.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_k_canalizing_function">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_k_canalizing_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_over_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_k_canalizing_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_k_canalizing_function" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_k_canalizing_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_over_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/canalization.html#random_k_canalizing_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_k_canalizing_function" title="Link to this definition"></a></dt>
 <dd><p>Generate a random k-canalizing Boolean function in n variables.</p>
 <p>A Boolean function is k-canalizing if it has at least k conditionally 
 canalizing variables. If <code class="docutils literal notranslate"><span class="pre">exact_depth</span></code> is True, the function has exactly
 k conditionally canalizing variables; otherwise, its canalizing depth 
 may exceed k.</p>
-<section id="id28">
-<h2>Parameters<a class="headerlink" href="#id28" title="Link to this heading"></a></h2>
+<section id="id19">
+<h2>Parameters<a class="headerlink" href="#id19" title="Link to this heading"></a></h2>
 <dl>
 <dt>n<span class="classifier">int</span></dt><dd><p>Number of Boolean variables.</p>
 </dd>
@@ -640,16 +531,16 @@ canalizing structures.</p>
 </dd>
 </dl>
 </section>
-<section id="id29">
-<h2>Returns<a class="headerlink" href="#id29" title="Link to this heading"></a></h2>
+<section id="id20">
+<h2>Returns<a class="headerlink" href="#id20" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>BooleanFunction</dt><dd><p>A Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables with canalizing depth at
 least <code class="docutils literal notranslate"><span class="pre">k</span></code> (or exactly <code class="docutils literal notranslate"><span class="pre">k</span></code> if <code class="docutils literal notranslate"><span class="pre">exact_depth=True</span></code>).</p>
 </dd>
 </dl>
 </section>
-<section id="id30">
-<h2>Raises<a class="headerlink" href="#id30" title="Link to this heading"></a></h2>
+<section id="id21">
+<h2>Raises<a class="headerlink" href="#id21" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>AssertionError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not a positive integer.</p>
 </dd>
@@ -659,8 +550,8 @@ least <code class="docutils literal notranslate"><span class="pre">k</span></cod
 </dd>
 </dl>
 </section>
-<section id="id31">
-<h2>Notes<a class="headerlink" href="#id31" title="Link to this heading"></a></h2>
+<section id="id22">
+<h2>Notes<a class="headerlink" href="#id22" title="Link to this heading"></a></h2>
 <p>When uniform_over_functions=True, this function samples uniformly from the
 space of Boolean functions with the specified canalizing properties.
 As a consequence, different canalizing layer structures generally
@@ -672,8 +563,8 @@ not expected.</p>
 function into canalizing variables, canalizing inputs and outputs, and
 a residual core function on <code class="docutils literal notranslate"><span class="pre">n-k</span></code> variables.</p>
 </section>
-<section id="id32">
-<h2>References<a class="headerlink" href="#id32" title="Link to this heading"></a></h2>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>He, Q., and Macauley, M. (2016).</dt><dd><p>Stratification and enumeration of Boolean functions by canalizing depth.
 Physica D: Nonlinear Phenomena, 314, 1–8.</p>
@@ -687,7 +578,7 @@ and applications. Automatica, 146, 110630.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_k_canalizing_function_with_specific_layer_structure">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_k_canalizing_function_with_specific_layer_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_k_canalizing_function_with_specific_layer_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_k_canalizing_function_with_specific_layer_structure" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_k_canalizing_function_with_specific_layer_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/canalization.html#random_k_canalizing_function_with_specific_layer_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_k_canalizing_function_with_specific_layer_structure" title="Link to this definition"></a></dt>
 <dd><p>Generate a random Boolean function with a specified canalizing layer structure.</p>
 <p>The canalizing layer structure is given as a list
 <code class="docutils literal notranslate"><span class="pre">[k_1,</span> <span class="pre">...,</span> <span class="pre">k_r]</span></code>, where each <code class="docutils literal notranslate"><span class="pre">k_i</span></code> specifies the number of
@@ -696,8 +587,8 @@ canalizing variables in the i-th layer. The total canalizing depth is
 <p>If <code class="docutils literal notranslate"><span class="pre">sum(layer_structure)</span> <span class="pre">==</span> <span class="pre">n</span></code> and <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, the function is a nested
 canalizing function and the final layer is required to have size at
 least 2.</p>
-<section id="id33">
-<h2>Parameters<a class="headerlink" href="#id33" title="Link to this heading"></a></h2>
+<section id="id23">
+<h2>Parameters<a class="headerlink" href="#id23" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>n<span class="classifier">int</span></dt><dd><p>Total number of Boolean variables.</p>
 </dd>
@@ -714,16 +605,16 @@ variables may occur in the core function.</p>
 </dd>
 </dl>
 </section>
-<section id="id34">
-<h2>Returns<a class="headerlink" href="#id34" title="Link to this heading"></a></h2>
+<section id="id24">
+<h2>Returns<a class="headerlink" href="#id24" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>BooleanFunction</dt><dd><p>A Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables with the prescribed canalizing
 layer structure, plus potentially more canalizing variables (if exact_depth=True).</p>
 </dd>
 </dl>
 </section>
-<section id="id35">
-<h2>Raises<a class="headerlink" href="#id35" title="Link to this heading"></a></h2>
+<section id="id25">
+<h2>Raises<a class="headerlink" href="#id25" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>AssertionError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not a positive integer.</p>
 </dd>
@@ -738,8 +629,8 @@ than 2.</p>
 </dd>
 </dl>
 </section>
-<section id="id36">
-<h2>Notes<a class="headerlink" href="#id36" title="Link to this heading"></a></h2>
+<section id="id26">
+<h2>Notes<a class="headerlink" href="#id26" title="Link to this heading"></a></h2>
 <p>For fixed parameter values, this function samples uniformly at random
 from the ensemble of Boolean functions consistent with the specified
 canalizing layer structure and additional constraints.</p>
@@ -747,8 +638,8 @@ canalizing layer structure and additional constraints.</p>
 function into ordered canalizing layers and a residual core function on
 the remaining variables.</p>
 </section>
-<section id="id37">
-<h2>References<a class="headerlink" href="#id37" title="Link to this heading"></a></h2>
+<section id="id27">
+<h2>References<a class="headerlink" href="#id27" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>He, Q., and Macauley, M. (2016).</dt><dd><p>Stratification and enumeration of Boolean functions by canalizing depth.
 Physica D: Nonlinear Phenomena, 314, 1–8.</p>
@@ -762,13 +653,13 @@ Physica D: Nonlinear Phenomena, 353, 39–47.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_NCF">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_NCF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_over_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_NCF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_NCF" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_NCF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_over_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/canalization.html#random_NCF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_NCF" title="Link to this definition"></a></dt>
 <dd><p>Generate a random nested canalizing Boolean function in n variables.</p>
 <p>A nested canalizing function (NCF) is an n-canalizing Boolean function,
 i.e., a function whose canalizing depth equals the number of variables.
 Optionally, a specific canalizing layer structure may be prescribed.</p>
-<section id="id38">
-<h2>Parameters<a class="headerlink" href="#id38" title="Link to this heading"></a></h2>
+<section id="id28">
+<h2>Parameters<a class="headerlink" href="#id28" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>n<span class="classifier">int</span></dt><dd><p>Total number of Boolean variables.</p>
 </dd>
@@ -791,15 +682,15 @@ is sampled at random.</p>
 </dd>
 </dl>
 </section>
-<section id="id39">
-<h2>Returns<a class="headerlink" href="#id39" title="Link to this heading"></a></h2>
+<section id="id29">
+<h2>Returns<a class="headerlink" href="#id29" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>BooleanFunction</dt><dd><p>A nested canalizing Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables.</p>
 </dd>
 </dl>
 </section>
-<section id="id40">
-<h2>Raises<a class="headerlink" href="#id40" title="Link to this heading"></a></h2>
+<section id="id30">
+<h2>Raises<a class="headerlink" href="#id30" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>AssertionError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not a positive integer.</p>
 </dd>
@@ -810,8 +701,8 @@ is sampled at random.</p>
 </dd>
 </dl>
 </section>
-<section id="id41">
-<h2>Notes<a class="headerlink" href="#id41" title="Link to this heading"></a></h2>
+<section id="id31">
+<h2>Notes<a class="headerlink" href="#id31" title="Link to this heading"></a></h2>
 <p>For fixed parameter values, this function samples uniformly at random
 from the ensemble of nested canalizing Boolean functions consistent with
 the specified constraints. Non-uniformity arises only when
@@ -820,8 +711,8 @@ the specified constraints. Non-uniformity arises only when
 <code class="docutils literal notranslate"><span class="pre">random_k_canalizing_function</span></code> and
 <code class="docutils literal notranslate"><span class="pre">random_k_canalizing_function_with_specific_layer_structure</span></code>.</p>
 </section>
-<section id="id42">
-<h2>References<a class="headerlink" href="#id42" title="Link to this heading"></a></h2>
+<section id="id32">
+<h2>References<a class="headerlink" href="#id32" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>He, Q., and Macauley, M. (2016).</dt><dd><p>Stratification and enumeration of Boolean functions by canalizing depth.
 Physica D: Nonlinear Phenomena, 314, 1–8.</p>
@@ -834,8 +725,427 @@ Physica D: Nonlinear Phenomena, 353, 39–47.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="boolforge.generate.random_non_canalizing_function">
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_non_canalizing_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/canalization.html#random_non_canalizing_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_non_canalizing_function" title="Link to this definition"></a></dt>
+<dd><p>Generate a random non-canalizing Boolean function.</p>
+<p>A Boolean function is canalizing if there exists at least one variable
+and a value of that variable such that fixing it forces the output of
+the function. This function samples Boolean functions from the
+Bernoulli(bias) ensemble until a non-canalizing function is obtained.</p>
+<section id="id33">
+<h2>Parameters<a class="headerlink" href="#id33" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>n<span class="classifier">int</span></dt><dd><p>Number of Boolean variables. Must satisfy <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>.</p>
+</dd>
+<dt>bias<span class="classifier">float, optional</span></dt><dd><p>Probability that a truth-table entry equals 1. Default is 0.5.</p>
+</dd>
+<dt>rng<span class="classifier">int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
+<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id34">
+<h2>Returns<a class="headerlink" href="#id34" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>BooleanFunction</dt><dd><p>Random non-canalizing Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables.</p>
+</dd>
+</dl>
+</section>
+<section id="id35">
+<h2>Raises<a class="headerlink" href="#id35" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not an integer greater than 1.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">bias</span></code> is not strictly between 0 and 1.</p>
+</dd>
+</dl>
+</section>
+<section id="id36">
+<h2>Notes<a class="headerlink" href="#id36" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>This function uses rejection sampling.</p></li>
+<li><p>For moderate bias values, almost all Boolean functions are
+non-canalizing.</p></li>
+<li><p>Extremely biased functions are more likely to be canalizing and may
+lead to longer sampling times.</p></li>
+</ul>
+</section>
+<section id="id37">
+<h2>References<a class="headerlink" href="#id37" title="Link to this heading"></a></h2>
+<p>C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
+The influence of canalization on the robustness of Boolean networks.
+Physica D: Nonlinear Phenomena, 353, 39–47.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.generate.random_non_canalizing_non_degenerate_function">
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_non_canalizing_non_degenerate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_function.html#boolforge.boolean_function.BooleanFunction" title="boolforge.boolean_function.core.BooleanFunction"><span class="pre">BooleanFunction</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/canalization.html#random_non_canalizing_non_degenerate_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_non_canalizing_non_degenerate_function" title="Link to this definition"></a></dt>
+<dd><p>Generate a random Boolean function that is both non-canalizing and
+non-degenerate.</p>
+<p>A Boolean function is non-canalizing if no variable can force the output
+when fixed, and non-degenerate if every variable is essential. This
+function samples Boolean functions from the Bernoulli(bias) ensemble
+until both properties are satisfied.</p>
+<section id="id38">
+<h2>Parameters<a class="headerlink" href="#id38" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>n<span class="classifier">int</span></dt><dd><p>Number of Boolean variables. Must satisfy <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>.</p>
+</dd>
+<dt>bias<span class="classifier">float, optional</span></dt><dd><p>Probability that a truth-table entry equals 1. Default is 0.5.</p>
+</dd>
+<dt>rng<span class="classifier">int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
+<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id39">
+<h2>Returns<a class="headerlink" href="#id39" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>BooleanFunction</dt><dd><p>Random Boolean function on <code class="docutils literal notranslate"><span class="pre">n</span></code> variables that is both non-canalizing
+and non-degenerate.</p>
+</dd>
+</dl>
+</section>
+<section id="id40">
+<h2>Raises<a class="headerlink" href="#id40" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is not an integer greater than 1.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">bias</span></code> is not strictly between 0 and 1.</p>
+</dd>
+</dl>
+</section>
+<section id="id41">
+<h2>Notes<a class="headerlink" href="#id41" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>This function uses rejection sampling.</p></li>
+<li><p>For moderate bias values and sufficiently large <code class="docutils literal notranslate"><span class="pre">n</span></code>, almost all
+Boolean functions are both non-canalizing and non-degenerate.</p></li>
+<li><p>Extremely biased functions are more likely to be canalizing or
+degenerate and may lead to longer sampling times.</p></li>
+</ul>
+</section>
+<section id="id42">
+<h2>References<a class="headerlink" href="#id42" title="Link to this heading"></a></h2>
+<p>C. Kadelka, J. Kuipers, and R. Laubenbacher (2017).
+The influence of canalization on the robustness of Boolean networks.
+Physica D: Nonlinear Phenomena, 353, 39–47.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.generate.random_wiring_diagram">
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_wiring_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_indegree_zero</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strongly_connected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegree_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_out_degree_one</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_strong_connectivity_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/generate/wiring.html#random_wiring_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_wiring_diagram" title="Link to this definition"></a></dt>
+<dd><p>Generate a random wiring diagram for a directed network with N nodes.</p>
+<p>A wiring diagram specifies, for each node, the set of its regulators
+(incoming neighbors). In-degrees are first generated according to the
+specified distribution, after which edges are sampled uniformly at
+random subject to the requested constraints.</p>
+<section id="id43">
+<h2>Parameters<a class="headerlink" href="#id43" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>N<span class="classifier">int</span></dt><dd><p>Number of nodes in the network.</p>
+</dd>
+<dt>n<span class="classifier">int, float, list of int, or ndarray of int</span></dt><dd><p>Parameter determining the in-degree sequence. Interpretation depends
+on <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code>:</p>
+<ul class="simple">
+<li><p>If a length-<code class="docutils literal notranslate"><span class="pre">N</span></code> vector is provided, it is interpreted as the
+in-degree of each node.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">'constant'</span></code> (or <code class="docutils literal notranslate"><span class="pre">'dirac'</span></code> /
+<code class="docutils literal notranslate"><span class="pre">'delta'</span></code>), <code class="docutils literal notranslate"><span class="pre">n</span></code> specifies the in-degree of every node.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">'uniform'</span></code>, <code class="docutils literal notranslate"><span class="pre">n</span></code> specifies the
+upper bound of a discrete uniform distribution on
+<code class="docutils literal notranslate"><span class="pre">{1,</span> <span class="pre">...,</span> <span class="pre">n}</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">'poisson'</span></code>, <code class="docutils literal notranslate"><span class="pre">n</span></code> is the Poisson
+rate parameter <code class="docutils literal notranslate"><span class="pre">lambda</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>.</p></li>
+</ul>
+</dd>
+<dt>allow_self_loops<span class="classifier">bool, optional</span></dt><dd><p>If True, self-loops (edges from a node to itself) are allowed.
+Default is False.</p>
+</dd>
+<dt>allow_indegree_zero<span class="classifier">bool, optional</span></dt><dd><p>If True, some in-degrees may be <code class="docutils literal notranslate"><span class="pre">0</span></code>.
+If False (default), all in-degrees are at least <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</dd>
+<dt>strongly_connected<span class="classifier">bool, optional</span></dt><dd><p>If True, repeatedly resample the wiring diagram until a strongly
+connected network is obtained, or until the maximum number of
+attempts is exceeded. Default is False.</p>
+</dd>
+<dt>indegree_distribution<span class="classifier">str, optional</span></dt><dd><p>Distribution used to generate in-degrees. Must be one of
+<code class="docutils literal notranslate"><span class="pre">{'constant',</span> <span class="pre">'dirac',</span> <span class="pre">'delta',</span> <span class="pre">'uniform',</span> <span class="pre">'poisson'}</span></code>.
+Default is <code class="docutils literal notranslate"><span class="pre">'constant'</span></code>.</p>
+</dd>
+<dt>min_out_degree_one<span class="classifier">bool, optional</span></dt><dd><p>If True, enforce that every node has at least one outgoing edge.
+This is achieved by rewiring edges while preserving the in-degree
+sequence. Default is False.</p>
+</dd>
+<dt>max_strong_connectivity_attempts<span class="classifier">int, optional</span></dt><dd><p>Maximum number of attempts to generate a strongly connected wiring
+diagram before raising a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>. Default is 1000.</p>
+</dd>
+<dt>rng<span class="classifier">int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
+<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id44">
+<h2>Returns<a class="headerlink" href="#id44" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>WiringDiagram</dt><dd><p>A wiring diagram object encoding the regulator set of each node.</p>
+</dd>
+</dl>
+</section>
+<section id="id45">
+<h2>Raises<a class="headerlink" href="#id45" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>AssertionError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">strongly_connected=True</span></code> and <code class="docutils literal notranslate"><span class="pre">allow_indegree_zero==True</span></code>.
+This is an impossible combination.</p>
+</dd>
+<dt>RuntimeError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">strongly_connected=True</span></code> and a strongly connected wiring diagram
+cannot be generated within the specified number of attempts.</p>
+</dd>
+</dl>
+</section>
+<section id="id46">
+<h2>Notes<a class="headerlink" href="#id46" title="Link to this heading"></a></h2>
+<p>In-degrees are generated first using <code class="docutils literal notranslate"><span class="pre">random_degrees</span></code>, and edges are
+then sampled uniformly at random subject to the imposed constraints.
+When <code class="docutils literal notranslate"><span class="pre">strongly_connected=True</span></code> or
+<code class="docutils literal notranslate"><span class="pre">min_out_degree_one=True</span></code>, the resulting distribution is
+not uniform over all wiring diagrams with the given in-degree sequence.</p>
+<p>This function is a high-level convenience wrapper around
+<code class="docutils literal notranslate"><span class="pre">random_degrees</span></code> and <code class="docutils literal notranslate"><span class="pre">random_edge_list</span></code>.</p>
+</section>
+<section id="id47">
+<h2>Examples<a class="headerlink" href="#id47" title="Link to this heading"></a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">random_wiring_diagram</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">random_wiring_diagram</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">strongly_connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">random_wiring_diagram</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.generate.random_edge_list">
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_edge_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_out_degree_one</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/generate/wiring.html#random_edge_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_edge_list" title="Link to this definition"></a></dt>
+<dd><p>Generate a random directed edge list for a network with prescribed in-degrees.</p>
+<p>Each node <code class="docutils literal notranslate"><span class="pre">i</span></code> receives exactly <code class="docutils literal notranslate"><span class="pre">indegrees[i]</span></code> incoming edges, with
+regulators chosen uniformly at random from the set of admissible source
+nodes. Optionally, the construction enforces that every node regulates at
+least one other node.</p>
+<section id="id48">
+<h2>Parameters<a class="headerlink" href="#id48" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>N<span class="classifier">int</span></dt><dd><p>Number of nodes in the network.</p>
+</dd>
+<dt>indegrees<span class="classifier">sequence of int</span></dt><dd><p>Length-<code class="docutils literal notranslate"><span class="pre">N</span></code> sequence specifying the number of incoming edges for each
+node.</p>
+</dd>
+<dt>allow_self_loops<span class="classifier">bool</span></dt><dd><p>If True, self-loops (edges from a node to itself) are allowed.
+Default is False.</p>
+</dd>
+<dt>min_out_degree_one<span class="classifier">bool, optional</span></dt><dd><p>If True, enforce that every node has at least one outgoing edge.
+This is achieved by rewiring edges while preserving the prescribed
+in-degree sequence. Default is False.</p>
+</dd>
+<dt>rng<span class="classifier">int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
+<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id49">
+<h2>Returns<a class="headerlink" href="#id49" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>edge_list<span class="classifier">list of tuple of int</span></dt><dd><p>List of directed edges represented as <code class="docutils literal notranslate"><span class="pre">(source,</span> <span class="pre">target)</span></code> pairs.</p>
+</dd>
+</dl>
+</section>
+<section id="id50">
+<h2>Raises<a class="headerlink" href="#id50" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">N</span></code> or <code class="docutils literal notranslate"><span class="pre">indegrees</span></code> are inconsistent.</p>
+</dd>
+<dt>AssertionError</dt><dd><p>If sampling constraints cannot be satisfied.</p>
+</dd>
+</dl>
+</section>
+<section id="id51">
+<h2>Notes<a class="headerlink" href="#id51" title="Link to this heading"></a></h2>
+<p>Regulators for each node are sampled uniformly at random without
+replacement from the set of admissible source nodes. If
+<code class="docutils literal notranslate"><span class="pre">min_out_degree_one</span></code>, the algorithm post-processes
+the initially sampled edge list by replacing edges until every node
+has at least one outgoing edge, while preserving all in-degrees and
+respecting the self-regulation constraint.</p>
+<p>No guarantee is made that the resulting edge list is uniformly sampled
+from the space of all directed graphs satisfying the constraints.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.generate.random_degrees">
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_degrees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegree_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_indegree_zero</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/boolforge/generate/wiring.html#random_degrees"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_degrees" title="Link to this definition"></a></dt>
+<dd><p>Draw an in-degree vector for a directed network with N nodes.</p>
+<p>This function either accepts a user-specified in-degree vector or
+samples in-degrees independently for each node from a specified
+distribution.</p>
+<section id="id52">
+<h2>Parameters<a class="headerlink" href="#id52" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>N<span class="classifier">int</span></dt><dd><p>Number of nodes in the network. Must be a positive integer.</p>
+</dd>
+<dt>n<span class="classifier">int, float, list of int, or ndarray of int</span></dt><dd><p>Interpretation depends on <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code>:</p>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is a length-<code class="docutils literal notranslate"><span class="pre">N</span></code> vector of integers, it is interpreted
+as a user-specified in-degree sequence and returned after
+validation.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code> is one of
+<code class="docutils literal notranslate"><span class="pre">{'constant',</span> <span class="pre">'dirac',</span> <span class="pre">'delta'}</span></code>, then <code class="docutils literal notranslate"><span class="pre">n</span></code> is a single integer
+specifying the in-degree of every node.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span> <span class="pre">==</span> <span class="pre">'uniform'</span></code>, then <code class="docutils literal notranslate"><span class="pre">n</span></code> is a positive
+integer upper bound, and each node independently receives an
+in-degree sampled uniformly from
+<code class="docutils literal notranslate"><span class="pre">{1,</span> <span class="pre">2,</span> <span class="pre">...,</span> <span class="pre">n}</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span> <span class="pre">==</span> <span class="pre">'poisson'</span></code>, then <code class="docutils literal notranslate"><span class="pre">n</span></code> is the Poisson
+rate parameter <code class="docutils literal notranslate"><span class="pre">λ</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>. Each node independently receives a
+Poisson(<code class="docutils literal notranslate"><span class="pre">λ</span></code>) draw, truncated to lie in
+<code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">N</span> <span class="pre">-</span> <span class="pre">int(not</span> <span class="pre">allow_self_loops)]</span></code>.</p></li>
+</ul>
+</dd>
+<dt>indegree_distribution<span class="classifier">str, optional</span></dt><dd><p>Distribution used to generate in-degrees when <code class="docutils literal notranslate"><span class="pre">n</span></code> is not a vector.
+Must be one of <code class="docutils literal notranslate"><span class="pre">{'constant',</span> <span class="pre">'dirac',</span> <span class="pre">'delta',</span> <span class="pre">'uniform',</span> <span class="pre">'poisson'}</span></code>.
+Default is <code class="docutils literal notranslate"><span class="pre">'constant'</span></code>.</p>
+</dd>
+<dt>allow_self_loops<span class="classifier">bool, optional</span></dt><dd><p>If True, in-degrees may be as large as <code class="docutils literal notranslate"><span class="pre">N</span></code>.
+If False (default), self-loops are disallowed in subsequent wiring
+generation. This is enforced here by capping in-degrees at <code class="docutils literal notranslate"><span class="pre">N-1</span></code>.</p>
+</dd>
+<dt>allow_indegree_zero<span class="classifier">bool, optional</span></dt><dd><p>If True, some in-degrees may be <code class="docutils literal notranslate"><span class="pre">0</span></code>.
+If False (default), all in-degrees are at least <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</dd>
+<dt>rng<span class="classifier">int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
+<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id53">
+<h2>Returns<a class="headerlink" href="#id53" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>indegrees<span class="classifier">ndarray of int, shape (N,)</span></dt><dd><p>In-degree of each node. For sampled distributions, values lie in
+<code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">N</span> <span class="pre">-</span> <span class="pre">int(not</span> <span class="pre">allow_self_loops)]</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id54">
+<h2>Raises<a class="headerlink" href="#id54" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>AssertionError</dt><dd><p>If inputs are malformed, out of range, or an unsupported distribution
+is requested.</p>
+</dd>
+</dl>
+</section>
+<section id="id55">
+<h2>Notes<a class="headerlink" href="#id55" title="Link to this heading"></a></h2>
+<p>When sampling is requested, in-degrees for different nodes are generated
+independently. No attempt is made to enforce graphicality or feasibility
+of the resulting degree sequence for a particular wiring model; such
+constraints must be handled downstream.</p>
+</section>
+<section id="id56">
+<h2>Examples<a class="headerlink" href="#id56" title="Link to this heading"></a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">random_degrees</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">indegree_distribution</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">)</span>
+<span class="go">array([2, 2, 2, 2, 2])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">random_degrees</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">indegree_distribution</span><span class="o">=</span><span class="s1">&#39;uniform&#39;</span><span class="p">,</span> <span class="n">allow_self_loops</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">array([2, 1, 2, 2])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">random_degrees</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.7</span><span class="p">,</span> <span class="n">indegree_distribution</span><span class="o">=</span><span class="s1">&#39;poisson&#39;</span><span class="p">)</span>
+<span class="go">array([1, 2, 1, 1, 2, 1])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">random_degrees</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">array([1, 2, 1])</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.generate.rewire_wiring_diagram">
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">rewire_wiring_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">WiringDiagram</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_swaps_per_edge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_new_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loop_rewiring</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/generate/wiring.html#rewire_wiring_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.rewire_wiring_diagram" title="Link to this definition"></a></dt>
+<dd><p>Degree-preserving rewiring of a wiring diagram via double-edge swaps.</p>
+<p>The wiring diagram is represented in regulator form: <code class="docutils literal notranslate"><span class="pre">I[target]</span></code> lists
+all regulators (incoming neighbors) of <code class="docutils literal notranslate"><span class="pre">target</span></code>. The algorithm performs
+random double-edge swaps of the form
+<code class="docutils literal notranslate"><span class="pre">(u</span> <span class="pre">-&gt;</span> <span class="pre">v,</span> <span class="pre">x</span> <span class="pre">-&gt;</span> <span class="pre">y)</span> <span class="pre">-&gt;</span> <span class="pre">(u</span> <span class="pre">-&gt;</span> <span class="pre">y,</span> <span class="pre">x</span> <span class="pre">-&gt;</span> <span class="pre">v)</span></code>, while preserving both the
+in-degree and out-degree of every node. Parallel edges are disallowed.</p>
+<section id="id57">
+<h2>Parameters<a class="headerlink" href="#id57" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>I<span class="classifier">list of array-like or WiringDiagram</span></dt><dd><p>Wiring diagram in regulator representation. For each node <code class="docutils literal notranslate"><span class="pre">target</span></code>,
+<code class="docutils literal notranslate"><span class="pre">I[target]</span></code> contains the regulators of that node. Regulator indices
+must be integers in <code class="docutils literal notranslate"><span class="pre">{0,</span> <span class="pre">...,</span> <span class="pre">N-1}</span></code>. If a <code class="docutils literal notranslate"><span class="pre">WiringDiagram</span></code> is
+provided, its internal adjacency representation is used.</p>
+</dd>
+<dt>average_swaps_per_edge<span class="classifier">float, optional</span></dt><dd><p>Target number of successful double-edge swaps per edge. Larger values
+typically yield better mixing but increase runtime. Default is 50.</p>
+</dd>
+<dt>allow_new_self_loops<span class="classifier">bool, optional</span></dt><dd><p>If True, new self-loops may be introduced. If False (default), proposed 
+swaps that would introduce a new self-loop are rejected.</p>
+</dd>
+<dt>allow_self_loop_rewiring<span class="classifier">bool, optional</span></dt><dd><p>If True, existing self-loops may be rewired. If False (default), 
+existing self-loops are kept fixed and excluded from the pool of 
+swappable edges.</p>
+</dd>
+<dt>rng<span class="classifier">int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
+<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id58">
+<h2>Returns<a class="headerlink" href="#id58" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>WiringDiagram</dt><dd><p>A new wiring diagram obtained by degree-preserving rewiring of <code class="docutils literal notranslate"><span class="pre">I</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id59">
+<h2>Raises<a class="headerlink" href="#id59" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If the input wiring diagram is malformed.</p>
+</dd>
+<dt>AssertionError</dt><dd><p>If rewiring constraints cannot be satisfied.</p>
+</dd>
+</dl>
+</section>
+<section id="id60">
+<h2>Notes<a class="headerlink" href="#id60" title="Link to this heading"></a></h2>
+<p>Both in-degrees and out-degrees of all nodes are preserved exactly.
+Duplicate edges are never introduced. Control over self-regulation is
+governed by the two Boolean flags above.</p>
+<p>The resulting wiring diagram is not guaranteed to be sampled uniformly
+from the space of all directed graphs with the same degree sequence; the
+procedure is intended as a practical degree-preserving randomization
+method rather than an exact uniform sampler.</p>
+</section>
+<section id="id61">
+<h2>Examples<a class="headerlink" href="#id61" title="Link to this heading"></a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">I</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">J</span> <span class="o">=</span> <span class="n">rewire_wiring_diagram</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">I</span><span class="o">.</span><span class="n">indegrees</span> <span class="o">==</span> <span class="n">J</span><span class="o">.</span><span class="n">indegrees</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">I</span><span class="o">.</span><span class="n">get_outdegrees</span><span class="p">()</span> <span class="o">==</span> <span class="n">J</span><span class="o">.</span><span class="n">get_outdegrees</span><span class="p">()</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_network">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_over_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_degenerate_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_absolute_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strongly_connected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegree_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_out_degree_one</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_strong_connectivity_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">WiringDiagram</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DiGraph</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_network" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_over_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_degenerate_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_absolute_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hamming_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_indegree_zero</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strongly_connected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegree_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_out_degree_one</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_strong_connectivity_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">WiringDiagram</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DiGraph</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.core.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/networks.html#random_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_network" title="Link to this definition"></a></dt>
 <dd><p>Construct a random Boolean network with configurable wiring and update rules.</p>
 <p>The network is built in two stages:</p>
 <ol class="arabic simple">
@@ -851,8 +1161,8 @@ For each node <code class="docutils literal notranslate"><span class="pre">i</sp
 requested constraints on canalizing depth or layer structure, parity,
 bias or absolute bias, and exact Hamming weight.</p></li>
 </ol>
-<section id="id43">
-<h2>Parameters<a class="headerlink" href="#id43" title="Link to this heading"></a></h2>
+<section id="id62">
+<h2>Parameters<a class="headerlink" href="#id62" title="Link to this heading"></a></h2>
 <dl>
 <dt>N<span class="classifier">int or None, optional</span></dt><dd><p>Number of nodes. Required when <code class="docutils literal notranslate"><span class="pre">I</span></code> is not provided. Ignored if <code class="docutils literal notranslate"><span class="pre">I</span></code> is
 given.</p>
@@ -935,6 +1245,9 @@ depth zero. Default is None.</p>
 <dt>allow_self_loops<span class="classifier">bool, optional</span></dt><dd><p>If True, self-loops (edges from a node to itself) are allowed.
 Default is False. Ignored if <code class="docutils literal notranslate"><span class="pre">I</span></code> is provided.</p>
 </dd>
+<dt>allow_indegree_zero<span class="classifier">bool, optional</span></dt><dd><p>If True, some in-degrees may be <code class="docutils literal notranslate"><span class="pre">0</span></code>.
+If False (default), all in-degrees are at least <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</dd>
 <dt>strongly_connected<span class="classifier">bool, optional</span></dt><dd><p>If True, wiring generation is repeated until a strongly connected
 directed graph is obtained or the attempt limit is exceeded. Ignored if
 <code class="docutils literal notranslate"><span class="pre">I</span></code> is provided. Default is False.</p>
@@ -958,16 +1271,16 @@ diagram is reused and its Boolean update rules are ignored.</p>
 </dd>
 </dl>
 </section>
-<section id="id44">
-<h2>Returns<a class="headerlink" href="#id44" title="Link to this heading"></a></h2>
+<section id="id63">
+<h2>Returns<a class="headerlink" href="#id63" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>BooleanNetwork</dt><dd><p>A Boolean network with wiring diagram <code class="docutils literal notranslate"><span class="pre">I</span></code> (given or generated) and
 Boolean update functions generated according to the specified constraints.</p>
 </dd>
 </dl>
 </section>
-<section id="id45">
-<h2>Raises<a class="headerlink" href="#id45" title="Link to this heading"></a></h2>
+<section id="id64">
+<h2>Raises<a class="headerlink" href="#id64" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>AssertionError</dt><dd><p>If input shapes or parameter combinations are invalid.</p>
 </dd>
@@ -976,8 +1289,8 @@ cannot be generated within the specified number of attempts.</p>
 </dd>
 </dl>
 </section>
-<section id="id46">
-<h2>Notes<a class="headerlink" href="#id46" title="Link to this heading"></a></h2>
+<section id="id65">
+<h2>Notes<a class="headerlink" href="#id65" title="Link to this heading"></a></h2>
 <p>Constraint precedence for rule generation is:
 <code class="docutils literal notranslate"><span class="pre">parity</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">layer_structure</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">depth</span></code> / <code class="docutils literal notranslate"><span class="pre">exact_depth</span></code> -&gt; bias or
 Hamming-weight constraints.</p>
@@ -985,8 +1298,8 @@ Hamming-weight constraints.</p>
 <code class="docutils literal notranslate"><span class="pre">{0,</span> <span class="pre">1,</span> <span class="pre">2^k</span> <span class="pre">-</span> <span class="pre">1,</span> <span class="pre">2^k}</span></code> correspond to canalizing functions and are therefore
 disallowed.</p>
 </section>
-<section id="id47">
-<h2>Examples<a class="headerlink" href="#id47" title="Link to this heading"></a></h2>
+<section id="id66">
+<h2>Examples<a class="headerlink" href="#id66" title="Link to this heading"></a></h2>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Boolean network with only essential inputs</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bn</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">allow_degenerate_functions</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
@@ -1031,7 +1344,7 @@ disallowed.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="boolforge.generate.random_null_model">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_null_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">wiring_diagram</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fixed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_canalizing_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_null_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_null_model" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_null_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.core.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">wiring_diagram</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fixed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_canalizing_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="boolean_network.html#boolforge.boolean_network.BooleanNetwork" title="boolforge.boolean_network.core.BooleanNetwork"><span class="pre">BooleanNetwork</span></a></span></span><a class="reference internal" href="_modules/boolforge/generate/networks.html#random_null_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_null_model" title="Link to this definition"></a></dt>
 <dd><p>Generate a randomized Boolean network (null model) from an existing
 Boolean network while preserving selected structural and dynamical
 properties.</p>
@@ -1073,8 +1386,8 @@ rule is preserved exactly.</p></li>
 If neither flag is True, rules are regenerated subject only to
 non-degeneracy and the node’s in-degree.</p>
 </section>
-<section id="id48">
-<h2>Parameters<a class="headerlink" href="#id48" title="Link to this heading"></a></h2>
+<section id="id67">
+<h2>Parameters<a class="headerlink" href="#id67" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>bn<span class="classifier">BooleanNetwork</span></dt><dd><p>Source Boolean network.</p>
 </dd>
@@ -1102,15 +1415,15 @@ randomization routine:</p>
 </dd>
 </dl>
 </section>
-<section id="id49">
-<h2>Returns<a class="headerlink" href="#id49" title="Link to this heading"></a></h2>
+<section id="id68">
+<h2>Returns<a class="headerlink" href="#id68" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>BooleanNetwork</dt><dd><p>A randomized Boolean network satisfying the selected invariants.</p>
 </dd>
 </dl>
 </section>
-<section id="id50">
-<h2>Raises<a class="headerlink" href="#id50" title="Link to this heading"></a></h2>
+<section id="id69">
+<h2>Raises<a class="headerlink" href="#id69" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>AssertionError</dt><dd><p>If invalid options are provided.</p>
 </dd>
@@ -1123,15 +1436,15 @@ then recompute the null model.</p>
 </dd>
 </dl>
 </section>
-<section id="id51">
-<h2>Notes<a class="headerlink" href="#id51" title="Link to this heading"></a></h2>
+<section id="id70">
+<h2>Notes<a class="headerlink" href="#id70" title="Link to this heading"></a></h2>
 <p>This function generates null models by selectively preserving structural
 and dynamical properties of an existing Boolean network. It is intended
 for hypothesis testing and comparative studies rather than for uniform
 sampling over all networks satisfying the given constraints.</p>
 </section>
-<section id="id52">
-<h2>Examples<a class="headerlink" href="#id52" title="Link to this heading"></a></h2>
+<section id="id71">
+<h2>Examples<a class="headerlink" href="#id71" title="Link to this heading"></a></h2>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Most restrictive use case: Preserve both wiring and rule properties (default) </span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bn_null</span> <span class="o">=</span> <span class="n">random_null_model</span><span class="p">(</span><span class="n">bn</span><span class="p">)</span>
 </pre></div>
@@ -1151,306 +1464,6 @@ sampling over all networks satisfying the given constraints.</p>
 <span class="gp">... </span>    <span class="n">wiring_diagram</span><span class="o">=</span><span class="s1">&#39;fixed_in_and_outdegree&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">average_swaps_per_edge</span><span class="o">=</span><span class="mi">15</span>
 <span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="boolforge.generate.random_wiring_diagram">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_wiring_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strongly_connected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegree_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_out_degree_one</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_strong_connectivity_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_wiring_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_wiring_diagram" title="Link to this definition"></a></dt>
-<dd><p>Generate a random wiring diagram for a directed network with N nodes.</p>
-<p>A wiring diagram specifies, for each node, the set of its regulators
-(incoming neighbors). In-degrees are first generated according to the
-specified distribution, after which edges are sampled uniformly at
-random subject to the requested constraints.</p>
-<section id="id53">
-<h2>Parameters<a class="headerlink" href="#id53" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>N<span class="classifier">int</span></dt><dd><p>Number of nodes in the network.</p>
-</dd>
-<dt>n<span class="classifier">int, float, list of int, or ndarray of int</span></dt><dd><p>Parameter determining the in-degree sequence. Interpretation depends
-on <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code>:</p>
-<ul class="simple">
-<li><p>If a length-<code class="docutils literal notranslate"><span class="pre">N</span></code> vector is provided, it is interpreted as the
-in-degree of each node.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">'constant'</span></code> (or <code class="docutils literal notranslate"><span class="pre">'dirac'</span></code> /
-<code class="docutils literal notranslate"><span class="pre">'delta'</span></code>), <code class="docutils literal notranslate"><span class="pre">n</span></code> specifies the in-degree of every node.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">'uniform'</span></code>, <code class="docutils literal notranslate"><span class="pre">n</span></code> specifies the
-upper bound of a discrete uniform distribution on
-<code class="docutils literal notranslate"><span class="pre">{1,</span> <span class="pre">...,</span> <span class="pre">n}</span></code>.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code> is <code class="docutils literal notranslate"><span class="pre">'poisson'</span></code>, <code class="docutils literal notranslate"><span class="pre">n</span></code> is the Poisson
-rate parameter <code class="docutils literal notranslate"><span class="pre">lambda</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>.</p></li>
-</ul>
-</dd>
-<dt>allow_self_loops<span class="classifier">bool, optional</span></dt><dd><p>If True, self-loops (edges from a node to itself) are allowed.
-Default is False.</p>
-</dd>
-<dt>strongly_connected<span class="classifier">bool, optional</span></dt><dd><p>If True, repeatedly resample the wiring diagram until a strongly
-connected network is obtained, or until the maximum number of
-attempts is exceeded. Default is False.</p>
-</dd>
-<dt>indegree_distribution<span class="classifier">str, optional</span></dt><dd><p>Distribution used to generate in-degrees. Must be one of
-<code class="docutils literal notranslate"><span class="pre">{'constant',</span> <span class="pre">'dirac',</span> <span class="pre">'delta',</span> <span class="pre">'uniform',</span> <span class="pre">'poisson'}</span></code>.
-Default is <code class="docutils literal notranslate"><span class="pre">'constant'</span></code>.</p>
-</dd>
-<dt>min_out_degree_one<span class="classifier">bool, optional</span></dt><dd><p>If True, enforce that every node has at least one outgoing edge.
-This is achieved by rewiring edges while preserving the in-degree
-sequence. Default is False.</p>
-</dd>
-<dt>max_strong_connectivity_attempts<span class="classifier">int, optional</span></dt><dd><p>Maximum number of attempts to generate a strongly connected wiring
-diagram before raising a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>. Default is 1000.</p>
-</dd>
-<dt>rng<span class="classifier">int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
-<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id54">
-<h2>Returns<a class="headerlink" href="#id54" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>WiringDiagram</dt><dd><p>A wiring diagram object encoding the regulator set of each node.</p>
-</dd>
-</dl>
-</section>
-<section id="id55">
-<h2>Raises<a class="headerlink" href="#id55" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>RuntimeError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">strongly_connected=True</span></code> and a strongly connected wiring diagram
-cannot be generated within the specified number of attempts.</p>
-</dd>
-</dl>
-</section>
-<section id="id56">
-<h2>Notes<a class="headerlink" href="#id56" title="Link to this heading"></a></h2>
-<p>In-degrees are generated first using <code class="docutils literal notranslate"><span class="pre">random_degrees</span></code>, and edges are
-then sampled uniformly at random subject to the imposed constraints.
-When <code class="docutils literal notranslate"><span class="pre">strongly_connected=True</span></code> or
-<code class="docutils literal notranslate"><span class="pre">min_out_degree_one=True</span></code>, the resulting distribution is
-not uniform over all wiring diagrams with the given in-degree sequence.</p>
-<p>This function is a high-level convenience wrapper around
-<code class="docutils literal notranslate"><span class="pre">random_degrees</span></code> and <code class="docutils literal notranslate"><span class="pre">random_edge_list</span></code>.</p>
-</section>
-<section id="id57">
-<h2>Examples<a class="headerlink" href="#id57" title="Link to this heading"></a></h2>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">random_wiring_diagram</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">random_wiring_diagram</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">strongly_connected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">random_wiring_diagram</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-</pre></div>
-</div>
-</section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="boolforge.generate.random_edge_list">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_edge_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_out_degree_one</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_edge_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_edge_list" title="Link to this definition"></a></dt>
-<dd><p>Generate a random directed edge list for a network with prescribed in-degrees.</p>
-<p>Each node <code class="docutils literal notranslate"><span class="pre">i</span></code> receives exactly <code class="docutils literal notranslate"><span class="pre">indegrees[i]</span></code> incoming edges, with
-regulators chosen uniformly at random from the set of admissible source
-nodes. Optionally, the construction enforces that every node regulates at
-least one other node.</p>
-<section id="id58">
-<h2>Parameters<a class="headerlink" href="#id58" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>N<span class="classifier">int</span></dt><dd><p>Number of nodes in the network.</p>
-</dd>
-<dt>indegrees<span class="classifier">sequence of int</span></dt><dd><p>Length-<code class="docutils literal notranslate"><span class="pre">N</span></code> sequence specifying the number of incoming edges for each
-node.</p>
-</dd>
-<dt>allow_self_loops<span class="classifier">bool</span></dt><dd><p>If True, self-loops (edges from a node to itself) are allowed.
-Default is False.</p>
-</dd>
-<dt>min_out_degree_one<span class="classifier">bool, optional</span></dt><dd><p>If True, enforce that every node has at least one outgoing edge.
-This is achieved by rewiring edges while preserving the prescribed
-in-degree sequence. Default is False.</p>
-</dd>
-<dt>rng<span class="classifier">int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
-<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id59">
-<h2>Returns<a class="headerlink" href="#id59" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>edge_list<span class="classifier">list of tuple of int</span></dt><dd><p>List of directed edges represented as <code class="docutils literal notranslate"><span class="pre">(source,</span> <span class="pre">target)</span></code> pairs.</p>
-</dd>
-</dl>
-</section>
-<section id="id60">
-<h2>Raises<a class="headerlink" href="#id60" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">N</span></code> or <code class="docutils literal notranslate"><span class="pre">indegrees</span></code> are inconsistent.</p>
-</dd>
-<dt>AssertionError</dt><dd><p>If sampling constraints cannot be satisfied.</p>
-</dd>
-</dl>
-</section>
-<section id="id61">
-<h2>Notes<a class="headerlink" href="#id61" title="Link to this heading"></a></h2>
-<p>Regulators for each node are sampled uniformly at random without
-replacement from the set of admissible source nodes. If
-<code class="docutils literal notranslate"><span class="pre">min_out_degree_one</span></code>, the algorithm post-processes
-the initially sampled edge list by replacing edges until every node
-has at least one outgoing edge, while preserving all in-degrees and
-respecting the self-regulation constraint.</p>
-<p>No guarantee is made that the resulting edge list is uniformly sampled
-from the space of all directed graphs satisfying the constraints.</p>
-</section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="boolforge.generate.random_degrees">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">random_degrees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indegree_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'constant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/boolforge/generate.html#random_degrees"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.random_degrees" title="Link to this definition"></a></dt>
-<dd><p>Draw an in-degree vector for a directed network with N nodes.</p>
-<p>This function either accepts a user-specified in-degree vector or
-samples in-degrees independently for each node from a specified
-distribution.</p>
-<section id="id62">
-<h2>Parameters<a class="headerlink" href="#id62" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>N<span class="classifier">int</span></dt><dd><p>Number of nodes in the network. Must be a positive integer.</p>
-</dd>
-<dt>n<span class="classifier">int, float, list of int, or ndarray of int</span></dt><dd><p>Interpretation depends on <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code>:</p>
-<ul class="simple">
-<li><p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is a length-<code class="docutils literal notranslate"><span class="pre">N</span></code> vector of integers, it is interpreted
-as a user-specified in-degree sequence and returned after
-validation.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span></code> is one of
-<code class="docutils literal notranslate"><span class="pre">{'constant',</span> <span class="pre">'dirac',</span> <span class="pre">'delta'}</span></code>, then <code class="docutils literal notranslate"><span class="pre">n</span></code> is a single integer
-specifying the in-degree of every node.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span> <span class="pre">==</span> <span class="pre">'uniform'</span></code>, then <code class="docutils literal notranslate"><span class="pre">n</span></code> is a positive
-integer upper bound, and each node independently receives an
-in-degree sampled uniformly from
-<code class="docutils literal notranslate"><span class="pre">{1,</span> <span class="pre">2,</span> <span class="pre">...,</span> <span class="pre">n}</span></code>.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">indegree_distribution</span> <span class="pre">==</span> <span class="pre">'poisson'</span></code>, then <code class="docutils literal notranslate"><span class="pre">n</span></code> is the Poisson
-rate parameter <code class="docutils literal notranslate"><span class="pre">λ</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>. Each node independently receives a
-Poisson(<code class="docutils literal notranslate"><span class="pre">λ</span></code>) draw, truncated to lie in
-<code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">N</span> <span class="pre">-</span> <span class="pre">int(not</span> <span class="pre">allow_self_loops)]</span></code>.</p></li>
-</ul>
-</dd>
-<dt>indegree_distribution<span class="classifier">str, optional</span></dt><dd><p>Distribution used to generate in-degrees when <code class="docutils literal notranslate"><span class="pre">n</span></code> is not a vector.
-Must be one of <code class="docutils literal notranslate"><span class="pre">{'constant',</span> <span class="pre">'dirac',</span> <span class="pre">'delta',</span> <span class="pre">'uniform',</span> <span class="pre">'poisson'}</span></code>.
-Default is <code class="docutils literal notranslate"><span class="pre">'constant'</span></code>.</p>
-</dd>
-<dt>allow_self_loops<span class="classifier">bool, optional</span></dt><dd><p>If True, in-degrees may be as large as <code class="docutils literal notranslate"><span class="pre">N</span></code>.
-If False (default), self-loops are disallowed in subsequent wiring
-generation. This is enforced here by capping in-degrees at <code class="docutils literal notranslate"><span class="pre">N-1</span></code>.</p>
-</dd>
-<dt>rng<span class="classifier">int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
-<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id63">
-<h2>Returns<a class="headerlink" href="#id63" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>indegrees<span class="classifier">ndarray of int, shape (N,)</span></dt><dd><p>In-degree of each node. For sampled distributions, values lie in
-<code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">N</span> <span class="pre">-</span> <span class="pre">int(not</span> <span class="pre">allow_self_loops)]</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id64">
-<h2>Raises<a class="headerlink" href="#id64" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>AssertionError</dt><dd><p>If inputs are malformed, out of range, or an unsupported distribution
-is requested.</p>
-</dd>
-</dl>
-</section>
-<section id="id65">
-<h2>Notes<a class="headerlink" href="#id65" title="Link to this heading"></a></h2>
-<p>When sampling is requested, in-degrees for different nodes are generated
-independently. No attempt is made to enforce graphicality or feasibility
-of the resulting degree sequence for a particular wiring model; such
-constraints must be handled downstream.</p>
-</section>
-<section id="id66">
-<h2>Examples<a class="headerlink" href="#id66" title="Link to this heading"></a></h2>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">random_degrees</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">indegree_distribution</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">)</span>
-<span class="go">array([2, 2, 2, 2, 2])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">random_degrees</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">indegree_distribution</span><span class="o">=</span><span class="s1">&#39;uniform&#39;</span><span class="p">,</span> <span class="n">allow_self_loops</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">array([2, 1, 2, 2])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">random_degrees</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.7</span><span class="p">,</span> <span class="n">indegree_distribution</span><span class="o">=</span><span class="s1">&#39;poisson&#39;</span><span class="p">)</span>
-<span class="go">array([1, 2, 1, 1, 2, 1])</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">random_degrees</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="go">array([1, 2, 1])</span>
-</pre></div>
-</div>
-</section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="boolforge.generate.rewire_wiring_diagram">
-<span class="sig-prename descclassname"><span class="pre">boolforge.generate.</span></span><span class="sig-name descname"><span class="pre">rewire_wiring_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">WiringDiagram</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_swaps_per_edge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_new_self_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_self_loop_rewiring</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/boolforge/generate.html#rewire_wiring_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.generate.rewire_wiring_diagram" title="Link to this definition"></a></dt>
-<dd><p>Degree-preserving rewiring of a wiring diagram via double-edge swaps.</p>
-<p>The wiring diagram is represented in regulator form: <code class="docutils literal notranslate"><span class="pre">I[target]</span></code> lists
-all regulators (incoming neighbors) of <code class="docutils literal notranslate"><span class="pre">target</span></code>. The algorithm performs
-random double-edge swaps of the form
-<code class="docutils literal notranslate"><span class="pre">(u</span> <span class="pre">-&gt;</span> <span class="pre">v,</span> <span class="pre">x</span> <span class="pre">-&gt;</span> <span class="pre">y)</span> <span class="pre">-&gt;</span> <span class="pre">(u</span> <span class="pre">-&gt;</span> <span class="pre">y,</span> <span class="pre">x</span> <span class="pre">-&gt;</span> <span class="pre">v)</span></code>, while preserving both the
-in-degree and out-degree of every node. Parallel edges are disallowed.</p>
-<section id="id67">
-<h2>Parameters<a class="headerlink" href="#id67" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>I<span class="classifier">list of array-like or WiringDiagram</span></dt><dd><p>Wiring diagram in regulator representation. For each node <code class="docutils literal notranslate"><span class="pre">target</span></code>,
-<code class="docutils literal notranslate"><span class="pre">I[target]</span></code> contains the regulators of that node. Regulator indices
-must be integers in <code class="docutils literal notranslate"><span class="pre">{0,</span> <span class="pre">...,</span> <span class="pre">N-1}</span></code>. If a <code class="docutils literal notranslate"><span class="pre">WiringDiagram</span></code> is
-provided, its internal adjacency representation is used.</p>
-</dd>
-<dt>average_swaps_per_edge<span class="classifier">float, optional</span></dt><dd><p>Target number of successful double-edge swaps per edge. Larger values
-typically yield better mixing but increase runtime. Default is 50.</p>
-</dd>
-<dt>allow_new_self_loops<span class="classifier">bool, optional</span></dt><dd><p>If True, new self-loops may be introduced. If False (default), proposed 
-swaps that would introduce a new self-loop are rejected.</p>
-</dd>
-<dt>allow_self_loop_rewiring<span class="classifier">bool, optional</span></dt><dd><p>If True, existing self-loops may be rewired. If False (default), 
-existing self-loops are kept fixed and excluded from the pool of 
-swappable edges.</p>
-</dd>
-<dt>rng<span class="classifier">int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span></dt><dd><p>Random number generator or seed specification. Passed to
-<code class="docutils literal notranslate"><span class="pre">utils._coerce_rng</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id68">
-<h2>Returns<a class="headerlink" href="#id68" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>WiringDiagram</dt><dd><p>A new wiring diagram obtained by degree-preserving rewiring of <code class="docutils literal notranslate"><span class="pre">I</span></code>.</p>
-</dd>
-</dl>
-</section>
-<section id="id69">
-<h2>Raises<a class="headerlink" href="#id69" title="Link to this heading"></a></h2>
-<dl class="simple">
-<dt>ValueError</dt><dd><p>If the input wiring diagram is malformed.</p>
-</dd>
-<dt>AssertionError</dt><dd><p>If rewiring constraints cannot be satisfied.</p>
-</dd>
-</dl>
-</section>
-<section id="id70">
-<h2>Notes<a class="headerlink" href="#id70" title="Link to this heading"></a></h2>
-<p>Both in-degrees and out-degrees of all nodes are preserved exactly.
-Duplicate edges are never introduced. Control over self-regulation is
-governed by the two Boolean flags above.</p>
-<p>The resulting wiring diagram is not guaranteed to be sampled uniformly
-from the space of all directed graphs with the same degree sequence; the
-procedure is intended as a practical degree-preserving randomization
-method rather than an exact uniform sampler.</p>
-</section>
-<section id="id71">
-<h2>Examples<a class="headerlink" href="#id71" title="Link to this heading"></a></h2>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">I</span> <span class="o">=</span> <span class="n">random_network</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">J</span> <span class="o">=</span> <span class="n">rewire_wiring_diagram</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">I</span><span class="o">.</span><span class="n">indegrees</span> <span class="o">==</span> <span class="n">J</span><span class="o">.</span><span class="n">indegrees</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">I</span><span class="o">.</span><span class="n">get_outdegrees</span><span class="p">()</span> <span class="o">==</span> <span class="n">J</span><span class="o">.</span><span class="n">get_outdegrees</span><span class="p">()</span>
-<span class="go">True</span>
 </pre></div>
 </div>
 </section>

@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boolforge.boolean_function.canalization &mdash; BoolForge 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">boolforge.boolean_function.canalization</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for boolforge.boolean_function.canalization</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+
+<div class="viewcode-block" id="get_layer_structure_from_canalized_outputs">
+<a class="viewcode-back" href="../../../boolean_function.html#boolforge.boolean_function.get_layer_structure_from_canalized_outputs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_layer_structure_from_canalized_outputs</span><span class="p">(</span>
+        <span class="n">outputs</span> <span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the canalizing layer structure from canalized outputs.</span>
+
+<span class="sd">    Consecutive identical canalized output values are grouped into the same</span>
+<span class="sd">    canalizing layer. The size of each layer corresponds to the number of</span>
+<span class="sd">    variables in that layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    outputs : Sequence[int]</span>
+<span class="sd">        Sequence of canalized output values in the order in which canalizing</span>
+<span class="sd">        variables are identified.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[int]</span>
+<span class="sd">        List specifying the number of variables in each canalizing layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">canalizing_depth</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">canalizing_depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">size_of_layer</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">layer_structure</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">canalizing_depth</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">outputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">outputs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="n">size_of_layer</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">layer_structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size_of_layer</span><span class="p">)</span>
+            <span class="n">size_of_layer</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">layer_structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size_of_layer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">layer_structure</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BooleanFunctionCanalizationMixin</span><span class="p">:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the Boolean function is degenerate.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nested_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the Boolean function is nested canalizing.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_k_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">canalizing_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine the canalizing depth of the Boolean function.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">layer_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;LayerStructure&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_layer_structure</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;LayerStructure&quot;</span><span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether the Boolean function is canalizing.</span>
+<span class="sd">    </span>
+<span class="sd">        A Boolean function is canalizing if there exists at least one variable</span>
+<span class="sd">        and a value in ``{0,1}`` such that fixing that variable to the given</span>
+<span class="sd">        value forces the output of the function to be constant.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` if the Boolean function is canalizing, ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+    
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span>
+            <span class="n">bit_is_0</span> <span class="o">=</span> <span class="p">(</span><span class="n">indices</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">bit_is_1</span> <span class="o">=</span> <span class="o">~</span><span class="n">bit_is_0</span>
+    
+            <span class="n">f0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_0</span><span class="p">]</span>
+            <span class="n">f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_1</span><span class="p">]</span>
+    
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f0</span> <span class="o">==</span> <span class="n">f0</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f1</span> <span class="o">==</span> <span class="n">f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_k_canalizing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether the Boolean function is k-canalizing.</span>
+<span class="sd">    </span>
+<span class="sd">        A Boolean function is k-canalizing if it has a sequence of at least</span>
+<span class="sd">        ``k`` canalizing variables. After fixing a canalizing variable to its</span>
+<span class="sd">        canalizing value, the resulting subfunction must itself be</span>
+<span class="sd">        (k−1)-canalizing, recursively.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        k : int</span>
+<span class="sd">            Desired canalizing depth, with ``0 &lt;= k &lt;= n``. Every Boolean</span>
+<span class="sd">            function is trivially 0-canalizing.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` if the Boolean function is k-canalizing, ``False`` otherwise.</span>
+<span class="sd">    </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method has exponential time complexity in ``n`` and is intended for</span>
+<span class="sd">        small Boolean functions.</span>
+<span class="sd">    </span>
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        He, Q., &amp; Macauley, M. (2016).</span>
+<span class="sd">            Stratification and enumeration of Boolean functions by canalizing depth.</span>
+<span class="sd">            *Physica D: Nonlinear Phenomena*, 314, 1–8.</span>
+<span class="sd">    </span>
+<span class="sd">        Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D. (2022).</span>
+<span class="sd">            Revealing the canalizing structure of Boolean functions:</span>
+<span class="sd">            Algorithms and applications.</span>
+<span class="sd">            *Automatica*, 146, 110630.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+    
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span>
+            <span class="n">bit_is_0</span> <span class="o">=</span> <span class="p">(</span><span class="n">indices</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">bit_is_1</span> <span class="o">=</span> <span class="o">~</span><span class="n">bit_is_0</span>
+    
+            <span class="n">f0</span><span class="p">,</span> <span class="n">f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit_is_1</span><span class="p">]</span>
+    
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f0</span> <span class="o">==</span> <span class="n">f0</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span><span class="o">.</span><span class="n">is_k_canalizing</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f1</span> <span class="o">==</span> <span class="n">f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">f0</span><span class="p">)</span><span class="o">.</span><span class="n">is_k_canalizing</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_layer_structure</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">can_inputs</span><span class="p">,</span>
+        <span class="n">can_outputs</span><span class="p">,</span>
+        <span class="n">can_order</span><span class="p">,</span>
+        <span class="n">variables</span><span class="p">,</span>
+        <span class="n">depth</span><span class="p">,</span>
+        <span class="n">number_layers</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal recursive routine for computing the canalizing layer structure.</span>
+<span class="sd">    </span>
+<span class="sd">        This method identifies all canalizing variables at the current recursion</span>
+<span class="sd">        level using bitwise operations, removes them simultaneously, and recurses</span>
+<span class="sd">        on the resulting core function.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        can_inputs : np.ndarray</span>
+<span class="sd">            Accumulated canalizing input values.</span>
+<span class="sd">        can_outputs : np.ndarray</span>
+<span class="sd">            Accumulated canalized output values.</span>
+<span class="sd">        can_order : np.ndarray</span>
+<span class="sd">            Accumulated order of canalizing variables.</span>
+<span class="sd">        variables : list[int]</span>
+<span class="sd">            Indices of variables remaining in the current subfunction.</span>
+<span class="sd">        depth : int</span>
+<span class="sd">            Current canalizing depth.</span>
+<span class="sd">        number_layers : int</span>
+<span class="sd">            Current number of identified canalizing layers.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            A tuple containing the updated canalizing depth, number of layers,</span>
+<span class="sd">            canalizing inputs, canalized outputs, core Boolean function, and</span>
+<span class="sd">            canalizing variable order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># base cases</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="c1"># recursion ends when function becomes constant</span>
+            <span class="k">return</span> <span class="n">depth</span><span class="p">,</span> <span class="n">number_layers</span><span class="p">,</span> <span class="n">can_inputs</span><span class="p">,</span> <span class="n">can_outputs</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">can_order</span>
+    
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+    
+        <span class="c1"># candidate canalizing variables (x_i, a)</span>
+        <span class="n">new_canalizing_vars</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_can_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_can_outputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_f</span> <span class="o">=</span> <span class="kc">None</span>
+    
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">bit0</span> <span class="o">=</span> <span class="p">(</span><span class="n">indices</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">bit1</span> <span class="o">=</span> <span class="o">~</span><span class="n">bit0</span>
+            <span class="n">f0</span><span class="p">,</span> <span class="n">f1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">bit1</span><span class="p">]</span>
+    
+            <span class="c1"># check both possible canalizing directions</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f0</span> <span class="o">==</span> <span class="n">f0</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">new_canalizing_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">new_can_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">new_can_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">f0</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">f1</span> <span class="o">==</span> <span class="n">f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">new_canalizing_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">new_can_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">new_can_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">f1</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">new_canalizing_vars</span><span class="p">:</span>
+            <span class="c1"># non-canalizing core function</span>
+            <span class="k">return</span> <span class="n">depth</span><span class="p">,</span> <span class="n">number_layers</span><span class="p">,</span> <span class="n">can_inputs</span><span class="p">,</span> <span class="n">can_outputs</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">can_order</span>
+    
+        <span class="c1"># reduce variable list (remove canalizing ones)</span>
+        <span class="n">indices_new_canalizing_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">new_canalizing_vars</span><span class="p">]</span>
+        <span class="n">remaining_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new_canalizing_vars</span><span class="p">]</span>
+    
+        <span class="c1"># build the restricted subfunction (“core function”)</span>
+        <span class="c1"># start with all indices, then keep those where none of the canalizing</span>
+        <span class="c1"># variables take their canalizing inputs</span>
+        <span class="n">mask_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">indices_new_canalizing_vars</span><span class="p">,</span> <span class="n">new_can_inputs</span><span class="p">):</span>
+            <span class="n">bitmask</span> <span class="o">=</span> <span class="p">(</span><span class="n">indices</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">var</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mi">1</span>
+            <span class="n">mask_keep</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="n">bitmask</span> <span class="o">!=</span> <span class="n">val</span><span class="p">)</span>
+        <span class="n">new_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">mask_keep</span><span class="p">]</span>
+    
+
+        <span class="c1"># recurse on reduced function</span>
+        <span class="n">new_bf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">new_f</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">new_bf</span><span class="o">.</span><span class="n">_get_layer_structure</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">can_inputs</span><span class="p">,</span> <span class="n">new_can_inputs</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">can_outputs</span><span class="p">,</span> <span class="n">new_can_outputs</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">can_order</span><span class="p">,</span> <span class="n">new_canalizing_vars</span><span class="p">),</span>
+            <span class="n">remaining_vars</span><span class="p">,</span>
+            <span class="n">depth</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_canalizing_vars</span><span class="p">),</span>
+            <span class="n">number_layers</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine the canalizing layer structure of a Boolean function.</span>
+<span class="sd">        </span>
+<span class="sd">        This method decomposes a Boolean function into its canalizing layers</span>
+<span class="sd">        (standard monomial form) by recursively identifying and removing</span>
+<span class="sd">        canalizing variables. All variables that canalize the function at the</span>
+<span class="sd">        same recursion step form one canalizing layer and are removed</span>
+<span class="sd">        simultaneously.</span>
+<span class="sd">        </span>
+<span class="sd">        The decomposition yields the canalizing depth, the number of canalizing</span>
+<span class="sd">        layers, the canalizing inputs and outputs, the order of canalizing</span>
+<span class="sd">        variables, and the remaining non-canalizing core function.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary containing the canalizing layer structure with the</span>
+<span class="sd">            following entries:</span>
+<span class="sd">        </span>
+<span class="sd">            - ``CanalizingDepth`` : int  </span>
+<span class="sd">              Total number of canalizing variables.</span>
+<span class="sd">        </span>
+<span class="sd">            - ``NumberOfLayers`` : int  </span>
+<span class="sd">              Number of distinct canalizing layers.</span>
+<span class="sd">        </span>
+<span class="sd">            - ``CanalizingInputs`` : np.ndarray  </span>
+<span class="sd">              Canalizing input value for each canalizing variable.</span>
+<span class="sd">        </span>
+<span class="sd">            - ``CanalizedOutputs`` : np.ndarray  </span>
+<span class="sd">              Output value forced by each canalizing variable.</span>
+<span class="sd">        </span>
+<span class="sd">            - ``CoreFunction`` : BooleanFunction  </span>
+<span class="sd">              Core Boolean function obtained after removing all canalizing</span>
+<span class="sd">              variables.</span>
+<span class="sd">        </span>
+<span class="sd">            - ``OrderOfCanalizingVariables`` : np.ndarray  </span>
+<span class="sd">              Order in which canalizing variables are identified.</span>
+<span class="sd">        </span>
+<span class="sd">            - ``LayerStructure`` : np.ndarray  </span>
+<span class="sd">              Number of canalizing variables in each layer.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The result is cached in ``self.properties`` and recomputed only if the</span>
+<span class="sd">        canalizing structure has not been computed previously.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method has exponential time complexity in ``n`` and is intended for</span>
+<span class="sd">        smaller Boolean functions.</span>
+<span class="sd">        </span>
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        He, Q., &amp; Macauley, M. (2016).</span>
+<span class="sd">            Stratification and enumeration of Boolean functions by canalizing depth.</span>
+<span class="sd">            *Physica D: Nonlinear Phenomena*, 314, 1–8.</span>
+<span class="sd">        </span>
+<span class="sd">        Dimitrova, E., Stigler, B., Kadelka, C., &amp; Murrugarra, D. (2022).</span>
+<span class="sd">            Revealing the canalizing structure of Boolean functions:</span>
+<span class="sd">            Algorithms and applications.</span>
+<span class="sd">            *Automatica*, 146, 110630.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;CanalizingDepth&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="n">dummy</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="s2">&quot;CanalizingDepth&quot;</span><span class="p">,</span> <span class="s2">&quot;NumberOfLayers&quot;</span><span class="p">,</span> <span class="s2">&quot;CanalizingInputs&quot;</span><span class="p">,</span> <span class="s2">&quot;CanalizedOutputs&quot;</span><span class="p">,</span> <span class="s2">&quot;CoreFunction&quot;</span><span class="p">,</span> <span class="s2">&quot;OrderOfCanalizingVariables&quot;</span><span class="p">],</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">_get_layer_structure</span><span class="p">(</span><span class="n">can_inputs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">can_outputs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+                                                                      <span class="n">can_order</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">variables</span><span class="o">=</span><span class="p">[],</span> <span class="n">depth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">number_layers</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+            <span class="n">dummy</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;LayerStructure&#39;</span><span class="p">:</span> <span class="n">get_layer_structure_from_canalized_outputs</span><span class="p">(</span><span class="n">dummy</span><span class="p">[</span><span class="s2">&quot;CanalizedOutputs&quot;</span><span class="p">])})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dummy</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dummy</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;CanalizingDepth&quot;</span><span class="p">,</span> <span class="s2">&quot;NumberOfLayers&quot;</span><span class="p">,</span> <span class="s2">&quot;CanalizingInputs&quot;</span><span class="p">,</span> <span class="s2">&quot;CanalizedOutputs&quot;</span><span class="p">,</span> <span class="s2">&quot;CoreFunction&quot;</span><span class="p">,</span> <span class="s2">&quot;OrderOfCanalizingVariables&quot;</span><span class="p">,</span><span class="s1">&#39;LayerStructure&#39;</span><span class="p">]}</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_canalizing_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the canalizing depth of the Boolean function.</span>
+<span class="sd">    </span>
+<span class="sd">        The canalizing depth is the total number of canalizing variables identified</span>
+<span class="sd">        in the canalizing layer decomposition.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Canalizing depth of the Boolean function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;CanalizingDepth&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_layer_structure</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;CanalizingDepth&quot;</span><span class="p">]</span>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

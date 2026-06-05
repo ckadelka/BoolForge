@@ -1,0 +1,719 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boolforge.generate.networks &mdash; BoolForge 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">boolforge.generate.networks</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for boolforge.generate.networks</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions for generating random Boolean functions and</span>
+<span class="sd">Boolean networks with specified structural and dynamical properties.</span>
+
+<span class="sd">The :mod:`~boolforge.generate` module enables the systematic creation of</span>
+<span class="sd">Boolean functions and networks that satisfy particular constraints, such as</span>
+<span class="sd">specified canalization depth, sensitivity range, bias, or connectivity.</span>
+<span class="sd">Generated instances can be used for statistical analysis, benchmarking, or</span>
+<span class="sd">simulation studies.</span>
+
+<span class="sd">Several generation routines leverage Numba acceleration for efficient sampling</span>
+<span class="sd">and evaluation of large function spaces. While Numba is **recommended** to</span>
+<span class="sd">achieve near-native performance, it is **not required** for functionality; all</span>
+<span class="sd">functions have pure Python fallbacks.</span>
+
+<span class="sd">This module complements :mod:`~boolforge.boolean_function` and</span>
+<span class="sd">:mod:`~boolforge.boolean_network` by facilitating reproducible generation of</span>
+<span class="sd">synthetic test cases and large ensembles of random networks.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">&gt;&gt;&gt; import boolforge</span>
+<span class="sd">&gt;&gt;&gt; boolforge.random_function(n=3)</span>
+<span class="sd">&gt;&gt;&gt; boolforge.random_network(N=5, n=2)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..boolean_function</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanFunction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..boolean_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanNetwork</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..wiring_diagram</span><span class="w"> </span><span class="kn">import</span> <span class="n">WiringDiagram</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.canalization</span><span class="w"> </span><span class="kn">import</span> <span class="n">random_k_canalizing_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">random_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">random_non_degenerate_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">random_function_with_exact_hamming_weight</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.wiring</span><span class="w"> </span><span class="kn">import</span> <span class="n">random_wiring_diagram</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.wiring</span><span class="w"> </span><span class="kn">import</span> <span class="n">rewire_wiring_diagram</span>
+
+<div class="viewcode-block" id="random_network">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_network">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_network</span><span class="p">(</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">exact_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">uniform_over_functions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">layer_structure</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_degenerate_functions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">parity</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">absolute_bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">use_absolute_bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">hamming_weight</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_self_loops</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">allow_indegree_zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">strongly_connected</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">indegree_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span>
+    <span class="n">min_out_degree_one</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">max_strong_connectivity_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">I</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">WiringDiagram</span> <span class="o">|</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanNetwork</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct a random Boolean network with configurable wiring and update rules.</span>
+<span class="sd">    </span>
+<span class="sd">    The network is built in two stages:</span>
+<span class="sd">    </span>
+<span class="sd">    1. Wiring diagram</span>
+<span class="sd">       If ``I`` is provided, it is used directly as the wiring diagram, where</span>
+<span class="sd">       ``I[v]`` lists the regulators of node ``v``. Otherwise, a wiring diagram</span>
+<span class="sd">       for ``N`` nodes is sampled using ``random_wiring_diagram``, with in-degrees</span>
+<span class="sd">       determined by ``n`` and ``indegree_distribution``. Self-loops may be</span>
+<span class="sd">       disallowed and strong connectivity may be enforced.</span>
+<span class="sd">    </span>
+<span class="sd">    2. Update rules</span>
+<span class="sd">       For each node ``i``, a Boolean update function with arity</span>
+<span class="sd">       ``indegrees[i]`` is generated using ``random_function`` subject to the</span>
+<span class="sd">       requested constraints on canalizing depth or layer structure, parity,</span>
+<span class="sd">       bias or absolute bias, and exact Hamming weight.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    N : int or None, optional</span>
+<span class="sd">        Number of nodes. Required when ``I`` is not provided. Ignored if ``I`` is</span>
+<span class="sd">        given.</span>
+<span class="sd">    n : int, float, list of int, ndarray of int, or None, optional</span>
+<span class="sd">        Controls the in-degree distribution when generating a wiring diagram</span>
+<span class="sd">        (ignored if ``I`` is given). Interpretation depends on</span>
+<span class="sd">        ``indegree_distribution``:</span>
+<span class="sd">    </span>
+<span class="sd">        - ``&#39;constant&#39;``, ``&#39;dirac&#39;``, ``&#39;delta&#39;``:</span>
+<span class="sd">          Every node has constant in-degree ``n``.</span>
+<span class="sd">        - ``&#39;uniform&#39;``:</span>
+<span class="sd">          ``n`` is an integer upper bound; each node’s in-degree is sampled</span>
+<span class="sd">          uniformly from ``{1, ..., n}``.</span>
+<span class="sd">        - ``&#39;poisson&#39;``:</span>
+<span class="sd">          ``n`` is a positive rate parameter lambda; in-degrees are Poisson(lambda) </span>
+<span class="sd">          draws truncated to ``[1, N - int(not allow_self_loops)]``.</span>
+<span class="sd">        - If ``n`` is a length-``N`` vector of integers, it is taken as the exact</span>
+<span class="sd">          in-degree sequence.</span>
+<span class="sd">    depth : int, list of int, or ndarray of int, optional</span>
+<span class="sd">        Requested canalizing depth per node. If an integer, it is broadcast to</span>
+<span class="sd">        all nodes and clipped at each node’s in-degree. If a vector, it must have</span>
+<span class="sd">        length ``N``. Interpreted as a minimum depth unless ``exact_depth=True``.</span>
+<span class="sd">        Default is 0.</span>
+<span class="sd">    exact_depth : bool, optional</span>
+<span class="sd">        If True, each Boolean function is generated with exactly the requested</span>
+<span class="sd">        canalizing depth (or exactly ``sum(layer_structure[i])`` if a layer</span>
+<span class="sd">        structure is provided). If False, the canalizing depth is at least as</span>
+<span class="sd">        large as requested. Default is False.</span>
+<span class="sd">    uniform_over_functions : bool, optional</span>
+<span class="sd">        Controls how canalized outputs are sampled when generating canalizing</span>
+<span class="sd">        functions.</span>
+<span class="sd">    </span>
+<span class="sd">        If True (default), canalizing layer structures are sampled uniformly at</span>
+<span class="sd">        random, i.e., proportional to the inverse factorials of layer sizes,</span>
+<span class="sd">        removing the bias toward symmetric structures induced by independent</span>
+<span class="sd">        sampling of canalized outputs.</span>
+<span class="sd">    </span>
+<span class="sd">        If False, canalized outputs are sampled independently and uniformly as</span>
+<span class="sd">        bitstrings, which biases the distribution toward more symmetric layer</span>
+<span class="sd">        structures.</span>
+<span class="sd">    </span>
+<span class="sd">        This parameter is ignored when ``layer_structure`` is explicitly provided.</span>
+<span class="sd">    layer_structure : list, list of lists, or None, optional</span>
+<span class="sd">        Canalizing layer structure specifications.</span>
+<span class="sd">    </span>
+<span class="sd">        - If None (default), rule generation is controlled by ``depth`` and</span>
+<span class="sd">          ``exact_depth``.</span>
+<span class="sd">        - If a single list ``[k1, ..., kr]``, the same structure is used for all</span>
+<span class="sd">          nodes.</span>
+<span class="sd">        - If a list of lists of length ``N``, ``layer_structure[i]`` is used for</span>
+<span class="sd">          node ``i``.</span>
+<span class="sd">    </span>
+<span class="sd">        In all cases, ``sum(layer_structure[i])`` must not exceed the in-degree</span>
+<span class="sd">        of node ``i``. When provided, ``layer_structure`` takes precedence over</span>
+<span class="sd">        ``depth``.</span>
+<span class="sd">    allow_degenerate_functions : bool, optional</span>
+<span class="sd">        If True and ``depth == 0`` and ``layer_structure is None``, degenerate</span>
+<span class="sd">        Boolean functions (with non-essential inputs) may be generated, as in</span>
+<span class="sd">        classical NK-Kauffman models. If False, generated functions are required</span>
+<span class="sd">        to be non-degenerate whenever possible. Default is False.</span>
+<span class="sd">    parity : bool, optional</span>
+<span class="sd">        If True, parity Boolean functions are generated for all nodes and all</span>
+<span class="sd">        other rule parameters are ignored. Default is False.</span>
+<span class="sd">    bias : float, list of float, or ndarray of float, optional</span>
+<span class="sd">        Probability of output 1 when generating random (non-canalizing) Boolean</span>
+<span class="sd">        functions. Used only when ``depth == 0``, ``layer_structure is None``,</span>
+<span class="sd">        ``parity`` is False, and ``use_absolute_bias`` is False. Scalars are</span>
+<span class="sd">        broadcast to length ``N``. Must lie in ``[0, 1]``. Default is 0.5.</span>
+<span class="sd">    absolute_bias : float, list of float, or ndarray of float, optional</span>
+<span class="sd">        Absolute deviation from 0.5 used when ``use_absolute_bias`` is True.</span>
+<span class="sd">        Scalars are broadcast to length ``N``. Must lie in ``[0, 1]``. Default 0.0.</span>
+<span class="sd">    use_absolute_bias : bool, optional</span>
+<span class="sd">        If True, the bias of each rule is chosen at random from</span>
+<span class="sd">        ``{0.5*(1-absolute_bias), 0.5*(1+absolute_bias)}``. If False, ``bias`` is</span>
+<span class="sd">        used directly. Default is False.</span>
+<span class="sd">    hamming_weight : int, list of int, ndarray of int, or None, optional</span>
+<span class="sd">        Exact Hamming weight (number of ones) of each truth table. Scalars are</span>
+<span class="sd">        broadcast to length ``N``. Values must lie in ``{0, ..., 2^k}`` for a</span>
+<span class="sd">        k-input function. Additional restrictions apply when requesting exact</span>
+<span class="sd">        depth zero. Default is None.</span>
+<span class="sd">    allow_self_loops : bool, optional</span>
+<span class="sd">        If True, self-loops (edges from a node to itself) are allowed.</span>
+<span class="sd">        Default is False. Ignored if ``I`` is provided.</span>
+<span class="sd">    allow_indegree_zero : bool, optional</span>
+<span class="sd">        If True, some in-degrees may be ``0``.</span>
+<span class="sd">        If False (default), all in-degrees are at least ``1``.</span>
+<span class="sd">    strongly_connected : bool, optional</span>
+<span class="sd">        If True, wiring generation is repeated until a strongly connected</span>
+<span class="sd">        directed graph is obtained or the attempt limit is exceeded. Ignored if</span>
+<span class="sd">        ``I`` is provided. Default is False.</span>
+<span class="sd">    indegree_distribution : str, optional</span>
+<span class="sd">        Distribution used when sampling in-degrees. Must be one of</span>
+<span class="sd">        ``{&#39;constant&#39;, &#39;dirac&#39;, &#39;delta&#39;, &#39;uniform&#39;, &#39;poisson&#39;}``. Default</span>
+<span class="sd">        ``&#39;constant&#39;``.</span>
+<span class="sd">    min_out_degree_one : bool, optional</span>
+<span class="sd">        If True, ensure that each node has at least one outgoing edge in the</span>
+<span class="sd">        generated wiring diagram. Default is False.</span>
+<span class="sd">    max_strong_connectivity_attempts : int, optional</span>
+<span class="sd">        Maximum number of attempts to generate a strongly connected wiring</span>
+<span class="sd">        diagram before raising an error. Default is 1000.</span>
+<span class="sd">    I : list, ndarray, WiringDiagram, networkx.DiGraph, or None, optional</span>
+<span class="sd">        Existing wiring diagram. If provided, ``N`` and ``n`` are ignored and</span>
+<span class="sd">        in-degrees are inferred from ``I``. If I is a BooleanNetwork, its wiring</span>
+<span class="sd">        diagram is reused and its Boolean update rules are ignored.</span>
+<span class="sd">    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanNetwork</span>
+<span class="sd">        A Boolean network with wiring diagram ``I`` (given or generated) and</span>
+<span class="sd">        Boolean update functions generated according to the specified constraints.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If input shapes or parameter combinations are invalid.</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If ``strongly_connected=True`` and a strongly connected wiring diagram</span>
+<span class="sd">        cannot be generated within the specified number of attempts.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Constraint precedence for rule generation is:</span>
+<span class="sd">    ``parity`` -&gt; ``layer_structure`` -&gt; ``depth`` / ``exact_depth`` -&gt; bias or</span>
+<span class="sd">    Hamming-weight constraints.</span>
+<span class="sd">    </span>
+<span class="sd">    When ``exact_depth=True`` and the requested depth is zero, Hamming weights</span>
+<span class="sd">    ``{0, 1, 2^k - 1, 2^k}`` correspond to canalizing functions and are therefore</span>
+<span class="sd">    disallowed.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">        &gt;&gt;&gt; # Boolean network with only essential inputs</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N=10, n=2, allow_degenerate_functions=False)</span>
+
+<span class="sd">        &gt;&gt;&gt; # Classic NK-Kauffman network allowing degenerate rules</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N=10, n=3, allow_degenerate_functions=True)</span>
+
+<span class="sd">        &gt;&gt;&gt; # Fixed wiring: reuse an existing diagram but resample rules</span>
+<span class="sd">        &gt;&gt;&gt; bn0 = random_network(N=6, n=2)</span>
+<span class="sd">        &gt;&gt;&gt; bn  = random_network(I=bn)</span>
+
+<span class="sd">        &gt;&gt;&gt; # Exact canalizing depth k for all nodes</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N=8, n=3, depth=1, exact_depth=True)</span>
+
+<span class="sd">        &gt;&gt;&gt; # Nested canalizing update rules with specific layer structure (broadcast)</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N=5, n=3, layer_structure=[1,2])  # same for all nodes</span>
+
+<span class="sd">        &gt;&gt;&gt; # Parity rules</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N=7, n=2, parity=True)</span>
+
+<span class="sd">        &gt;&gt;&gt; # Poisson in-degrees (truncated), no self-regulation, request strong connectivity</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N=12, n=1.6, indegree_distribution=&#39;poisson&#39;,</span>
+<span class="sd">        ...                     allow_self_loops=False, strongly_connected=True)</span>
+
+<span class="sd">        &gt;&gt;&gt; # Exact Hamming weights (broadcast)</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N=6, n=3, hamming_weight=4)</span>
+
+<span class="sd">        &gt;&gt;&gt; # To ensure strong connectivity, set allow_degenerate_functions=False</span>
+<span class="sd">        &gt;&gt;&gt; # and strongly_connected=True</span>
+<span class="sd">        &gt;&gt;&gt; bn = random_network(N,n,allow_degenerate_functions=False,strongly_connected=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">I</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">N</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># generate wiring diagram</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">random_wiring_diagram</span><span class="p">(</span>
+            <span class="n">N</span><span class="p">,</span>
+            <span class="n">n</span><span class="p">,</span>
+            <span class="n">allow_self_loops</span><span class="o">=</span><span class="n">allow_self_loops</span><span class="p">,</span>
+            <span class="n">allow_indegree_zero</span><span class="o">=</span><span class="n">allow_indegree_zero</span><span class="p">,</span>
+            <span class="n">strongly_connected</span><span class="o">=</span><span class="n">strongly_connected</span><span class="p">,</span>
+            <span class="n">indegree_distribution</span><span class="o">=</span><span class="n">indegree_distribution</span><span class="p">,</span>
+            <span class="n">min_out_degree_one</span><span class="o">=</span><span class="n">min_out_degree_one</span><span class="p">,</span>
+            <span class="n">max_strong_connectivity_attempts</span><span class="o">=</span><span class="n">max_strong_connectivity_attempts</span><span class="p">,</span>
+            <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">I</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># load wiring diagram</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">WiringDiagram</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">)),</span> <span class="p">(</span>
+            <span class="s2">&quot;I must be an instance of WiringDiagram or a list or np.array of lists or np.arrays. Each inner list describes the regulators of node i (indexed by 0,1,...,len(I)-1)&quot;</span>
+        <span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">regulators</span> <span class="ow">in</span> <span class="n">I</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="n">utils</span><span class="o">.</span><span class="n">is_list_or_array_of_ints</span><span class="p">(</span><span class="n">regulators</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">min</span><span class="p">(</span><span class="n">regulators</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+                    <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="n">regulators</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="p">),</span> <span class="p">(</span>
+                    <span class="s2">&quot;Each element in I describes the regulators of a node (indexed by 0,1,...,len(I)-1)&quot;</span>
+                <span class="p">)</span>
+            <span class="n">I</span> <span class="o">=</span> <span class="n">WiringDiagram</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">):</span>
+            <span class="n">I</span> <span class="o">=</span> <span class="n">WiringDiagram</span><span class="o">.</span><span class="n">from_DiGraph</span><span class="p">(</span> <span class="n">I</span> <span class="p">)</span>        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;At a minimum, the wiring diagram I must be provided or the network size N and degree parameter n.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Process the inputs, turn single inputs into vectors of length N</span>
+
+    <span class="c1"># since layer_structure takes precedence over depth, this block needs to run before the depth block to ensure depth is a vector and not reset to a single value</span>
+    <span class="k">if</span> <span class="n">layer_structure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">layer_structure</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="k">elif</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_list_or_array_of_ints</span><span class="p">(</span><span class="n">layer_structure</span><span class="p">):</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">layer_structure</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="nb">min</span><span class="p">(</span><span class="n">layer_structure</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">depth</span> <span class="o">&lt;=</span> <span class="nb">min</span><span class="p">(</span><span class="n">I</span><span class="o">.</span><span class="n">indegrees</span><span class="p">)</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;The layer structure must be [] or a vector of positive integers with 0 &lt;= depth = sum(layer_structure) &lt;= N.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">layer_structure</span> <span class="o">=</span> <span class="p">[</span><span class="n">layer_structure</span><span class="p">[:]]</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">utils</span><span class="o">.</span><span class="n">is_list_or_array_of_ints</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">layer_structure</span><span class="p">])</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer_structure</span><span class="p">)</span> <span class="o">==</span> <span class="n">N</span>
+    <span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vector</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">layer_structure</span><span class="p">):</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">depth</span> <span class="o">&lt;=</span> <span class="n">I</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="p">(</span>
+                <span class="s2">&quot;Ensure that layer_structure is an N-dimensional vector where each element represents a layer structure and is either [] or a vector of positive integers with 0 &lt;= depth = sum(layer_structure[i]) &lt;= n = indegrees[i].&quot;</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;Wrong input format for &#39;layer_structure&#39;.</span><span class="se">\n</span><span class="s2">It must be a single vector (or N-dimensional vector of layer structures) where the sum of each element is between 0 and N.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+        <span class="k">assert</span> <span class="n">depth</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;The canalizing depth must be an integer between 0 and min(indegrees) or an N-dimensional vector of integers must be provided to use different depths per function.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">I</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">depth</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_list_or_array_of_ints</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">required_length</span><span class="o">=</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">I</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">depth</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+        <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;&#39;depth&#39; received a vector as input.</span><span class="se">\n</span><span class="s2">To use a user-defined vector, ensure that it is an N-dimensional vector where each element is a non-negative integer.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;Wrong input format for &#39;depth&#39;.</span><span class="se">\n</span><span class="s2">It must be a single integer (or N-dimensional vector of integers) between 0 and N, specifying the minimal canalizing depth or exact canalizing depth (if exact_depth==True).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bias</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">)):</span>
+        <span class="n">bias</span> <span class="o">=</span> <span class="p">[</span><span class="n">bias</span><span class="p">]</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_list_or_array_of_floats</span><span class="p">(</span><span class="n">bias</span><span class="p">,</span> <span class="n">required_length</span><span class="o">=</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;Wrong input format for &#39;bias&#39;.</span><span class="se">\n</span><span class="s2">It must be a single float (or N-dimensional vector of floats) in [0,1] , specifying the bias (probability of a 1) in the generation of the Boolean function.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">absolute_bias</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">)):</span>
+        <span class="n">absolute_bias</span> <span class="o">=</span> <span class="p">[</span><span class="n">absolute_bias</span><span class="p">]</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_list_or_array_of_floats</span><span class="p">(</span><span class="n">absolute_bias</span><span class="p">,</span> <span class="n">required_length</span><span class="o">=</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;Wrong input format for &#39;absolute_bias&#39;.</span><span class="se">\n</span><span class="s2">It must be a single float (or N-dimensional vector of floats) in [0,1], specifying the absolute bias (divergence from the &#39;unbiased bias&#39; of 0.5) in the generation of the Boolean function.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">hamming_weight</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">hamming_weight</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hamming_weight</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+        <span class="n">hamming_weight</span> <span class="o">=</span> <span class="p">[</span><span class="n">hamming_weight</span><span class="p">]</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_list_or_array_of_ints</span><span class="p">(</span><span class="n">hamming_weight</span><span class="p">,</span> <span class="n">required_length</span><span class="o">=</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;Wrong input format for &#39;hamming_weight&#39;.</span><span class="se">\n</span><span class="s2">If provided, it must be a single integer (or N-dimensional vector of integers) in {0,1,...,2^n}, specifying the number of 1s in the truth table of each Boolean function.</span><span class="se">\n</span><span class="s2">If exact_depth == True and depth==0, it must be in {2,3,...,2^n-2} because all functions with Hamming weight 0,1,2^n-1,2^n are canalizing.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># generate functions</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">I</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1">#only possible if allow_indegree_zero == True</span>
+            <span class="c1">#then turn i into an idenitity_node</span>
+            <span class="n">I</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">I</span><span class="o">.</span><span class="n">outdegrees</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">I</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">random_function</span><span class="p">(</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">I</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">depth</span><span class="o">=</span><span class="n">depth</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">exact_depth</span><span class="o">=</span><span class="n">exact_depth</span><span class="p">,</span>
+                    <span class="n">uniform_over_functions</span><span class="o">=</span><span class="n">uniform_over_functions</span><span class="p">,</span>
+                    <span class="n">layer_structure</span><span class="o">=</span><span class="n">layer_structure</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">parity</span><span class="o">=</span><span class="n">parity</span><span class="p">,</span>
+                    <span class="n">allow_degenerate_functions</span><span class="o">=</span><span class="n">allow_degenerate_functions</span><span class="p">,</span>
+                    <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">absolute_bias</span><span class="o">=</span><span class="n">absolute_bias</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">use_absolute_bias</span><span class="o">=</span><span class="n">use_absolute_bias</span><span class="p">,</span>
+                    <span class="n">hamming_weight</span><span class="o">=</span><span class="n">hamming_weight</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="random_null_model">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_null_model">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_null_model</span><span class="p">(</span>
+    <span class="n">bn</span><span class="p">:</span> <span class="n">BooleanNetwork</span><span class="p">,</span>
+    <span class="n">wiring_diagram</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fixed&quot;</span><span class="p">,</span>
+    <span class="n">preserve_bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">preserve_canalizing_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanNetwork</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a randomized Boolean network (null model) from an existing</span>
+<span class="sd">    Boolean network while preserving selected structural and dynamical</span>
+<span class="sd">    properties.</span>
+<span class="sd">        </span>
+<span class="sd">    The returned network has the same number of nodes as ``bn``. Depending</span>
+<span class="sd">    on the selected options, the wiring diagram and/or the Boolean update</span>
+<span class="sd">    rules are randomized subject to specified invariants. </span>
+<span class="sd">    </span>
+<span class="sd">    To ensure that the generated null models are structurally meaningful,</span>
+<span class="sd">    the original network ``bn`` must not contain degenerate Boolean functions</span>
+<span class="sd">    (i.e., functions with non-essential inputs). If such functions are present,</span>
+<span class="sd">    simplify the network first using ``bn.simplify_functions()``.</span>
+<span class="sd">    </span>
+<span class="sd">    Wiring diagram randomization</span>
+<span class="sd">    ----------------------------</span>
+<span class="sd">    The wiring diagram can be handled in one of three ways:</span>
+<span class="sd">    </span>
+<span class="sd">    - ``&#39;fixed&#39;`` (default):</span>
+<span class="sd">      The original wiring diagram ``bn.I`` is reused unchanged.</span>
+<span class="sd">    </span>
+<span class="sd">    - ``&#39;fixed_indegree&#39;``:</span>
+<span class="sd">      A new wiring diagram is sampled uniformly at random subject to</span>
+<span class="sd">      preserving the in-degree of each node. This uses</span>
+<span class="sd">      ``random_wiring_diagram`` with ``N = bn.N`` and ``n = bn.indegrees``.</span>
+<span class="sd">    </span>
+<span class="sd">    - ``&#39;fixed_in_and_outdegree&#39;``:</span>
+<span class="sd">      The original wiring diagram is randomized via degree-preserving</span>
+<span class="sd">      double-edge swaps using ``rewire_wiring_diagram``, preserving both</span>
+<span class="sd">      in-degrees and out-degrees of all nodes.</span>
+<span class="sd">    </span>
+<span class="sd">    Rule randomization</span>
+<span class="sd">    ------------------</span>
+<span class="sd">    Independently of the wiring diagram, Boolean update rules are</span>
+<span class="sd">    randomized for each node, optionally preserving properties of the</span>
+<span class="sd">    original rules:</span>
+<span class="sd">    </span>
+<span class="sd">    - If ``preserve_bias`` is True, the exact Hamming weight (number of ones</span>
+<span class="sd">      in the truth table) of each rule is preserved.</span>
+<span class="sd">    </span>
+<span class="sd">    - If ``preserve_canalizing_depth`` is True, the canalizing depth of each</span>
+<span class="sd">      rule is preserved exactly.</span>
+<span class="sd">    </span>
+<span class="sd">    If both flags are True, both properties are preserved simultaneously.</span>
+<span class="sd">    If neither flag is True, rules are regenerated subject only to</span>
+<span class="sd">    non-degeneracy and the node’s in-degree.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bn : BooleanNetwork</span>
+<span class="sd">        Source Boolean network.</span>
+<span class="sd">    wiring_diagram : {&#39;fixed&#39;, &#39;fixed_indegree&#39;, &#39;fixed_in_and_outdegree&#39;}, optional</span>
+<span class="sd">        Strategy for handling the wiring diagram. Default is ``&#39;fixed&#39;``.</span>
+<span class="sd">    preserve_bias : bool, optional</span>
+<span class="sd">        If True, preserve the exact Hamming weight of each Boolean rule.</span>
+<span class="sd">        Default is True.</span>
+<span class="sd">    preserve_canalizing_depth : bool, optional</span>
+<span class="sd">        If True, preserve the exact canalizing depth of each Boolean rule.</span>
+<span class="sd">        Default is True.</span>
+<span class="sd">    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">        Additional keyword arguments forwarded to the wiring-diagram</span>
+<span class="sd">        randomization routine:</span>
+<span class="sd">    </span>
+<span class="sd">        - For ``wiring_diagram == &#39;fixed_indegree&#39;``, forwarded to</span>
+<span class="sd">          ``random_wiring_diagram`` (e.g., ``allow_self_loops``,</span>
+<span class="sd">          ``strongly_connected``).</span>
+<span class="sd">    </span>
+<span class="sd">        - For ``wiring_diagram == &#39;fixed_in_and_outdegree&#39;``, forwarded to</span>
+<span class="sd">          ``rewire_wiring_diagram`` (e.g., ``average_swaps_per_edge``,</span>
+<span class="sd">          ``allow_new_self_loops``, ``allow_self_loop_rewiring``).</span>
+
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanNetwork</span>
+<span class="sd">        A randomized Boolean network satisfying the selected invariants.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If invalid options are provided.</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If wiring-diagram randomization fails (e.g., strong connectivity</span>
+<span class="sd">        cannot be achieved within the allowed number of attempts).</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the Boolean network contains degenerate functions. In that case,</span>
+<span class="sd">        simplify the network first using bn.simplify_functions(),</span>
+<span class="sd">        then recompute the null model.</span>
+<span class="sd">        </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function generates null models by selectively preserving structural</span>
+<span class="sd">    and dynamical properties of an existing Boolean network. It is intended</span>
+<span class="sd">    for hypothesis testing and comparative studies rather than for uniform</span>
+<span class="sd">    sampling over all networks satisfying the given constraints.</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Most restrictive use case: Preserve both wiring and rule properties (default) </span>
+<span class="sd">    &gt;&gt;&gt; bn_null = random_null_model(bn)</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; # Preserve in-degrees only and preserve rule bias</span>
+<span class="sd">    &gt;&gt;&gt; bn_null = random_null_model(</span>
+<span class="sd">    ...     bn,</span>
+<span class="sd">    ...     wiring_diagram=&#39;fixed_indegree&#39;,</span>
+<span class="sd">    ...     preserve_bias=True,</span>
+<span class="sd">    ...     preserve_canalizing_depth=False</span>
+<span class="sd">    ... )</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; # Preserve both in- and out-degrees via rewiring</span>
+<span class="sd">    &gt;&gt;&gt; bn_null = random_null_model(</span>
+<span class="sd">    ...     bn,</span>
+<span class="sd">    ...     wiring_diagram=&#39;fixed_in_and_outdegree&#39;,</span>
+<span class="sd">    ...     average_swaps_per_edge=15</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">wiring_diagram</span> <span class="o">==</span> <span class="s2">&quot;fixed&quot;</span><span class="p">:</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">I</span>
+    <span class="k">elif</span> <span class="n">wiring_diagram</span> <span class="o">==</span> <span class="s2">&quot;fixed_indegree&quot;</span><span class="p">:</span>
+        <span class="n">filtered_kwargs</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">filter_kwargs</span><span class="p">(</span><span class="n">random_wiring_diagram</span><span class="p">,</span> 
+                                              <span class="n">kwargs</span><span class="p">,</span>
+                                              <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;rng&#39;</span><span class="p">))</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">random_wiring_diagram</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">bn</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="o">**</span><span class="n">filtered_kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">wiring_diagram</span> <span class="o">==</span> <span class="s2">&quot;fixed_in_and_outdegree&quot;</span><span class="p">:</span>
+        <span class="n">filtered_kwargs</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">filter_kwargs</span><span class="p">(</span><span class="n">rewire_wiring_diagram</span><span class="p">,</span> 
+                                              <span class="n">kwargs</span><span class="p">,</span>
+                                              <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;rng&#39;</span><span class="p">))</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">rewire_wiring_diagram</span><span class="p">(</span><span class="n">I</span><span class="o">=</span><span class="n">bn</span><span class="o">.</span><span class="n">I</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="o">**</span><span class="n">filtered_kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;There are three choices for the wiring diagram: 1. &#39;fixed&#39; (i.e., as in the provided BooleanNetwork), 2. &#39;fixed_indegree&#39; (i.e., edges are shuffled but the indegree is preserved), 3. &#39;fixed_in_and_outdegree&#39; (i.e., edges are shuffled but both the indegree and outdegree are preserved).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">dict_identity_nodes</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">get_identity_nodes</span><span class="p">(</span><span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">F</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">dict_identity_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>  <span class="c1"># identity nodes don&#39;t change</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">preserve_canalizing_depth</span><span class="p">:</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">get_canalizing_depth</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Boolean function bn.F[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] is degenerate. &quot;</span>
+                    <span class="s2">&quot;Simplify the network first using bn.simplify_functions(), &quot;</span>
+                    <span class="s2">&quot;then recompute the null model.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Boolean function bn.F[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] is degenerate. &quot;</span>
+                    <span class="s2">&quot;Simplify the network first using bn.simplify_functions(), &quot;</span>
+                    <span class="s2">&quot;then recompute the null model.&quot;</span>
+                <span class="p">)</span>            
+        <span class="k">if</span> <span class="n">preserve_bias</span> <span class="ow">and</span> <span class="n">preserve_canalizing_depth</span><span class="p">:</span>
+            <span class="n">core_function</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;CoreFunction&quot;</span><span class="p">]</span>
+            <span class="n">can_outputs</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;CanalizedOutputs&quot;</span><span class="p">]</span>
+
+            <span class="n">can_inputs</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">can_order</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">core_function</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="o">-</span> <span class="n">can_outputs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">f</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">core_function</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># if f.n-depth&gt;=3</span>
+                <span class="n">hamming_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">core_function</span><span class="p">)</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">core_function</span> <span class="o">=</span> <span class="n">random_function_with_exact_hamming_weight</span><span class="p">(</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">depth</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">core_function</span><span class="o">.</span><span class="n">is_canalizing</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">core_function</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
+                            <span class="k">break</span>
+            <span class="n">newf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">depth</span><span class="p">):</span>
+                <span class="n">newf</span><span class="p">[</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span>
+                            <span class="n">newf</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                            <span class="n">utils</span><span class="o">.</span><span class="n">get_left_side_of_truth_table</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">])[</span>
+                                <span class="p">:,</span> <span class="n">can_order</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                            <span class="p">]</span>
+                            <span class="o">==</span> <span class="n">can_inputs</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">can_outputs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">newf</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">newf</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">core_function</span>
+            <span class="n">newf</span> <span class="o">=</span> <span class="n">BooleanFunction</span><span class="p">(</span><span class="n">newf</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">preserve_bias</span><span class="p">:</span>  <span class="c1"># and preserve_canalizing_depth==False</span>
+            <span class="n">newf</span> <span class="o">=</span> <span class="n">random_function_with_exact_hamming_weight</span><span class="p">(</span>
+                <span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">f</span><span class="o">.</span><span class="n">hamming_weight</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">preserve_canalizing_depth</span><span class="p">:</span>
+            <span class="n">filtered_kwargs</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">filter_kwargs</span><span class="p">(</span><span class="n">random_k_canalizing_function</span><span class="p">,</span> 
+                                                  <span class="n">kwargs</span><span class="p">,</span>
+                                                  <span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;exact_depth&quot;</span><span class="p">,</span> <span class="s2">&quot;rng&quot;</span><span class="p">},)</span>
+            <span class="n">newf</span> <span class="o">=</span> <span class="n">random_k_canalizing_function</span><span class="p">(</span>
+                <span class="n">n</span><span class="o">=</span><span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> 
+                <span class="n">k</span><span class="o">=</span><span class="n">depth</span><span class="p">,</span> 
+                <span class="n">exact_depth</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">filtered_kwargs</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">newf</span> <span class="o">=</span> <span class="n">random_non_degenerate_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">bn</span><span class="o">.</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+        <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newf</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">BooleanNetwork</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

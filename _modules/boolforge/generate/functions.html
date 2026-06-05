@@ -1,0 +1,424 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boolforge.generate.functions &mdash; BoolForge 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">boolforge.generate.functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for boolforge.generate.functions</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions for generating random Boolean functions and</span>
+<span class="sd">Boolean networks with specified structural and dynamical properties.</span>
+
+<span class="sd">The :mod:`~boolforge.generate` module enables the systematic creation of</span>
+<span class="sd">Boolean functions and networks that satisfy particular constraints, such as</span>
+<span class="sd">specified canalization depth, sensitivity range, bias, or connectivity.</span>
+<span class="sd">Generated instances can be used for statistical analysis, benchmarking, or</span>
+<span class="sd">simulation studies.</span>
+
+<span class="sd">Several generation routines leverage Numba acceleration for efficient sampling</span>
+<span class="sd">and evaluation of large function spaces. While Numba is **recommended** to</span>
+<span class="sd">achieve near-native performance, it is **not required** for functionality; all</span>
+<span class="sd">functions have pure Python fallbacks.</span>
+
+<span class="sd">This module complements :mod:`~boolforge.boolean_function` and</span>
+<span class="sd">:mod:`~boolforge.boolean_network` by facilitating reproducible generation of</span>
+<span class="sd">synthetic test cases and large ensembles of random networks.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">&gt;&gt;&gt; import boolforge</span>
+<span class="sd">&gt;&gt;&gt; boolforge.random_function(n=3)</span>
+<span class="sd">&gt;&gt;&gt; boolforge.random_network(N=5, n=2)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..boolean_function</span><span class="w"> </span><span class="kn">import</span> <span class="n">BooleanFunction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+<div class="viewcode-block" id="random_function_with_bias">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_function_with_bias">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_function_with_bias</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random Boolean function with a specified bias.</span>
+
+<span class="sd">    The Boolean function is represented by its truth table of length</span>
+<span class="sd">    ``2**n``, where each entry is independently set to 1 with probability</span>
+<span class="sd">    ``bias`` and to 0 otherwise.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of Boolean variables.</span>
+<span class="sd">    bias : float, optional</span>
+<span class="sd">        Probability that a given truth-table entry equals 1. Default is 0.5.</span>
+<span class="sd">    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        Random Boolean function with the specified bias.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">BooleanFunction</span><span class="o">.</span><span class="n">_from_f_unchecked</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">bias</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="random_function_with_exact_hamming_weight">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_function_with_exact_hamming_weight">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_function_with_exact_hamming_weight</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">hamming_weight</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random Boolean function with a fixed Hamming weight.</span>
+
+<span class="sd">    The Boolean function is represented by its truth table of length</span>
+<span class="sd">    ``2**n``, containing exactly ``hamming_weight`` entries equal to 1.</span>
+<span class="sd">    All such functions are sampled uniformly at random.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of Boolean variables.</span>
+<span class="sd">    hamming_weight : int</span>
+<span class="sd">        Number of truth-table entries equal to 1.</span>
+<span class="sd">    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        Random Boolean function with exactly ``hamming_weight`` ones in its</span>
+<span class="sd">        truth table.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If ``hamming_weight`` is not an integer.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``hamming_weight`` is not in the range ``[0, 2**n]``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hamming_weight</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;hamming_weight must be an integer&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">hamming_weight</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;hamming_weight must satisfy 0 &lt;= hamming_weight &lt;= 2**n&quot;</span><span class="p">)</span>
+
+    <span class="n">one_indices</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">,</span> <span class="n">hamming_weight</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">f</span><span class="p">[</span><span class="n">one_indices</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">BooleanFunction</span><span class="o">.</span><span class="n">_from_f_unchecked</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="random_parity_function">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_parity_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_parity_function</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random parity Boolean function.</span>
+
+<span class="sd">    A parity Boolean function evaluates to the parity (sum modulo 2) of all</span>
+<span class="sd">    input variables, optionally shifted by a constant. This function returns</span>
+<span class="sd">    either the parity function or its complement, chosen uniformly at random.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of Boolean variables.</span>
+<span class="sd">    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        Random parity Boolean function on ``n`` variables.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``n`` is not a positive integer.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The returned function is either</span>
+<span class="sd">      ``x1 XOR x2 XOR ... XOR xn`` or its complement.</span>
+<span class="sd">    - All variables are included symmetrically.</span>
+<span class="sd">    - Parity functions are never canalizing. All variables must always be known</span>
+<span class="sd">      to determine the output; they have maximal average sensitivity.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; f = random_parity_function(3)</span>
+<span class="sd">    &gt;&gt;&gt; sum(f)</span>
+<span class="sd">    4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n must be a positive integer&quot;</span><span class="p">)</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># choose parity or its complement</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">bit_count</span><span class="p">()</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">val</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">BooleanFunction</span><span class="o">.</span><span class="n">_from_f_unchecked</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="random_non_degenerate_function">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_non_degenerate_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_non_degenerate_function</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random non-degenerate Boolean function.</span>
+
+<span class="sd">    A Boolean function is non-degenerate if every variable is essential, i.e.,</span>
+<span class="sd">    the function depends on all ``n`` input variables. Functions are sampled</span>
+<span class="sd">    repeatedly from the Bernoulli(bias) ensemble until a non-degenerate</span>
+<span class="sd">    function is obtained.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of Boolean variables.</span>
+<span class="sd">    bias : float, optional</span>
+<span class="sd">        Probability that a truth-table entry equals 1. Default is 0.5.</span>
+<span class="sd">    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        Random non-degenerate Boolean function.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``n`` is not a positive integer.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``bias`` is not strictly between 0 and 1.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - For moderate bias values, almost all Boolean functions are non-degenerate.</span>
+<span class="sd">    - Extremely biased functions are very likely to be degenerate, which may</span>
+<span class="sd">      lead to long rejection-sampling times.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n must be a positive integer&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bias</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">bias</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bias must be a float strictly between 0 and 1&quot;</span><span class="p">)</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># Rejection sampling; almost all Boolean functions are non-degenerate</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">random_function_with_bias</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">is_degenerate</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">f</span></div>
+
+
+
+<div class="viewcode-block" id="random_degenerate_function">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_degenerate_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_degenerate_function</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BooleanFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random degenerate Boolean function uniformly at random.</span>
+<span class="sd">    </span>
+<span class="sd">    A Boolean function is degenerate if at least one variable is</span>
+<span class="sd">    non-essential, i.e., the function does not depend on that variable.</span>
+<span class="sd">    By using appropriate acceptance weights, the resulting distribution</span>
+<span class="sd">    is function-uniform over all degenerate Boolean functions on ``n``</span>
+<span class="sd">    variables.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of Boolean variables.</span>
+<span class="sd">    rng : int, np.random.Generator, np.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BooleanFunction</span>
+<span class="sd">        Random degenerate Boolean function on ``n`` variables, sampled</span>
+<span class="sd">        uniformly over all degenerate Boolean functions.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``n`` is not a positive integer.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - A non-essential variable is forced by construction, but additional</span>
+<span class="sd">      variables may also be non-essential by chance.</span>
+<span class="sd">    - The forced non-essential variable is chosen uniformly at random</span>
+<span class="sd">      from all ``n`` variables.</span>
+<span class="sd">    - Function-uniformity is achieved by accepting a candidate function</span>
+<span class="sd">      with ``k`` non-essential variables with probability ``1/k``,</span>
+<span class="sd">      correcting for the fact that such functions are ``k`` times more</span>
+<span class="sd">      likely to be proposed than functions with exactly one non-essential</span>
+<span class="sd">      variable.</span>
+<span class="sd">    - At bias != 0.5 this acceptance correction would no longer be valid,</span>
+<span class="sd">      so bias is fixed at 0.5 internally.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n must be a positive integer&quot;</span><span class="p">)</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Choose forced non-essential variable uniformly at random</span>
+        <span class="n">index_non_essential_variable</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        
+        <span class="c1"># Generate an (n-1)-variable Boolean function</span>
+        <span class="n">f_original</span> <span class="o">=</span> <span class="n">random_function_with_bias</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+        
+        <span class="c1"># Copy the (n-1)-variable function across both values of the non-essential variable</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">index_non_essential_variable</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">)</span> <span class="o">//</span> <span class="n">block</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">f</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_original</span><span class="o">.</span><span class="n">f</span>
+        <span class="n">f</span><span class="p">[</span><span class="o">~</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_original</span><span class="o">.</span><span class="n">f</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="n">BooleanFunction</span><span class="o">.</span><span class="n">_from_f_unchecked</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        
+        <span class="n">k</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">candidate</span><span class="o">.</span><span class="n">get_number_of_essential_variables</span><span class="p">()</span>  <span class="c1"># number of non-essential variables</span>
+        <span class="k">if</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">k</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">candidate</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

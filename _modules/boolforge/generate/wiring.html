@@ -1,0 +1,685 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>boolforge.generate.wiring &mdash; BoolForge 1.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=292eb321"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BoolForge
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BoolForge</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">boolforge.generate.wiring</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for boolforge.generate.wiring</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions for generating random Boolean functions and</span>
+<span class="sd">Boolean networks with specified structural and dynamical properties.</span>
+
+<span class="sd">The :mod:`~boolforge.generate` module enables the systematic creation of</span>
+<span class="sd">Boolean functions and networks that satisfy particular constraints, such as</span>
+<span class="sd">specified canalization depth, sensitivity range, bias, or connectivity.</span>
+<span class="sd">Generated instances can be used for statistical analysis, benchmarking, or</span>
+<span class="sd">simulation studies.</span>
+
+<span class="sd">Several generation routines leverage Numba acceleration for efficient sampling</span>
+<span class="sd">and evaluation of large function spaces. While Numba is **recommended** to</span>
+<span class="sd">achieve near-native performance, it is **not required** for functionality; all</span>
+<span class="sd">functions have pure Python fallbacks.</span>
+
+<span class="sd">This module complements :mod:`~boolforge.boolean_function` and</span>
+<span class="sd">:mod:`~boolforge.boolean_network` by facilitating reproducible generation of</span>
+<span class="sd">synthetic test cases and large ensembles of random networks.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">&gt;&gt;&gt; import boolforge</span>
+<span class="sd">&gt;&gt;&gt; boolforge.random_function(n=3)</span>
+<span class="sd">&gt;&gt;&gt; boolforge.random_network(N=5, n=2)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c1">##Imports</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..wiring_diagram</span><span class="w"> </span><span class="kn">import</span> <span class="n">WiringDiagram</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+<div class="viewcode-block" id="random_degrees">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_degrees">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_degrees</span><span class="p">(</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">indegree_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span>
+    <span class="n">allow_self_loops</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">allow_indegree_zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw an in-degree vector for a directed network with N nodes.</span>
+
+<span class="sd">    This function either accepts a user-specified in-degree vector or</span>
+<span class="sd">    samples in-degrees independently for each node from a specified</span>
+<span class="sd">    distribution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    N : int</span>
+<span class="sd">        Number of nodes in the network. Must be a positive integer.</span>
+<span class="sd">    n : int, float, list of int, or ndarray of int</span>
+<span class="sd">        Interpretation depends on ``indegree_distribution``:</span>
+
+<span class="sd">        - If ``n`` is a length-``N`` vector of integers, it is interpreted</span>
+<span class="sd">          as a user-specified in-degree sequence and returned after</span>
+<span class="sd">          validation.</span>
+
+<span class="sd">        - If ``indegree_distribution`` is one of</span>
+<span class="sd">          ``{&#39;constant&#39;, &#39;dirac&#39;, &#39;delta&#39;}``, then ``n`` is a single integer</span>
+<span class="sd">          specifying the in-degree of every node.</span>
+
+<span class="sd">        - If ``indegree_distribution == &#39;uniform&#39;``, then ``n`` is a positive</span>
+<span class="sd">          integer upper bound, and each node independently receives an</span>
+<span class="sd">          in-degree sampled uniformly from</span>
+<span class="sd">          ``{1, 2, ..., n}``.</span>
+
+<span class="sd">        - If ``indegree_distribution == &#39;poisson&#39;``, then ``n`` is the Poisson</span>
+<span class="sd">          rate parameter ``λ &gt; 0``. Each node independently receives a</span>
+<span class="sd">          Poisson(``λ``) draw, truncated to lie in</span>
+<span class="sd">          ``[1, N - int(not allow_self_loops)]``.</span>
+
+<span class="sd">    indegree_distribution : str, optional</span>
+<span class="sd">        Distribution used to generate in-degrees when ``n`` is not a vector.</span>
+<span class="sd">        Must be one of ``{&#39;constant&#39;, &#39;dirac&#39;, &#39;delta&#39;, &#39;uniform&#39;, &#39;poisson&#39;}``.</span>
+<span class="sd">        Default is ``&#39;constant&#39;``.</span>
+<span class="sd">    allow_self_loops : bool, optional</span>
+<span class="sd">        If True, in-degrees may be as large as ``N``.</span>
+<span class="sd">        If False (default), self-loops are disallowed in subsequent wiring</span>
+<span class="sd">        generation. This is enforced here by capping in-degrees at ``N-1``.</span>
+<span class="sd">    allow_indegree_zero : bool, optional</span>
+<span class="sd">        If True, some in-degrees may be ``0``.</span>
+<span class="sd">        If False (default), all in-degrees are at least ``1``.</span>
+<span class="sd">    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    indegrees : ndarray of int, shape (N,)</span>
+<span class="sd">        In-degree of each node. For sampled distributions, values lie in</span>
+<span class="sd">        ``[1, N - int(not allow_self_loops)]``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If inputs are malformed, out of range, or an unsupported distribution</span>
+<span class="sd">        is requested.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    When sampling is requested, in-degrees for different nodes are generated</span>
+<span class="sd">    independently. No attempt is made to enforce graphicality or feasibility</span>
+<span class="sd">    of the resulting degree sequence for a particular wiring model; such</span>
+<span class="sd">    constraints must be handled downstream.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; random_degrees(5, n=2, indegree_distribution=&#39;constant&#39;)</span>
+<span class="sd">    array([2, 2, 2, 2, 2])</span>
+
+<span class="sd">    &gt;&gt;&gt; random_degrees(4, n=2, indegree_distribution=&#39;uniform&#39;, allow_self_loops=False)</span>
+<span class="sd">    array([2, 1, 2, 2])</span>
+
+<span class="sd">    &gt;&gt;&gt; random_degrees(6, n=1.7, indegree_distribution=&#39;poisson&#39;)</span>
+<span class="sd">    array([1, 2, 1, 1, 2, 1])</span>
+
+<span class="sd">    &gt;&gt;&gt; random_degrees(3, n=[1, 2, 1])</span>
+<span class="sd">    array([1, 2, 1])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">is_list_or_array_of_ints</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">required_length</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">allow_indegree_zero</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">N</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="ow">not</span> <span class="n">allow_self_loops</span><span class="p">)</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;A vector n was submitted.</span><span class="se">\n</span><span class="s2">Ensure that n is an N-dimensional vector where each element is an integer between 1 and &quot;</span>
+            <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;N-1&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_self_loops</span> <span class="k">else</span> <span class="s2">&quot;N&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot; representing the indegree of each nodde.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">indegrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">indegree_distribution</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="s2">&quot;dirac&quot;</span><span class="p">,</span> <span class="s2">&quot;delta&quot;</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span>
+            <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">allow_indegree_zero</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="n">N</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="ow">not</span> <span class="n">allow_self_loops</span><span class="p">)</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;n must be an integer between 1 and &quot;</span>
+            <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;N-1&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_self_loops</span> <span class="k">else</span> <span class="s2">&quot;N&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot; describing the constant degree of each node.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">indegrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span>
+    <span class="k">elif</span> <span class="n">indegree_distribution</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span>
+            <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">allow_indegree_zero</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="n">N</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="ow">not</span> <span class="n">allow_self_loops</span><span class="p">)</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;n must be an integer between 1 and &quot;</span>
+            <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;N-1&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_self_loops</span> <span class="k">else</span> <span class="s2">&quot;N&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot; representing the upper bound of a uniform degree distribution (lower bound == 1).&quot;</span>
+        <span class="p">)</span>
+        <span class="n">indegrees</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">indegree_distribution</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;poisson&quot;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">))</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;n must be a float &gt; 0 representing the Poisson parameter.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">indegrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">lam</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">),</span> <span class="n">N</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="ow">not</span> <span class="n">allow_self_loops</span><span class="p">)),</span> <span class="mi">1</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">allow_indegree_zero</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;None of the predefined in-degree distributions were chosen.</span><span class="se">\n</span><span class="s2">To use a user-defined in-degree vector, submit an N-dimensional vector as argument for n; each element of n must an integer between 1 and N.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">indegrees</span></div>
+
+
+
+<div class="viewcode-block" id="random_edge_list">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_edge_list">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_edge_list</span><span class="p">(</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">indegrees</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">allow_self_loops</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">min_out_degree_one</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random directed edge list for a network with prescribed in-degrees.</span>
+
+<span class="sd">    Each node ``i`` receives exactly ``indegrees[i]`` incoming edges, with</span>
+<span class="sd">    regulators chosen uniformly at random from the set of admissible source</span>
+<span class="sd">    nodes. Optionally, the construction enforces that every node regulates at</span>
+<span class="sd">    least one other node.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    N : int</span>
+<span class="sd">        Number of nodes in the network.</span>
+<span class="sd">    indegrees : sequence of int</span>
+<span class="sd">        Length-``N`` sequence specifying the number of incoming edges for each</span>
+<span class="sd">        node.</span>
+<span class="sd">    allow_self_loops : bool</span>
+<span class="sd">        If True, self-loops (edges from a node to itself) are allowed.</span>
+<span class="sd">        Default is False.</span>
+<span class="sd">    min_out_degree_one : bool, optional</span>
+<span class="sd">        If True, enforce that every node has at least one outgoing edge.</span>
+<span class="sd">        This is achieved by rewiring edges while preserving the prescribed</span>
+<span class="sd">        in-degree sequence. Default is False.</span>
+<span class="sd">    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    edge_list : list of tuple of int</span>
+<span class="sd">        List of directed edges represented as ``(source, target)`` pairs.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``N`` or ``indegrees`` are inconsistent.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If sampling constraints cannot be satisfied.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Regulators for each node are sampled uniformly at random without</span>
+<span class="sd">    replacement from the set of admissible source nodes. If</span>
+<span class="sd">    ``min_out_degree_one``, the algorithm post-processes</span>
+<span class="sd">    the initially sampled edge list by replacing edges until every node</span>
+<span class="sd">    has at least one outgoing edge, while preserving all in-degrees and</span>
+<span class="sd">    respecting the self-regulation constraint.</span>
+
+<span class="sd">    No guarantee is made that the resulting edge list is uniformly sampled</span>
+<span class="sd">    from the space of all directed graphs satisfying the constraints.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------</span>
+    <span class="c1"># Step 1: generate initial edge list</span>
+    <span class="c1"># ------------------------------------------------------------</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_self_loops</span><span class="p">:</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">edge_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">indegrees</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)))</span>
+
+    <span class="c1"># ------------------------------------------------------------</span>
+    <span class="c1"># Step 2: enforce at least one outgoing edge per node (optional)</span>
+    <span class="c1"># ------------------------------------------------------------</span>
+    <span class="k">if</span> <span class="n">min_out_degree_one</span><span class="p">:</span>
+        <span class="n">target_sources</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+        <span class="n">outdegrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">edge_list</span><span class="p">:</span>
+            <span class="n">target_sources</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">outdegrees</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">sum_indegrees</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">outdegrees</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">index_sink</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">outdegrees</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">index_edge</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">sum_indegrees</span><span class="p">)</span>
+
+            <span class="n">old_source</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">edge_list</span><span class="p">[</span><span class="n">index_edge</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_self_loops</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">==</span> <span class="n">index_sink</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">index_sink</span> <span class="ow">in</span> <span class="n">target_sources</span><span class="p">[</span><span class="n">t</span><span class="p">]:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># perform replacement</span>
+            <span class="n">target_sources</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">old_source</span><span class="p">)</span>
+            <span class="n">target_sources</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">index_sink</span><span class="p">)</span>
+
+            <span class="n">edge_list</span><span class="p">[</span><span class="n">index_edge</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">index_sink</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+            <span class="n">outdegrees</span><span class="p">[</span><span class="n">index_sink</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">outdegrees</span><span class="p">[</span><span class="n">old_source</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">edge_list</span></div>
+
+
+
+<div class="viewcode-block" id="random_wiring_diagram">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.random_wiring_diagram">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_wiring_diagram</span><span class="p">(</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">allow_self_loops</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">allow_indegree_zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">strongly_connected</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">indegree_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span>
+    <span class="n">min_out_degree_one</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">max_strong_connectivity_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random wiring diagram for a directed network with N nodes.</span>
+
+<span class="sd">    A wiring diagram specifies, for each node, the set of its regulators</span>
+<span class="sd">    (incoming neighbors). In-degrees are first generated according to the</span>
+<span class="sd">    specified distribution, after which edges are sampled uniformly at</span>
+<span class="sd">    random subject to the requested constraints.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    N : int</span>
+<span class="sd">        Number of nodes in the network.</span>
+<span class="sd">    n : int, float, list of int, or ndarray of int</span>
+<span class="sd">        Parameter determining the in-degree sequence. Interpretation depends</span>
+<span class="sd">        on ``indegree_distribution``:</span>
+
+<span class="sd">        - If a length-``N`` vector is provided, it is interpreted as the</span>
+<span class="sd">          in-degree of each node.</span>
+<span class="sd">        - If ``indegree_distribution`` is ``&#39;constant&#39;`` (or ``&#39;dirac&#39;`` /</span>
+<span class="sd">          ``&#39;delta&#39;``), ``n`` specifies the in-degree of every node.</span>
+<span class="sd">        - If ``indegree_distribution`` is ``&#39;uniform&#39;``, ``n`` specifies the</span>
+<span class="sd">          upper bound of a discrete uniform distribution on</span>
+<span class="sd">          ``{1, ..., n}``.</span>
+<span class="sd">        - If ``indegree_distribution`` is ``&#39;poisson&#39;``, ``n`` is the Poisson</span>
+<span class="sd">          rate parameter ``lambda &gt; 0``.</span>
+<span class="sd">    allow_self_loops : bool, optional</span>
+<span class="sd">        If True, self-loops (edges from a node to itself) are allowed.</span>
+<span class="sd">        Default is False.</span>
+<span class="sd">    allow_indegree_zero : bool, optional</span>
+<span class="sd">        If True, some in-degrees may be ``0``.</span>
+<span class="sd">        If False (default), all in-degrees are at least ``1``.</span>
+<span class="sd">    strongly_connected : bool, optional</span>
+<span class="sd">        If True, repeatedly resample the wiring diagram until a strongly</span>
+<span class="sd">        connected network is obtained, or until the maximum number of</span>
+<span class="sd">        attempts is exceeded. Default is False.</span>
+<span class="sd">    indegree_distribution : str, optional</span>
+<span class="sd">        Distribution used to generate in-degrees. Must be one of</span>
+<span class="sd">        ``{&#39;constant&#39;, &#39;dirac&#39;, &#39;delta&#39;, &#39;uniform&#39;, &#39;poisson&#39;}``.</span>
+<span class="sd">        Default is ``&#39;constant&#39;``.</span>
+<span class="sd">    min_out_degree_one : bool, optional</span>
+<span class="sd">        If True, enforce that every node has at least one outgoing edge.</span>
+<span class="sd">        This is achieved by rewiring edges while preserving the in-degree</span>
+<span class="sd">        sequence. Default is False.</span>
+<span class="sd">    max_strong_connectivity_attempts : int, optional</span>
+<span class="sd">        Maximum number of attempts to generate a strongly connected wiring</span>
+<span class="sd">        diagram before raising a ``RuntimeError``. Default is 1000.</span>
+<span class="sd">    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    WiringDiagram</span>
+<span class="sd">        A wiring diagram object encoding the regulator set of each node.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If ``strongly_connected=True`` and ``allow_indegree_zero==True``.</span>
+<span class="sd">        This is an impossible combination.</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If ``strongly_connected=True`` and a strongly connected wiring diagram</span>
+<span class="sd">        cannot be generated within the specified number of attempts.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    In-degrees are generated first using ``random_degrees``, and edges are</span>
+<span class="sd">    then sampled uniformly at random subject to the imposed constraints.</span>
+<span class="sd">    When ``strongly_connected=True`` or</span>
+<span class="sd">    ``min_out_degree_one=True``, the resulting distribution is</span>
+<span class="sd">    not uniform over all wiring diagrams with the given in-degree sequence.</span>
+
+<span class="sd">    This function is a high-level convenience wrapper around</span>
+<span class="sd">    ``random_degrees`` and ``random_edge_list``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; W = random_wiring_diagram(5, n=2)</span>
+<span class="sd">    &gt;&gt;&gt; W = random_wiring_diagram(10, n=3, strongly_connected=True)</span>
+<span class="sd">    &gt;&gt;&gt; W = random_wiring_diagram(6, n=[1, 2, 1, 2, 1, 2])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">strongly_connected</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">allow_indegree_zero</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;It is impossible to create a strongly connected wiring diagram if some nodes have indegree zero.&quot;</span>
+    <span class="p">)</span>    
+    
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+    <span class="n">indegrees</span> <span class="o">=</span> <span class="n">random_degrees</span><span class="p">(</span>
+        <span class="n">N</span><span class="p">,</span>
+        <span class="n">n</span><span class="p">,</span>
+        <span class="n">indegree_distribution</span><span class="o">=</span><span class="n">indegree_distribution</span><span class="p">,</span>
+        <span class="n">allow_self_loops</span><span class="o">=</span><span class="n">allow_self_loops</span><span class="p">,</span>
+        <span class="n">allow_indegree_zero</span><span class="o">=</span><span class="n">allow_indegree_zero</span><span class="p">,</span>
+        <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>  
+        <span class="n">edges_wiring_diagram</span> <span class="o">=</span> <span class="n">random_edge_list</span><span class="p">(</span>
+            <span class="n">N</span><span class="p">,</span>
+            <span class="n">indegrees</span><span class="p">,</span>
+            <span class="n">allow_self_loops</span><span class="p">,</span>
+            <span class="n">min_out_degree_one</span><span class="o">=</span><span class="n">min_out_degree_one</span><span class="p">,</span>
+            <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">strongly_connected</span><span class="p">:</span> <span class="c1"># Keep generating until we have a strongly connected graph</span>
+            <span class="c1"># may take a long time (&quot;forever&quot;) if n is small and N is large</span>
+            <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_edgelist</span><span class="p">(</span><span class="n">edges_wiring_diagram</span><span class="p">,</span> <span class="n">create_using</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_strongly_connected</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">counter</span> <span class="o">&gt;</span> <span class="n">max_strong_connectivity_attempts</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Made &quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_strong_connectivity_attempts</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="s2">&quot; unsuccessful attempts to generate a strongly connected wiring diagram of &quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="s2">&quot; nodes and degrees &quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">indegrees</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="s2">&quot;.</span><span class="se">\n</span><span class="s2">You may increase the number of attempts by modulating the parameter max_strong_connectivity_attempts.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">continue</span>
+        <span class="k">break</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges_wiring_diagram</span><span class="p">:</span>
+        <span class="n">I</span><span class="p">[</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">WiringDiagram</span><span class="p">(</span><span class="n">I</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="rewire_wiring_diagram">
+<a class="viewcode-back" href="../../../generate.html#boolforge.generate.rewire_wiring_diagram">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rewire_wiring_diagram</span><span class="p">(</span>
+    <span class="n">I</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">WiringDiagram</span><span class="p">,</span>
+    <span class="n">average_swaps_per_edge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="n">allow_new_self_loops</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">allow_self_loop_rewiring</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Degree-preserving rewiring of a wiring diagram via double-edge swaps.</span>
+
+<span class="sd">    The wiring diagram is represented in regulator form: ``I[target]`` lists</span>
+<span class="sd">    all regulators (incoming neighbors) of ``target``. The algorithm performs</span>
+<span class="sd">    random double-edge swaps of the form</span>
+<span class="sd">    ``(u -&gt; v, x -&gt; y) -&gt; (u -&gt; y, x -&gt; v)``, while preserving both the</span>
+<span class="sd">    in-degree and out-degree of every node. Parallel edges are disallowed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    I : list of array-like or WiringDiagram</span>
+<span class="sd">        Wiring diagram in regulator representation. For each node ``target``,</span>
+<span class="sd">        ``I[target]`` contains the regulators of that node. Regulator indices</span>
+<span class="sd">        must be integers in ``{0, ..., N-1}``. If a ``WiringDiagram`` is</span>
+<span class="sd">        provided, its internal adjacency representation is used.</span>
+<span class="sd">    average_swaps_per_edge : float, optional</span>
+<span class="sd">        Target number of successful double-edge swaps per edge. Larger values</span>
+<span class="sd">        typically yield better mixing but increase runtime. Default is 50.</span>
+<span class="sd">    allow_new_self_loops : bool, optional</span>
+<span class="sd">        If True, new self-loops may be introduced. If False (default), proposed </span>
+<span class="sd">        swaps that would introduce a new self-loop are rejected. </span>
+<span class="sd">    allow_self_loop_rewiring : bool, optional</span>
+<span class="sd">        If True, existing self-loops may be rewired. If False (default), </span>
+<span class="sd">        existing self-loops are kept fixed and excluded from the pool of </span>
+<span class="sd">        swappable edges. </span>
+<span class="sd">    rng : int, numpy.random.Generator, numpy.random.RandomState, random.Random, or None, optional</span>
+<span class="sd">        Random number generator or seed specification. Passed to</span>
+<span class="sd">        ``utils._coerce_rng``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    WiringDiagram</span>
+<span class="sd">        A new wiring diagram obtained by degree-preserving rewiring of ``I``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the input wiring diagram is malformed.</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If rewiring constraints cannot be satisfied.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Both in-degrees and out-degrees of all nodes are preserved exactly.</span>
+<span class="sd">    Duplicate edges are never introduced. Control over self-regulation is</span>
+<span class="sd">    governed by the two Boolean flags above.</span>
+
+<span class="sd">    The resulting wiring diagram is not guaranteed to be sampled uniformly</span>
+<span class="sd">    from the space of all directed graphs with the same degree sequence; the</span>
+<span class="sd">    procedure is intended as a practical degree-preserving randomization</span>
+<span class="sd">    method rather than an exact uniform sampler.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; I = random_network(8,3)</span>
+<span class="sd">    &gt;&gt;&gt; J = rewire_wiring_diagram(I)</span>
+<span class="sd">    &gt;&gt;&gt; I.indegrees == J.indegrees</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; I.get_outdegrees() == J.get_outdegrees()</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_coerce_rng</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">WiringDiagram</span><span class="p">):</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">I</span>
+    
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+
+    <span class="n">edges</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">regulator</span><span class="p">),</span> <span class="n">target</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">regulator</span> <span class="ow">in</span> <span class="n">I</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">regulator</span> <span class="o">!=</span> <span class="n">target</span> <span class="ow">or</span> <span class="n">allow_self_loop_rewiring</span>
+    <span class="p">]</span>
+    <span class="n">n_total_edges</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+
+    <span class="n">Jset</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="n">regulators</span><span class="p">)</span> <span class="k">for</span> <span class="n">regulators</span> <span class="ow">in</span> <span class="n">I</span><span class="p">]</span>
+
+    <span class="n">n_rewires_before_stop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">average_swaps_per_edge</span> <span class="o">*</span> <span class="n">n_total_edges</span><span class="p">)</span>
+    <span class="n">successes</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">attempts</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">max_attempts</span> <span class="o">=</span> <span class="mi">50</span> <span class="o">*</span> <span class="n">n_rewires_before_stop</span> <span class="o">+</span> <span class="mi">100</span>
+
+    <span class="c1"># Helper to check if adding edge (regulator-&gt;target) is allowed</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">edge_ok</span><span class="p">(</span><span class="n">regulator</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_new_self_loops</span> <span class="ow">and</span> <span class="n">regulator</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">regulator</span> <span class="ow">in</span> <span class="n">Jset</span><span class="p">[</span><span class="n">target</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">while</span> <span class="n">successes</span> <span class="o">&lt;</span> <span class="n">n_rewires_before_stop</span> <span class="ow">and</span> <span class="n">attempts</span> <span class="o">&lt;</span> <span class="n">max_attempts</span><span class="p">:</span>
+        <span class="n">attempts</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Pick two distinct edges uniformly at random</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">n_total_edges</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+        <span class="c1"># Swapping identical sources or identical targets is fine in principle,</span>
+        <span class="c1"># but skip trivial cases that do nothing or re-create the same edges.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">u</span> <span class="o">==</span> <span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">v</span> <span class="o">==</span> <span class="n">y</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Proposed swapped edges</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">u</span><span class="p">,</span> <span class="n">y</span>
+        <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">v</span>
+
+        <span class="c1"># If the proposed edges are identical to originals, skip</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Check constraints for both new edges</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edge_ok</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">edge_ok</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Perform the swap: update adjacency and edge list</span>
+        <span class="c1"># Remove old edges</span>
+        <span class="n">Jset</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+        <span class="n">Jset</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># Add new edges</span>
+        <span class="n">Jset</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">Jset</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="c1"># Commit edges</span>
+        <span class="n">edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="n">edges</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+        <span class="n">successes</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Reconstruct J from adjacency sets</span>
+    <span class="n">J</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">Jset</span><span class="p">[</span><span class="n">target</span><span class="p">]))</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">WiringDiagram</span><span class="p">(</span><span class="n">J</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claus Kadelka, Benjamin Coberly.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
