@@ -1,10 +1,10 @@
-Boolean Function
-----------------
+Wiring Diagram
+--------------
 
 .. toctree::
    :maxdepth: 4
 
-.. automodule:: boolforge.boolean_function
+.. automodule:: boolforge.wiring_diagram
    :members:
    :special-members:
    :inherited-members:
