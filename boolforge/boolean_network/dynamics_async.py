@@ -19,8 +19,24 @@ from ..backend._numba import _numba_required, __LOADED_NUMBA__
 if __LOADED_NUMBA__:
     from ..backend.dynamics_async import _build_async_transition_coo
 
+
+
 class BooleanNetworkDynamicsAsyncMixin:
     def get_asynchronous_transition_matrix(self) -> csr_matrix:
+        """
+        Construct and return the exact asynchronous state transition graph.
+        
+        The asynchronous state transition graph (STG) is represented as a
+        row-stochastic sparse matrix whose rows correspond to network states
+        and whose nonzero entries encode one-step asynchronous transitions.
+        
+        The matrix is cached after the first computation.
+        
+        Returns
+        -------
+        scipy.sparse.csr_matrix
+            Sparse transition matrix of shape ``(2**N, 2**N)``.
+        """
         if ('STG', 'asynchronous') in self._properties_exact:
             return self._properties_exact[('STG', 'asynchronous')]
         if not __LOADED_NUMBA__:
@@ -43,6 +59,21 @@ class BooleanNetworkDynamicsAsyncMixin:
                 
     
     def get_terminal_sccs_asynchronous_exact(self) -> list[list[int]]:
+        """
+        Compute the terminal strongly connected components of the asynchronous STG.
+        
+        A terminal SCC is a strongly connected component with no outgoing
+        transitions to states outside the component. Terminal SCCs correspond
+        to asynchronous attractors, including both steady states and cyclic
+        attractors.
+        
+        Results are cached after the first computation.
+        
+        Returns
+        -------
+        list of list of int
+            Terminal SCCs represented as lists of decimal-encoded states.
+        """
         if ('terminal_sccs', 'asynchronous') in self._properties_exact:
             return self._properties_exact[('terminal_sccs', 'asynchronous')]
         
@@ -66,9 +97,67 @@ class BooleanNetworkDynamicsAsyncMixin:
         self._set_property('number_of_terminal_sccs', len(terminal_sccs),
                            context='asynchronous', exact=True)
         return terminal_sccs
+    
+    def get_minimal_trap_spaces_asynchronous_exact(self) -> np.ndarray:
+        """
+        Compute the minimal trap space associated with each terminal SCC.
+        
+        For each terminal SCC, nodes that take the same value in every state
+        are marked by their fixed value (0 or 1), whereas nodes that vary
+        across the SCC are marked as -1.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Array of shape ``(n_terminal_sccs, N)`` whose rows represent
+            minimal trap spaces.
+        """
+        terminal_sccs = self.get_terminal_sccs_asynchronous_exact()
+        return np.array(
+            [utils.get_minimal_trap_space(states, self.N) 
+             for states in terminal_sccs]
+        )
+    
+    def get_number_frozen_nodes_asynchronous_exact(self) -> int:
+        """
+        Compute the number of frozen nodes in the asynchronous dynamics.
+    
+        A node is considered frozen if it takes the same value in every
+        attractor state. For asynchronous dynamics, attractor states are
+        defined as the states belonging to terminal strongly connected
+        components (terminal SCCs) of the asynchronous state transition
+        graph.
+    
+        Returns
+        -------
+        int
+            Number of nodes whose value is identical across all attractor
+            states.
+        """
+        terminal_sccs = self.get_terminal_sccs_asynchronous_exact()
+        return self.N - utils.get_number_of_varying_nodes(
+            utils.flatten(terminal_sccs)
+        )
         
 
     def get_absorption_probabilities_exact(self) -> np.ndarray:
+        """
+        Compute exact absorption probabilities for the asynchronous dynamics.
+        
+        For every network state and every terminal SCC, this method computes
+        the probability that an asynchronous trajectory starting from that
+        state is eventually absorbed into the corresponding terminal SCC.
+        
+        Probabilities are obtained by solving the standard absorbing Markov
+        chain equations and are cached after the first computation.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Array of shape ``(2**N, n_terminal_sccs)`` where entry
+            ``[x, a]`` is the probability that state ``x`` eventually
+            reaches terminal SCC ``a``.
+        """
         if ('absorption_probabilities', 'asynchronous') in self._properties_exact:
             return self._properties_exact[('absorption_probabilities', 'asynchronous')]
         

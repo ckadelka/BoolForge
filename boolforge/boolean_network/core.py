@@ -327,8 +327,20 @@ class BooleanNetwork(
     def __getitem__(self, index):
         return self.F[index]
     
+    
     def __repr__(self):
         return f"{type(self).__name__}(N={self.N}, average degree={np.round(self.indegrees.mean(),3)})"
+    
+    
+    def clear_cache(self):
+        """
+        Remove all cached exact and approximate network properties.
+    
+        This method should be called after modifying network functions,
+        regulators, or update rules directly.
+        """
+        self._properties_estimated.clear()
+        self._properties_exact.clear()
     
 
     def summary(self, compute_all: bool = False, *, as_dict: bool = False):

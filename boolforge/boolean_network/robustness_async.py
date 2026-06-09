@@ -8,17 +8,12 @@ Created on Wed May 27 00:54:16 2026
 
 import numpy as np
 
+from .. import utils
+
 from ..backend._numba import __LOADED_NUMBA__, _numba_required
 if __LOADED_NUMBA__:
     from ..backend.robustness_async import _compute_neighbor_attraction_probability
-    
-    
-def get_trap_space_dimension(points):
-    ref = points[0]
-    varying = 0
-    for s in points[1:]:
-        varying |= (ref ^ s)
-    return varying.bit_count() 
+
 
 class BooleanNetworkRobustnessAsyncMixin():
     def get_terminal_sccs_and_robustness_asynchronous_exact(self) -> dict:
@@ -70,11 +65,31 @@ class BooleanNetworkRobustnessAsyncMixin():
             _numba_required("Asynchronous exact robustness computation")
         
         terminal_sccs = self.get_terminal_sccs_asynchronous_exact()
+        n_terminal_sccs = int(len(terminal_sccs))
+        if n_terminal_sccs==1:
+            return  {
+                "TerminalSCCs": terminal_sccs,
+                "NumberOfTerminalSCCs": n_terminal_sccs,
+                "LengthOfTerminalSCCs": np.array(len(terminal_sccs[0])),
+                "TrapSpaceDimensions": np.array(
+                    utils.get_number_of_varying_nodes(terminal_sccs[0])
+                ),
+                "BasinSizes": np.array([1.],dtype=np.float32),
+                "AbsorptionProbabilities": np.ones(
+                    ((1 << self.N), 1), dtype=np.float32
+                ),
+                "Coherence": 1.,
+                "BasinCoherences": np.ones(1),
+                "TerminalSCCCoherencesUniform": np.ones(1),
+                "TerminalSCCCoherencesStationary": np.ones(1),
+            }                
+            
         absorption_probs = self.get_absorption_probabilities_exact()
         
         basin_sizes = absorption_probs.sum(axis=0)
         length_terminal_sccs = np.array(list(map(len,terminal_sccs)))
-        dim_trap_spaces = np.array(list(map(get_trap_space_dimension,terminal_sccs)))
+        dim_trap_spaces = np.array(list(map(utils.get_number_of_varying_nodes,
+                                            terminal_sccs)))
         neighbor_attraction_probability = _compute_neighbor_attraction_probability(
             self.N,
             absorption_probs
@@ -113,7 +128,7 @@ class BooleanNetworkRobustnessAsyncMixin():
         
         return  {
             "TerminalSCCs": terminal_sccs,
-            "NumberOfTerminalSCCs": int(len(terminal_sccs)),
+            "NumberOfTerminalSCCs": n_terminal_sccs,
             "LengthOfTerminalSCCs": length_terminal_sccs,
             "TrapSpaceDimensions": dim_trap_spaces,
             "BasinSizes": relative_basin_sizes,

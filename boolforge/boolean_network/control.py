@@ -7,7 +7,12 @@ Created on Wed May 27 01:03:29 2026
 """
 
 from collections.abc import Sequence
+from copy import deepcopy
 import numpy as np
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .core import BooleanNetwork
 
 class BooleanNetworkControlMixin:
     def get_network_with_fixed_identity_nodes(

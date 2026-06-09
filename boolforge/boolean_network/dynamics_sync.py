@@ -479,6 +479,19 @@ class BooleanNetworkDynamicsSyncMixin:
         """
         if self.STG is None:
             self.compute_synchronous_state_transition_graph(use_numba=use_numba)
+            
+        if ('attractors', 'synchronous') in self._properties_exact:
+            return {
+                "Attractors":
+                    self._properties_exact[('attractors', 'synchronous')],
+                "NumberOfAttractors":
+                    self._properties_exact[('number_of_attractors', 'synchronous')],
+                "BasinSizes":
+                    self._properties_exact[('basin_sizes', 'synchronous')],
+                "AttractorID":
+                    self._properties_exact[('attractor_id', 'synchronous')],
+                "STG": self.STG,
+            }        
     
         attractors = []
     
@@ -540,7 +553,9 @@ class BooleanNetworkDynamicsSyncMixin:
                            context='synchronous', exact=True)
         self._set_property('basin_sizes', basin_sizes,
                            context='synchronous', exact=True)
-    
+        self._set_property('attractor_id', attractor_id,
+                           context='synchronous', exact=True)    
+        
         return {
             "Attractors": attractors,
             "NumberOfAttractors": len(attractors),
@@ -550,21 +565,74 @@ class BooleanNetworkDynamicsSyncMixin:
         }
     
     
+    def get_minimal_trap_spaces_synchronous_exact(
+        self, 
+        use_numba = True
+    ) -> np.ndarray:
+        """
+        Compute the minimal trap space associated with each synchronous attractor.
+        
+        For each attractor, nodes that take the same value in every state
+        are marked by their fixed value (0 or 1), whereas nodes that vary
+        across the attractor are marked as -1.
+        
+        Parameters
+        ----------
+        use_numba : bool, optional
+            If True (default) and Numba is available, use a compiled kernel for
+            attractor detection.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Array of shape ``(n_attractors, N)`` whose rows represent
+            minimal trap spaces.
+        """
+        attr_info = self.get_attractors_synchronous_exact(use_numba = use_numba)
+        attractors = attr_info['Attractors']
+        return np.array(
+            [utils.get_minimal_trap_space(states, self.N) 
+             for states in attractors]
+        )
+    
+    
     def get_transient_lengths_exact(
         self,
         use_numba : bool = True
     ) -> np.ndarray:
         """
-        Compute exact transient length using:
-          - Full STG from get_attractors_synchronous_exact()
-          - Attractors (cycle states) from get_attractors_synchronous_exact()
-    
-        This avoids indegree-pruning because cycle states are given explicitly.
+        Compute the exact transient length of every state under synchronous updating.
+        
+        The transient length of a state is the number of update steps required
+        to reach an attractor. States belonging to an attractor have transient
+        length 0.
+        
+        This method first computes the exact synchronous attractors and then
+        determines the shortest distance from every state to an attractor in
+        the synchronous state transition graph (STG).
+        
+        Parameters
+        ----------
+        use_numba : bool, optional
+            If True (default) and Numba is available, use a compiled kernel
+            for transient-length computation.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Array of length ``2**N`` where entry ``i`` gives the transient
+            length of state ``i``.
+            
+        Notes
+        -----
+        - This method requires the exact synchronous state transition graph
+          and is therefore intended for small-to-moderate networks only.
+        - Attractor states, including all states belonging to cyclic
+          attractors, are assigned transient length 0.
         """
-        attractor_info = self.get_attractors_synchronous_exact(use_numba=use_numba)
-
-        stg = self.STG                              # full mapping: successor(s)
-        attractors = attractor_info["Attractors"]   # list of cycles
+        attr_info = self.get_attractors_synchronous_exact(use_numba = use_numba)
+        attractors = attr_info["Attractors"]   # list of cycles
+        stg = self.STG                         # full mapping: successor(s)
         
         if __LOADED_NUMBA__ and use_numba:
             is_attr_mask = np.full(2**self.N, 0, dtype=np.uint8)

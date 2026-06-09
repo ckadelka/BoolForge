@@ -43,6 +43,7 @@ __all__ = [
     "left_side_of_truth_tables",
     'filter_kwargs',
     'allowed_keywords',
+    'get_number_of_varying_nodes',
 ]
 
 def _require_cana():
@@ -271,14 +272,61 @@ def get_left_side_of_truth_table(N: int) -> np.ndarray:
 
 
 def allowed_keywords(function):
-    sig = inspect.signature(function)
+    """
+    Return the keyword arguments accepted by a function.
+
+    Parameters
+    ----------
+    function : callable
+        Function whose signature should be inspected.
+
+    Returns
+    -------
+    set of str
+        Names of all parameters except ``*args`` (variable positional
+        arguments). Returns an empty set if the function signature
+        cannot be determined.
+    """
+    try:
+        sig = inspect.signature(function)
+    except (TypeError, ValueError):
+        return set()
+
     return {
         k for k, p in sig.parameters.items()
         if p.kind != inspect.Parameter.VAR_POSITIONAL
     }
 
 def filter_kwargs(function, kwargs, exclude=()):
-    sig = inspect.signature(function)
+    """
+    Filter a dictionary of keyword arguments for a given function.
+
+    Parameters
+    ----------
+    function : callable
+        Function whose signature should be inspected.
+    kwargs : dict
+        Keyword arguments to filter.
+    exclude : iterable of str, optional
+        Keyword names to exclude even if accepted by ``function``.
+
+    Returns
+    -------
+    dict
+        Dictionary containing only keyword arguments accepted by
+        ``function`` and not listed in ``exclude``.
+
+    Notes
+    -----
+    - If ``function`` accepts ``**kwargs``, the input dictionary is
+      returned unchanged.
+    - Unused keyword arguments generate a warning or raise a
+      ``TypeError`` depending on the value of ``STRICT``.
+    """
+    try:
+        sig = inspect.signature(function)
+    except (TypeError, ValueError):
+        return kwargs
 
     accepts_var_kwargs = any(
         p.kind == inspect.Parameter.VAR_KEYWORD
@@ -488,6 +536,102 @@ def flatten(l: Sequence[Sequence[object]]) -> list[object]:
     [1, 2, 3, 4]
     """
     return [item for sublist in l for item in sublist]
+
+
+def get_number_of_varying_nodes(states: Sequence[int]):
+    """
+    Return the number of nodes that vary across a collection of states.
+
+    A node is considered varying if it takes different values in at
+    least two states.
+
+    Parameters
+    ----------
+    states : sequence of int
+        Binary vectors (states) encoded as integers.
+
+    Returns
+    -------
+    int
+        Number of varying nodes.
+    """
+    ref = states[0]
+    varying = 0
+    for s in states[1:]:
+        varying |= (ref ^ s)
+    return varying.bit_count()
+
+
+def get_shannon_entropy(
+    probabilities: Sequence[float]
+) -> float:
+    """
+    Compute the Shannon entropy of a probability distribution.
+
+    Parameters
+    ----------
+    probabilities : Sequence[float]
+        Nonnegative weights representing a probability distribution.
+        The values are normalized internally if they do not sum to one.
+
+    Returns
+    -------
+    float
+        Shannon entropy
+
+        ``H = -sum(p_i * log(p_i))``,
+
+        where ``p_i`` are the normalized probabilities.
+    """
+    probabilities = np.asarray(probabilities, dtype=float)
+
+    assert np.all(probabilities >= 0)
+
+    total = probabilities.sum()
+    if total == 0:
+        return 0.0
+
+    probabilities = probabilities / total
+
+    return -np.sum(probabilities[probabilities > 0] *
+                   np.log(probabilities[probabilities > 0]))
+
+
+def get_minimal_trap_space(states: Sequence[int], N: int) -> np.ndarray :
+    """
+    Compute the minimal trap space containing a collection of states.
+
+    Nodes that take the same value in every state are assigned that
+    value (0 or 1). Nodes that vary across the states are assigned -1,
+    indicating a free variable.
+
+    Parameters
+    ----------
+    states : sequence of int
+        States encoded as integers.
+    N : int
+        Number of nodes in the network.
+
+    Returns
+    -------
+    numpy.ndarray
+        Length-N array containing 0 (fixed OFF), 1 (fixed ON), or -1 (free).
+    """
+    ref = states[0]
+
+    varying = 0
+    for s in states[1:]:
+        varying |= (ref ^ s)
+
+    trap_space = np.zeros(N,dtype=np.int8)
+    for i in range(N):
+        bit = 1 << (N-i-1)
+        if varying & bit:
+            trap_space[i] = -1   # free
+        else:
+            trap_space[i] = (ref >> i) & 1
+    return trap_space
+
 
 
 def hamming_weight_to_ncf_layer_structure(

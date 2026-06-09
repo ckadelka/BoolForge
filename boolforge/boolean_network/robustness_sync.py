@@ -46,9 +46,7 @@ def get_entropy_of_basin_size_distribution(
     float
         Shannon entropy of the basin size distribution.
     """
-    total = sum(basin_sizes)
-    probabilities = [size * 1.0 / total for size in basin_sizes]
-    return sum([-np.log(p) * p for p in probabilities])
+    return utils.get_shannon_entropy(basin_sizes)
 
 class BooleanNetworkRobustnessSyncMixin:
     def get_attractors_and_robustness_synchronous_exact(
