@@ -150,7 +150,7 @@ BoolForge also supports conversion to and from the format used by
 
 Full documentation, including tutorials and API reference, is available at:
 
-https://ckadelka.github.io/BoolForge/
+https://kadelkalab.github.io/BoolForge/
 
 ---
 
