@@ -44,6 +44,9 @@ __all__ = [
     'filter_kwargs',
     'allowed_keywords',
     'get_number_of_varying_nodes',
+    'get_minimal_trap_space',
+    'get_shannon_entropy',
+    'get_number_of_varying_nodes',
 ]
 
 def _require_cana():
@@ -508,13 +511,13 @@ def is_list_or_array_of_floats(
 
     return False
 
-def flatten(l: Sequence[Sequence[object]]) -> list[object]:
+def flatten(sequence: Sequence[Sequence[object]]) -> list[object]:
     """
     Flatten a sequence of sequences by one level.
 
     Parameters
     ----------
-    l : list or np.ndarray
+    sequence : list or np.ndarray
         Sequence whose elements are themselves iterable.
 
     Returns
@@ -535,7 +538,7 @@ def flatten(l: Sequence[Sequence[object]]) -> list[object]:
     >>> flatten(np.array([[1, 2], [3, 4]]))
     [1, 2, 3, 4]
     """
-    return [item for sublist in l for item in sublist]
+    return [item for sublist in sequence for item in sublist]
 
 
 def get_number_of_varying_nodes(states: Sequence[int]):
@@ -583,18 +586,17 @@ def get_shannon_entropy(
 
         where ``p_i`` are the normalized probabilities.
     """
-    probabilities = np.asarray(probabilities, dtype=float)
+    p= np.asarray(probabilities, dtype=float)
 
-    assert np.all(probabilities >= 0)
+    assert np.all(p >= 0)
 
-    total = probabilities.sum()
+    total = p.sum()
     if total == 0:
         return 0.0
 
-    probabilities = probabilities / total
+    p = p / total
 
-    return -np.sum(probabilities[probabilities > 0] *
-                   np.log(probabilities[probabilities > 0]))
+    return -np.sum(p[p > 0] * np.log(p[p > 0]))
 
 
 def get_minimal_trap_space(states: Sequence[int], N: int) -> np.ndarray :
