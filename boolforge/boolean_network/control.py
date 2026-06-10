@@ -133,6 +133,7 @@ class BooleanNetworkControlMixin:
             if keep_controlled_nodes:
                 # Identity-clamped node
                 F[node].f = np.array([value, value], dtype=int)
+                F[node].n = 1
                 I[node] = np.array([node], dtype=int)
             else:
                 # Structural constant (to be removed)
