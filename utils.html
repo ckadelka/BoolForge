@@ -59,6 +59,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.dec2bin"><code class="docutils literal notranslate"><span class="pre">dec2bin()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.hamming_weight_to_ncf_layer_structure"><code class="docutils literal notranslate"><span class="pre">hamming_weight_to_ncf_layer_structure()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.get_left_side_of_truth_table"><code class="docutils literal notranslate"><span class="pre">get_left_side_of_truth_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.filter_kwargs"><code class="docutils literal notranslate"><span class="pre">filter_kwargs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.allowed_keywords"><code class="docutils literal notranslate"><span class="pre">allowed_keywords()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.get_minimal_trap_space"><code class="docutils literal notranslate"><span class="pre">get_minimal_trap_space()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.get_shannon_entropy"><code class="docutils literal notranslate"><span class="pre">get_shannon_entropy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boolforge.utils.get_number_of_varying_nodes"><code class="docutils literal notranslate"><span class="pre">get_number_of_varying_nodes()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -281,6 +286,132 @@ ordered from most significant bit to least significant bit.</p>
 <span class="go">       [1, 1]], dtype=uint8)</span>
 </pre></div>
 </div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.utils.filter_kwargs">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">filter_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#filter_kwargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.filter_kwargs" title="Link to this definition"></a></dt>
+<dd><p>Filter a dictionary of keyword arguments for a given function.</p>
+<section id="id14">
+<h2>Parameters<a class="headerlink" href="#id14" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>function<span class="classifier">callable</span></dt><dd><p>Function whose signature should be inspected.</p>
+</dd>
+<dt>kwargs<span class="classifier">dict</span></dt><dd><p>Keyword arguments to filter.</p>
+</dd>
+<dt>exclude<span class="classifier">iterable of str, optional</span></dt><dd><p>Keyword names to exclude even if accepted by <code class="docutils literal notranslate"><span class="pre">function</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id15">
+<h2>Returns<a class="headerlink" href="#id15" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>dict</dt><dd><p>Dictionary containing only keyword arguments accepted by
+<code class="docutils literal notranslate"><span class="pre">function</span></code> and not listed in <code class="docutils literal notranslate"><span class="pre">exclude</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id16">
+<h2>Notes<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">function</span></code> accepts <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>, the input dictionary is
+returned unchanged.</p></li>
+<li><p>Unused keyword arguments generate a warning or raise a
+<code class="docutils literal notranslate"><span class="pre">TypeError</span></code> depending on the value of <code class="docutils literal notranslate"><span class="pre">STRICT</span></code>.</p></li>
+</ul>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.utils.allowed_keywords">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">allowed_keywords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#allowed_keywords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.allowed_keywords" title="Link to this definition"></a></dt>
+<dd><p>Return the keyword arguments accepted by a function.</p>
+<section id="id17">
+<h2>Parameters<a class="headerlink" href="#id17" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>function<span class="classifier">callable</span></dt><dd><p>Function whose signature should be inspected.</p>
+</dd>
+</dl>
+</section>
+<section id="id18">
+<h2>Returns<a class="headerlink" href="#id18" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>set of str</dt><dd><p>Names of all parameters except <code class="docutils literal notranslate"><span class="pre">*args</span></code> (variable positional
+arguments). Returns an empty set if the function signature
+cannot be determined.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.utils.get_minimal_trap_space">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">get_minimal_trap_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#get_minimal_trap_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.get_minimal_trap_space" title="Link to this definition"></a></dt>
+<dd><p>Compute the minimal trap space containing a collection of states.</p>
+<p>Nodes that take the same value in every state are assigned that
+value (0 or 1). Nodes that vary across the states are assigned -1,
+indicating a free variable.</p>
+<section id="id19">
+<h2>Parameters<a class="headerlink" href="#id19" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>states<span class="classifier">sequence of int</span></dt><dd><p>States encoded as integers.</p>
+</dd>
+<dt>N<span class="classifier">int</span></dt><dd><p>Number of nodes in the network.</p>
+</dd>
+</dl>
+</section>
+<section id="id20">
+<h2>Returns<a class="headerlink" href="#id20" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Length-N array containing 0 (fixed OFF), 1 (fixed ON), or -1 (free).</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.utils.get_shannon_entropy">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">get_shannon_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/boolforge/utils.html#get_shannon_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.get_shannon_entropy" title="Link to this definition"></a></dt>
+<dd><p>Compute the Shannon entropy of a probability distribution.</p>
+<section id="id21">
+<h2>Parameters<a class="headerlink" href="#id21" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>probabilities<span class="classifier">Sequence[float]</span></dt><dd><p>Nonnegative weights representing a probability distribution.
+The values are normalized internally if they do not sum to one.</p>
+</dd>
+</dl>
+</section>
+<section id="id22">
+<h2>Returns<a class="headerlink" href="#id22" title="Link to this heading"></a></h2>
+<dl>
+<dt>float</dt><dd><p>Shannon entropy</p>
+<p><code class="docutils literal notranslate"><span class="pre">H</span> <span class="pre">=</span> <span class="pre">-sum(p_i</span> <span class="pre">*</span> <span class="pre">log(p_i))</span></code>,</p>
+<p>where <code class="docutils literal notranslate"><span class="pre">p_i</span></code> are the normalized probabilities.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="boolforge.utils.get_number_of_varying_nodes">
+<span class="sig-prename descclassname"><span class="pre">boolforge.utils.</span></span><span class="sig-name descname"><span class="pre">get_number_of_varying_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/utils.html#get_number_of_varying_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.utils.get_number_of_varying_nodes" title="Link to this definition"></a></dt>
+<dd><p>Return the number of nodes that vary across a collection of states.</p>
+<p>A node is considered varying if it takes different values in at
+least two states.</p>
+<section id="id23">
+<h2>Parameters<a class="headerlink" href="#id23" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>states<span class="classifier">sequence of int</span></dt><dd><p>Binary vectors (states) encoded as integers.</p>
+</dd>
+</dl>
+</section>
+<section id="id24">
+<h2>Returns<a class="headerlink" href="#id24" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>int</dt><dd><p>Number of varying nodes.</p>
+</dd>
+</dl>
 </section>
 </dd></dl>
 

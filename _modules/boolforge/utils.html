@@ -117,6 +117,10 @@
     <span class="s2">&quot;left_side_of_truth_tables&quot;</span><span class="p">,</span>
     <span class="s1">&#39;filter_kwargs&#39;</span><span class="p">,</span>
     <span class="s1">&#39;allowed_keywords&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_number_of_varying_nodes&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_minimal_trap_space&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_shannon_entropy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;get_number_of_varying_nodes&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_require_cana</span><span class="p">():</span>
@@ -353,15 +357,67 @@
 
 
 
+<div class="viewcode-block" id="allowed_keywords">
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.allowed_keywords">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">allowed_keywords</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
-    <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the keyword arguments accepted by a function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    function : callable</span>
+<span class="sd">        Function whose signature should be inspected.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    set of str</span>
+<span class="sd">        Names of all parameters except ``*args`` (variable positional</span>
+<span class="sd">        arguments). Returns an empty set if the function signature</span>
+<span class="sd">        cannot be determined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span>
-    <span class="p">}</span>
+    <span class="p">}</span></div>
 
+
+<div class="viewcode-block" id="filter_kwargs">
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.filter_kwargs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_kwargs</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">()):</span>
-    <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter a dictionary of keyword arguments for a given function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    function : callable</span>
+<span class="sd">        Function whose signature should be inspected.</span>
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Keyword arguments to filter.</span>
+<span class="sd">    exclude : iterable of str, optional</span>
+<span class="sd">        Keyword names to exclude even if accepted by ``function``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary containing only keyword arguments accepted by</span>
+<span class="sd">        ``function`` and not listed in ``exclude``.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If ``function`` accepts ``**kwargs``, the input dictionary is</span>
+<span class="sd">      returned unchanged.</span>
+<span class="sd">    - Unused keyword arguments generate a warning or raise a</span>
+<span class="sd">      ``TypeError`` depending on the value of ``STRICT``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">kwargs</span>
 
     <span class="n">accepts_var_kwargs</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
         <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span>
@@ -393,7 +449,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">filtered_kwargs</span>
+    <span class="k">return</span> <span class="n">filtered_kwargs</span></div>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">find_all_indices</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">el</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -543,13 +600,13 @@
 
     <span class="k">return</span> <span class="kc">False</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">object</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="n">sequence</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">object</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">object</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Flatten a sequence of sequences by one level.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    l : list or np.ndarray</span>
+<span class="sd">    sequence : list or np.ndarray</span>
 <span class="sd">        Sequence whose elements are themselves iterable.</span>
 
 <span class="sd">    Returns</span>
@@ -570,7 +627,111 @@
 <span class="sd">    &gt;&gt;&gt; flatten(np.array([[1, 2], [3, 4]]))</span>
 <span class="sd">    [1, 2, 3, 4]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">sequence</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="get_number_of_varying_nodes">
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.get_number_of_varying_nodes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_varying_nodes</span><span class="p">(</span><span class="n">states</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the number of nodes that vary across a collection of states.</span>
+
+<span class="sd">    A node is considered varying if it takes different values in at</span>
+<span class="sd">    least two states.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    states : sequence of int</span>
+<span class="sd">        Binary vectors (states) encoded as integers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        Number of varying nodes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">varying</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">states</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">varying</span> <span class="o">|=</span> <span class="p">(</span><span class="n">ref</span> <span class="o">^</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">varying</span><span class="o">.</span><span class="n">bit_count</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="get_shannon_entropy">
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.get_shannon_entropy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_shannon_entropy</span><span class="p">(</span>
+    <span class="n">probabilities</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the Shannon entropy of a probability distribution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    probabilities : Sequence[float]</span>
+<span class="sd">        Nonnegative weights representing a probability distribution.</span>
+<span class="sd">        The values are normalized internally if they do not sum to one.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Shannon entropy</span>
+
+<span class="sd">        ``H = -sum(p_i * log(p_i))``,</span>
+
+<span class="sd">        where ``p_i`` are the normalized probabilities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">p</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">total</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="n">total</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">p</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">p</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]))</span></div>
+
+
+
+<div class="viewcode-block" id="get_minimal_trap_space">
+<a class="viewcode-back" href="../../utils.html#boolforge.utils.get_minimal_trap_space">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_minimal_trap_space</span><span class="p">(</span><span class="n">states</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the minimal trap space containing a collection of states.</span>
+
+<span class="sd">    Nodes that take the same value in every state are assigned that</span>
+<span class="sd">    value (0 or 1). Nodes that vary across the states are assigned -1,</span>
+<span class="sd">    indicating a free variable.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    states : sequence of int</span>
+<span class="sd">        States encoded as integers.</span>
+<span class="sd">    N : int</span>
+<span class="sd">        Number of nodes in the network.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Length-N array containing 0 (fixed OFF), 1 (fixed ON), or -1 (free).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">varying</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">states</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">varying</span> <span class="o">|=</span> <span class="p">(</span><span class="n">ref</span> <span class="o">^</span> <span class="n">s</span><span class="p">)</span>
+
+    <span class="n">trap_space</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">bit</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">varying</span> <span class="o">&amp;</span> <span class="n">bit</span><span class="p">:</span>
+            <span class="n">trap_space</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>   <span class="c1"># free</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trap_space</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">trap_space</span></div>
+
+
 
 
 <div class="viewcode-block" id="hamming_weight_to_ncf_layer_structure">

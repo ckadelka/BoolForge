@@ -2,7 +2,7 @@
  "cells": [
   {
    "cell_type": "markdown",
-   "id": "e0c4c248",
+   "id": "332af3db",
    "metadata": {},
    "source": [
     "# Advanced Concepts for Boolean Functions\n",
@@ -33,13 +33,13 @@
   {
    "cell_type": "code",
    "execution_count": 1,
-   "id": "7f1ac99f",
+   "id": "3f434682",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:55.998551Z",
-     "iopub.status.busy": "2026-03-31T14:26:55.998265Z",
-     "iopub.status.idle": "2026-03-31T14:26:56.530316Z",
-     "shell.execute_reply": "2026-03-31T14:26:56.530036Z"
+     "iopub.execute_input": "2026-06-10T06:19:24.916857Z",
+     "iopub.status.busy": "2026-06-10T06:19:24.916609Z",
+     "iopub.status.idle": "2026-06-10T06:19:25.887807Z",
+     "shell.execute_reply": "2026-06-10T06:19:25.887035Z"
     },
     "lines_to_next_cell": 2
    },
@@ -51,7 +51,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "dd54de90",
+   "id": "cd8ea482",
    "metadata": {},
    "source": [
     "## Symmetries in Boolean functions\n",
@@ -76,13 +76,13 @@
   {
    "cell_type": "code",
    "execution_count": 2,
-   "id": "84056b9a",
+   "id": "fb541392",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:56.531716Z",
-     "iopub.status.busy": "2026-03-31T14:26:56.531603Z",
-     "iopub.status.idle": "2026-03-31T14:26:56.534209Z",
-     "shell.execute_reply": "2026-03-31T14:26:56.533985Z"
+     "iopub.execute_input": "2026-06-10T06:19:25.890334Z",
+     "iopub.status.busy": "2026-06-10T06:19:25.890055Z",
+     "iopub.status.idle": "2026-06-10T06:19:25.894183Z",
+     "shell.execute_reply": "2026-06-10T06:19:25.893616Z"
     },
     "lines_to_next_cell": 2
    },
@@ -138,7 +138,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "857fcc3e",
+   "id": "acc69394",
    "metadata": {
     "lines_to_next_cell": 2
    },
@@ -155,7 +155,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "f8d019d5",
+   "id": "246a0b86",
    "metadata": {},
    "source": [
     "## Degenerate functions\n",
@@ -166,13 +166,13 @@
   {
    "cell_type": "code",
    "execution_count": 3,
-   "id": "22f09c41",
+   "id": "972eff95",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:56.535240Z",
-     "iopub.status.busy": "2026-03-31T14:26:56.535173Z",
-     "iopub.status.idle": "2026-03-31T14:26:56.797849Z",
-     "shell.execute_reply": "2026-03-31T14:26:56.797599Z"
+     "iopub.execute_input": "2026-06-10T06:19:25.896455Z",
+     "iopub.status.busy": "2026-06-10T06:19:25.896327Z",
+     "iopub.status.idle": "2026-06-10T06:19:26.108257Z",
+     "shell.execute_reply": "2026-06-10T06:19:26.107890Z"
     }
    },
    "outputs": [
@@ -193,7 +193,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "2dfe0e93",
+   "id": "438c8921",
    "metadata": {},
    "source": [
     "Detecting degeneracy is NP-hard in general.\n",
@@ -205,13 +205,13 @@
   {
    "cell_type": "code",
    "execution_count": 4,
-   "id": "95227a58",
+   "id": "9b55a9fd",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:56.799066Z",
-     "iopub.status.busy": "2026-03-31T14:26:56.798944Z",
-     "iopub.status.idle": "2026-03-31T14:26:56.800718Z",
-     "shell.execute_reply": "2026-03-31T14:26:56.800531Z"
+     "iopub.execute_input": "2026-06-10T06:19:26.109965Z",
+     "iopub.status.busy": "2026-06-10T06:19:26.109831Z",
+     "iopub.status.idle": "2026-06-10T06:19:26.112031Z",
+     "shell.execute_reply": "2026-06-10T06:19:26.111736Z"
     }
    },
    "outputs": [
@@ -234,7 +234,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "dafa41c2",
+   "id": "1d88b1cf",
    "metadata": {},
    "source": [
     "## Activities and sensitivities\n",
@@ -314,13 +314,13 @@
   {
    "cell_type": "code",
    "execution_count": 5,
-   "id": "183c29b5",
+   "id": "2bf4332d",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:56.801689Z",
-     "iopub.status.busy": "2026-03-31T14:26:56.801627Z",
-     "iopub.status.idle": "2026-03-31T14:26:56.803612Z",
-     "shell.execute_reply": "2026-03-31T14:26:56.803414Z"
+     "iopub.execute_input": "2026-06-10T06:19:26.113349Z",
+     "iopub.status.busy": "2026-06-10T06:19:26.113240Z",
+     "iopub.status.idle": "2026-06-10T06:19:26.115714Z",
+     "shell.execute_reply": "2026-06-10T06:19:26.115446Z"
     }
    },
    "outputs": [
@@ -350,7 +350,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "904ce9bd",
+   "id": "de160719",
    "metadata": {},
    "source": [
     "Interpretation:\n",
@@ -376,13 +376,13 @@
   {
    "cell_type": "code",
    "execution_count": 6,
-   "id": "3f55dd75",
+   "id": "4585c581",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:56.804593Z",
-     "iopub.status.busy": "2026-03-31T14:26:56.804537Z",
-     "iopub.status.idle": "2026-03-31T14:26:57.009357Z",
-     "shell.execute_reply": "2026-03-31T14:26:57.009126Z"
+     "iopub.execute_input": "2026-06-10T06:19:26.116951Z",
+     "iopub.status.busy": "2026-06-10T06:19:26.116850Z",
+     "iopub.status.idle": "2026-06-10T06:19:26.431104Z",
+     "shell.execute_reply": "2026-06-10T06:19:26.430372Z"
     }
    },
    "outputs": [
@@ -390,8 +390,8 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Mean activity: 0.5012\n",
-      "Normalized average sensitivity: 0.5018\n"
+      "Mean activity: 0.4998\n",
+      "Normalized average sensitivity: 0.5006\n"
      ]
     }
    ],
@@ -410,7 +410,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "93bf9524",
+   "id": "12aaef18",
    "metadata": {
     "lines_to_next_cell": 2
    },
@@ -429,7 +429,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "eac3627e",
+   "id": "5d45a482",
    "metadata": {},
    "source": [
     "## Summary\n",

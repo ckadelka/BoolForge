@@ -2,7 +2,7 @@
  "cells": [
   {
    "cell_type": "markdown",
-   "id": "488b1221",
+   "id": "73a72866",
    "metadata": {},
    "source": [
     "# Working with Boolean Functions\n",
@@ -32,13 +32,13 @@
   {
    "cell_type": "code",
    "execution_count": 1,
-   "id": "cb8ddf2c",
+   "id": "09e81734",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:50.190269Z",
-     "iopub.status.busy": "2026-03-31T14:26:50.189937Z",
-     "iopub.status.idle": "2026-03-31T14:26:51.211571Z",
-     "shell.execute_reply": "2026-03-31T14:26:51.211187Z"
+     "iopub.execute_input": "2026-06-10T06:19:18.381687Z",
+     "iopub.status.busy": "2026-06-10T06:19:18.381434Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.329481Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.329156Z"
     }
    },
    "outputs": [],
@@ -48,7 +48,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "52bb0653",
+   "id": "7f37b3ab",
    "metadata": {},
    "source": [
     "\n",
@@ -81,13 +81,13 @@
   {
    "cell_type": "code",
    "execution_count": 2,
-   "id": "0ffcc434",
+   "id": "ff70708b",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:51.213906Z",
-     "iopub.status.busy": "2026-03-31T14:26:51.213634Z",
-     "iopub.status.idle": "2026-03-31T14:26:51.233113Z",
-     "shell.execute_reply": "2026-03-31T14:26:51.232816Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.331421Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.331215Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.335415Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.335166Z"
     }
    },
    "outputs": [
@@ -113,7 +113,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "c894b031",
+   "id": "905c79f8",
    "metadata": {},
    "source": [
     "Any Boolean function is stored as right side of the truth table. \n",
@@ -127,7 +127,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "6a09287d",
+   "id": "2fa85e14",
    "metadata": {},
    "source": [
     "### Create Boolean functions from text\n",
@@ -139,13 +139,13 @@
   {
    "cell_type": "code",
    "execution_count": 3,
-   "id": "628cc5e4",
+   "id": "1ecfc10f",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:51.234653Z",
-     "iopub.status.busy": "2026-03-31T14:26:51.234543Z",
-     "iopub.status.idle": "2026-03-31T14:26:51.236689Z",
-     "shell.execute_reply": "2026-03-31T14:26:51.236403Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.336981Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.336866Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.338962Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.338725Z"
     }
    },
    "outputs": [
@@ -164,7 +164,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "6c5403dd",
+   "id": "d7b09fbb",
    "metadata": {},
    "source": [
     "The text processor is fairly versatile. For example, we can define the same function as f also by writing"
@@ -173,13 +173,13 @@
   {
    "cell_type": "code",
    "execution_count": 4,
-   "id": "33c61b03",
+   "id": "80aa3764",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:51.238108Z",
-     "iopub.status.busy": "2026-03-31T14:26:51.238015Z",
-     "iopub.status.idle": "2026-03-31T14:26:51.239943Z",
-     "shell.execute_reply": "2026-03-31T14:26:51.239708Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.340227Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.340134Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.342013Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.341738Z"
     }
    },
    "outputs": [
@@ -198,7 +198,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "9b914559",
+   "id": "08661e77",
    "metadata": {},
    "source": [
     "Some examples of more complicated functions include:"
@@ -207,13 +207,13 @@
   {
    "cell_type": "code",
    "execution_count": 5,
-   "id": "f9fa0fa7",
+   "id": "efd1ada2",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:51.241324Z",
-     "iopub.status.busy": "2026-03-31T14:26:51.241238Z",
-     "iopub.status.idle": "2026-03-31T14:26:51.243540Z",
-     "shell.execute_reply": "2026-03-31T14:26:51.243283Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.343637Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.343534Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.345817Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.345557Z"
     },
     "lines_to_next_cell": 2
    },
@@ -246,7 +246,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "5c700ff3",
+   "id": "76dea39c",
    "metadata": {},
    "source": [
     "### Combining BooleanFunction objects\n",
@@ -265,13 +265,13 @@
   {
    "cell_type": "code",
    "execution_count": 6,
-   "id": "389aa5f6",
+   "id": "b4a4f9a3",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:51.244766Z",
-     "iopub.status.busy": "2026-03-31T14:26:51.244689Z",
-     "iopub.status.idle": "2026-03-31T14:26:51.247724Z",
-     "shell.execute_reply": "2026-03-31T14:26:51.247511Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.347224Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.347124Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.350414Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.350075Z"
     }
    },
    "outputs": [
@@ -303,7 +303,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "02196fa7",
+   "id": "debac49d",
    "metadata": {},
    "source": [
     "## Attributes of BooleanFunction\n",
@@ -322,13 +322,13 @@
   {
    "cell_type": "code",
    "execution_count": 7,
-   "id": "50ffdcc4",
+   "id": "4022e197",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:51.248852Z",
-     "iopub.status.busy": "2026-03-31T14:26:51.248780Z",
-     "iopub.status.idle": "2026-03-31T14:26:51.250618Z",
-     "shell.execute_reply": "2026-03-31T14:26:51.250409Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.352243Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.352118Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.354473Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.354148Z"
     },
     "lines_to_next_cell": 2
    },
@@ -355,7 +355,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "490c4b3e",
+   "id": "f12d98c2",
    "metadata": {},
    "source": [
     "When a function is created from a truth table, variable names default to\n",
@@ -365,13 +365,13 @@
   {
    "cell_type": "code",
    "execution_count": 8,
-   "id": "432121b9",
+   "id": "56758839",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:51.251719Z",
-     "iopub.status.busy": "2026-03-31T14:26:51.251648Z",
-     "iopub.status.idle": "2026-03-31T14:26:51.253395Z",
-     "shell.execute_reply": "2026-03-31T14:26:51.253163Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.355899Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.355786Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.357808Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.357580Z"
     },
     "lines_to_next_cell": 2
    },
@@ -396,7 +396,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "fd330c9f",
+   "id": "0c11c279",
    "metadata": {},
    "source": [
     "The variable order is determined by first occurrence in the expression. See e.g.,"
@@ -405,13 +405,13 @@
   {
    "cell_type": "code",
    "execution_count": 9,
-   "id": "239c83fa",
+   "id": "a62daa36",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:51.254536Z",
-     "iopub.status.busy": "2026-03-31T14:26:51.254463Z",
-     "iopub.status.idle": "2026-03-31T14:26:51.256138Z",
-     "shell.execute_reply": "2026-03-31T14:26:51.255930Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.359059Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.358962Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.360736Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.360513Z"
     }
    },
    "outputs": [
@@ -431,7 +431,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "594bc484",
+   "id": "2e2de769",
    "metadata": {},
    "source": [
     "The variable order determines how the truth table is indexed. \n",
@@ -447,7 +447,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "8ad06df3",
+   "id": "b7696a2e",
    "metadata": {},
    "source": [
     "## Basic properties of Boolean functions\n",
@@ -468,13 +468,13 @@
   {
    "cell_type": "code",
    "execution_count": 10,
-   "id": "fc7f4ba1",
+   "id": "fece480a",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:51.257314Z",
-     "iopub.status.busy": "2026-03-31T14:26:51.257231Z",
-     "iopub.status.idle": "2026-03-31T14:26:53.205555Z",
-     "shell.execute_reply": "2026-03-31T14:26:53.205284Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.362079Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.361986Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.594032Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.593707Z"
     },
     "lines_to_next_cell": 2
    },
@@ -513,7 +513,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "408aba58",
+   "id": "a372410e",
    "metadata": {},
    "source": [
     "You may repeat this for `g` and observe how the properties differ.\n",
@@ -524,13 +524,13 @@
   {
    "cell_type": "code",
    "execution_count": 11,
-   "id": "57a91599",
+   "id": "1cdaa754",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:53.207023Z",
-     "iopub.status.busy": "2026-03-31T14:26:53.206828Z",
-     "iopub.status.idle": "2026-03-31T14:26:53.208612Z",
-     "shell.execute_reply": "2026-03-31T14:26:53.208377Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.595633Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.595512Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.597543Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.597301Z"
     }
    },
    "outputs": [
@@ -555,7 +555,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "ae57049c",
+   "id": "22c5ea3e",
    "metadata": {},
    "source": [
     "If more advanced properties have already been computed, \n",
@@ -567,13 +567,13 @@
   {
    "cell_type": "code",
    "execution_count": 12,
-   "id": "c0c1d921",
+   "id": "f204d9e0",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:53.209599Z",
-     "iopub.status.busy": "2026-03-31T14:26:53.209520Z",
-     "iopub.status.idle": "2026-03-31T14:26:53.211469Z",
-     "shell.execute_reply": "2026-03-31T14:26:53.211262Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.598893Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.598791Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.601002Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.600722Z"
     }
    },
    "outputs": [
@@ -607,7 +607,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "58923b6e",
+   "id": "81781a26",
    "metadata": {},
    "source": [
     "The more advanced properties displayed here (e.g., all properties related to canalization)\n",
@@ -621,13 +621,13 @@
   {
    "cell_type": "code",
    "execution_count": 13,
-   "id": "ccfd53fd",
+   "id": "a87bd688",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:53.212519Z",
-     "iopub.status.busy": "2026-03-31T14:26:53.212458Z",
-     "iopub.status.idle": "2026-03-31T14:26:53.364939Z",
-     "shell.execute_reply": "2026-03-31T14:26:53.364324Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.602326Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.602225Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.650000Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.649717Z"
     },
     "lines_to_next_cell": 2
    },
@@ -648,7 +648,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "0585ec9e",
+   "id": "4e25bc8b",
    "metadata": {},
    "source": [
     "In addition, a `BooleanFunction` object can be turned into `BooleanNode` object from the [CANA package](https://www.github.com/CASCI-lab/CANA). \n",
@@ -658,13 +658,13 @@
   {
    "cell_type": "code",
    "execution_count": 14,
-   "id": "5bd5fdf4",
+   "id": "8c393396",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:53.367315Z",
-     "iopub.status.busy": "2026-03-31T14:26:53.367123Z",
-     "iopub.status.idle": "2026-03-31T14:26:53.448850Z",
-     "shell.execute_reply": "2026-03-31T14:26:53.448207Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.651835Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.651651Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.669757Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.669427Z"
     },
     "lines_to_next_cell": 2
    },
@@ -684,7 +684,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "a0737bb7",
+   "id": "e55a53c0",
    "metadata": {},
    "source": [
     "## Summary\n",
@@ -734,7 +734,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "9abace2c",
+   "id": "f437ae33",
    "metadata": {
     "lines_to_next_cell": 2
    },
@@ -747,7 +747,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "25a3fed6",
+   "id": "069e97e9",
    "metadata": {},
    "source": [
     "## Frequently Asked Questions\n",
@@ -764,13 +764,13 @@
   {
    "cell_type": "code",
    "execution_count": 15,
-   "id": "f8bedfa5",
+   "id": "8a5c49a8",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-03-31T14:26:53.451871Z",
-     "iopub.status.busy": "2026-03-31T14:26:53.451599Z",
-     "iopub.status.idle": "2026-03-31T14:26:53.455649Z",
-     "shell.execute_reply": "2026-03-31T14:26:53.455089Z"
+     "iopub.execute_input": "2026-06-10T06:19:19.671488Z",
+     "iopub.status.busy": "2026-06-10T06:19:19.671373Z",
+     "iopub.status.idle": "2026-06-10T06:19:19.673535Z",
+     "shell.execute_reply": "2026-06-10T06:19:19.673290Z"
     }
    },
    "outputs": [
@@ -790,7 +790,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "763c3371",
+   "id": "24e07bbe",
    "metadata": {},
    "source": [
     "To ensure reproducibility, always use consistent variable names and ordering."
@@ -798,7 +798,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "31fa97d1",
+   "id": "79f44aa8",
    "metadata": {},
    "source": [
     "### How do I choose between defining a function via a truth table or via an expression?\n",
@@ -817,7 +817,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "0f4e14c9",
+   "id": "a85dca32",
    "metadata": {
     "lines_to_next_cell": 2
    },

@@ -409,10 +409,25 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
     
+    
 <div class="viewcode-block" id="BooleanNetwork.__repr__">
 <a class="viewcode-back" href="../../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.__repr__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(N=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2">, average degree=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indegrees</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+    
+    
+<div class="viewcode-block" id="BooleanNetwork.clear_cache">
+<a class="viewcode-back" href="../../../boolean_network.html#boolforge.boolean_network.BooleanNetwork.clear_cache">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove all cached exact and approximate network properties.</span>
+<span class="sd">    </span>
+<span class="sd">        This method should be called after modifying network functions,</span>
+<span class="sd">        regulators, or update rules directly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_properties_estimated</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_properties_exact</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
     
 

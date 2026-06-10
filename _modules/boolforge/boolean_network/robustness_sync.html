@@ -122,9 +122,7 @@
 <span class="sd">    float</span>
 <span class="sd">        Shannon entropy of the basin size distribution.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">basin_sizes</span><span class="p">)</span>
-    <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[</span><span class="n">size</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">total</span> <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">basin_sizes</span><span class="p">]</span>
-    <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">probabilities</span><span class="p">])</span></div>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_shannon_entropy</span><span class="p">(</span><span class="n">basin_sizes</span><span class="p">)</span></div>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">BooleanNetworkRobustnessSyncMixin</span><span class="p">:</span>

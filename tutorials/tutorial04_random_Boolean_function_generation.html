@@ -50,7 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="tutorial00_preface.html">Preface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial00_preface_supplement.html">Preface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial01_Boolean_functions.html">Working with Boolean Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial02_advanced_concepts.html">Advanced Concepts for Boolean Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial03_canalization.html">Canalization</a></li>
@@ -170,14 +170,14 @@ x0      x1      x2      |       f_random_non_degenerate
 0       0       0       |       0
 0       0       1       |       0
 0       1       0       |       1
-0       1       1       |       0
-1       0       0       |       0
-1       0       1       |       1
-1       1       0       |       1
+0       1       1       |       1
+1       0       0       |       1
+1       0       1       |       0
+1       1       0       |       0
 1       1       1       |       1
 Is f degenerate? False
-Activities of f: [0.5 0.5 0.5]
-Edge effectiveness of f: [0.625, 0.625, 0.75]
+Activities of f: [0.5 1.  0.5]
+Edge effectiveness of f: [0.625, 1.0, 0.625]
 </pre></div></div>
 </div>
 <p>The rest of this tutorial describes the various constraints. Each constraint defines a specific family of n-input Boolean functions, from which <code class="docutils literal notranslate"><span class="pre">random_function(n,*args)</span></code> samples <em>uniformly at random</em>. That is, each function satisfying a given set of constraints is selected with equal probability.</p>
@@ -268,18 +268,18 @@ Canalizing strength: 0.0
 <div class="highlight"><pre>
 x0      x1      x2      |       f       g       h       k
 ---------------------------------------------------------
-0       0       0       |       0       1       1       0
-0       0       1       |       0       0       1       0
-0       1       0       |       0       1       1       1
-0       1       1       |       0       1       1       0
-1       0       0       |       1       0       1       0
-1       0       1       |       0       1       1       0
-1       1       0       |       0       1       1       1
-1       1       1       |       0       1       0       1
+0       0       0       |       1       1       1       1
+0       0       1       |       1       0       1       1
+0       1       0       |       0       0       1       1
+0       1       1       |       1       1       1       1
+1       0       0       |       1       1       1       0
+1       0       1       |       1       1       0       1
+1       1       0       |       1       1       1       0
+1       1       1       |       1       1       1       0
 Canalizing depth of f: 3
 Layer structure of f: [3]
 Number of layers of f: 1
-Core function of f: [1]
+Core function of f: [0]
 
 Canalizing depth of g: 1
 Layer structure of g: [1]
@@ -294,7 +294,7 @@ Core function of h: [0]
 Canalizing depth of k: 3
 Layer structure of k: [1, 2]
 Number of layers of k: 2
-Core function of k: [0]
+Core function of k: [1]
 
 </pre></div></div>
 </div>
@@ -336,19 +336,19 @@ Core function of k: [0]
 <div class="highlight"><pre>
 x0      x1      x2      |       f       g       h       k
 ---------------------------------------------------------
-0       0       0       |       0       0       1       1
-0       0       1       |       0       1       1       1
-0       1       0       |       0       0       0       1
-0       1       1       |       1       0       1       0
-1       0       0       |       0       1       1       1
+0       0       0       |       0       1       0       1
+0       0       1       |       1       0       0       1
+0       1       0       |       0       0       0       0
+0       1       1       |       0       0       0       1
+1       0       0       |       0       0       1       1
 1       0       1       |       1       1       1       1
-1       1       0       |       1       1       1       0
-1       1       1       |       0       0       0       0
-Canalizing depth of f: 0
+1       1       0       |       0       1       1       0
+1       1       1       |       1       0       0       0
+Canalizing depth of f: 3
 
 Canalizing depth of g: 0
 
-Canalizing depth of h: 1
+Canalizing depth of h: 3
 
 Canalizing depth of k: 3
 
@@ -405,7 +405,7 @@ always nested canalizing (i.e., it has canalizing depth <span class="math notran
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Error: [ 0.0008 -0.0038  0.003 ]
+Error: [-0.0068 -0.0075  0.0143]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -448,16 +448,16 @@ Error: [ 0.0008 -0.0038  0.003 ]
 <div class="highlight"><pre>
 x0      x1      x2      |       f       g       h
 -------------------------------------------------
-0       0       0       |       1       0       1
-0       0       1       |       1       1       0
-0       1       0       |       0       1       0
+0       0       0       |       0       0       0
+0       0       1       |       0       1       0
+0       1       0       |       1       1       0
 0       1       1       |       1       0       0
-1       0       0       |       0       1       0
+1       0       0       |       1       1       1
 1       0       1       |       1       0       1
 1       1       0       |       0       1       0
 1       1       1       |       1       1       0
 Hamming weight of f: 5
-Canalizing depth of f: 3
+Canalizing depth of f: 0
 Number of essential variables of f: 3
 
 Hamming weight of g: 5
@@ -465,8 +465,8 @@ Canalizing depth of g: 0
 Number of essential variables of g: 3
 
 Hamming weight of h: 2
-Canalizing depth of h: 1
-Number of essential variables of h: 3
+Canalizing depth of h: 2
+Number of essential variables of h: 2
 
 </pre></div></div>
 </div>

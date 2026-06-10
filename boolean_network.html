@@ -55,6 +55,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.remove_constants"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.remove_constants()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.__str__"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.__str__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.__repr__"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.__repr__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.clear_cache"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.clear_cache()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.summary"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_types_of_regulation"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_types_of_regulation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.simplify_functions"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.simplify_functions()</span></code></a></li>
@@ -66,6 +67,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.from_DiGraph"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.from_DiGraph()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.from_cana"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.from_cana()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.from_string"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.from_string()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_absorption_probabilities_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_absorption_probabilities_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_asynchronous_transition_matrix"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_asynchronous_transition_matrix()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_synchronous"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_and_robustness_synchronous()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_synchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_and_robustness_synchronous_exact()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_synchronous"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_attractors_synchronous()</span></code></a></li>
@@ -75,16 +78,20 @@
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_derrida_value"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_derrida_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_fbls"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_fbls()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_ffls"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_ffls()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_minimal_trap_spaces_asynchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_minimal_trap_spaces_asynchronous_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_minimal_trap_spaces_synchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_minimal_trap_spaces_synchronous_exact()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_modular_structure"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_modular_structure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_network_with_edge_controls"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_network_with_edge_controls()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_network_with_fixed_identity_nodes"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_network_with_fixed_identity_nodes()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_network_with_node_controls"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_network_with_node_controls()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_number_frozen_nodes_asynchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_number_frozen_nodes_asynchronous_exact()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_outdegrees"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_outdegrees()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_source_nodes"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_source_nodes()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_steady_states_asynchronous()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_steady_states_asynchronous_given_one_initial_condition()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_strongly_connected_components"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_strongly_connected_components()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_terminal_sccs_and_robustness_asynchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_terminal_sccs_and_robustness_asynchronous_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_terminal_sccs_asynchronous_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_terminal_sccs_asynchronous_exact()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_trajectories"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_trajectories()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.get_transient_lengths_exact"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.get_transient_lengths_exact()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boolforge.boolean_network.BooleanNetwork.plot"><code class="docutils literal notranslate"><span class="pre">BooleanNetwork.plot()</span></code></a></li>
@@ -251,6 +258,14 @@ assigned a non-essential self-loop to preserve network structure.</p></li>
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_network/core.html#BooleanNetwork.__repr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.__repr__" title="Link to this definition"></a></dt>
 <dd><p>Return repr(self).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.clear_cache">
+<span class="sig-name descname"><span class="pre">clear_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/boolforge/boolean_network/core.html#BooleanNetwork.clear_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.clear_cache" title="Link to this definition"></a></dt>
+<dd><p>Remove all cached exact and approximate network properties.</p>
+<p>This method should be called after modifying network functions,
+regulators, or update rules directly.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -564,6 +579,43 @@ a node exceeds <code class="docutils literal notranslate"><span class="pre">max_
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_absorption_probabilities_exact">
+<span class="sig-name descname"><span class="pre">get_absorption_probabilities_exact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_absorption_probabilities_exact" title="Link to this definition"></a></dt>
+<dd><p>Compute exact absorption probabilities for the asynchronous dynamics.</p>
+<p>For every network state and every terminal SCC, this method computes
+the probability that an asynchronous trajectory starting from that
+state is eventually absorbed into the corresponding terminal SCC.</p>
+<p>Probabilities are obtained by solving the standard absorbing Markov
+chain equations and are cached after the first computation.</p>
+<section id="id19">
+<h3>Returns<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Array of shape <code class="docutils literal notranslate"><span class="pre">(2**N,</span> <span class="pre">n_terminal_sccs)</span></code> where entry
+<code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">a]</span></code> is the probability that state <code class="docutils literal notranslate"><span class="pre">x</span></code> eventually
+reaches terminal SCC <code class="docutils literal notranslate"><span class="pre">a</span></code>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_asynchronous_transition_matrix">
+<span class="sig-name descname"><span class="pre">get_asynchronous_transition_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">csr_matrix</span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_asynchronous_transition_matrix" title="Link to this definition"></a></dt>
+<dd><p>Construct and return the exact asynchronous state transition graph.</p>
+<p>The asynchronous state transition graph (STG) is represented as a
+row-stochastic sparse matrix whose rows correspond to network states
+and whose nonzero entries encode one-step asynchronous transitions.</p>
+<p>The matrix is cached after the first computation.</p>
+<section id="id20">
+<h3>Returns<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>scipy.sparse.csr_matrix</dt><dd><p>Sparse transition matrix of shape <code class="docutils literal notranslate"><span class="pre">(2**N,</span> <span class="pre">2**N)</span></code>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_synchronous">
 <span class="sig-name descname"><span class="pre">get_attractors_and_robustness_synchronous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_simulations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_attractor_coherence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_attractors_and_robustness_synchronous" title="Link to this definition"></a></dt>
 <dd><p>Approximate attractors and robustness measures under synchronous updating.</p>
@@ -573,8 +625,8 @@ It returns Monte-Carlo approximations of global coherence, fragility, and a
 final Hamming-distance-based measure, along with per-basin approximations.
 Optionally, it additionally estimates attractor-level coherence and fragility
 by perturbing attractor states found during sampling.</p>
-<section id="id19">
-<h3>Notes<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<section id="id21">
+<h3>Notes<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>The attractor set returned is a <em>lower bound</em> on the true number of
 attractors, because only the sampled portion of state space is explored.</p></li>
@@ -582,8 +634,8 @@ attractors, because only the sampled portion of state space is explored.</p></li
 this method uses bitstrings (type <code class="docutils literal notranslate"><span class="pre">str</span></code>) as state identifiers.</p></li>
 </ul>
 </section>
-<section id="id20">
-<h3>Parameters<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<section id="id22">
+<h3>Parameters<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>n_simulations<span class="classifier">int, optional</span></dt><dd><p>Number of random initial conditions to sample (default is 500). For each
 IC, the method also simulates one randomly chosen single-bit perturbation.</p>
@@ -596,8 +648,8 @@ by perturbing attractor states found during sampling.</p>
 </dd>
 </dl>
 </section>
-<section id="id21">
-<h3>Returns<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<section id="id23">
+<h3>Returns<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with keys:</p>
 <ul class="simple">
@@ -702,8 +754,8 @@ attractor.</p>
 is intended for small-to-moderate networks. When Numba is enabled,
 exact and stratified robustness measures remain feasible up to
 moderate values of <code class="docutils literal notranslate"><span class="pre">N</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">≈</span> <span class="pre">20</span></code> on typical hardware).</p>
-<section id="id22">
-<h3>Parameters<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<section id="id24">
+<h3>Parameters<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>use_numba<span class="classifier">bool, optional</span></dt><dd><p>If True (default) and Numba is available, compiled kernels are used
 for robustness and transient-length computations, resulting in
@@ -716,8 +768,8 @@ computational cost. Default is False.</p>
 </dd>
 </dl>
 </section>
-<section id="id23">
-<h3>Returns<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<section id="id25">
+<h3>Returns<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
 <dl>
 <dt>dict</dt><dd><p>Dictionary with the following keys:</p>
 <ul class="simple">
@@ -812,8 +864,8 @@ are found. Basin sizes are lower-bound estimates based on the sampled
 initial conditions.</p>
 <p>If Numba is available and <code class="docutils literal notranslate"><span class="pre">use_numba=True</span></code>, synchronous updates are
 accelerated using a compiled kernel.</p>
-<section id="id24">
-<h3>Parameters<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<section id="id26">
+<h3>Parameters<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>n_simulations<span class="classifier">int, optional</span></dt><dd><p>Number of random initial conditions to sample (default is 500). 
 Ignored if <code class="docutils literal notranslate"><span class="pre">initial_sample_points</span></code> is provided.</p>
@@ -835,8 +887,8 @@ synchronous update kernel.</p>
 </dd>
 </dl>
 </section>
-<section id="id25">
-<h3>Returns<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<section id="id27">
+<h3>Returns<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with the following entries:</p>
 <ul class="simple">
@@ -869,8 +921,8 @@ Number of simulations that did not converge within
 </dd>
 </dl>
 </section>
-<section id="id26">
-<h3>Notes<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<section id="id28">
+<h3>Notes<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>This method is intended for large networks with long transient dynamics, 
 where exhaustive analysis is infeasible.</p></li>
@@ -891,16 +943,16 @@ their basin sizes, and the attractor reached from each state are determined
 exactly.</p>
 <p>This computation requires memory and time proportional to <code class="docutils literal notranslate"><span class="pre">2**N</span></code> and is
 intended for small-to-moderate networks only.</p>
-<section id="id27">
-<h3>Parameters<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<section id="id29">
+<h3>Parameters<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>use_numba<span class="classifier">bool, optional</span></dt><dd><p>If True (default) and Numba is available, use a compiled kernel for
 attractor detection.</p>
 </dd>
 </dl>
 </section>
-<section id="id28">
-<h3>Returns<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<section id="id30">
+<h3>Returns<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with keys:</p>
 <ul class="simple">
@@ -950,8 +1002,8 @@ sequence.</p>
 to determine the set of states that serve as initial conditions for
 the periodic regime. Then, attractors and basin sizes are computed
 exactly under the periodic input sequence.</p>
-<section id="id29">
-<h3>Parameters<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<section id="id31">
+<h3>Parameters<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>transient_input_sequence<span class="classifier">sequence of sequence of int</span></dt><dd><p>External input values applied during the transient phase.
 Each inner sequence corresponds to one external (identity)
@@ -966,8 +1018,8 @@ periodic regime is determined by their least common multiple.</p>
 </dd>
 </dl>
 </section>
-<section id="id30">
-<h3>Returns<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<section id="id32">
+<h3>Returns<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>result<span class="classifier">dict</span></dt><dd><p>Dictionary with the following keys:</p>
 <ul class="simple">
@@ -1028,8 +1080,8 @@ for a Boolean network with periodic external inputs.</p>
 <p>The external inputs are treated as a periodic sequence. The state
 transition graph is constructed over the combined space of
 (network state, input phase), and attractors are detected exactly.</p>
-<section id="id31">
-<h3>Parameters<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<section id="id33">
+<h3>Parameters<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>periodic_input_sequence<span class="classifier">sequence of sequence of int</span></dt><dd><p>External input values defining the periodic regime.
 Each inner sequence corresponds to one external (identity)
@@ -1042,8 +1094,8 @@ If None, all possible states are used.</p>
 </dd>
 </dl>
 </section>
-<section id="id32">
-<h3>Returns<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
+<section id="id34">
+<h3>Returns<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>result<span class="classifier">dict</span></dt><dd><p>Dictionary with the following keys:</p>
 <ul class="simple">
@@ -1092,8 +1144,8 @@ dynamics to small perturbations.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">exact</span></code> is True, the Derrida value is computed exactly as the mean
 (unnormalized) average sensitivity of the Boolean update functions.
 Otherwise, it is approximated via Monte Carlo simulation.</p>
-<section id="id33">
-<h3>Parameters<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<section id="id35">
+<h3>Parameters<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>n_simulations<span class="classifier">int, optional</span></dt><dd><p>Number of Monte Carlo simulations to perform (default is 1000).
 Ignored if <code class="docutils literal notranslate"><span class="pre">exact</span></code> is True.</p>
@@ -1110,16 +1162,16 @@ Monte Carlo simulation.</p>
 </dd>
 </dl>
 </section>
-<section id="id34">
-<h3>Returns<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<section id="id36">
+<h3>Returns<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>float</dt><dd><p>The Derrida value, defined as the average Hamming distance after
 one synchronous update following a single-bit perturbation.</p>
 </dd>
 </dl>
 </section>
-<section id="id35">
-<h3>References<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<section id="id37">
+<h3>References<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
 <p>Derrida, B., &amp; Pomeau, Y. (1986).
 Random networks of automata: a simple annealed approximation.
 <em>Europhysics Letters</em>, 1(2), 45.</p>
@@ -1134,8 +1186,8 @@ Random networks of automata: a simple annealed approximation.
 wiring diagram. This method enumerates elementary circuits using a
 variant of Johnson’s algorithm, restricted to cycles of length at most
 <code class="docutils literal notranslate"><span class="pre">max_length</span></code>.</p>
-<section id="id36">
-<h3>Parameters<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<section id="id38">
+<h3>Parameters<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>max_length<span class="classifier">int, optional</span></dt><dd><p>Maximum length of feedback loops to consider. Cycles longer than
 <code class="docutils literal notranslate"><span class="pre">max_length</span></code> are not returned. Default is 4.</p>
@@ -1145,8 +1197,8 @@ feedback loop is determined.</p>
 </dd>
 </dl>
 </section>
-<section id="id37">
-<h3>Returns<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<section id="id39">
+<h3>Returns<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>list of list of int
 List of feedback loops, where each loop is represented as a list
@@ -1163,8 +1215,8 @@ as single-element lists.</p>
 <dd><p>Identify feed-forward loops (FFLs) in the wiring diagram.</p>
 <p>A feed-forward loop is a triplet of nodes <code class="docutils literal notranslate"><span class="pre">(i,</span> <span class="pre">j,</span> <span class="pre">k)</span></code> such that
 <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">-&gt;</span> <span class="pre">j</span></code>, <code class="docutils literal notranslate"><span class="pre">j</span> <span class="pre">-&gt;</span> <span class="pre">k</span></code>, and <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">-&gt;</span> <span class="pre">k</span></code> are all regulatory interactions.</p>
-<section id="id38">
-<h3>Returns<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<section id="id40">
+<h3>Returns<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>tuple</dt><dd><p>A tuple <code class="docutils literal notranslate"><span class="pre">(ffls,</span> <span class="pre">types)</span></code> where:</p>
 <ul class="simple">
@@ -1180,6 +1232,48 @@ or <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_minimal_trap_spaces_asynchronous_exact">
+<span class="sig-name descname"><span class="pre">get_minimal_trap_spaces_asynchronous_exact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_minimal_trap_spaces_asynchronous_exact" title="Link to this definition"></a></dt>
+<dd><p>Compute the minimal trap space associated with each terminal SCC.</p>
+<p>For each terminal SCC, nodes that take the same value in every state
+are marked by their fixed value (0 or 1), whereas nodes that vary
+across the SCC are marked as -1.</p>
+<section id="id41">
+<h3>Returns<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Array of shape <code class="docutils literal notranslate"><span class="pre">(n_terminal_sccs,</span> <span class="pre">N)</span></code> whose rows represent
+minimal trap spaces.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_minimal_trap_spaces_synchronous_exact">
+<span class="sig-name descname"><span class="pre">get_minimal_trap_spaces_synchronous_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_numba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_minimal_trap_spaces_synchronous_exact" title="Link to this definition"></a></dt>
+<dd><p>Compute the minimal trap space associated with each synchronous attractor.</p>
+<p>For each attractor, nodes that take the same value in every state
+are marked by their fixed value (0 or 1), whereas nodes that vary
+across the attractor are marked as -1.</p>
+<section id="id42">
+<h3>Parameters<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>use_numba<span class="classifier">bool, optional</span></dt><dd><p>If True (default) and Numba is available, use a compiled kernel for
+attractor detection.</p>
+</dd>
+</dl>
+</section>
+<section id="id43">
+<h3>Returns<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Array of shape <code class="docutils literal notranslate"><span class="pre">(n_attractors,</span> <span class="pre">N)</span></code> whose rows represent
+minimal trap spaces.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_modular_structure">
 <span class="sig-name descname"><span class="pre">get_modular_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_modular_structure" title="Link to this definition"></a></dt>
 <dd><p>Compute the modular (condensation) structure of the wiring diagram.</p>
@@ -1187,16 +1281,16 @@ or <code class="docutils literal notranslate"><span class="pre">None</span></cod
 whose nodes correspond to strongly connected components (SCCs) of the
 wiring diagram. A directed edge <code class="docutils literal notranslate"><span class="pre">(i,</span> <span class="pre">j)</span></code> indicates that there exists
 at least one regulatory interaction from SCC <code class="docutils literal notranslate"><span class="pre">i</span></code> to SCC <code class="docutils literal notranslate"><span class="pre">j</span></code>.</p>
-<section id="id39">
-<h3>Returns<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<section id="id44">
+<h3>Returns<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>set of tuple of int</dt><dd><p>Set of directed edges representing the condensation DAG, where each
 edge <code class="docutils literal notranslate"><span class="pre">(i,</span> <span class="pre">j)</span></code> denotes a regulation from SCC <code class="docutils literal notranslate"><span class="pre">i</span></code> to SCC <code class="docutils literal notranslate"><span class="pre">j</span></code>.</p>
 </dd>
 </dl>
 </section>
-<section id="id40">
-<h3>Notes<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<section id="id45">
+<h3>Notes<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
 <p>SCC indices correspond to the ordering returned by
 <code class="docutils literal notranslate"><span class="pre">get_strongly_connected_components</span></code>.</p>
 </section>
@@ -1210,8 +1304,8 @@ edge <code class="docutils literal notranslate"><span class="pre">(i,</span> <sp
 nodes by restricting the target’s Boolean update function to entries where
 the source assumes a specified value, and then removing the corresponding
 regulatory edge.</p>
-<section id="id41">
-<h3>Parameters<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<section id="id46">
+<h3>Parameters<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>control_targets<span class="classifier">sequence of int</span></dt><dd><p>Indices of target nodes.</p>
 </dd>
@@ -1227,15 +1321,15 @@ If False, fully controlled nodes are eliminated as constants.</p>
 </dd>
 </dl>
 </section>
-<section id="id42">
-<h3>Returns<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<section id="id47">
+<h3>Returns<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>BooleanNetwork</dt><dd><p>A new BooleanNetwork with the specified edge controls applied.</p>
 </dd>
 </dl>
 </section>
-<section id="id43">
-<h3>Raises<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<section id="id48">
+<h3>Raises<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>ValueError</dt><dd><p>If input lengths do not match, indices are invalid, or edge values are
 not in {0, 1}.</p>
@@ -1251,8 +1345,8 @@ not in {0, 1}.</p>
 <p>Identity nodes are nodes with a single self-regulatory edge and identity
 update rule <code class="docutils literal notranslate"><span class="pre">f(x)</span> <span class="pre">=</span> <span class="pre">x</span></code>. This method fixes the values of such nodes and
 returns a new BooleanNetwork with the corresponding constants removed.</p>
-<section id="id44">
-<h3>Parameters<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
+<section id="id49">
+<h3>Parameters<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>values_identity_nodes<span class="classifier">sequence of int</span></dt><dd><p>Values to fix for each identity node, in the order returned by
 <code class="docutils literal notranslate"><span class="pre">get_identity_nodes(as_dict=False)</span></code>. Each value must be either 0 or 1.</p>
@@ -1269,8 +1363,8 @@ fixed and no additional recursive simplification is performed.</p>
 </dd>
 </dl>
 </section>
-<section id="id45">
-<h3>Returns<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
+<section id="id50">
+<h3>Returns<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>BooleanNetwork</dt><dd><p>A new BooleanNetwork with the specified identity nodes fixed.</p>
 </dd>
@@ -1285,8 +1379,8 @@ fixed and no additional recursive simplification is performed.</p>
 <p>This method applies node-level interventions by fixing selected nodes to
 constant Boolean values. Controlled nodes may either be removed from the
 dynamic network as constants or retained as identity-clamped nodes.</p>
-<section id="id46">
-<h3>Parameters<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<section id="id51">
+<h3>Parameters<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>indices_controlled_nodes<span class="classifier">sequence of int</span></dt><dd><p>Indices of nodes to be fixed.</p>
 </dd>
@@ -1305,10 +1399,29 @@ fixed and no additional recursive simplification is performed.</p>
 </dd>
 </dl>
 </section>
-<section id="id47">
-<h3>Returns<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<section id="id52">
+<h3>Returns<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>BooleanNetwork</dt><dd><p>A new BooleanNetwork with the specified node controls applied.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_number_frozen_nodes_asynchronous_exact">
+<span class="sig-name descname"><span class="pre">get_number_frozen_nodes_asynchronous_exact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_number_frozen_nodes_asynchronous_exact" title="Link to this definition"></a></dt>
+<dd><p>Compute the number of frozen nodes in the asynchronous dynamics.</p>
+<p>A node is considered frozen if it takes the same value in every
+attractor state. For asynchronous dynamics, attractor states are
+defined as the states belonging to terminal strongly connected
+components (terminal SCCs) of the asynchronous state transition
+graph.</p>
+<section id="id53">
+<h3>Returns<a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>int</dt><dd><p>Number of nodes whose value is identical across all attractor
+states.</p>
 </dd>
 </dl>
 </section>
@@ -1320,8 +1433,8 @@ fixed and no additional recursive simplification is performed.</p>
 <dd><p>Compute the outdegree of each node.</p>
 <p>The outdegree of a node is the number of nodes it regulates, i.e.,
 the number of outgoing edges from that node in the wiring diagram.</p>
-<section id="id48">
-<h3>Returns<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<section id="id54">
+<h3>Returns<a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray</dt><dd><p>One-dimensional array of length <code class="docutils literal notranslate"><span class="pre">N</span></code> containing the outdegree of
 each node.</p>
@@ -1339,8 +1452,8 @@ inputs to the wiring diagram; whether they act as constants or
 identity nodes in dynamical systems depends on the associated
 dynamical update functions and is not determined at the wiring-diagram
 level.</p>
-<section id="id49">
-<h3>Parameters<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
+<section id="id55">
+<h3>Parameters<a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>as_dict<span class="classifier">bool, optional</span></dt><dd><p>If True (default), return a dictionary mapping node indices to
 Boolean values indicating whether each node is a source node.
@@ -1348,8 +1461,8 @@ If False, return an array of indices corresponding to source nodes.</p>
 </dd>
 </dl>
 </section>
-<section id="id50">
-<h3>Returns<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
+<section id="id56">
+<h3>Returns<a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict[int, bool] or np.ndarray</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">as_dict</span></code> is True, a dictionary where keys are node indices and
 values indicate whether the node is a source node.
@@ -1372,8 +1485,8 @@ a maximum search depth is exceeded.</p>
 exhaustively explore the full state space and does not guarantee that all
 steady states will be found. It is intended for large networks where exact
 enumeration is infeasible.</p>
-<section id="id51">
-<h3>Parameters<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
+<section id="id57">
+<h3>Parameters<a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>n_simulations<span class="classifier">int, optional</span></dt><dd><p>Number of asynchronous simulations to perform (default is 500).</p>
 </dd>
@@ -1390,8 +1503,8 @@ giving up on convergence (default is 50).</p>
 </dd>
 </dl>
 </section>
-<section id="id52">
-<h3>Returns<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<section id="id58">
+<h3>Returns<a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with the following entries:</p>
 <ul class="simple">
@@ -1412,8 +1525,8 @@ explicitly or generated randomly).</p></li>
 </dd>
 </dl>
 </section>
-<section id="id53">
-<h3>Notes<a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<section id="id59">
+<h3>Notes<a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>This method detects only <em>steady states</em> (fixed points). If the
 asynchronous dynamics contain limit cycles, simulations may fail
@@ -1439,8 +1552,8 @@ or a maximum number of update steps is exceeded.</p>
 <p>The method is sampling-based and does <em>not</em> guarantee that all reachable
 steady states are found. It is intended for exploratory analysis and for
 networks where exhaustive asynchronous analysis is infeasible.</p>
-<section id="id54">
-<h3>Parameters<a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
+<section id="id60">
+<h3>Parameters<a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>initial_condition<span class="classifier">int or sequence of int, optional</span></dt><dd><p>Initial network state. If an integer is provided, it is interpreted as
 the decimal encoding of a Boolean state. If a sequence is provided, it
@@ -1460,8 +1573,8 @@ internally. If None (default), nodes are updated uniformly at random.</p>
 </dd>
 </dl>
 </section>
-<section id="id55">
-<h3>Returns<a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
+<section id="id61">
+<h3>Returns<a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with the following entries:</p>
 <ul class="simple">
@@ -1484,8 +1597,8 @@ For each simulation, the sequence of visited states (in decimal form).</p></li>
 </dd>
 </dl>
 </section>
-<section id="id56">
-<h3>Notes<a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
+<section id="id62">
+<h3>Notes<a class="headerlink" href="#id62" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Only steady states (fixed points) are detected. If the asynchronous
 dynamics contain limit cycles, simulations may fail to converge within
@@ -1504,8 +1617,8 @@ only transitions encountered during sampling.</p></li>
 <p>A strongly connected component (SCC) is a maximal set of nodes such that
 every node in the set is reachable from every other node via directed
 paths.</p>
-<section id="id57">
-<h3>Returns<a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
+<section id="id63">
+<h3>Returns<a class="headerlink" href="#id63" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>list of set of int</dt><dd><p>List of strongly connected components, where each component is
 represented as a set of node indices.</p>
@@ -1528,8 +1641,8 @@ network, for each basin of attraction, and for each attractor.</p>
 <p>This computation requires memory and time proportional to <code class="docutils literal notranslate"><span class="pre">2**N</span></code> and
 is intended for small-to-moderate networks (e.g., <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">≈</span> <span class="pre">18</span></code> on typical 
 hardware).</p>
-<section id="id58">
-<h3>Returns<a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
+<section id="id64">
+<h3>Returns<a class="headerlink" href="#id64" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dict</dt><dd><p>Dictionary with the following keys:</p>
 <ul class="simple">
@@ -1593,6 +1706,24 @@ attractor state based on the stationary distribution).</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_terminal_sccs_asynchronous_exact">
+<span class="sig-name descname"><span class="pre">get_terminal_sccs_asynchronous_exact</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_terminal_sccs_asynchronous_exact" title="Link to this definition"></a></dt>
+<dd><p>Compute the terminal strongly connected components of the asynchronous STG.</p>
+<p>A terminal SCC is a strongly connected component with no outgoing
+transitions to states outside the component. Terminal SCCs correspond
+to asynchronous attractors, including both steady states and cyclic
+attractors.</p>
+<p>Results are cached after the first computation.</p>
+<section id="id65">
+<h3>Returns<a class="headerlink" href="#id65" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>list of list of int</dt><dd><p>Terminal SCCs represented as lists of decimal-encoded states.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_trajectories">
 <span class="sig-name descname"><span class="pre">get_trajectories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transient_input_sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic_input_sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_trajectories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_states_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_trajectories" title="Link to this definition"></a></dt>
 <dd><p>Compute synchronous trajectories of the Boolean network given a 
@@ -1612,8 +1743,8 @@ even when the same network state appears at different input phases.</p>
 <li><p>A non-periodic prefix (possibly empty),</p></li>
 <li><p>Followed by a single instance of the periodic cycle.</p></li>
 </ul>
-<section id="id59">
-<h3>Parameters<a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
+<section id="id66">
+<h3>Parameters<a class="headerlink" href="#id66" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>transient_input_sequence<span class="classifier">sequence of sequence of int</span></dt><dd><p>External input values applied during the transient phase.
 Each inner sequence corresponds to one external (identity)
@@ -1636,8 +1767,8 @@ If None, all states in the full state space (size 2^N) are used.</p>
 </dd>
 </dl>
 </section>
-<section id="id60">
-<h3>Returns<a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
+<section id="id67">
+<h3>Returns<a class="headerlink" href="#id67" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>result<span class="classifier">networkx.DiGraph or list</span></dt><dd><dl class="simple">
 <dt>If merge_trajectories is True:</dt><dd><p>A directed graph representing the merged trajectories,
@@ -1669,14 +1800,38 @@ cycle_length entries of trajectory).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.get_transient_lengths_exact">
 <span class="sig-name descname"><span class="pre">get_transient_lengths_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_numba</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.get_transient_lengths_exact" title="Link to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>Compute exact transient length using:</dt><dd><ul class="simple">
-<li><p>Full STG from get_attractors_synchronous_exact()</p></li>
-<li><p>Attractors (cycle states) from get_attractors_synchronous_exact()</p></li>
-</ul>
+<dd><p>Compute the exact transient length of every state under synchronous updating.</p>
+<p>The transient length of a state is the number of update steps required
+to reach an attractor. States belonging to an attractor have transient
+length 0.</p>
+<p>This method first computes the exact synchronous attractors and then
+determines the shortest distance from every state to an attractor in
+the synchronous state transition graph (STG).</p>
+<section id="id68">
+<h3>Parameters<a class="headerlink" href="#id68" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>use_numba<span class="classifier">bool, optional</span></dt><dd><p>If True (default) and Numba is available, use a compiled kernel
+for transient-length computation.</p>
 </dd>
 </dl>
-<p>This avoids indegree-pruning because cycle states are given explicitly.</p>
+</section>
+<section id="id69">
+<h3>Returns<a class="headerlink" href="#id69" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Array of length <code class="docutils literal notranslate"><span class="pre">2**N</span></code> where entry <code class="docutils literal notranslate"><span class="pre">i</span></code> gives the transient
+length of state <code class="docutils literal notranslate"><span class="pre">i</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id70">
+<h3>Notes<a class="headerlink" href="#id70" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>This method requires the exact synchronous state transition graph
+and is therefore intended for small-to-moderate networks only.</p></li>
+<li><p>Attractor states, including all states belonging to cyclic
+attractors, are assigned transient length 0.</p></li>
+</ul>
+</section>
 </dd></dl>
 
 <dl class="py method">
@@ -1694,8 +1849,8 @@ circular layout.</p></li>
 </dl>
 <p>By default, the largest SCCs of size &gt;= <code class="docutils literal notranslate"><span class="pre">min_scc_size</span></code> are expanded,
 up to <code class="docutils literal notranslate"><span class="pre">max_expanded_sccs</span></code>.</p>
-<section id="id61">
-<h3>Parameters<a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
+<section id="id71">
+<h3>Parameters<a class="headerlink" href="#id71" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>max_expanded_sccs<span class="classifier">int, default=4</span></dt><dd><p>Maximum number of SCCs to expand and show in detail.</p>
 </dd>
@@ -1707,8 +1862,8 @@ up to <code class="docutils literal notranslate"><span class="pre">max_expanded_
 </dd>
 </dl>
 </section>
-<section id="id62">
-<h3>Returns<a class="headerlink" href="#id62" title="Link to this heading"></a></h3>
+<section id="id72">
+<h3>Returns<a class="headerlink" href="#id72" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>The created figure.</p>
 </dd>
@@ -1724,8 +1879,8 @@ up to <code class="docutils literal notranslate"><span class="pre">max_expanded_
 yielding a directed acyclic graph (DAG). Each node in the plot represents one SCC.</p>
 <p>The layout is hierarchical (top-to-bottom) using topological generations, making
 feed-forward structure visually apparent, while condensing feedback loops.</p>
-<section id="id63">
-<h3>Parameters<a class="headerlink" href="#id63" title="Link to this heading"></a></h3>
+<section id="id73">
+<h3>Parameters<a class="headerlink" href="#id73" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>ax<span class="classifier">matplotlib.axes.Axes, optional</span></dt><dd><p>Axis to draw on. If None, a new figure and axis are created.</p>
 </dd>
@@ -1739,8 +1894,8 @@ feed-forward structure visually apparent, while condensing feedback loops.</p>
 </dd>
 </dl>
 </section>
-<section id="id64">
-<h3>Returns<a class="headerlink" href="#id64" title="Link to this heading"></a></h3>
+<section id="id74">
+<h3>Returns<a class="headerlink" href="#id74" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>The axis containing the plot.</p>
 </dd>
@@ -1754,8 +1909,8 @@ feed-forward structure visually apparent, while condensing feedback loops.</p>
 <dd><p>Convert the wiring diagram into a NetworkX directed graph.</p>
 <p>A directed edge <code class="docutils literal notranslate"><span class="pre">u</span> <span class="pre">-&gt;</span> <span class="pre">v</span></code> indicates that node <code class="docutils literal notranslate"><span class="pre">u</span></code>
 regulates node <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
-<section id="id65">
-<h3>Parameters<a class="headerlink" href="#id65" title="Link to this heading"></a></h3>
+<section id="id75">
+<h3>Parameters<a class="headerlink" href="#id75" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>use_variable_names<span class="classifier">bool, optional</span></dt><dd><p>If True (default), nodes are labeled using the variable names stored in
 <code class="docutils literal notranslate"><span class="pre">self.variables</span></code>. If False, nodes are labeled by integer indices
@@ -1763,8 +1918,8 @@ regulates node <code class="docutils literal notranslate"><span class="pre">v</s
 </dd>
 </dl>
 </section>
-<section id="id66">
-<h3>Returns<a class="headerlink" href="#id66" title="Link to this heading"></a></h3>
+<section id="id76">
+<h3>Returns<a class="headerlink" href="#id76" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>nx.DiGraph</dt><dd><p>Directed graph representing the wiring diagram. If interaction weights
 are present, they are stored as edge attributes under the key
@@ -1772,8 +1927,8 @@ are present, they are stored as edge attributes under the key
 </dd>
 </dl>
 </section>
-<section id="id67">
-<h3>Notes<a class="headerlink" href="#id67" title="Link to this heading"></a></h3>
+<section id="id77">
+<h3>Notes<a class="headerlink" href="#id77" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>The node ordering follows the internal ordering of the wiring diagram.</p></li>
 <li><p>Incoming edges of node <code class="docutils literal notranslate"><span class="pre">i</span></code> correspond to the regulators listed in
@@ -1790,8 +1945,8 @@ are present, they are stored as edge attributes under the key
 <p>This compatibility method returns a string representation of the Boolean
 network in the BNET format used by tools such as BoolNet and PyBoolNet,
 with one line per variable of the form <code class="docutils literal notranslate"><span class="pre">variable</span> <span class="pre">,&lt;tab&gt;</span> <span class="pre">function</span></code>.</p>
-<section id="id68">
-<h3>Parameters<a class="headerlink" href="#id68" title="Link to this heading"></a></h3>
+<section id="id78">
+<h3>Parameters<a class="headerlink" href="#id78" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>as_polynomial<span class="classifier">bool, optional</span></dt><dd><p>If True (default), return Boolean functions in polynomial form.
 If False, return functions as logical expressions.</p>
@@ -1804,15 +1959,15 @@ If False, return functions as logical expressions.</p>
 </dd>
 </dl>
 </section>
-<section id="id69">
-<h3>Returns<a class="headerlink" href="#id69" title="Link to this heading"></a></h3>
+<section id="id79">
+<h3>Returns<a class="headerlink" href="#id79" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>str</dt><dd><p>A string containing the BNET representation of the network.</p>
 </dd>
 </dl>
 </section>
-<section id="id70">
-<h3>Notes<a class="headerlink" href="#id70" title="Link to this heading"></a></h3>
+<section id="id80">
+<h3>Notes<a class="headerlink" href="#id80" title="Link to this heading"></a></h3>
 <p>This method exports the reduced Boolean network, i.e. after semantic
 constants have been removed during initialization.</p>
 </section>
@@ -1826,15 +1981,15 @@ constants have been removed during initialization.</p>
 equivalent representation from the <code class="docutils literal notranslate"><span class="pre">cana</span></code> package. The exported network
 reflects the current state of the model, including any removed constants,
 simplifications, or identity self-loops.</p>
-<section id="id71">
-<h3>Returns<a class="headerlink" href="#id71" title="Link to this heading"></a></h3>
+<section id="id81">
+<h3>Returns<a class="headerlink" href="#id81" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>cana.boolean_network.BooleanNetwork</dt><dd><p>A <code class="docutils literal notranslate"><span class="pre">cana</span></code> BooleanNetwork instance representing this network.</p>
 </dd>
 </dl>
 </section>
-<section id="id72">
-<h3>Raises<a class="headerlink" href="#id72" title="Link to this heading"></a></h3>
+<section id="id82">
+<h3>Raises<a class="headerlink" href="#id82" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>ImportError</dt><dd><p>If the <code class="docutils literal notranslate"><span class="pre">cana</span></code> package is not installed.</p>
 </dd>
@@ -1848,8 +2003,8 @@ simplifications, or identity self-loops.</p>
 <dd><p>Export the Boolean network in string format.</p>
 <p>This compatibility method returns a string representation of the Boolean
 network, with one line per variable of the form variable &lt;separator&gt; function.</p>
-<section id="id73">
-<h3>Parameters<a class="headerlink" href="#id73" title="Link to this heading"></a></h3>
+<section id="id83">
+<h3>Parameters<a class="headerlink" href="#id83" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>separator<span class="classifier">str, optional</span></dt><dd><p>String used to separate the target variable from its update function.
 Default is <cite>“,t”</cite>.</p>
@@ -1865,15 +2020,15 @@ If False, return functions as logical expressions.</p>
 </dd>
 </dl>
 </section>
-<section id="id74">
-<h3>Returns<a class="headerlink" href="#id74" title="Link to this heading"></a></h3>
+<section id="id84">
+<h3>Returns<a class="headerlink" href="#id84" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>str</dt><dd><p>A string describing the network.</p>
 </dd>
 </dl>
 </section>
-<section id="id75">
-<h3>Notes<a class="headerlink" href="#id75" title="Link to this heading"></a></h3>
+<section id="id85">
+<h3>Notes<a class="headerlink" href="#id85" title="Link to this heading"></a></h3>
 <p>This method exports the reduced Boolean network, i.e. after semantic
 constants have been removed during initialization.</p>
 </section>
@@ -1885,8 +2040,8 @@ constants have been removed during initialization.</p>
 <dd><p>Construct the full synchronous truth table of the Boolean network.</p>
 <p>Each row corresponds to a network state at time <code class="docutils literal notranslate"><span class="pre">t</span></code> and its deterministic
 successor at time <code class="docutils literal notranslate"><span class="pre">t+1</span></code> under synchronous updating.</p>
-<section id="id76">
-<h3>Parameters<a class="headerlink" href="#id76" title="Link to this heading"></a></h3>
+<section id="id86">
+<h3>Parameters<a class="headerlink" href="#id86" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>filename<span class="classifier">str, optional</span></dt><dd><p>If provided, the truth table is written to a file. The file extension
 determines the format and must be one of <code class="docutils literal notranslate"><span class="pre">'csv'</span></code>, <code class="docutils literal notranslate"><span class="pre">'xls'</span></code>, or
@@ -1894,15 +2049,15 @@ determines the format and must be one of <code class="docutils literal notransla
 </dd>
 </dl>
 </section>
-<section id="id77">
-<h3>Returns<a class="headerlink" href="#id77" title="Link to this heading"></a></h3>
+<section id="id87">
+<h3>Returns<a class="headerlink" href="#id87" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>pandas.DataFrame</dt><dd><p>The full truth table with shape <code class="docutils literal notranslate"><span class="pre">(2**N,</span> <span class="pre">2*N)</span></code>.</p>
 </dd>
 </dl>
 </section>
-<section id="id78">
-<h3>Notes<a class="headerlink" href="#id78" title="Link to this heading"></a></h3>
+<section id="id88">
+<h3>Notes<a class="headerlink" href="#id88" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>States are enumerated in lexicographic order, consistent with
 <code class="docutils literal notranslate"><span class="pre">utils.get_left_side_of_truth_table</span></code>.</p></li>
@@ -1923,8 +2078,8 @@ increase the node’s state, the change occurs with the node-specific
 activation probability. If the update would decrease the node’s state,
 the change occurs with the node-specific degradation probability.
 Otherwise, the node’s state remains unchanged.</p>
-<section id="id79">
-<h3>Parameters<a class="headerlink" href="#id79" title="Link to this heading"></a></h3>
+<section id="id89">
+<h3>Parameters<a class="headerlink" href="#id89" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>state<span class="classifier">sequence of int</span></dt><dd><p>Current network state (binary vector of length <code class="docutils literal notranslate"><span class="pre">N</span></code>).</p>
 </dd>
@@ -1935,15 +2090,15 @@ probability and <code class="docutils literal notranslate"><span class="pre">P[i
 </dd>
 </dl>
 </section>
-<section id="id80">
-<h3>Returns<a class="headerlink" href="#id80" title="Link to this heading"></a></h3>
+<section id="id90">
+<h3>Returns<a class="headerlink" href="#id90" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray</dt><dd><p>Updated network state after one stochastic SDDS update.</p>
 </dd>
 </dl>
 </section>
-<section id="id81">
-<h3>Notes<a class="headerlink" href="#id81" title="Link to this heading"></a></h3>
+<section id="id91">
+<h3>Notes<a class="headerlink" href="#id91" title="Link to this heading"></a></h3>
 <p>This implementation follows the SDDS framework introduced in:</p>
 <p>Murrugarra, D., Veliz-Cuba, A., Aguilar, B., Arat, S., &amp; Laubenbacher, R.
 (2012). <em>Modeling stochasticity and variability in gene regulatory networks</em>.
@@ -1958,15 +2113,15 @@ for performance reasons.</p>
 <dt class="sig sig-object py" id="boolforge.boolean_network.BooleanNetwork.update_network_synchronously">
 <span class="sig-name descname"><span class="pre">update_network_synchronously</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#boolforge.boolean_network.BooleanNetwork.update_network_synchronously" title="Link to this definition"></a></dt>
 <dd><p>Perform a synchronous update of the Boolean network.</p>
-<section id="id82">
-<h3>Parameters<a class="headerlink" href="#id82" title="Link to this heading"></a></h3>
+<section id="id92">
+<h3>Parameters<a class="headerlink" href="#id92" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>state<span class="classifier">sequence of int</span></dt><dd><p>Binary state vector of length <code class="docutils literal notranslate"><span class="pre">N</span></code>.</p>
 </dd>
 </dl>
 </section>
-<section id="id83">
-<h3>Returns<a class="headerlink" href="#id83" title="Link to this heading"></a></h3>
+<section id="id93">
+<h3>Returns<a class="headerlink" href="#id93" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray</dt><dd><p>Updated state vector.</p>
 </dd>
@@ -1980,8 +2135,8 @@ for performance reasons.</p>
 <dd><p>Update the state of a single node.</p>
 <p>The new state is obtained by applying the Boolean update function to the
 states of its regulators.</p>
-<section id="id84">
-<h3>Parameters<a class="headerlink" href="#id84" title="Link to this heading"></a></h3>
+<section id="id94">
+<h3>Parameters<a class="headerlink" href="#id94" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>index<span class="classifier">int</span></dt><dd><p>Index of the node to update.</p>
 </dd>
@@ -1989,8 +2144,8 @@ states of its regulators.</p>
 </dd>
 </dl>
 </section>
-<section id="id85">
-<h3>Returns<a class="headerlink" href="#id85" title="Link to this heading"></a></h3>
+<section id="id95">
+<h3>Returns<a class="headerlink" href="#id95" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>int</dt><dd><p>Updated state of the node (0 or 1).</p>
 </dd>
@@ -2009,8 +2164,8 @@ states of its regulators.</p>
 The Shannon entropy is then computed as</p>
 <p><code class="docutils literal notranslate"><span class="pre">H</span> <span class="pre">=</span> <span class="pre">-sum(p_i</span> <span class="pre">*</span> <span class="pre">log(p_i))</span></code>,</p>
 <p>where <code class="docutils literal notranslate"><span class="pre">p_i</span></code> is the proportion of states in basin <code class="docutils literal notranslate"><span class="pre">i</span></code>.</p>
-<section id="id86">
-<h2>Parameters<a class="headerlink" href="#id86" title="Link to this heading"></a></h2>
+<section id="id96">
+<h2>Parameters<a class="headerlink" href="#id96" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>basin_sizes<span class="classifier">Sequence[float]</span></dt><dd><p>Sizes of the basins of attraction (raw counts or normalized weights),
 where each entry gives the number or proportion of initial conditions
@@ -2018,8 +2173,8 @@ that converge to a given attractor.</p>
 </dd>
 </dl>
 </section>
-<section id="id87">
-<h2>Returns<a class="headerlink" href="#id87" title="Link to this heading"></a></h2>
+<section id="id97">
+<h2>Returns<a class="headerlink" href="#id97" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>float</dt><dd><p>Shannon entropy of the basin size distribution.</p>
 </dd>
