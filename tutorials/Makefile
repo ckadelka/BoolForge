@@ -1,63 +1,99 @@
 # ==========================================
-# BoolForge tutorial pipeline (src â†’ outputs)
+# BoolForge tutorial pipeline
 # ==========================================
 
-# Canonical sources
-PY_TUTORIALS := $(wildcard tutorials/src/tutorial*.py)
+# Source tutorials
+PY_TUTORIALS := $(wildcard src/tutorial*.py)
 
-# Generated notebooks (same basename, different folder)
-IPYNBS := $(patsubst tutorials/src/%.py,tutorials/%.ipynb,$(PY_TUTORIALS))
+# Output directories
+IPYNB_DIR := tutorials_ipynb
+HTML_DIR := tutorials_html
+
+# Generated notebooks
+IPYNB_FILES := $(patsubst src/%.py,$(IPYNB_DIR)/%.ipynb,$(PY_TUTORIALS))
+
+# Generated HTML files
+HTML_FILES := $(patsubst $(IPYNB_DIR)/%.ipynb,$(HTML_DIR)/%.html,$(IPYNB_FILES))
 
 # Execution timeout (seconds)
 TIMEOUT := 300
 
-.PHONY: tutorials html clean distclean
+.PHONY: tutorials html pdf supplement clean print
 
 # ------------------------------------------
-# Convert + execute all tutorials
+# Main target
 # ------------------------------------------
-tutorials: $(IPYNBS)
-	@echo "âœ… All tutorials converted and executed successfully."
 
-# Rule: src/*.py â†’ tutorials/*.ipynb â†’ executed
-tutorials/%.ipynb: tutorials/src/%.py
-	@echo "â–¶ Converting $< â†’ $@"
+tutorials: $(IPYNB_FILES)
+	@echo "All tutorials converted and executed successfully."
+
+# ------------------------------------------
+# Directory creation
+# ------------------------------------------
+
+$(IPYNB_DIR):
+	mkdir -p $(IPYNB_DIR)
+
+$(HTML_DIR):
+	mkdir -p $(HTML_DIR)
+
+# ------------------------------------------
+# Notebook generation
+# ------------------------------------------
+
+$(IPYNB_DIR)/%.ipynb: src/%.py | $(IPYNB_DIR)
+	@echo "Converting $< → $@"
 	jupytext --to notebook $< --output $@
-	@echo "â–¶ Executing $@"
+	@echo "Executing $@"
 	jupyter nbconvert \
-	  --execute \
-	  --to notebook \
-	  --inplace \
-	  --ExecutePreprocessor.timeout=$(TIMEOUT) \
-	  $@
+		--execute \
+		--to notebook \
+		--inplace \
+		--ExecutePreprocessor.timeout=$(TIMEOUT) \
+		$@
 
 # ------------------------------------------
-# Render HTML previews
+# HTML generation
 # ------------------------------------------
-html: tutorials
-	@echo "â–¶ Rendering HTML previews"
-	jupyter nbconvert --to html $(IPYNBS)
+
+$(HTML_DIR)/%.html: $(IPYNB_DIR)/%.ipynb | $(HTML_DIR)
+	@echo "Rendering $@"
+	jupyter nbconvert \
+		--to html \
+		$< \
+		--output-dir=$(HTML_DIR)
+
+html: $(HTML_FILES)
+	@echo "Created HTML files."
 
 # ------------------------------------------
-# Clean generated artifacts
+# PDF generation
 # ------------------------------------------
+
+pdf: tutorials
+	./build_tutorials.sh standalone
+
+supplement: tutorials
+	./build_tutorials.sh supplement
+
+# ------------------------------------------
+# Diagnostics
+# ------------------------------------------
+
+print:
+	@echo "PY_TUTORIALS:"
+	@echo $(PY_TUTORIALS)
+	@echo
+	@echo "IPYNB_FILES:"
+	@echo $(IPYNB_FILES)
+	@echo
+	@echo "HTML_FILES:"
+	@echo $(HTML_FILES)
+
+# ------------------------------------------
+# Cleaning
+# ------------------------------------------
+
 clean:
-	rm -f tutorials/*.html
-
-distclean:
-	rm -f tutorials/*.ipynb tutorials/*.html
-	
-# ------------------------------------------
-# Create pdfs
-# ------------------------------------------
-.PHONY: tutorial_pdfs
-
-tutorial_pdfs:
-	@mkdir -p tutorials/pdf
-	@ls tutorials/*.ipynb | xargs -n 1 -P 4 sh -c '\
-		echo "▶ Converting $$0 → PDF"; \
-		jupyter nbconvert --to webpdf \
-		  --HTMLExporter.extra_css="[\"pre { white-space: pre-wrap !important; word-break: break-word !important; }\"]" \
-		  --TemplateExporter.exclude_input_prompt=True \
-		  "$$0" --output-dir tutorials/pdf \
-	'
+	rm -rf $(IPYNB_DIR)
+	rm -rf $(HTML_DIR)
